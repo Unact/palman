@@ -1,0 +1,69 @@
+part of 'goods_info_page.dart';
+
+enum GoodsInfoStateStatus {
+  initial,
+  dataLoaded,
+  pricelistUpdated,
+  priceUpdated
+}
+
+class GoodsInfoState {
+  GoodsInfoState({
+    this.status = GoodsInfoStateStatus.initial,
+    required this.date,
+    required this.buyer,
+    required this.goodsEx,
+    this.goodsShipments = const [],
+    this.goodsPricelists = const [],
+    this.partnersPrices = const [],
+    this.partnersPricelists = const [],
+    this.pref
+  });
+
+  final GoodsInfoStateStatus status;
+
+  final DateTime date;
+  final Buyer buyer;
+  final GoodsExResult goodsEx;
+  final List<GoodsShipmentsResult> goodsShipments;
+  final List<GoodsPricelistsResult> goodsPricelists;
+  final List<PartnersPrice> partnersPrices;
+  final List<PartnersPricelist> partnersPricelists;
+  final Pref? pref;
+
+  bool get showLocalImage => pref?.showLocalImage ?? true;
+
+  PartnersPricelist? get curPartnerPricelist => partnersPricelists.firstWhereOrNull(
+    (e) => goodsPricelists.map((e) => e.id).contains(e.pricelistId)
+  );
+  GoodsPricelistsResult? get curGoodsPricelist => goodsPricelists.firstWhereOrNull(
+    (e) => partnersPricelists.map((e) => e.pricelistId).contains(e.id)
+  );
+  PartnersPrice? get curPartnersPrice => partnersPrices.firstOrNull;
+
+  bool get needSync => (curPartnerPricelist?.needSync ?? false) || (curPartnersPrice?.needSync ?? false);
+
+  GoodsInfoState copyWith({
+    GoodsInfoStateStatus? status,
+    DateTime? date,
+    Buyer? buyer,
+    GoodsExResult? goodsEx,
+    List<GoodsShipmentsResult>? goodsShipments,
+    List<GoodsPricelistsResult>? goodsPricelists,
+    List<PartnersPrice>? partnersPrices,
+    List<PartnersPricelist>? partnersPricelists,
+    Pref? pref
+  }) {
+    return GoodsInfoState(
+      status: status ?? this.status,
+      date: date ?? this.date,
+      buyer: buyer ?? this.buyer,
+      goodsEx: goodsEx ?? this.goodsEx,
+      goodsShipments: goodsShipments ?? this.goodsShipments,
+      goodsPricelists: goodsPricelists ?? this.goodsPricelists,
+      partnersPrices: partnersPrices ?? this.partnersPrices,
+      partnersPricelists: partnersPricelists ?? this.partnersPricelists,
+      pref: pref ?? this.pref
+    );
+  }
+}

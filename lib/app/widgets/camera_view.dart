@@ -1,0 +1,205 @@
+import 'package:camera/camera.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
+
+class CameraView extends StatefulWidget {
+  final Function(String) onError;
+  final Function(XFile) onTakePicture;
+
+  const CameraView({
+    required this.onError,
+    required this.onTakePicture,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  State<CameraView> createState() => _CameraViewState();
+}
+
+class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
+  static const int _kMaxFileSize = 1024 * 1024 * 2;
+
+  List<CameraDescription> _cameras = [];
+  CameraController? _controller;
+  bool _flashOn = false;
+  CameraDescription? _backCamera;
+  CameraDescription? _frontCamera;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // App state changed before we got the chance to initialize.
+    if (_controller == null || !_controller!.value.isInitialized) {
+      return;
+    }
+
+    if (state == AppLifecycleState.inactive) {
+      _controller!.dispose();
+    } else if (state == AppLifecycleState.resumed) {
+      _controller = CameraController(
+        _controller!.description,
+        ResolutionPreset.medium,
+        enableAudio: false,
+        imageFormatGroup: ImageFormatGroup.yuv420
+      );
+    }
+  }
+
+  @override
+  void initState() {
+    _initCameras();
+    super.initState();
+  }
+
+  Future<void> _initCameras() async {
+    _cameras = await availableCameras();
+
+    if (_cameras.isEmpty) {
+      widget.onError('Нет доступных камер');
+
+      Navigator.of(context).pop();
+      return;
+    }
+
+    final backCameras = _cameras.where((el) => el.lensDirection == CameraLensDirection.back);
+    final frontCameras = _cameras.where((el) => el.lensDirection == CameraLensDirection.front);
+
+    _backCamera = backCameras.isNotEmpty ? backCameras.first : null;
+    _frontCamera = frontCameras.isNotEmpty ? frontCameras.first : null;
+
+    await _setDefaultCamera();
+  }
+
+  Future<void> _setDefaultCamera() async {
+    _setCamera(_backCamera ?? _cameras[0]);
+  }
+
+  Future<void> _setCamera(CameraDescription camera) async {
+    _controller = CameraController(
+      camera,
+      ResolutionPreset.medium,
+      enableAudio: false,
+      imageFormatGroup: ImageFormatGroup.yuv420
+    );
+
+    try {
+      await _controller!.initialize();
+
+      if (!mounted) return;
+      setState(() {});
+    } on CameraException catch(e) {
+      switch (e.code) {
+        case 'CameraAccessDenied':
+          widget.onError('Не разрешена работа с камерой');
+          break;
+        default:
+          widget.onError('Произошла ошибка: ${e.code} - ${e.description ?? ''}');
+          break;
+      }
+      Navigator.of(context).pop();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double scale = MediaQuery.of(context).size.aspectRatio * (_controller?.value.aspectRatio ?? 1);
+    if (scale < 1) scale = 1 / scale;
+
+    Widget body = !(_controller?.value.isInitialized ?? false) ?
+      Container() :
+      Transform.scale(scale: scale, child: Center(child: CameraPreview(_controller!)));
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        actions: [
+          IconButton(
+            tooltip: 'Вспышка',
+            color: Colors.white,
+            icon: const Icon(Icons.flash_on),
+            onPressed: () async {
+              if (_flashOn) {
+                _controller!.setFlashMode(FlashMode.off);
+                _flashOn = false;
+              } else {
+                _controller!.setFlashMode(FlashMode.torch);
+                _flashOn = true;
+              }
+            }
+          ),
+          _frontCamera == null ? null : IconButton(
+            tooltip: 'Поменять камеру',
+            color: Colors.white,
+            icon: const Icon(Icons.switch_camera),
+            onPressed: () async {
+              if (_frontCamera != null && _controller!.description != _frontCamera) {
+                _setCamera(_frontCamera!);
+                return;
+              }
+
+              if (_backCamera != null && _controller!.description != _backCamera) {
+                _setCamera(_backCamera!);
+                return;
+              }
+            }
+          )
+        ].whereType<Widget>().toList()
+      ),
+      body: body,
+      extendBodyBehindAppBar: true,
+      floatingActionButton: FloatingActionButton(
+        foregroundColor: Colors.black,
+        backgroundColor: Colors.white,
+        onPressed: () async {
+          if (!(_controller?.value.isInitialized ?? false)) return;
+
+          try {
+
+            final picture = await _controller!.takePicture();
+            final compressedPicture = await compressFile(picture);
+
+
+            if (compressedPicture != null) {
+
+              widget.onTakePicture(compressedPicture);
+            } else {
+              widget.onError('Произошла ошибка: Не удалось сохранить фотографию');
+            }
+
+            Navigator.of(context).pop();
+          } on CameraException catch (e) {
+            widget.onError('Произошла ошибка: ${e.code} - ${e.description ?? ''}');
+          } on CompressError catch (e) {
+            widget.onError('Произошла ошибка: ${e.message}');
+          }
+        },
+        child: const Icon(Icons.camera_alt,),
+      ),
+    );
+  }
+
+  Future<XFile?> compressFile(XFile? file, [int quality = 100]) async {
+    if (file == null || quality <= 10) return null;
+    if (await file.length() <= _kMaxFileSize) return file;
+    quality -= 10;
+
+    return compressFile(await _compress(file, quality), quality);
+  }
+
+  Future<XFile?> _compress(XFile file, int quality) async {
+    final directory = await getTemporaryDirectory();
+
+    return await FlutterImageCompress.compressAndGetFile(
+      file.path,
+      "${directory.path}/$quality-${file.name}",
+      quality: quality,
+      numberOfRetries: 1
+    );
+  }
+}
