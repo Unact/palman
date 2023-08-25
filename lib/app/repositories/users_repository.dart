@@ -31,13 +31,14 @@ class UsersRepository extends BaseRepository {
   Future<void> login(String url, String login, String password) async {
     try {
       await api.login(url: url, login: login, password: password);
-      await loadUserData();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
       await Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
     }
+
+    await loadUserData();
   }
 
   Future<void> logout() async {

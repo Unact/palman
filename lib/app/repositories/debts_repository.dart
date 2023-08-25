@@ -84,7 +84,6 @@ class DebtsRepository extends BaseRepository {
         encashments,
         (e) => dataStore.debtsDao.updateEncashment(e.id, const EncashmentsCompanion(needSync: Value(false)))
       );
-      await loadDebts();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -93,6 +92,8 @@ class DebtsRepository extends BaseRepository {
     } finally {
       await blockEncashments(false);
     }
+
+    await loadDebts();
   }
 
   Future<Deposit> addDeposit(List<EncashmentEx> encashmentExList) async {

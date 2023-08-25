@@ -58,7 +58,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
     await saveChangesBackground();
 
-    syncTimer = Timer(const Duration(minutes: 10), saveChangesBackground);
+    syncTimer = Timer.periodic(const Duration(minutes: 10), saveChangesBackground);
   }
 
   @override
@@ -104,6 +104,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   }
 
   Future<void> _syncChanges() async {
+    await locationsRepository.syncChanges();
+
     final futures = [
       pointsRepository.syncChanges(),
       debtsRepository.syncChanges(),
@@ -112,11 +114,10 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       shipmentsRepository.syncChanges()
     ];
 
-    await locationsRepository.syncChanges();
     await Future.wait(futures);
   }
 
-  Future<void> saveChangesBackground() async {
+  Future<void> saveChangesBackground([Timer? _]) async {
     if (state.isBusy) return;
 
     emit(state.copyWith(status: InfoStateStatus.syncInProgress, isBusy: true));
@@ -180,6 +181,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
         forceLocationManager: true,
         intervalDuration: const Duration(seconds: 10),
         foregroundNotificationConfig: const ForegroundNotificationConfig(
+          notificationIcon: AndroidResource(name: 'launcher_icon', defType: 'mipmap'),
           notificationText: 'Приложение продолжит получать информацию о местоположении',
           notificationTitle: 'Работа на заднем фоне',
           enableWakeLock: true,

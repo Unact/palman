@@ -85,7 +85,6 @@ class PricesRepository extends BaseRepository {
           const PartnersPricelistsCompanion(needSync: Value(false))
         )
       );
-      await loadPrices();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -94,6 +93,8 @@ class PricesRepository extends BaseRepository {
     } finally {
       await blockPrices(false);
     }
+
+    await loadPrices();
   }
 
   Future<List<GoodsPricelistsResult>> getGoodsPricelists({

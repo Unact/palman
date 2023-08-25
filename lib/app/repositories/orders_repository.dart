@@ -173,7 +173,6 @@ class OrdersRepository extends BaseRepository {
         orderLines,
         (e) => dataStore.ordersDao.updateOrderLine(e.id, const OrderLinesCompanion(needSync: Value(false)))
       );
-      await loadOrders();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -182,6 +181,8 @@ class OrdersRepository extends BaseRepository {
     } finally {
       await blockOrders(false);
     }
+
+    await loadOrders();
   }
 
   Future<List<Goods>> getGoods({

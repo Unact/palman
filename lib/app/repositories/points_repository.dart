@@ -254,7 +254,6 @@ class PointsRepository extends BaseRepository {
         pointImages,
         (e) => dataStore.pointsDao.updatePointImage(e.id, const PointImagesCompanion(needSync: Value(false)))
       );
-      await loadPoints();
       await Future.forEach(pointImages, (e) => File(p.join(directory.path, e.imagePath)).delete());
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
@@ -264,6 +263,8 @@ class PointsRepository extends BaseRepository {
     } finally {
       await blockPoints(false);
     }
+
+    await loadPoints();
   }
 
   Future<void> clearFiles() async {

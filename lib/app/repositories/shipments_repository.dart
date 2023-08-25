@@ -61,7 +61,6 @@ class ShipmentsRepository extends BaseRepository {
         incRequests,
         (e) => dataStore.shipmentsDao.updateIncRequest(e.id, const IncRequestsCompanion(needSync: Value(false)))
       );
-      await loadShipments();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -70,6 +69,8 @@ class ShipmentsRepository extends BaseRepository {
     } finally {
       await blockIncRequests(false);
     }
+
+    await loadShipments();
   }
 
   Future<List<IncRequestEx>> getIncRequestExList() async {
