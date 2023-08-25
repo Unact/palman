@@ -49,7 +49,7 @@ class _GoodsView extends StatefulWidget {
   _GoodsViewState createState() => _GoodsViewState();
 }
 
-class _GoodsViewState extends State<_GoodsView> with TickerProviderStateMixin {
+class _GoodsViewState extends State<_GoodsView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
   AutoScrollController controller = AutoScrollController();
   TreeViewController? categoryTreeController;

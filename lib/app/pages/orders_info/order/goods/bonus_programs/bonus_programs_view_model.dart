@@ -52,6 +52,8 @@ class BonusProgramsViewModel extends PageViewModel<BonusProgramsState, BonusProg
   }
 
   Future<void> _searchBonusPrograms() async {
+    emit(state.copyWith(status: BonusProgramsStateStatus.searchStarted));
+
     final bonusPrograms = await ordersRepository.getBonusPrograms(
       buyerId: state.buyer.id,
       date: state.date,
@@ -60,6 +62,6 @@ class BonusProgramsViewModel extends PageViewModel<BonusProgramsState, BonusProg
       goodsId: state.goodsEx?.goods.id
     );
 
-    emit(state.copyWith(bonusPrograms: bonusPrograms));
+    emit(state.copyWith(status: BonusProgramsStateStatus.searchFinished, bonusPrograms: bonusPrograms));
   }
 }

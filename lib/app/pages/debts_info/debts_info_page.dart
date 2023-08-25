@@ -37,7 +37,7 @@ class _DebtsInfoView extends StatefulWidget {
   _DebtsInfoViewState createState() => _DebtsInfoViewState();
 }
 
-class _DebtsInfoViewState extends State<_DebtsInfoView> with TickerProviderStateMixin {
+class _DebtsInfoViewState extends State<_DebtsInfoView> {
   Future<void> showDepositConfirmationDialog() async {
     final vm = context.read<DebtsInfoViewModel>();
     final encWithoutDeposit = vm.state.encashmentExList.where((e) => e.deposit == null);

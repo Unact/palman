@@ -40,7 +40,7 @@ class _PreOrderView extends StatefulWidget {
   _PreOrderViewState createState() => _PreOrderViewState();
 }
 
-class _PreOrderViewState extends State<_PreOrderView> with TickerProviderStateMixin {
+class _PreOrderViewState extends State<_PreOrderView> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<PreOrderViewModel, PreOrderState>(

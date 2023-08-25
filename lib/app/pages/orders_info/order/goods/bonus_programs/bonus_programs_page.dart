@@ -6,6 +6,7 @@ import '/app/constants/styles.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/orders_repository.dart';
+import '/app/widgets/widgets.dart';
 
 part 'bonus_programs_state.dart';
 part 'bonus_programs_view_model.dart';
@@ -44,10 +45,12 @@ class _BonusProgramsView extends StatefulWidget {
   _BonusProgramsViewState createState() => _BonusProgramsViewState();
 }
 
-class _BonusProgramsViewState extends State<_BonusProgramsView> with TickerProviderStateMixin {
+class _BonusProgramsViewState extends State<_BonusProgramsView> {
+  late final ProgressDialog progressDialog = ProgressDialog(context: context);
+
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<BonusProgramsViewModel, BonusProgramsState>(
+    return BlocConsumer<BonusProgramsViewModel, BonusProgramsState>(
       builder: (context, state) {
         final vm = context.read<BonusProgramsViewModel>();
 
@@ -65,6 +68,17 @@ class _BonusProgramsViewState extends State<_BonusProgramsView> with TickerProvi
             children: vm.state.bonusPrograms.map((e) => buildBonusProgramTile(context, e)).toList()
           )
         );
+      },
+      listener: (context, state) async {
+        switch (state.status) {
+          case BonusProgramsStateStatus.searchStarted:
+            await progressDialog.open();
+            break;
+          case BonusProgramsStateStatus.searchFinished:
+            progressDialog.close();
+            break;
+          default:
+        }
       }
     );
   }

@@ -2,7 +2,9 @@ part of 'bonus_programs_page.dart';
 
 enum BonusProgramsStateStatus {
   initial,
-  dataLoaded
+  dataLoaded,
+  searchStarted,
+  searchFinished
 }
 
 class BonusProgramsState {

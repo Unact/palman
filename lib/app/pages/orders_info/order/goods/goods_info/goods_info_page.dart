@@ -49,7 +49,7 @@ class _GoodsInfoView extends StatefulWidget {
   _GoodsInfoViewState createState() => _GoodsInfoViewState();
 }
 
-class _GoodsInfoViewState extends State<_GoodsInfoView> with TickerProviderStateMixin {
+class _GoodsInfoViewState extends State<_GoodsInfoView> {
   Future<void> showPriceChangeDialog() async {
     final vm = context.read<GoodsInfoViewModel>();
 

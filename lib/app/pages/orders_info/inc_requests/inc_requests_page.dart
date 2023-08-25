@@ -36,7 +36,7 @@ class _IncRequestsView extends StatefulWidget {
   _IncRequestsViewState createState() => _IncRequestsViewState();
 }
 
-class _IncRequestsViewState extends State<_IncRequestsView> with TickerProviderStateMixin {
+class _IncRequestsViewState extends State<_IncRequestsView> {
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<IncRequestsViewModel, IncRequestsState>(

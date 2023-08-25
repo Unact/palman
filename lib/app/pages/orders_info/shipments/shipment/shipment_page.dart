@@ -35,7 +35,7 @@ class _ShipmentView extends StatefulWidget {
   _ShipmentViewState createState() => _ShipmentViewState();
 }
 
-class _ShipmentViewState extends State<_ShipmentView> with TickerProviderStateMixin {
+class _ShipmentViewState extends State<_ShipmentView> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<ShipmentViewModel, ShipmentState>(

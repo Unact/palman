@@ -39,7 +39,7 @@ class _ShipmentsView extends StatefulWidget {
   _ShipmentsViewState createState() => _ShipmentsViewState();
 }
 
-class _ShipmentsViewState extends State<_ShipmentsView> with TickerProviderStateMixin {
+class _ShipmentsViewState extends State<_ShipmentsView> {
   final TextEditingController buyerController = TextEditingController();
 
   @override

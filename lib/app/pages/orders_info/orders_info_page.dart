@@ -30,7 +30,7 @@ class _OrdersInfoView extends StatefulWidget {
   _OrdersInfoViewState createState() => _OrdersInfoViewState();
 }
 
-class _OrdersInfoViewState extends State<_OrdersInfoView> with TickerProviderStateMixin {
+class _OrdersInfoViewState extends State<_OrdersInfoView> {
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<OrdersInfoViewModel, OrdersInfoState>(

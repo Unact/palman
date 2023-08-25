@@ -239,7 +239,7 @@ class PointsRepository extends BaseRepository {
           'latitude': i.latitude,
           'longitude': i.longitude,
           'accuracy': i.accuracy,
-          'timestamp': i.timestamp,
+          'timestamp': i.timestamp.toIso8601String(),
           'imageData': base64Encode(File(p.join(directory.path, i.imagePath)).readAsBytesSync())
         }).toList()
       }).toList();

@@ -46,7 +46,7 @@ class _OrderView extends StatefulWidget {
   _OrderViewState createState() => _OrderViewState();
 }
 
-class _OrderViewState extends State<_OrderView> with TickerProviderStateMixin {
+class _OrderViewState extends State<_OrderView> {
   TextEditingController? buyerController;
 
   Future<void> showDateDialog() async {

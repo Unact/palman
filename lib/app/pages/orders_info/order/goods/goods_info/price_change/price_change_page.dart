@@ -52,7 +52,7 @@ class _PriceChangeView extends StatefulWidget {
   _PriceChangeViewState createState() => _PriceChangeViewState();
 }
 
-class _PriceChangeViewState extends State<_PriceChangeView> with TickerProviderStateMixin {
+class _PriceChangeViewState extends State<_PriceChangeView> {
   TextEditingController? controller;
   final endOfTime = DateTime(9999, 1, 1);
 

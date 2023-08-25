@@ -108,12 +108,14 @@ class _CameraViewState extends State<CameraView> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    double scale = MediaQuery.of(context).size.aspectRatio * (_controller?.value.aspectRatio ?? 1);
+    final initialized = _controller?.value.isInitialized ?? false;
+    double aspectRatio = initialized ? (_controller?.value.aspectRatio ?? 1) : 1;
+    double scale = MediaQuery.of(context).size.aspectRatio * aspectRatio;
     if (scale < 1) scale = 1 / scale;
 
-    Widget body = !(_controller?.value.isInitialized ?? false) ?
-      Container() :
-      Transform.scale(scale: scale, child: Center(child: CameraPreview(_controller!)));
+    Widget body = initialized ?
+      Transform.scale(scale: scale, child: Center(child: CameraPreview(_controller!))) :
+      Container();
 
     return Scaffold(
       appBar: AppBar(
