@@ -39,15 +39,12 @@ class ShipmentsRepository extends BaseRepository {
     notifyListeners();
   }
 
-  Future<void> syncChanges() async {
-    final incRequests = await dataStore.shipmentsDao.getIncRequestsForSync();
-
+  Future<void> syncIncRequests(List<IncRequest> incRequests) async {
     if (incRequests.isEmpty) return;
 
-    await blockIncRequests(true);
-
     try {
-      List<Map<String, dynamic>> data = incRequests.map((e) => {
+      List<Map<String, dynamic>> incRequestsData = incRequests.map((e) => {
+        'guid': e.guid,
         'timestamp': e.timestamp.toIso8601String(),
         'info': e.info,
         'buyerId': e.buyerId,
@@ -55,22 +52,34 @@ class ShipmentsRepository extends BaseRepository {
         'incSum': e.incSum
       }).toList();
 
-      await api.saveShipments(data);
-
-      await Future.forEach(
-        incRequests,
-        (e) => dataStore.shipmentsDao.updateIncRequest(e.id, const IncRequestsCompanion(needSync: Value(false)))
-      );
+      final data = await api.saveShipments(incRequestsData);
+      await dataStore.transaction(() async {
+        for (var incRequest in incRequests) {
+          await dataStore.shipmentsDao.deleteIncRequest(incRequest.id);
+        }
+        for (var apiIncRequest in data.incRequests) {
+          final companion = apiIncRequest.toDatabaseEnt().toCompanion(false).copyWith(id: const Value.absent());
+          await dataStore.shipmentsDao.addIncRequest(companion);
+        }
+      });
+      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
       Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
+  Future<void> syncChanges() async {
+    final incRequests = await dataStore.shipmentsDao.getIncRequestsForSync();
+
+    try {
+      await blockIncRequests(true);
+      await syncIncRequests(incRequests);
     } finally {
       await blockIncRequests(false);
     }
-
-    await loadShipments();
   }
 
   Future<List<IncRequestEx>> getIncRequestExList() async {
@@ -117,6 +126,7 @@ class ShipmentsRepository extends BaseRepository {
       date: date == null ? const Value.absent() : Value(date.orNull),
       info: info == null ? const Value.absent() : Value(info.orNull),
       incSum: incSum == null ? const Value.absent() : Value(incSum.orNull),
+      timestamp: Value(DateTime.now()),
       needSync: needSync == null ? const Value.absent() : Value(needSync.value),
     );
 

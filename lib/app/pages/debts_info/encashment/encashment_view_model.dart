@@ -12,7 +12,7 @@ class EncashmentViewModel extends PageViewModel<EncashmentState, EncashmentState
 
   @override
   Future<void> initViewModel() async {
-    await debtsRepository.blockEncashments(true);
+    await debtsRepository.blockDeposits(true);
 
     await super.initViewModel();
   }
@@ -31,7 +31,7 @@ class EncashmentViewModel extends PageViewModel<EncashmentState, EncashmentState
   Future<void> close() async {
     await super.close();
 
-    await debtsRepository.blockEncashments(false);
+    await debtsRepository.blockDeposits(false);
   }
 
   Future<void> updateEncSum(double? encSum) async {

@@ -76,14 +76,24 @@ part 'users_dao.dart';
     'appInfo': '''
       SELECT
         prefs.*,
-        (SELECT COUNT(*) FROM points WHERE need_sync = 1) +
-        (SELECT COUNT(*) FROM point_images WHERE need_sync = 1) +
+        (
+          SELECT COUNT(*)
+          FROM points
+          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM point_images WHERE point_id = points.id AND need_sync = 1)
+        ) +
+        (
+          SELECT COUNT(*)
+          FROM deposits
+          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND need_sync = 1)
+        ) +
+        (
+          SELECT COUNT(*)
+          FROM orders
+          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM order_lines WHERE order_id = orders.id AND need_sync = 1)
+        ) +
         (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) +
-        (SELECT COUNT(*) FROM encashments WHERE need_sync = 1) +
         (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) +
-        (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) +
-        (SELECT COUNT(*) FROM orders WHERE need_sync = 1) +
-        (SELECT COUNT(*) FROM order_lines WHERE need_sync = 1) AS "sync_total",
+        (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS "sync_total",
         (SELECT COUNT(*) FROM points) AS "points_total",
         (SELECT COUNT(*) FROM encashments) AS "encashments_total",
         (SELECT COUNT(*) FROM shipments) AS "shipments_total",
@@ -191,7 +201,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

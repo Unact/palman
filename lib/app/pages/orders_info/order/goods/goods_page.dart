@@ -345,35 +345,38 @@ class _GoodsViewState extends State<_GoodsView> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          SegmentedButton(
-            segments: const <ButtonSegment<bool>>[
-              ButtonSegment<bool>(value: true, label: Text('ТМ', style: Styles.formStyle)),
-              ButtonSegment<bool>(value: false, label: Text('Название', style: Styles.formStyle))
-            ],
-            showSelectedIcon: false,
-            selected: {vm.state.groupByManufacturer},
-            onSelectionChanged: vm.changeGroupByManufacturer,
-            style: const ButtonStyle(
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity(horizontal: 0, vertical: 0),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            SegmentedButton(
+              segments: const <ButtonSegment<bool>>[
+                ButtonSegment<bool>(value: true, label: Text('ТМ', style: Styles.formStyle)),
+                ButtonSegment<bool>(value: false, label: Text('Название', style: Styles.formStyle))
+              ],
+              showSelectedIcon: false,
+              selected: {vm.state.groupByManufacturer},
+              onSelectionChanged: vm.changeGroupByManufacturer,
+              style: const ButtonStyle(
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                visualDensity: VisualDensity(horizontal: 0, vertical: 0),
+              ),
             ),
-          ),
-          IconButton(
-            icon: vm.state.showGoodsImage ? const Icon(Icons.image) : const Icon(Icons.image_outlined),
-            onPressed: vm.toggleShowGoodsImage,
-            tooltip: 'Отобразить фото',
-          ),
-          IconButton(
-            icon: vm.state.showGroupInfo ? const Icon(Icons.book) : const Icon(Icons.book_outlined),
-            onPressed: vm.toggleShowGroupInfo,
-            tooltip: 'Отобразить индекс'
-          ),
-          Text('Сумма: ${Format.numberStr(vm.state.total)}', style: Styles.formStyle)
-        ]
+            IconButton(
+              icon: vm.state.showGoodsImage ? const Icon(Icons.image) : const Icon(Icons.image_outlined),
+              onPressed: vm.toggleShowGoodsImage,
+              tooltip: 'Отобразить фото',
+            ),
+            IconButton(
+              icon: vm.state.showGroupInfo ? const Icon(Icons.book) : const Icon(Icons.book_outlined),
+              onPressed: vm.toggleShowGroupInfo,
+              tooltip: 'Отобразить индекс'
+            ),
+            Text('Сумма: ${Format.numberStr(vm.state.total)}', style: Styles.formStyle)
+          ]
+        )
       )
     );
   }
@@ -555,7 +558,7 @@ class _GoodsViewState extends State<_GoodsView> {
     if (controller.text != volStr) controller.text = volStr;
 
     return SizedBox(
-      width: 120,
+      width: 140,
       child: NumTextField(
         enabled: enabled,
         textAlign: TextAlign.center,

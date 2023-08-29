@@ -3,7 +3,10 @@ part of 'order_page.dart';
 enum OrderStateStatus {
   initial,
   dataLoaded,
-  orderUpdated
+  orderUpdated,
+  saveInProgress,
+  saveFailure,
+  saveSuccess
 }
 
 class OrderState {
@@ -11,6 +14,7 @@ class OrderState {
     this.status = OrderStateStatus.initial,
     required this.orderEx,
     this.user,
+    this.message = '',
     this.linesExList = const [],
     this.workdates = const [],
     this.buyers = const []
@@ -20,6 +24,7 @@ class OrderState {
 
   final User? user;
   final OrderExResult orderEx;
+  final String message;
   final List<OrderLineEx> linesExList;
   final List<Workdate> workdates;
   final List<Buyer> buyers;
@@ -29,9 +34,12 @@ class OrderState {
 
   bool get preOrderMode => user?.preOrderMode ?? false;
 
+  bool get needSync => orderEx.order.needSync || linesExList.any((e) => e.line.needSync);
+
   OrderState copyWith({
     OrderStateStatus? status,
     User? user,
+    String? message,
     OrderExResult? orderEx,
     List<OrderLineEx>? linesExList,
     List<Workdate>? workdates,
@@ -40,6 +48,7 @@ class OrderState {
     return OrderState(
       status: status ?? this.status,
       user: user ?? this.user,
+      message: message ?? this.message,
       orderEx: orderEx ?? this.orderEx,
       linesExList: linesExList ?? this.linesExList,
       workdates: workdates ?? this.workdates,

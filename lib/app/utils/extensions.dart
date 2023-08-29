@@ -29,3 +29,9 @@ extension DoubleRounding on double {
     }
   }
 }
+
+extension DateTimeX on DateTime {
+  DateTime date() {
+    return DateTime(year, month, day);
+  }
+}

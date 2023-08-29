@@ -5,7 +5,10 @@ enum PointStateStatus {
   dataLoaded,
   pointUpdated,
   cameraError,
-  cameraOpened
+  cameraOpened,
+  saveInProgress,
+  saveFailure,
+  saveSuccess
 }
 
 class PointState {
@@ -24,6 +27,8 @@ class PointState {
   final Pref? pref;
 
   bool get showLocalImage => pref?.showLocalImage ?? true;
+
+  bool get needSync => pointEx.point.needSync || pointEx.images.any((e) => e.needSync);
 
   PointState copyWith({
     PointStateStatus? status,

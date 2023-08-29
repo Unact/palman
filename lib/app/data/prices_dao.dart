@@ -121,6 +121,14 @@ class PricesDao extends DatabaseAccessor<AppDataStore> with _$PricesDaoMixin {
     await db._loadData(goodsPartnersPricelists, list);
   }
 
+  Future<void> deletePartnersPrice(int partnersPriceId) async {
+    await (delete(partnersPrices)..where((tbl) => tbl.id.equals(partnersPriceId))).go();
+  }
+
+  Future<void> deletePartnersPricelist(int partnersPricelistId) async {
+    await (delete(partnersPricelists)..where((tbl) => tbl.id.equals(partnersPricelistId))).go();
+  }
+
   Future<void> updatePartnersPricelist(int id, PartnersPricelistsCompanion updatedPartnersPricelist) async {
     await (update(partnersPricelists)..where((tbl) => tbl.id.equals(id))).write(updatedPartnersPricelist);
   }
@@ -131,6 +139,10 @@ class PricesDao extends DatabaseAccessor<AppDataStore> with _$PricesDaoMixin {
 
   Future<int> addPartnersPrice(PartnersPricesCompanion newPartnersPrice) async {
     return await into(partnersPrices).insert(newPartnersPrice);
+  }
+
+  Future<int> addPartnersPricelist(PartnersPricelistsCompanion newPartnersPricelist) async {
+    return await into(partnersPricelists).insert(newPartnersPricelist);
   }
 
   Future<List<PartnersPricelist>> getPartnersPricelistsForSync() async {

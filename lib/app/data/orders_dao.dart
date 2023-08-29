@@ -208,11 +208,7 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
         ..where((tbl) => tbl.isBlocked.equals(false))
     );
 
-    return (
-      select(orderLines)
-        ..where((tbl) => tbl.needSync.equals(true))
-        ..where((tbl) => hasUnblockedOrder)
-    ).get();
+    return (select(orderLines)..where((tbl) => hasUnblockedOrder)).get();
   }
 
   Future<List<Goods>> getAllGoodsWithImage() async {
@@ -295,8 +291,8 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     )).toList();
   }
 
-  Future<OrderExResult> getOrderEx(int orderId) async {
-    return (await orderEx().get()).firstWhere((e) => e.order.id == orderId);
+  Future<OrderExResult?> getOrderEx(int orderId) async {
+    return (await orderEx().get()).firstWhereOrNull((e) => e.order.id == orderId);
   }
 
   Future<List<OrderExResult>> getOrderExList() async {

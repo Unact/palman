@@ -25,7 +25,7 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
   }
 
   Future<void> createDeposit() async {
-    await debtsRepository.addDeposit(state.encWithoutDeposit);
+    await debtsRepository.depositEncashments(DateTime.now().date(), state.encWithoutDeposit);
   }
 
   Future<void> createEncashment(DebtEx debtEx) async {

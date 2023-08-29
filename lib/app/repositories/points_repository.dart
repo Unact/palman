@@ -25,7 +25,7 @@ class PointsRepository extends BaseRepository {
     return p.join(_kPointsFileFolder, '$id.jpg');
   }
 
-  Future<PointEx> getPointEx(int id) {
+  Future<PointEx?> getPointEx(int id) {
     return dataStore.pointsDao.getPointEx(id);
   }
 
@@ -43,11 +43,11 @@ class PointsRepository extends BaseRepository {
 
   Future<void> loadPoints() async {
     try {
-      final apiPoints = await api.getPoints();
+      final data = await api.getPoints();
 
       await dataStore.transaction(() async {
-        final points = apiPoints.map((e) => e.toDatabaseEnt()).toList();
-        final pointImages = apiPoints
+        final points = data.points.map((e) => e.toDatabaseEnt()).toList();
+        final pointImages = data.points
           .map((e) => e.images.map((i) => i.toDatabaseEnt(e.id))).expand((e) => e)
           .map((e) => e.copyWith(imagePath: getPointImagePath(e.id)))
           .toList();
@@ -100,7 +100,7 @@ class PointsRepository extends BaseRepository {
 
     notifyListeners();
 
-    return point;
+    return point!;
   }
 
   Future<void> addPointImage(Point point, {
@@ -170,6 +170,7 @@ class PointsRepository extends BaseRepository {
       maxdebt: maxdebt == null ? const Value.absent() : Value(maxdebt.value),
       nds10: nds10 == null ? const Value.absent() : Value(nds10.value),
       nds20: nds20 == null ? const Value.absent() : Value(nds20.value),
+      timestamp: Value(DateTime.now()),
       needSync: needSync == null ? const Value.absent() : Value(needSync.value),
     );
 
@@ -205,17 +206,12 @@ class PointsRepository extends BaseRepository {
     notifyListeners();
   }
 
-  Future<void> syncChanges() async {
-    final points = await dataStore.pointsDao.getPointsForSync();
-    final pointImages = await dataStore.pointsDao.getPointImagesForSync();
-
-    if (points.isEmpty) return;
-
-    await blockPoints(true);
+  Future<List<PointEx>> syncPoints(List<Point> points, List<PointImage> pointImages) async {
+    if (points.isEmpty) return [];
 
     try {
       final directory = await getApplicationDocumentsDirectory();
-      List<Map<String, dynamic>> data = points.map((e) => {
+      List<Map<String, dynamic>> pointsData = points.map((e) => {
         'guid': e.guid,
         'timestamp': e.timestamp.toIso8601String(),
         'name': e.name,
@@ -236,35 +232,62 @@ class PointsRepository extends BaseRepository {
         'nds10': e.nds10,
         'nds20': e.nds20,
         'images': pointImages.where((i) => i.pointId == e.id).map((i) => {
+          'guid': i.guid,
           'latitude': i.latitude,
           'longitude': i.longitude,
           'accuracy': i.accuracy,
           'timestamp': i.timestamp.toIso8601String(),
-          'imageData': base64Encode(File(p.join(directory.path, i.imagePath)).readAsBytesSync())
+          'imageData': File(p.join(directory.path, i.imagePath)).existsSync() ?
+            base64Encode(File(p.join(directory.path, i.imagePath)).readAsBytesSync()) :
+            null
         }).toList()
       }).toList();
 
-      await api.savePoints(data);
+      final data = await api.savePoints(pointsData);
+      final ids = [];
+      await dataStore.transaction(() async {
+        for (var point in points) {
+          await dataStore.pointsDao.deletePoint(point.id);
+        }
+        for (var pointImage in pointImages) {
+          await dataStore.pointsDao.deletePointImage(pointImage.id);
+        }
+        for (var apiPoint in data.points) {
+          final pointsCompanion = apiPoint.toDatabaseEnt().toCompanion(false).copyWith(id: const Value.absent());
+          final id = await dataStore.pointsDao.addPoint(pointsCompanion);
+          final apiPointImages = apiPoint.images.map((i) => i.toDatabaseEnt(id)).toList();
 
-      await Future.forEach(
-        points,
-        (e) => dataStore.pointsDao.updatePoint(e.id, const PointsCompanion(needSync: Value(false)))
-      );
-      await Future.forEach(
-        pointImages,
-        (e) => dataStore.pointsDao.updatePointImage(e.id, const PointImagesCompanion(needSync: Value(false)))
-      );
-      await Future.forEach(pointImages, (e) => File(p.join(directory.path, e.imagePath)).delete());
+          for (var apiPointImage in apiPointImages) {
+            final pointImagesCompanion = apiPointImage.toCompanion(false).copyWith(id: const Value.absent());
+            await dataStore.pointsDao.addPointImage(pointImagesCompanion);
+          }
+          ids.add(id);
+        }
+      });
+      for (var e in pointImages) {
+        await File(p.join(directory.path, e.imagePath)).delete();
+      }
+      notifyListeners();
+
+      return (await dataStore.pointsDao.getPointExList()).where((e) => ids.contains(e.point.id)).toList();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
       Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
+  Future<void> syncChanges() async {
+    final points = await dataStore.pointsDao.getPointsForSync();
+    final pointImages = await dataStore.pointsDao.getPointImagesForSync();
+
+    try {
+      await blockPoints(true);
+      await syncPoints(points, pointImages);
     } finally {
       await blockPoints(false);
     }
-
-    await loadPoints();
   }
 
   Future<void> clearFiles() async {
@@ -273,6 +296,8 @@ class PointsRepository extends BaseRepository {
     final pathDirectory = await Directory(path).create(recursive: true);
     final filePaths = (pathDirectory.listSync()).map((e) => e.path).toSet();
 
-    await Future.forEach(filePaths, (filePath) => File(filePath).delete());
+    for (var filePath in filePaths) {
+      await File(filePath).delete();
+    }
   }
 }

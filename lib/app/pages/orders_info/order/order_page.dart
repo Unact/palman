@@ -4,13 +4,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:quiver/core.dart';
 
+import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
+import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/partners_repository.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/utils/misc.dart';
 import '/app/widgets/widgets.dart';
 import '/app/utils/format.dart';
 import 'goods/goods_page.dart';
@@ -47,6 +50,7 @@ class _OrderView extends StatefulWidget {
 }
 
 class _OrderViewState extends State<_OrderView> {
+  late final ProgressDialog progressDialog = ProgressDialog(context: context);
   TextEditingController? buyerController;
 
   Future<void> showDateDialog() async {
@@ -69,7 +73,7 @@ class _OrderViewState extends State<_OrderView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<OrderViewModel, OrderState>(
+    return BlocConsumer<OrderViewModel, OrderState>(
       builder: (context, state) {
         final vm = context.read<OrderViewModel>();
         buyerController ??= TextEditingController(
@@ -79,6 +83,15 @@ class _OrderViewState extends State<_OrderView> {
         return Scaffold(
           appBar: AppBar(
             title: const Text('Заказ'),
+            actions: [
+              IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.save),
+                splashRadius: 12,
+                tooltip: 'Сохранить изменения',
+                onPressed: state.needSync ? vm.save : null
+              )
+            ],
           ),
           floatingActionButton: !state.orderEx.order.isEditable ? null : FloatingActionButton(
             heroTag: null,
@@ -92,7 +105,20 @@ class _OrderViewState extends State<_OrderView> {
             )
           ),
         );
-      }
+      },
+      listener: (context, state) {
+        switch (state.status) {
+          case OrderStateStatus.saveInProgress:
+            progressDialog.open();
+            break;
+          case OrderStateStatus.saveFailure:
+          case OrderStateStatus.saveSuccess:
+            Misc.showMessage(context, state.message);
+            progressDialog.close();
+            break;
+          default:
+        }
+      },
     );
   }
 

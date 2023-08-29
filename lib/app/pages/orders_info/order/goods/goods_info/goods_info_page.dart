@@ -10,6 +10,7 @@ import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/prices_repository.dart';
 import '/app/utils/format.dart';
+import '/app/utils/extensions.dart';
 import '/app/widgets/widgets.dart';
 import 'price_change/price_change_page.dart';
 
@@ -55,14 +56,12 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
 
     if (vm.state.curPartnersPrice?.isBlocked ?? false) return;
 
-    final now = DateTime.now();
-    final today = DateTime(now.year, now.month, now.day);
     final result = await showDialog<(DateTime dateFrom, DateTime dateTo, double price)>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) => PriceChangePage(
         price: vm.state.curPartnersPrice?.price,
-        dateFrom: today,
+        dateFrom: DateTime.now().date(),
         dateTo: vm.state.curPartnersPrice?.dateTo,
         goodsEx: vm.state.goodsEx,
         goodsPricelist: vm.state.curGoodsPricelist!

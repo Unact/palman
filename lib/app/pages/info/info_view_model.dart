@@ -94,7 +94,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   Future<void> _unblockEntities() async {
     final futures = [
       pointsRepository.blockPoints(false),
-      debtsRepository.blockEncashments(false),
+      debtsRepository.blockDeposits(false),
       ordersRepository.blockOrders(false),
       pricesRepository.blockPrices(false),
       shipmentsRepository.blockIncRequests(false)
@@ -139,7 +139,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     try {
       await _syncChanges();
 
-      emit(state.copyWith(status: InfoStateStatus.saveSuccess, message: 'Изменения успешно сохранены', isBusy: false));
+      emit(state.copyWith(status: InfoStateStatus.saveSuccess, message: Strings.changesSaved, isBusy: false));
     } on AppError catch(e) {
       emit(state.copyWith(status: InfoStateStatus.saveFailure, message: e.message, isBusy: false));
     }

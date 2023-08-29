@@ -8,6 +8,7 @@ import 'package:quiver/core.dart';
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
+import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/points_repository.dart';
@@ -46,6 +47,7 @@ class _PointView extends StatefulWidget {
 }
 
 class _PointViewState extends State<_PointView> {
+  late final ProgressDialog progressDialog = ProgressDialog(context: context);
   TextEditingController? numberOfCdesksController;
   TextEditingController? maxDebtController;
   TextEditingController? nds10Controller;
@@ -99,7 +101,16 @@ class _PointViewState extends State<_PointView> {
 
         return Scaffold(
           appBar: AppBar(
-            title: Text(state.pointEx.point.buyerName)
+            title: const Text('Точка'),
+            actions: [
+              IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.save),
+                splashRadius: 12,
+                tooltip: 'Сохранить изменения',
+                onPressed: state.needSync ? vm.save : null
+              )
+            ],
           ),
           body: Padding(
             padding: const EdgeInsets.symmetric(vertical: 16),
@@ -122,6 +133,14 @@ class _PointViewState extends State<_PointView> {
             break;
           case PointStateStatus.cameraOpened:
             await showCameraView();
+            break;
+          case PointStateStatus.saveInProgress:
+            progressDialog.open();
+            break;
+          case PointStateStatus.saveFailure:
+          case PointStateStatus.saveSuccess:
+            Misc.showMessage(context, state.message);
+            progressDialog.close();
             break;
           default:
         }

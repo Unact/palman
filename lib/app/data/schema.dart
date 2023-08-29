@@ -94,7 +94,6 @@ class Encashments extends Table {
   IntColumn get depositId => integer().nullable()();
   RealColumn get encSum => real().nullable()();
 
-  BoolColumn get isBlocked => boolean()();
   TextColumn get guid => text().nullable()();
   DateTimeColumn get timestamp => dateTime()();
   BoolColumn get needSync => boolean()();
@@ -114,10 +113,14 @@ class Debts extends Table {
 
 class Deposits extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get guid => text().nullable()();
   DateTimeColumn get date => dateTime()();
   RealColumn get totalSum => real()();
   RealColumn get checkTotalSum => real()();
+
+  BoolColumn get isBlocked => boolean()();
+  TextColumn get guid => text().nullable()();
+  DateTimeColumn get timestamp => dateTime()();
+  BoolColumn get needSync => boolean()();
 }
 
 class Shipments extends Table {

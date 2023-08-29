@@ -12,8 +12,8 @@ part of 'database.dart';
 class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
   DebtsDao(AppDataStore db) : super(db);
 
-  Future<void> blockEncashments(bool block) async {
-    await update(encashments).write(EncashmentsCompanion(isBlocked: Value(block)));
+  Future<void> blockDeposits(bool block) async {
+    await update(deposits).write(DepositsCompanion(isBlocked: Value(block)));
   }
 
   Future<void> loadDebts(List<Debt> list) async {
@@ -32,6 +32,10 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     return await into(deposits).insert(newDeposit);
   }
 
+  Future<void> updateDeposit(int id, DepositsCompanion updatedDeposit) async {
+    await (update(deposits)..where((tbl) => tbl.id.equals(id))).write(updatedDeposit);
+  }
+
   Future<int> addEncashment(EncashmentsCompanion newEncashment) async {
     return await into(encashments).insert(newEncashment);
   }
@@ -44,14 +48,34 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     await (delete(encashments)..where((tbl) => tbl.id.equals(encashmentId))).go();
   }
 
+  Future<void> deleteDeposit(int depositId) async {
+    await (delete(deposits)..where((tbl) => tbl.id.equals(depositId))).go();
+  }
+
   Future<void> updateDebt(int id, DebtsCompanion updatedDebt) async {
     await (update(debts)..where((tbl) => tbl.id.equals(id))).write(updatedDebt);
   }
 
   Future<List<Encashment>> getEncashmentsForSync() async {
-    return (
+    final hasUnblockedDeposit = existsQuery(
+      select(deposits)
+        ..where((tbl) => tbl.id.equalsExp(encashments.depositId))
+        ..where((tbl) => tbl.isBlocked.equals(false))
+    );
+
+    return (select(encashments)..where((tbl) => hasUnblockedDeposit)).get();
+  }
+
+  Future<List<Deposit>> getDepositsForSync() async {
+    final hasEncashmentToSync = existsQuery(
       select(encashments)
+        ..where((tbl) => tbl.depositId.equalsExp(deposits.id))
         ..where((tbl) => tbl.needSync.equals(true))
+    );
+
+    return (
+      select(deposits)
+        ..where((tbl) => tbl.needSync.equals(true) | hasEncashmentToSync)
         ..where((tbl) => tbl.isBlocked.equals(false))
     ).get();
   }

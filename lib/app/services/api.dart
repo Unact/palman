@@ -112,8 +112,8 @@ class Api {
     return ApiPricesData.fromJson(await _sendRequest(() => _dio.get('v1/palman/prices')));
   }
 
-  Future<List<ApiPoint>> getPoints() async {
-    return (await _sendRequest(() => _dio.get('v1/palman/points'))).map<ApiPoint>((e) => ApiPoint.fromJson(e)).toList();
+  Future<ApiPointsData> getPoints() async {
+    return ApiPointsData.fromJson(await _sendRequest(() => _dio.get('v1/palman/points')));
   }
 
   Future<ApiOrdersData> getOrders() async {
@@ -128,24 +128,24 @@ class Api {
     return ApiShipmentsData.fromJson(await _sendRequest(() => _dio.get('v1/palman/shipments')));
   }
 
-  Future<void> savePrices(Map<String, dynamic> prices) async {
-    await _sendRequest(() => _dio.post('v1/palman/prices/save', data: prices));
+  Future<ApiPricesData> savePrices(Map<String, dynamic> prices) async {
+    return ApiPricesData.fromJson(await _sendRequest(() => _dio.post('v1/palman/prices/save', data: prices)));
   }
 
-  Future<void> saveOrders(List<Map<String, dynamic>> orders) async {
-    await _sendRequest(() => _dio.post('v1/palman/orders/save', data: orders));
+  Future<ApiOrdersData> saveOrders(List<Map<String, dynamic>> orders) async {
+    return ApiOrdersData.fromJson(await _sendRequest(() => _dio.post('v1/palman/orders/save', data: orders)));
   }
 
-  Future<void> savePoints(List<Map<String, dynamic>> points) async {
-    await _sendRequest(() => _dio.post('v1/palman/points/save', data: points));
+  Future<ApiPointsData> savePoints(List<Map<String, dynamic>> points) async {
+    return ApiPointsData.fromJson(await _sendRequest(() => _dio.post('v1/palman/points/save', data: points)));
   }
 
-  Future<void> saveDebts(List<Map<String, dynamic>> debts) async {
-    await _sendRequest(() => _dio.post('v1/palman/debts/save', data: debts));
+  Future<ApiDebtsData> saveDebts(List<Map<String, dynamic>> debts) async {
+    return ApiDebtsData.fromJson(await _sendRequest(() => _dio.post('v1/palman/debts/save', data: debts)));
   }
 
-  Future<void> saveShipments(List<Map<String, dynamic>> shipments) async {
-    await _sendRequest(() => _dio.post('v1/palman/shipments/save', data: shipments));
+  Future<ApiShipmentsData> saveShipments(List<Map<String, dynamic>> shipments) async {
+    return ApiShipmentsData.fromJson(await _sendRequest(() => _dio.post('v1/palman/shipments/save', data: shipments)));
   }
 
   Future<void> locations(List<Map<String, dynamic>> locations) async {

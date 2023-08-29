@@ -10,6 +10,7 @@ import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/debts_repository.dart';
 import '/app/utils/format.dart';
+import '/app/utils/extensions.dart';
 import 'encashment/encashment_page.dart';
 
 part 'debts_info_state.dart';
@@ -156,6 +157,7 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
   Widget buildDepositTile(BuildContext context, Deposit deposit) {
     return ListTile(
       title: Text(Format.dateStr(deposit.date)),
+      trailing: deposit.needSync ? const Icon(Icons.sync, color: Colors.red) : null,
       subtitle: RichText(
         text: TextSpan(
           style: Styles.defaultTextSpan,
@@ -184,7 +186,6 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
   Widget buildEncashmentWithDepositTile(BuildContext context, EncashmentEx encashmentEx) {
     return ListTile(
       title: Text(encashmentEx.buyer.name),
-      trailing: encashmentEx.encashment.needSync ? const Icon(Icons.sync, color: Colors.red) : null,
       subtitle: RichText(
         text: TextSpan(
           style: Styles.defaultTextSpan,
@@ -217,7 +218,6 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
       onDismissed: (direction) => vm.deleteEncashment(encashmentEx),
       child: ListTile(
         title: Text(encashmentEx.buyer.name),
-        trailing: encashmentEx.encashment.needSync ? const Icon(Icons.sync, color: Colors.red) : null,
         subtitle: RichText(
           text: TextSpan(
             style: Styles.defaultTextSpan,

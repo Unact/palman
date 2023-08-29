@@ -36,13 +36,7 @@ class LocationsRepository extends BaseRepository {
     notifyListeners();
   }
 
-  Future<void> syncChanges() async {
-    await _syncLocationChanges();
-  }
-
-  Future<void> _syncLocationChanges() async {
-    final locations = await dataStore.getLocations();
-
+  Future<void> syncLocationChanges(List<Location> locations) async {
     if (locations.length < kMinLocationPoint) return;
 
     try {
@@ -57,7 +51,9 @@ class LocationsRepository extends BaseRepository {
       }).toList();
       await api.locations(locationsData);
 
-      await Future.forEach(locations, (e) => dataStore.deleteLocation(e.id));
+      for (var e in locations) {
+        await dataStore.deleteLocation(e.id);
+      }
       notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
@@ -65,5 +61,11 @@ class LocationsRepository extends BaseRepository {
       Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
     }
+  }
+
+  Future<void> syncChanges() async {
+    final locations = await dataStore.getLocations();
+
+    await syncLocationChanges(locations);
   }
 }

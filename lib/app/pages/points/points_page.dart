@@ -144,6 +144,9 @@ class _PointsViewState extends State<_PointsView> {
             .where((e) => e.point.latitude != null && e.point.longitude != null).toList();
           final latitudes = pointsWithCoords.map((e) => e.point.latitude!).toList();
           final longitudes = pointsWithCoords.map((e) => e.point.longitude!).toList();
+
+          if (latitudes.isEmpty || longitudes.isEmpty) return;
+
           ym.BoundingBox boundingBox = ym.BoundingBox(
             northEast: ym.Point(latitude: latitudes.reduce(max), longitude: longitudes.reduce(max)),
             southWest: ym.Point(latitude: latitudes.reduce(min), longitude: longitudes.reduce(min)),

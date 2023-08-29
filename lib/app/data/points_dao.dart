@@ -75,11 +75,7 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
         ..where((tbl) => tbl.isBlocked.equals(false))
     );
 
-    return (
-      select(pointImages)
-        ..where((tbl) => tbl.needSync.equals(true))
-        ..where((tbl) => hasUnblockedPoint)
-    ).get();
+    return (select(pointImages)..where((tbl) => hasUnblockedPoint)).get();
   }
 
   Future<List<PointImage>> getPointImages() async {
@@ -93,11 +89,11 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     return pointsRes.map((row) => PointEx(row, pointImagesRes.where((e) => e.pointId == row.id).toList())).toList();
   }
 
-  Future<PointEx> getPointEx(int id) async {
-    final pointsRes = await (select(points)..where((tbl) => tbl.id.equals(id))).getSingle();
+  Future<PointEx?> getPointEx(int id) async {
+    final pointsRes = await (select(points)..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
     final pointImagesRes = await (select(pointImages)..where((tbl) => tbl.pointId.equals(id))).get();
 
-    return PointEx(pointsRes, pointImagesRes);
+    return pointsRes != null ? PointEx(pointsRes, pointImagesRes) : null;
   }
 }
 

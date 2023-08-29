@@ -1,6 +1,6 @@
 class Strings {
   static const appName = 'Palman';
-  static const ruAppName = 'Торговик';
+  static const ruAppName = 'Продажи';
   static const envDevelopment = 'development';
   static const envProduction = 'production';
   static const optsLoginKeyword = '81234567890';
@@ -16,6 +16,7 @@ class Strings {
   static const locationPermissionError = 'Не разрешено использование местоположения';
   static const cameraPermissionError = 'Не разрешено использование камеры';
   static const newPointName = 'Новая точка';
+  static const changesSaved = 'Изменения успешно сохранены';
 
   static const pointReasonActive = 'active';
   static const pointReasonArchive = 'archive';

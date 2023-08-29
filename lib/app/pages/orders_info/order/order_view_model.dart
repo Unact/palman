@@ -127,6 +127,25 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     await ordersRepository.deleteOrderLine(orderLineEx.line);
   }
 
+  Future<void> save() async {
+    emit(state.copyWith(status: OrderStateStatus.saveInProgress));
+
+    try {
+      final orders = await ordersRepository.syncOrders(
+        [state.orderEx.order],
+        state.linesExList.where((e) => e.line.needSync).map((e) => e.line).toList()
+      );
+
+      emit(state.copyWith(
+        orderEx: orders.firstOrNull,
+        status: OrderStateStatus.saveSuccess,
+        message: Strings.changesSaved
+      ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: OrderStateStatus.saveFailure, message: e.message));
+    }
+  }
+
   void _notifyOrderUpdated() {
     emit(state.copyWith(status: OrderStateStatus.orderUpdated));
   }

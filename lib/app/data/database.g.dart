@@ -3139,18 +3139,6 @@ class $EncashmentsTable extends Encashments
   late final GeneratedColumn<double> encSum = GeneratedColumn<double>(
       'enc_sum', aliasedName, true,
       type: DriftSqlType.double, requiredDuringInsert: false);
-  static const VerificationMeta _isBlockedMeta =
-      const VerificationMeta('isBlocked');
-  @override
-  late final GeneratedColumn<bool> isBlocked =
-      GeneratedColumn<bool>('is_blocked', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_blocked" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
   static const VerificationMeta _guidMeta = const VerificationMeta('guid');
   @override
   late final GeneratedColumn<String> guid = GeneratedColumn<String>(
@@ -3183,7 +3171,6 @@ class $EncashmentsTable extends Encashments
         debtId,
         depositId,
         encSum,
-        isBlocked,
         guid,
         timestamp,
         needSync
@@ -3232,12 +3219,6 @@ class $EncashmentsTable extends Encashments
       context.handle(_encSumMeta,
           encSum.isAcceptableOrUnknown(data['enc_sum']!, _encSumMeta));
     }
-    if (data.containsKey('is_blocked')) {
-      context.handle(_isBlockedMeta,
-          isBlocked.isAcceptableOrUnknown(data['is_blocked']!, _isBlockedMeta));
-    } else if (isInserting) {
-      context.missing(_isBlockedMeta);
-    }
     if (data.containsKey('guid')) {
       context.handle(
           _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
@@ -3277,8 +3258,6 @@ class $EncashmentsTable extends Encashments
           .read(DriftSqlType.int, data['${effectivePrefix}deposit_id']),
       encSum: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}enc_sum']),
-      isBlocked: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_blocked'])!,
       guid: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}guid']),
       timestamp: attachedDatabase.typeMapping
@@ -3302,7 +3281,6 @@ class Encashment extends DataClass implements Insertable<Encashment> {
   final int debtId;
   final int? depositId;
   final double? encSum;
-  final bool isBlocked;
   final String? guid;
   final DateTime timestamp;
   final bool needSync;
@@ -3314,7 +3292,6 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       required this.debtId,
       this.depositId,
       this.encSum,
-      required this.isBlocked,
       this.guid,
       required this.timestamp,
       required this.needSync});
@@ -3332,7 +3309,6 @@ class Encashment extends DataClass implements Insertable<Encashment> {
     if (!nullToAbsent || encSum != null) {
       map['enc_sum'] = Variable<double>(encSum);
     }
-    map['is_blocked'] = Variable<bool>(isBlocked);
     if (!nullToAbsent || guid != null) {
       map['guid'] = Variable<String>(guid);
     }
@@ -3353,7 +3329,6 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           : Value(depositId),
       encSum:
           encSum == null && nullToAbsent ? const Value.absent() : Value(encSum),
-      isBlocked: Value(isBlocked),
       guid: guid == null && nullToAbsent ? const Value.absent() : Value(guid),
       timestamp: Value(timestamp),
       needSync: Value(needSync),
@@ -3371,7 +3346,6 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       debtId: serializer.fromJson<int>(json['debtId']),
       depositId: serializer.fromJson<int?>(json['depositId']),
       encSum: serializer.fromJson<double?>(json['encSum']),
-      isBlocked: serializer.fromJson<bool>(json['isBlocked']),
       guid: serializer.fromJson<String?>(json['guid']),
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       needSync: serializer.fromJson<bool>(json['needSync']),
@@ -3388,7 +3362,6 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       'debtId': serializer.toJson<int>(debtId),
       'depositId': serializer.toJson<int?>(depositId),
       'encSum': serializer.toJson<double?>(encSum),
-      'isBlocked': serializer.toJson<bool>(isBlocked),
       'guid': serializer.toJson<String?>(guid),
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'needSync': serializer.toJson<bool>(needSync),
@@ -3403,7 +3376,6 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           int? debtId,
           Value<int?> depositId = const Value.absent(),
           Value<double?> encSum = const Value.absent(),
-          bool? isBlocked,
           Value<String?> guid = const Value.absent(),
           DateTime? timestamp,
           bool? needSync}) =>
@@ -3415,7 +3387,6 @@ class Encashment extends DataClass implements Insertable<Encashment> {
         debtId: debtId ?? this.debtId,
         depositId: depositId.present ? depositId.value : this.depositId,
         encSum: encSum.present ? encSum.value : this.encSum,
-        isBlocked: isBlocked ?? this.isBlocked,
         guid: guid.present ? guid.value : this.guid,
         timestamp: timestamp ?? this.timestamp,
         needSync: needSync ?? this.needSync,
@@ -3430,7 +3401,6 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           ..write('debtId: $debtId, ')
           ..write('depositId: $depositId, ')
           ..write('encSum: $encSum, ')
-          ..write('isBlocked: $isBlocked, ')
           ..write('guid: $guid, ')
           ..write('timestamp: $timestamp, ')
           ..write('needSync: $needSync')
@@ -3440,7 +3410,7 @@ class Encashment extends DataClass implements Insertable<Encashment> {
 
   @override
   int get hashCode => Object.hash(id, date, isCheck, buyerId, debtId, depositId,
-      encSum, isBlocked, guid, timestamp, needSync);
+      encSum, guid, timestamp, needSync);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3452,7 +3422,6 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           other.debtId == this.debtId &&
           other.depositId == this.depositId &&
           other.encSum == this.encSum &&
-          other.isBlocked == this.isBlocked &&
           other.guid == this.guid &&
           other.timestamp == this.timestamp &&
           other.needSync == this.needSync);
@@ -3466,7 +3435,6 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
   final Value<int> debtId;
   final Value<int?> depositId;
   final Value<double?> encSum;
-  final Value<bool> isBlocked;
   final Value<String?> guid;
   final Value<DateTime> timestamp;
   final Value<bool> needSync;
@@ -3478,7 +3446,6 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
     this.debtId = const Value.absent(),
     this.depositId = const Value.absent(),
     this.encSum = const Value.absent(),
-    this.isBlocked = const Value.absent(),
     this.guid = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.needSync = const Value.absent(),
@@ -3491,7 +3458,6 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
     required int debtId,
     this.depositId = const Value.absent(),
     this.encSum = const Value.absent(),
-    required bool isBlocked,
     this.guid = const Value.absent(),
     required DateTime timestamp,
     required bool needSync,
@@ -3499,7 +3465,6 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
         isCheck = Value(isCheck),
         buyerId = Value(buyerId),
         debtId = Value(debtId),
-        isBlocked = Value(isBlocked),
         timestamp = Value(timestamp),
         needSync = Value(needSync);
   static Insertable<Encashment> custom({
@@ -3510,7 +3475,6 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
     Expression<int>? debtId,
     Expression<int>? depositId,
     Expression<double>? encSum,
-    Expression<bool>? isBlocked,
     Expression<String>? guid,
     Expression<DateTime>? timestamp,
     Expression<bool>? needSync,
@@ -3523,7 +3487,6 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
       if (debtId != null) 'debt_id': debtId,
       if (depositId != null) 'deposit_id': depositId,
       if (encSum != null) 'enc_sum': encSum,
-      if (isBlocked != null) 'is_blocked': isBlocked,
       if (guid != null) 'guid': guid,
       if (timestamp != null) 'timestamp': timestamp,
       if (needSync != null) 'need_sync': needSync,
@@ -3538,7 +3501,6 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
       Value<int>? debtId,
       Value<int?>? depositId,
       Value<double?>? encSum,
-      Value<bool>? isBlocked,
       Value<String?>? guid,
       Value<DateTime>? timestamp,
       Value<bool>? needSync}) {
@@ -3550,7 +3512,6 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
       debtId: debtId ?? this.debtId,
       depositId: depositId ?? this.depositId,
       encSum: encSum ?? this.encSum,
-      isBlocked: isBlocked ?? this.isBlocked,
       guid: guid ?? this.guid,
       timestamp: timestamp ?? this.timestamp,
       needSync: needSync ?? this.needSync,
@@ -3581,9 +3542,6 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
     if (encSum.present) {
       map['enc_sum'] = Variable<double>(encSum.value);
     }
-    if (isBlocked.present) {
-      map['is_blocked'] = Variable<bool>(isBlocked.value);
-    }
     if (guid.present) {
       map['guid'] = Variable<String>(guid.value);
     }
@@ -3606,7 +3564,6 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
           ..write('debtId: $debtId, ')
           ..write('depositId: $depositId, ')
           ..write('encSum: $encSum, ')
-          ..write('isBlocked: $isBlocked, ')
           ..write('guid: $guid, ')
           ..write('timestamp: $timestamp, ')
           ..write('needSync: $needSync')
@@ -4070,11 +4027,6 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _guidMeta = const VerificationMeta('guid');
-  @override
-  late final GeneratedColumn<String> guid = GeneratedColumn<String>(
-      'guid', aliasedName, true,
-      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _dateMeta = const VerificationMeta('date');
   @override
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
@@ -4092,9 +4044,44 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
   late final GeneratedColumn<double> checkTotalSum = GeneratedColumn<double>(
       'check_total_sum', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _isBlockedMeta =
+      const VerificationMeta('isBlocked');
+  @override
+  late final GeneratedColumn<bool> isBlocked =
+      GeneratedColumn<bool>('is_blocked', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: true,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_blocked" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
+  static const VerificationMeta _guidMeta = const VerificationMeta('guid');
+  @override
+  late final GeneratedColumn<String> guid = GeneratedColumn<String>(
+      'guid', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync =
+      GeneratedColumn<bool>('need_sync', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: true,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   @override
   List<GeneratedColumn> get $columns =>
-      [id, guid, date, totalSum, checkTotalSum];
+      [id, date, totalSum, checkTotalSum, isBlocked, guid, timestamp, needSync];
   @override
   String get aliasedName => _alias ?? 'deposits';
   @override
@@ -4106,10 +4093,6 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
     final data = instance.toColumns(true);
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('guid')) {
-      context.handle(
-          _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
     }
     if (data.containsKey('date')) {
       context.handle(
@@ -4131,6 +4114,28 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
     } else if (isInserting) {
       context.missing(_checkTotalSumMeta);
     }
+    if (data.containsKey('is_blocked')) {
+      context.handle(_isBlockedMeta,
+          isBlocked.isAcceptableOrUnknown(data['is_blocked']!, _isBlockedMeta));
+    } else if (isInserting) {
+      context.missing(_isBlockedMeta);
+    }
+    if (data.containsKey('guid')) {
+      context.handle(
+          _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    } else if (isInserting) {
+      context.missing(_timestampMeta);
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    } else if (isInserting) {
+      context.missing(_needSyncMeta);
+    }
     return context;
   }
 
@@ -4142,14 +4147,20 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
     return Deposit(
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      guid: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}guid']),
       date: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
       totalSum: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}total_sum'])!,
       checkTotalSum: attachedDatabase.typeMapping.read(
           DriftSqlType.double, data['${effectivePrefix}check_total_sum'])!,
+      isBlocked: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_blocked'])!,
+      guid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}guid']),
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
     );
   }
 
@@ -4161,36 +4172,48 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
 
 class Deposit extends DataClass implements Insertable<Deposit> {
   final int id;
-  final String? guid;
   final DateTime date;
   final double totalSum;
   final double checkTotalSum;
+  final bool isBlocked;
+  final String? guid;
+  final DateTime timestamp;
+  final bool needSync;
   const Deposit(
       {required this.id,
-      this.guid,
       required this.date,
       required this.totalSum,
-      required this.checkTotalSum});
+      required this.checkTotalSum,
+      required this.isBlocked,
+      this.guid,
+      required this.timestamp,
+      required this.needSync});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
-    if (!nullToAbsent || guid != null) {
-      map['guid'] = Variable<String>(guid);
-    }
     map['date'] = Variable<DateTime>(date);
     map['total_sum'] = Variable<double>(totalSum);
     map['check_total_sum'] = Variable<double>(checkTotalSum);
+    map['is_blocked'] = Variable<bool>(isBlocked);
+    if (!nullToAbsent || guid != null) {
+      map['guid'] = Variable<String>(guid);
+    }
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['need_sync'] = Variable<bool>(needSync);
     return map;
   }
 
   DepositsCompanion toCompanion(bool nullToAbsent) {
     return DepositsCompanion(
       id: Value(id),
-      guid: guid == null && nullToAbsent ? const Value.absent() : Value(guid),
       date: Value(date),
       totalSum: Value(totalSum),
       checkTotalSum: Value(checkTotalSum),
+      isBlocked: Value(isBlocked),
+      guid: guid == null && nullToAbsent ? const Value.absent() : Value(guid),
+      timestamp: Value(timestamp),
+      needSync: Value(needSync),
     );
   }
 
@@ -4199,10 +4222,13 @@ class Deposit extends DataClass implements Insertable<Deposit> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Deposit(
       id: serializer.fromJson<int>(json['id']),
-      guid: serializer.fromJson<String?>(json['guid']),
       date: serializer.fromJson<DateTime>(json['date']),
       totalSum: serializer.fromJson<double>(json['totalSum']),
       checkTotalSum: serializer.fromJson<double>(json['checkTotalSum']),
+      isBlocked: serializer.fromJson<bool>(json['isBlocked']),
+      guid: serializer.fromJson<String?>(json['guid']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
     );
   }
   @override
@@ -4210,101 +4236,141 @@ class Deposit extends DataClass implements Insertable<Deposit> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
-      'guid': serializer.toJson<String?>(guid),
       'date': serializer.toJson<DateTime>(date),
       'totalSum': serializer.toJson<double>(totalSum),
       'checkTotalSum': serializer.toJson<double>(checkTotalSum),
+      'isBlocked': serializer.toJson<bool>(isBlocked),
+      'guid': serializer.toJson<String?>(guid),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'needSync': serializer.toJson<bool>(needSync),
     };
   }
 
   Deposit copyWith(
           {int? id,
-          Value<String?> guid = const Value.absent(),
           DateTime? date,
           double? totalSum,
-          double? checkTotalSum}) =>
+          double? checkTotalSum,
+          bool? isBlocked,
+          Value<String?> guid = const Value.absent(),
+          DateTime? timestamp,
+          bool? needSync}) =>
       Deposit(
         id: id ?? this.id,
-        guid: guid.present ? guid.value : this.guid,
         date: date ?? this.date,
         totalSum: totalSum ?? this.totalSum,
         checkTotalSum: checkTotalSum ?? this.checkTotalSum,
+        isBlocked: isBlocked ?? this.isBlocked,
+        guid: guid.present ? guid.value : this.guid,
+        timestamp: timestamp ?? this.timestamp,
+        needSync: needSync ?? this.needSync,
       );
   @override
   String toString() {
     return (StringBuffer('Deposit(')
           ..write('id: $id, ')
-          ..write('guid: $guid, ')
           ..write('date: $date, ')
           ..write('totalSum: $totalSum, ')
-          ..write('checkTotalSum: $checkTotalSum')
+          ..write('checkTotalSum: $checkTotalSum, ')
+          ..write('isBlocked: $isBlocked, ')
+          ..write('guid: $guid, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('needSync: $needSync')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, guid, date, totalSum, checkTotalSum);
+  int get hashCode => Object.hash(
+      id, date, totalSum, checkTotalSum, isBlocked, guid, timestamp, needSync);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Deposit &&
           other.id == this.id &&
-          other.guid == this.guid &&
           other.date == this.date &&
           other.totalSum == this.totalSum &&
-          other.checkTotalSum == this.checkTotalSum);
+          other.checkTotalSum == this.checkTotalSum &&
+          other.isBlocked == this.isBlocked &&
+          other.guid == this.guid &&
+          other.timestamp == this.timestamp &&
+          other.needSync == this.needSync);
 }
 
 class DepositsCompanion extends UpdateCompanion<Deposit> {
   final Value<int> id;
-  final Value<String?> guid;
   final Value<DateTime> date;
   final Value<double> totalSum;
   final Value<double> checkTotalSum;
+  final Value<bool> isBlocked;
+  final Value<String?> guid;
+  final Value<DateTime> timestamp;
+  final Value<bool> needSync;
   const DepositsCompanion({
     this.id = const Value.absent(),
-    this.guid = const Value.absent(),
     this.date = const Value.absent(),
     this.totalSum = const Value.absent(),
     this.checkTotalSum = const Value.absent(),
+    this.isBlocked = const Value.absent(),
+    this.guid = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.needSync = const Value.absent(),
   });
   DepositsCompanion.insert({
     this.id = const Value.absent(),
-    this.guid = const Value.absent(),
     required DateTime date,
     required double totalSum,
     required double checkTotalSum,
+    required bool isBlocked,
+    this.guid = const Value.absent(),
+    required DateTime timestamp,
+    required bool needSync,
   })  : date = Value(date),
         totalSum = Value(totalSum),
-        checkTotalSum = Value(checkTotalSum);
+        checkTotalSum = Value(checkTotalSum),
+        isBlocked = Value(isBlocked),
+        timestamp = Value(timestamp),
+        needSync = Value(needSync);
   static Insertable<Deposit> custom({
     Expression<int>? id,
-    Expression<String>? guid,
     Expression<DateTime>? date,
     Expression<double>? totalSum,
     Expression<double>? checkTotalSum,
+    Expression<bool>? isBlocked,
+    Expression<String>? guid,
+    Expression<DateTime>? timestamp,
+    Expression<bool>? needSync,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
-      if (guid != null) 'guid': guid,
       if (date != null) 'date': date,
       if (totalSum != null) 'total_sum': totalSum,
       if (checkTotalSum != null) 'check_total_sum': checkTotalSum,
+      if (isBlocked != null) 'is_blocked': isBlocked,
+      if (guid != null) 'guid': guid,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (needSync != null) 'need_sync': needSync,
     });
   }
 
   DepositsCompanion copyWith(
       {Value<int>? id,
-      Value<String?>? guid,
       Value<DateTime>? date,
       Value<double>? totalSum,
-      Value<double>? checkTotalSum}) {
+      Value<double>? checkTotalSum,
+      Value<bool>? isBlocked,
+      Value<String?>? guid,
+      Value<DateTime>? timestamp,
+      Value<bool>? needSync}) {
     return DepositsCompanion(
       id: id ?? this.id,
-      guid: guid ?? this.guid,
       date: date ?? this.date,
       totalSum: totalSum ?? this.totalSum,
       checkTotalSum: checkTotalSum ?? this.checkTotalSum,
+      isBlocked: isBlocked ?? this.isBlocked,
+      guid: guid ?? this.guid,
+      timestamp: timestamp ?? this.timestamp,
+      needSync: needSync ?? this.needSync,
     );
   }
 
@@ -4313,9 +4379,6 @@ class DepositsCompanion extends UpdateCompanion<Deposit> {
     final map = <String, Expression>{};
     if (id.present) {
       map['id'] = Variable<int>(id.value);
-    }
-    if (guid.present) {
-      map['guid'] = Variable<String>(guid.value);
     }
     if (date.present) {
       map['date'] = Variable<DateTime>(date.value);
@@ -4326,6 +4389,18 @@ class DepositsCompanion extends UpdateCompanion<Deposit> {
     if (checkTotalSum.present) {
       map['check_total_sum'] = Variable<double>(checkTotalSum.value);
     }
+    if (isBlocked.present) {
+      map['is_blocked'] = Variable<bool>(isBlocked.value);
+    }
+    if (guid.present) {
+      map['guid'] = Variable<String>(guid.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (needSync.present) {
+      map['need_sync'] = Variable<bool>(needSync.value);
+    }
     return map;
   }
 
@@ -4333,10 +4408,13 @@ class DepositsCompanion extends UpdateCompanion<Deposit> {
   String toString() {
     return (StringBuffer('DepositsCompanion(')
           ..write('id: $id, ')
-          ..write('guid: $guid, ')
           ..write('date: $date, ')
           ..write('totalSum: $totalSum, ')
-          ..write('checkTotalSum: $checkTotalSum')
+          ..write('checkTotalSum: $checkTotalSum, ')
+          ..write('isBlocked: $isBlocked, ')
+          ..write('guid: $guid, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('needSync: $needSync')
           ..write(')'))
         .toString();
   }
@@ -13625,17 +13703,18 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final UsersDao usersDao = UsersDao(this as AppDataStore);
   Selectable<AppInfoResult> appInfo() {
     return customSelect(
-        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1) + (SELECT COUNT(*) FROM point_images WHERE need_sync = 1) + (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) + (SELECT COUNT(*) FROM encashments WHERE need_sync = 1) + (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) + (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) + (SELECT COUNT(*) FROM orders WHERE need_sync = 1) + (SELECT COUNT(*) FROM order_lines WHERE need_sync = 1) AS sync_total, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM encashments) AS encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total FROM prefs',
+        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_id = points.id AND need_sync = 1)) + (SELECT COUNT(*) FROM deposits WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND need_sync = 1)) + (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_id = orders.id AND need_sync = 1)) + (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) + (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) + (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS sync_total, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM encashments) AS encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total FROM prefs',
         variables: [],
         readsFrom: {
           points,
           pointImages,
-          incRequests,
+          deposits,
           encashments,
-          partnersPrices,
-          partnersPricelists,
           orders,
           orderLines,
+          incRequests,
+          partnersPrices,
+          partnersPricelists,
           shipments,
           preOrders,
           prefs,

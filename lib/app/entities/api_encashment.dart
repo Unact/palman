@@ -7,7 +7,6 @@ class ApiEncashment extends Equatable {
   final bool isCheck;
   final int buyerId;
   final int debtId;
-  final int depositId;
   final double encSum;
   final DateTime timestamp;
 
@@ -17,7 +16,6 @@ class ApiEncashment extends Equatable {
     required this.date,
     required this.buyerId,
     required this.debtId,
-    required this.depositId,
     required this.encSum,
     required this.isCheck,
     required this.timestamp
@@ -30,14 +28,13 @@ class ApiEncashment extends Equatable {
       date: Parsing.parseDate(json['date'])!,
       buyerId: json['buyerId'],
       debtId: json['debtId'],
-      depositId: json['depositId'],
       encSum: Parsing.parseDouble(json['encSum'])!,
       isCheck: json['isCheck'],
       timestamp: Parsing.parseDate(json['timestamp'])!
     );
   }
 
-  Encashment toDatabaseEnt() {
+  Encashment toDatabaseEnt(int depositId) {
     return Encashment(
       id: id,
       guid: guid,
@@ -48,7 +45,6 @@ class ApiEncashment extends Equatable {
       encSum: encSum,
       isCheck: isCheck,
       timestamp: timestamp,
-      isBlocked: false,
       needSync: false
     );
   }
@@ -60,7 +56,6 @@ class ApiEncashment extends Equatable {
     date,
     buyerId,
     debtId,
-    depositId,
     encSum,
     isCheck,
     timestamp

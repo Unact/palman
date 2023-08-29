@@ -33,6 +33,7 @@ part 'api_partners_pricelist.dart';
 part 'api_point_format.dart';
 part 'api_point_image.dart';
 part 'api_point.dart';
+part 'api_points_data.dart';
 part 'api_pre_order_line.dart';
 part 'api_pre_order.dart';
 part 'api_pricelist_price.dart';

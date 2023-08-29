@@ -128,16 +128,11 @@ class OrdersRepository extends BaseRepository {
     notifyListeners();
   }
 
-  Future<void> syncChanges() async {
-    final orders = await dataStore.ordersDao.getOrdersForSync();
-    final orderLines = await dataStore.ordersDao.getOrderLinesForSync();
-
-    if (orders.isEmpty) return;
-
-    await blockOrders(true);
+  Future<List<OrderExResult>> syncOrders(List<Order> orders, List<OrderLine> orderLines) async {
+    if (orders.isEmpty) return [];
 
     try {
-      List<Map<String, dynamic>> data = orders.map((e) => {
+      List<Map<String, dynamic>> ordersData = orders.map((e) => {
         'guid': e.guid,
         'timestamp': e.timestamp.toIso8601String(),
         'isDeleted': e.isDeleted,
@@ -150,7 +145,7 @@ class OrdersRepository extends BaseRepository {
         'buyerId': e.buyerId,
         'info': e.info,
         'needProcessing': e.needProcessing,
-        'lines': orderLines.where((i) => i.orderId == e.id).map((i) => {
+        'lines': orderLines.where((i) => i.orderId == e.id && i.needSync).map((i) => {
           'guid': i.guid,
           'timestamp': i.timestamp.toIso8601String(),
           'isDeleted': i.isDeleted,
@@ -163,26 +158,48 @@ class OrdersRepository extends BaseRepository {
         }).toList()
       }).toList();
 
-      await api.saveOrders(data);
+      final data = await api.saveOrders(ordersData);
+      final ids = [];
+      await dataStore.transaction(() async {
+        for (var order in orders) {
+          await dataStore.ordersDao.deleteOrder(order.id);
+        }
+        for (var orderLine in orderLines) {
+          await dataStore.ordersDao.deleteOrderLine(orderLine.id);
+        }
+        for (var apiOrder in data.orders) {
+          final ordersCompanion = apiOrder.toDatabaseEnt().toCompanion(false).copyWith(id: const Value.absent());
+          final id = await dataStore.ordersDao.addOrder(ordersCompanion);
+          final apiOrderLines = apiOrder.lines.map((i) => i.toDatabaseEnt(id)).toList();
 
-      await Future.forEach(
-        orders,
-        (e) => dataStore.ordersDao.updateOrder(e.id, const OrdersCompanion(needSync: Value(false)))
-      );
-      await Future.forEach(
-        orderLines,
-        (e) => dataStore.ordersDao.updateOrderLine(e.id, const OrderLinesCompanion(needSync: Value(false)))
-      );
+          for (var apiOrderLine in apiOrderLines) {
+            final orderLinesCompanion = apiOrderLine.toCompanion(false).copyWith(id: const Value.absent());
+            await dataStore.ordersDao.addOrderLine(orderLinesCompanion);
+          }
+          ids.add(id);
+        }
+      });
+      notifyListeners();
+
+      return (await dataStore.ordersDao.getOrderExList()).where((e) => ids.contains(e.order.id)).toList();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
       Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
+  Future<void> syncChanges() async {
+    final orders = await dataStore.ordersDao.getOrdersForSync();
+    final orderLines = await dataStore.ordersDao.getOrderLinesForSync();
+
+    try {
+      await blockOrders(true);
+      await syncOrders(orders, orderLines);
     } finally {
       await blockOrders(false);
     }
-
-    await loadOrders();
   }
 
   Future<List<Goods>> getGoods({
@@ -261,7 +278,7 @@ class OrdersRepository extends BaseRepository {
     );
   }
 
-  Future<OrderExResult> getOrderEx(int orderId) async {
+  Future<OrderExResult?> getOrderEx(int orderId) async {
     return dataStore.ordersDao.getOrderEx(orderId);
   }
 
@@ -314,7 +331,7 @@ class OrdersRepository extends BaseRepository {
 
     notifyListeners();
 
-    return orderEx;
+    return orderEx!;
   }
 
   Future<void> updateOrder(Order order, {
@@ -337,6 +354,7 @@ class OrdersRepository extends BaseRepository {
       isBonus: isBonus == null ? const Value.absent() : Value(isBonus.value),
       isPhysical: isPhysical == null ? const Value.absent() : Value(isPhysical.value),
       needProcessing: needProcessing == null ? const Value.absent() : Value(needProcessing.value),
+      timestamp: Value(DateTime.now()),
       needSync: needSync == null ? const Value.absent() : Value(needSync.value),
     );
 
@@ -399,6 +417,7 @@ class OrdersRepository extends BaseRepository {
       priceOriginal: priceOriginal == null ? const Value.absent() : Value(priceOriginal.value),
       package: package == null ? const Value.absent() : Value(package.value),
       rel: rel == null ? const Value.absent() : Value(rel.value),
+      timestamp: Value(DateTime.now()),
       needSync: needSync == null ? const Value.absent() : Value(needSync.value),
     );
 
@@ -426,6 +445,8 @@ class OrdersRepository extends BaseRepository {
     final pathDirectory = await Directory(path).create(recursive: true);
     final filePaths = (pathDirectory.listSync()).map((e) => e.path).toSet();
 
-    await Future.forEach(filePaths, (filePath) => File(filePath).delete());
+    for (var filePath in filePaths) {
+      await File(filePath).delete();
+    }
   }
 }
