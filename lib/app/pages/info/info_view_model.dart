@@ -131,6 +131,15 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     }
   }
 
+  Future<void> tryGetData() async {
+    if (state.hasPendingChanges) {
+      emit(state.copyWith(status: InfoStateStatus.loadConfirmation));
+      return;
+    }
+
+    await getData(false);
+  }
+
   Future<void> saveChangesForeground() async {
     if (state.isBusy) return;
 
@@ -145,10 +154,15 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     }
   }
 
-  Future<void> getData() async {
+  Future<void> getData(bool declined) async {
+    if (declined) {
+      emit(state.copyWith(status: InfoStateStatus.loadDeclined));
+      return;
+    }
+
     if (state.isBusy) return;
 
-    emit(state.copyWith(status: InfoStateStatus.inProgress, syncMessage: '', isBusy: true));
+    emit(state.copyWith(status: InfoStateStatus.loadInProgress, syncMessage: '', isBusy: true));
 
     try {
       await usersRepository.loadUserData();
@@ -167,9 +181,9 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       await Future.wait(futures);
       await appRepository.updatePref(lastSyncTime: Optional.of(DateTime.now()));
 
-      emit(state.copyWith(status: InfoStateStatus.success, message: 'Данные успешно обновлены', isBusy: false));
+      emit(state.copyWith(status: InfoStateStatus.loadSuccess, message: 'Данные успешно обновлены', isBusy: false));
     } on AppError catch(e) {
-      emit(state.copyWith(status: InfoStateStatus.failure, message: e.message, isBusy: false));
+      emit(state.copyWith(status: InfoStateStatus.loadFailure, message: e.message, isBusy: false));
     }
   }
 

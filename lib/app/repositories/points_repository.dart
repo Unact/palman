@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:collection/collection.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
@@ -231,12 +232,12 @@ class PointsRepository extends BaseRepository {
         'maxdebt': e.maxdebt,
         'nds10': e.nds10,
         'nds20': e.nds20,
-        'images': pointImages.where((i) => i.pointId == e.id).map((i) => {
+        'images': pointImages.where((i) => i.pointId == e.id && i.needSync).map((i) => {
           'guid': i.guid,
+          'timestamp': i.timestamp.toIso8601String(),
           'latitude': i.latitude,
           'longitude': i.longitude,
           'accuracy': i.accuracy,
-          'timestamp': i.timestamp.toIso8601String(),
           'imageData': File(p.join(directory.path, i.imagePath)).existsSync() ?
             base64Encode(File(p.join(directory.path, i.imagePath)).readAsBytesSync()) :
             null
@@ -259,13 +260,23 @@ class PointsRepository extends BaseRepository {
 
           for (var apiPointImage in apiPointImages) {
             final pointImagesCompanion = apiPointImage.toCompanion(false).copyWith(id: const Value.absent());
-            await dataStore.pointsDao.addPointImage(pointImagesCompanion);
+            final pointImage = pointImages.firstWhereOrNull((e) => e.guid == apiPointImage.guid);
+            final imageId = await dataStore.pointsDao.addPointImage(pointImagesCompanion);
+
+            final imagePath = getPointImagePath(imageId);
+            final fullImagePath = p.join(directory.path, imagePath);
+            final file = File(p.join(directory.path, pointImage?.imagePath));
+            await dataStore.pointsDao.updatePointImage(imageId, PointImagesCompanion(imagePath: Value(imagePath)));
+
+            if (pointImage != null && file.existsSync()) await file.copy(fullImagePath);
           }
           ids.add(id);
         }
       });
       for (var e in pointImages) {
-        await File(p.join(directory.path, e.imagePath)).delete();
+        final file = File(p.join(directory.path, e.imagePath));
+
+        if (file.existsSync()) await file.delete();
       }
       notifyListeners();
 

@@ -133,7 +133,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     try {
       final orders = await ordersRepository.syncOrders(
         [state.orderEx.order],
-        state.linesExList.where((e) => e.line.needSync).map((e) => e.line).toList()
+        state.linesExList.map((e) => e.line).toList()
       );
 
       emit(state.copyWith(

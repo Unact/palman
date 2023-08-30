@@ -197,7 +197,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
     try {
       final points = await pointsRepository.syncPoints(
         [state.pointEx.point],
-        state.pointEx.images.where((e) => e.needSync).toList()
+        state.pointEx.images.toList()
       );
 
       emit(state.copyWith(

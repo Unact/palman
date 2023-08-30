@@ -56,7 +56,11 @@ class _NumTextFieldState extends State<NumTextField> {
         enabled: widget.enabled,
         maxLines: 1,
         style: widget.style,
-        decoration: widget.decoration
+        decoration: widget.decoration,
+        onEditingComplete: () {
+          widget.onTap?.call();
+          sumNode.unfocus();
+        }
       )
     );
   }

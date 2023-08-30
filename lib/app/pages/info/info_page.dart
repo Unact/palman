@@ -110,6 +110,26 @@ class _InfoViewState extends State<_InfoView> {
     );
   }
 
+  Future<void> showConfirmationDialog() async {
+    final vm = context.read<InfoViewModel>();
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Внимание'),
+          content: const SingleChildScrollView(child: Text('Присутствуют не сохраненные изменения. Продолжить?')),
+          actions: <Widget>[
+            TextButton(child: const Text(Strings.ok), onPressed: () => Navigator.of(context).pop(false)),
+            TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(true))
+          ],
+        );
+      }
+    ) ?? true;
+
+    await vm.getData(result);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<InfoViewModel, InfoState>(
@@ -170,7 +190,7 @@ class _InfoViewState extends State<_InfoView> {
               if (vm.state.isBusy) return;
 
               setPageChangeable(false);
-              vm.getData();
+              vm.tryGetData();
               await refresherCompleter.future;
               setPageChangeable(true);
 
@@ -192,11 +212,14 @@ class _InfoViewState extends State<_InfoView> {
       },
       listener: (context, state) {
         switch (state.status) {
-          case InfoStateStatus.startLoad:
-            openRefresher();
+          case InfoStateStatus.loadConfirmation:
+            showConfirmationDialog();
             break;
-          case InfoStateStatus.failure:
-          case InfoStateStatus.success:
+          case InfoStateStatus.loadDeclined:
+            closeRefresher();
+            break;
+          case InfoStateStatus.loadFailure:
+          case InfoStateStatus.loadSuccess:
             Misc.showMessage(context, state.message);
             closeRefresher();
             break;

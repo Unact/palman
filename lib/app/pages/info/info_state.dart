@@ -2,17 +2,18 @@ part of 'info_page.dart';
 
 enum InfoStateStatus {
   initial,
-  startLoad,
   dataLoaded,
-  success,
-  failure,
-  inProgress,
-  saveInProgress,
+  loadDeclined,
+  loadSuccess,
+  loadFailure,
+  loadInProgress,
+  loadConfirmation,
   saveSuccess,
   saveFailure,
-  syncInProgress,
+  saveInProgress,
   syncSuccess,
   syncFailure,
+  syncInProgress,
 }
 
 class InfoState {
