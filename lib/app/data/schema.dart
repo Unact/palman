@@ -77,8 +77,8 @@ class PointImages extends Table {
   RealColumn get latitude => real()();
   RealColumn get longitude => real()();
   RealColumn get accuracy => real()();
-  TextColumn get imagePath => text()();
   TextColumn get imageUrl => text()();
+  TextColumn get imageKey => text()();
 
   TextColumn get guid => text().nullable()();
   DateTimeColumn get timestamp => dateTime()();
@@ -163,8 +163,8 @@ class AllGoods extends Table {
 
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
-  TextColumn get imagePath => text()();
   TextColumn get imageUrl => text()();
+  TextColumn get imageKey => text()();
   IntColumn get categoryId => integer()();
   TextColumn get manufacturer => text().nullable()();
   BoolColumn get isHit => boolean()();

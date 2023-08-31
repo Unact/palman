@@ -44,8 +44,6 @@ class PricesRepository extends BaseRepository {
   }
 
   Future<void> syncPrices(List<PartnersPrice> prices, List<PartnersPricelist> pricelists) async {
-    if (prices.isEmpty && pricelists.isEmpty) return;
-
     try {
       Map<String, dynamic> pricesData = {
         'prices': prices.map((e) => {
@@ -96,6 +94,8 @@ class PricesRepository extends BaseRepository {
   Future<void> syncChanges() async {
     final prices = await dataStore.pricesDao.getPartnersPricesForSync();
     final pricelists = await dataStore.pricesDao.getPartnersPricelistsForSync();
+
+    if (prices.isEmpty && pricelists.isEmpty) return;
 
     try {
       await blockPrices(true);

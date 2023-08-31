@@ -73,6 +73,7 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
       select(points)
         ..where((tbl) => tbl.id.equalsExp(pointImages.pointId))
         ..where((tbl) => tbl.isBlocked.equals(false))
+        ..where((tbl) => tbl.needSync.equals(true) | pointImages.needSync.equals(true))
     );
 
     return (select(pointImages)..where((tbl) => hasUnblockedPoint)).get();

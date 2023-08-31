@@ -15,13 +15,7 @@ import '/app/services/api.dart';
 import '/app/utils/misc.dart';
 
 class OrdersRepository extends BaseRepository {
-  static const _kGoodsFileFolder = 'goods';
-
   OrdersRepository(AppDataStore dataStore, Api api) : super(dataStore, api);
-
-  String getGoodsImagePath(int id) {
-    return p.join(_kGoodsFileFolder, '$id.jpg');
-  }
 
   Future<void> loadBonusPrograms() async {
     try {
@@ -58,10 +52,7 @@ class OrdersRepository extends BaseRepository {
       final data = await api.getRemains();
 
       await dataStore.transaction(() async {
-        final goods = data.goods
-          .map((e) => e.toDatabaseEnt())
-          .map((e) => e.copyWith(imagePath: getGoodsImagePath(e.id)))
-          .toList();
+        final goods = data.goods.map((e) => e.toDatabaseEnt()).toList();
         final goodsStocks = data.goodsStocks.map((e) => e.toDatabaseEnt()).toList();
         final goodsRestrictions = data.goodsRestrictions.map((e) => e.toDatabaseEnt()).toList();
 
@@ -105,14 +96,12 @@ class OrdersRepository extends BaseRepository {
 
   Future<bool> preloadGoodsImages(Goods goods) async {
     final directory = await getApplicationDocumentsDirectory();
-    final imagePath = getGoodsImagePath(goods.id);
-    final fullImagePath = p.join(directory.path, imagePath);
+    final fullImagePath = p.join(directory.path, goods.imagePath);
 
     if (File(fullImagePath).existsSync()) return true;
 
     try {
       await Dio().download(goods.imageUrl, fullImagePath);
-      await dataStore.ordersDao.updateGoods(goods.id, AllGoodsCompanion(imagePath: Value(imagePath)));
     } on DioException catch(e) {
       throw AppError(e.message ?? 'Ошибка при загрузке фотографии');
     } catch(e, trace) {
@@ -129,8 +118,6 @@ class OrdersRepository extends BaseRepository {
   }
 
   Future<List<OrderExResult>> syncOrders(List<Order> orders, List<OrderLine> orderLines) async {
-    if (orders.isEmpty) return [];
-
     try {
       List<Map<String, dynamic>> ordersData = orders.map((e) => {
         'guid': e.guid,
@@ -173,7 +160,10 @@ class OrdersRepository extends BaseRepository {
           final apiOrderLines = apiOrder.lines.map((i) => i.toDatabaseEnt(id)).toList();
 
           for (var apiOrderLine in apiOrderLines) {
-            final orderLinesCompanion = apiOrderLine.toCompanion(false).copyWith(id: const Value.absent());
+            final orderLinesCompanion = apiOrderLine.toCompanion(false).copyWith(
+              id: const Value.absent(),
+              orderId: Value(id)
+            );
             await dataStore.ordersDao.addOrderLine(orderLinesCompanion);
           }
           ids.add(id);
@@ -193,6 +183,8 @@ class OrdersRepository extends BaseRepository {
   Future<void> syncChanges() async {
     final orders = await dataStore.ordersDao.getOrdersForSync();
     final orderLines = await dataStore.ordersDao.getOrderLinesForSync();
+
+    if (orders.isEmpty) return;
 
     try {
       await blockOrders(true);
@@ -439,14 +431,7 @@ class OrdersRepository extends BaseRepository {
     return;
   }
 
-  Future<void> clearFiles() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final path = "${directory.path}/$_kGoodsFileFolder";
-    final pathDirectory = await Directory(path).create(recursive: true);
-    final filePaths = (pathDirectory.listSync()).map((e) => e.path).toSet();
-
-    for (var filePath in filePaths) {
-      await File(filePath).delete();
-    }
+  Future<void> clearFiles([Set<String> newRelFilePaths = const <String>{}]) async {
+    await Misc.clearFiles(AppDataStore.kGoodsFileFolder, newRelFilePaths);
   }
 }

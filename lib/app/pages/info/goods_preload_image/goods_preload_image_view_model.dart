@@ -57,6 +57,7 @@ class GoodsPreloadImageViewModel extends PageViewModel<GoodsPreloadImageState, G
         lastErrorMsg = e.message;
       }
     }
+    await ordersRepository.clearFiles(state.goodsWithImage.map((e) => e.imagePath).toSet());
 
     emit(state.copyWith(
       status: GoodsPreloadImageStateStatus.success,

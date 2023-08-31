@@ -61,6 +61,7 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
       select(deposits)
         ..where((tbl) => tbl.id.equalsExp(encashments.depositId))
         ..where((tbl) => tbl.isBlocked.equals(false))
+        ..where((tbl) => tbl.needSync.equals(true) | encashments.needSync.equals(true))
     );
 
     return (select(encashments)..where((tbl) => hasUnblockedDeposit)).get();

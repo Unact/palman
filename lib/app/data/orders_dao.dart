@@ -206,6 +206,7 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
       select(orders)
         ..where((tbl) => tbl.id.equalsExp(orderLines.orderId))
         ..where((tbl) => tbl.isBlocked.equals(false))
+        ..where((tbl) => tbl.needSync.equals(true) | orderLines.needSync.equals(true))
     );
 
     return (select(orderLines)..where((tbl) => hasUnblockedOrder)).get();

@@ -57,8 +57,6 @@ class DebtsRepository extends BaseRepository {
   }
 
   Future<void> syncEncashments(List<Deposit> deposits, List<Encashment> encashments) async {
-    if (deposits.isEmpty) return;
-
     try {
       List<Map<String, dynamic>> encashmentsData = deposits.map((e) => {
         'guid': e.guid,
@@ -88,7 +86,10 @@ class DebtsRepository extends BaseRepository {
           final apiEncashments = apiDeposit.encashments.map((i) => i.toDatabaseEnt(id)).toList();
 
           for (var apiEncashment in apiEncashments) {
-            final encashmentsCompanion = apiEncashment.toCompanion(false).copyWith(id: const Value.absent());
+            final encashmentsCompanion = apiEncashment.toCompanion(false).copyWith(
+              id: const Value.absent(),
+              depositId: Value(id)
+            );
             await dataStore.debtsDao.addEncashment(encashmentsCompanion);
           }
         }
@@ -105,6 +106,8 @@ class DebtsRepository extends BaseRepository {
   Future<void> syncChanges() async {
     final deposits = await dataStore.debtsDao.getDepositsForSync();
     final encashments = await dataStore.debtsDao.getEncashmentsForSync();
+
+    if (deposits.isEmpty) return;
 
     try {
       await blockDeposits(true);

@@ -11,6 +11,7 @@ dependencies:
   cached_network_image: ^3.2.3
   camera: ^0.10.5
   cross_file: ^0.3.3
+  crypto: ^3.0.3
   collection: ^1.17.1
   device_info_plus: ^9.0.2
   dio: ^5.2.1

@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:collection/collection.dart';
 import 'package:cross_file/cross_file.dart';
+import 'package:crypto/crypto.dart';
 import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import 'package:quiver/core.dart';
@@ -18,13 +18,7 @@ import '/app/services/api.dart';
 import '/app/utils/misc.dart';
 
 class PointsRepository extends BaseRepository {
-  static const _kPointsFileFolder = 'points';
-
   PointsRepository(AppDataStore dataStore, Api api) : super(dataStore, api);
-
-  String getPointImagePath(int id) {
-    return p.join(_kPointsFileFolder, '$id.jpg');
-  }
 
   Future<PointEx?> getPointEx(int id) {
     return dataStore.pointsDao.getPointEx(id);
@@ -50,7 +44,6 @@ class PointsRepository extends BaseRepository {
         final points = data.points.map((e) => e.toDatabaseEnt()).toList();
         final pointImages = data.points
           .map((e) => e.images.map((i) => i.toDatabaseEnt(e.id))).expand((e) => e)
-          .map((e) => e.copyWith(imagePath: getPointImagePath(e.id)))
           .toList();
 
         await dataStore.pointsDao.loadPoints(points);
@@ -67,15 +60,12 @@ class PointsRepository extends BaseRepository {
 
   Future<bool> preloadPointImage(PointImage pointImage) async {
     final directory = await getApplicationDocumentsDirectory();
-    final imagePath = getPointImagePath(pointImage.id);
-    final fullImagePath = p.join(directory.path, imagePath);
+    final fullImagePath = p.join(directory.path, pointImage.imagePath);
 
-    if (pointImage.needSync) return true;
     if (File(fullImagePath).existsSync()) return true;
 
     try {
       await Dio().download(pointImage.imageUrl, fullImagePath);
-      await dataStore.pointsDao.updatePointImage(pointImage.id, PointImagesCompanion(imagePath: Value(imagePath)));
     } on DioException catch(e) {
       throw AppError(e.message ?? 'Ошибка при загрузке фотографии');
     } catch(e, trace) {
@@ -111,6 +101,8 @@ class PointsRepository extends BaseRepository {
     required double accuracy,
     required DateTime timestamp
   }) async {
+    final imageKey = md5.convert(await file.readAsBytes());
+    final directory = await getApplicationDocumentsDirectory();
     final id = await dataStore.pointsDao.addPointImage(
       PointImagesCompanion.insert(
         pointId: point.id,
@@ -118,18 +110,17 @@ class PointsRepository extends BaseRepository {
         longitude: longitude,
         accuracy: accuracy,
         imageUrl: '',
-        imagePath: '',
+        imageKey: imageKey.toString(),
         timestamp: timestamp,
         needSync: true
       )
     );
-    final directory = await getApplicationDocumentsDirectory();
-    final imagePath = getPointImagePath(id);
-    final fullImagePath = p.join(directory.path, imagePath);
+    final pointImage = (await dataStore.pointsDao.getPointImages()).firstWhere((e) => e.id == id);
+    final fullImagePath = p.join(directory.path, pointImage.imagePath);
 
+    await File(fullImagePath).create(recursive: true);
     await file.saveTo(fullImagePath);
-    await dataStore.pointsDao.updatePoint(point.id, const PointsCompanion(needSync: Value(true)));
-    await dataStore.pointsDao.updatePointImage(id, PointImagesCompanion(imagePath: Value(imagePath)));
+
     notifyListeners();
   }
 
@@ -193,8 +184,7 @@ class PointsRepository extends BaseRepository {
 
     await dataStore.pointsDao.deletePointImage(pointImage.id);
     final directory = await getApplicationDocumentsDirectory();
-    final imagePath = getPointImagePath(pointImage.id);
-    final fullImagePath = p.join(directory.path, imagePath);
+    final fullImagePath = p.join(directory.path, pointImage.imagePath);
 
     await File(fullImagePath).delete();
 
@@ -208,8 +198,6 @@ class PointsRepository extends BaseRepository {
   }
 
   Future<List<PointEx>> syncPoints(List<Point> points, List<PointImage> pointImages) async {
-    if (points.isEmpty) return [];
-
     try {
       final directory = await getApplicationDocumentsDirectory();
       List<Map<String, dynamic>> pointsData = points.map((e) => {
@@ -259,25 +247,15 @@ class PointsRepository extends BaseRepository {
           final apiPointImages = apiPoint.images.map((i) => i.toDatabaseEnt(id)).toList();
 
           for (var apiPointImage in apiPointImages) {
-            final pointImagesCompanion = apiPointImage.toCompanion(false).copyWith(id: const Value.absent());
-            final pointImage = pointImages.firstWhereOrNull((e) => e.guid == apiPointImage.guid);
-            final imageId = await dataStore.pointsDao.addPointImage(pointImagesCompanion);
-
-            final imagePath = getPointImagePath(imageId);
-            final fullImagePath = p.join(directory.path, imagePath);
-            final file = File(p.join(directory.path, pointImage?.imagePath));
-            await dataStore.pointsDao.updatePointImage(imageId, PointImagesCompanion(imagePath: Value(imagePath)));
-
-            if (pointImage != null && file.existsSync()) await file.copy(fullImagePath);
+            final pointImagesCompanion = apiPointImage.toCompanion(false).copyWith(
+              id: const Value.absent(),
+              pointId: Value(id)
+            );
+            await dataStore.pointsDao.addPointImage(pointImagesCompanion);
           }
           ids.add(id);
         }
       });
-      for (var e in pointImages) {
-        final file = File(p.join(directory.path, e.imagePath));
-
-        if (file.existsSync()) await file.delete();
-      }
       notifyListeners();
 
       return (await dataStore.pointsDao.getPointExList()).where((e) => ids.contains(e.point.id)).toList();
@@ -293,6 +271,8 @@ class PointsRepository extends BaseRepository {
     final points = await dataStore.pointsDao.getPointsForSync();
     final pointImages = await dataStore.pointsDao.getPointImagesForSync();
 
+    if (points.isEmpty) return;
+
     try {
       await blockPoints(true);
       await syncPoints(points, pointImages);
@@ -301,14 +281,7 @@ class PointsRepository extends BaseRepository {
     }
   }
 
-  Future<void> clearFiles() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final path = "${directory.path}/$_kPointsFileFolder";
-    final pathDirectory = await Directory(path).create(recursive: true);
-    final filePaths = (pathDirectory.listSync()).map((e) => e.path).toSet();
-
-    for (var filePath in filePaths) {
-      await File(filePath).delete();
-    }
+  Future<void> clearFiles([Set<String> newRelFilePaths = const <String>{}]) async {
+    await Misc.clearFiles(AppDataStore.kPointImagesFileFolder, newRelFilePaths);
   }
 }

@@ -104,6 +104,9 @@ part 'users_dao.dart';
   },
 )
 class AppDataStore extends _$AppDataStore {
+  static const kGoodsFileFolder = 'goods';
+  static const kPointImagesFileFolder = 'point_images';
+
   AppDataStore({
     required bool logStatements
   }) : super(_openConnection(logStatements));
@@ -201,7 +204,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -261,6 +264,12 @@ extension BuyerX on Buyer {
 
 extension GoodsX on Goods {
   String get preName => name.split(' ')[0];
+
+  String get imagePath => p.join(AppDataStore.kGoodsFileFolder, '$imageKey.jpg');
+}
+
+extension PointImageX on PointImage {
+  String get imagePath => p.join(AppDataStore.kPointImagesFileFolder, '$imageKey.jpg');
 }
 
 extension OrderX on Order {

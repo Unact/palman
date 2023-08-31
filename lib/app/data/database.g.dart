@@ -2641,17 +2641,17 @@ class $PointImagesTable extends PointImages
   late final GeneratedColumn<double> accuracy = GeneratedColumn<double>(
       'accuracy', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _imagePathMeta =
-      const VerificationMeta('imagePath');
-  @override
-  late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
-      'image_path', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _imageUrlMeta =
       const VerificationMeta('imageUrl');
   @override
   late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
       'image_url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _imageKeyMeta =
+      const VerificationMeta('imageKey');
+  @override
+  late final GeneratedColumn<String> imageKey = GeneratedColumn<String>(
+      'image_key', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _guidMeta = const VerificationMeta('guid');
   @override
@@ -2683,8 +2683,8 @@ class $PointImagesTable extends PointImages
         latitude,
         longitude,
         accuracy,
-        imagePath,
         imageUrl,
+        imageKey,
         guid,
         timestamp,
         needSync
@@ -2725,17 +2725,17 @@ class $PointImagesTable extends PointImages
     } else if (isInserting) {
       context.missing(_accuracyMeta);
     }
-    if (data.containsKey('image_path')) {
-      context.handle(_imagePathMeta,
-          imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta));
-    } else if (isInserting) {
-      context.missing(_imagePathMeta);
-    }
     if (data.containsKey('image_url')) {
       context.handle(_imageUrlMeta,
           imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta));
     } else if (isInserting) {
       context.missing(_imageUrlMeta);
+    }
+    if (data.containsKey('image_key')) {
+      context.handle(_imageKeyMeta,
+          imageKey.isAcceptableOrUnknown(data['image_key']!, _imageKeyMeta));
+    } else if (isInserting) {
+      context.missing(_imageKeyMeta);
     }
     if (data.containsKey('guid')) {
       context.handle(
@@ -2772,10 +2772,10 @@ class $PointImagesTable extends PointImages
           .read(DriftSqlType.double, data['${effectivePrefix}longitude'])!,
       accuracy: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}accuracy'])!,
-      imagePath: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}image_path'])!,
       imageUrl: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}image_url'])!,
+      imageKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_key'])!,
       guid: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}guid']),
       timestamp: attachedDatabase.typeMapping
@@ -2797,8 +2797,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
   final double latitude;
   final double longitude;
   final double accuracy;
-  final String imagePath;
   final String imageUrl;
+  final String imageKey;
   final String? guid;
   final DateTime timestamp;
   final bool needSync;
@@ -2808,8 +2808,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
       required this.latitude,
       required this.longitude,
       required this.accuracy,
-      required this.imagePath,
       required this.imageUrl,
+      required this.imageKey,
       this.guid,
       required this.timestamp,
       required this.needSync});
@@ -2821,8 +2821,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
     map['latitude'] = Variable<double>(latitude);
     map['longitude'] = Variable<double>(longitude);
     map['accuracy'] = Variable<double>(accuracy);
-    map['image_path'] = Variable<String>(imagePath);
     map['image_url'] = Variable<String>(imageUrl);
+    map['image_key'] = Variable<String>(imageKey);
     if (!nullToAbsent || guid != null) {
       map['guid'] = Variable<String>(guid);
     }
@@ -2838,8 +2838,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
       latitude: Value(latitude),
       longitude: Value(longitude),
       accuracy: Value(accuracy),
-      imagePath: Value(imagePath),
       imageUrl: Value(imageUrl),
+      imageKey: Value(imageKey),
       guid: guid == null && nullToAbsent ? const Value.absent() : Value(guid),
       timestamp: Value(timestamp),
       needSync: Value(needSync),
@@ -2855,8 +2855,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
       latitude: serializer.fromJson<double>(json['latitude']),
       longitude: serializer.fromJson<double>(json['longitude']),
       accuracy: serializer.fromJson<double>(json['accuracy']),
-      imagePath: serializer.fromJson<String>(json['imagePath']),
       imageUrl: serializer.fromJson<String>(json['imageUrl']),
+      imageKey: serializer.fromJson<String>(json['imageKey']),
       guid: serializer.fromJson<String?>(json['guid']),
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       needSync: serializer.fromJson<bool>(json['needSync']),
@@ -2871,8 +2871,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
       'latitude': serializer.toJson<double>(latitude),
       'longitude': serializer.toJson<double>(longitude),
       'accuracy': serializer.toJson<double>(accuracy),
-      'imagePath': serializer.toJson<String>(imagePath),
       'imageUrl': serializer.toJson<String>(imageUrl),
+      'imageKey': serializer.toJson<String>(imageKey),
       'guid': serializer.toJson<String?>(guid),
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'needSync': serializer.toJson<bool>(needSync),
@@ -2885,8 +2885,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
           double? latitude,
           double? longitude,
           double? accuracy,
-          String? imagePath,
           String? imageUrl,
+          String? imageKey,
           Value<String?> guid = const Value.absent(),
           DateTime? timestamp,
           bool? needSync}) =>
@@ -2896,8 +2896,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
         latitude: latitude ?? this.latitude,
         longitude: longitude ?? this.longitude,
         accuracy: accuracy ?? this.accuracy,
-        imagePath: imagePath ?? this.imagePath,
         imageUrl: imageUrl ?? this.imageUrl,
+        imageKey: imageKey ?? this.imageKey,
         guid: guid.present ? guid.value : this.guid,
         timestamp: timestamp ?? this.timestamp,
         needSync: needSync ?? this.needSync,
@@ -2910,8 +2910,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
           ..write('latitude: $latitude, ')
           ..write('longitude: $longitude, ')
           ..write('accuracy: $accuracy, ')
-          ..write('imagePath: $imagePath, ')
           ..write('imageUrl: $imageUrl, ')
+          ..write('imageKey: $imageKey, ')
           ..write('guid: $guid, ')
           ..write('timestamp: $timestamp, ')
           ..write('needSync: $needSync')
@@ -2921,7 +2921,7 @@ class PointImage extends DataClass implements Insertable<PointImage> {
 
   @override
   int get hashCode => Object.hash(id, pointId, latitude, longitude, accuracy,
-      imagePath, imageUrl, guid, timestamp, needSync);
+      imageUrl, imageKey, guid, timestamp, needSync);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2931,8 +2931,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
           other.latitude == this.latitude &&
           other.longitude == this.longitude &&
           other.accuracy == this.accuracy &&
-          other.imagePath == this.imagePath &&
           other.imageUrl == this.imageUrl &&
+          other.imageKey == this.imageKey &&
           other.guid == this.guid &&
           other.timestamp == this.timestamp &&
           other.needSync == this.needSync);
@@ -2944,8 +2944,8 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
   final Value<double> latitude;
   final Value<double> longitude;
   final Value<double> accuracy;
-  final Value<String> imagePath;
   final Value<String> imageUrl;
+  final Value<String> imageKey;
   final Value<String?> guid;
   final Value<DateTime> timestamp;
   final Value<bool> needSync;
@@ -2955,8 +2955,8 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
     this.latitude = const Value.absent(),
     this.longitude = const Value.absent(),
     this.accuracy = const Value.absent(),
-    this.imagePath = const Value.absent(),
     this.imageUrl = const Value.absent(),
+    this.imageKey = const Value.absent(),
     this.guid = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.needSync = const Value.absent(),
@@ -2967,8 +2967,8 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
     required double latitude,
     required double longitude,
     required double accuracy,
-    required String imagePath,
     required String imageUrl,
+    required String imageKey,
     this.guid = const Value.absent(),
     required DateTime timestamp,
     required bool needSync,
@@ -2976,8 +2976,8 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
         latitude = Value(latitude),
         longitude = Value(longitude),
         accuracy = Value(accuracy),
-        imagePath = Value(imagePath),
         imageUrl = Value(imageUrl),
+        imageKey = Value(imageKey),
         timestamp = Value(timestamp),
         needSync = Value(needSync);
   static Insertable<PointImage> custom({
@@ -2986,8 +2986,8 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
     Expression<double>? latitude,
     Expression<double>? longitude,
     Expression<double>? accuracy,
-    Expression<String>? imagePath,
     Expression<String>? imageUrl,
+    Expression<String>? imageKey,
     Expression<String>? guid,
     Expression<DateTime>? timestamp,
     Expression<bool>? needSync,
@@ -2998,8 +2998,8 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
       if (latitude != null) 'latitude': latitude,
       if (longitude != null) 'longitude': longitude,
       if (accuracy != null) 'accuracy': accuracy,
-      if (imagePath != null) 'image_path': imagePath,
       if (imageUrl != null) 'image_url': imageUrl,
+      if (imageKey != null) 'image_key': imageKey,
       if (guid != null) 'guid': guid,
       if (timestamp != null) 'timestamp': timestamp,
       if (needSync != null) 'need_sync': needSync,
@@ -3012,8 +3012,8 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
       Value<double>? latitude,
       Value<double>? longitude,
       Value<double>? accuracy,
-      Value<String>? imagePath,
       Value<String>? imageUrl,
+      Value<String>? imageKey,
       Value<String?>? guid,
       Value<DateTime>? timestamp,
       Value<bool>? needSync}) {
@@ -3023,8 +3023,8 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       accuracy: accuracy ?? this.accuracy,
-      imagePath: imagePath ?? this.imagePath,
       imageUrl: imageUrl ?? this.imageUrl,
+      imageKey: imageKey ?? this.imageKey,
       guid: guid ?? this.guid,
       timestamp: timestamp ?? this.timestamp,
       needSync: needSync ?? this.needSync,
@@ -3049,11 +3049,11 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
     if (accuracy.present) {
       map['accuracy'] = Variable<double>(accuracy.value);
     }
-    if (imagePath.present) {
-      map['image_path'] = Variable<String>(imagePath.value);
-    }
     if (imageUrl.present) {
       map['image_url'] = Variable<String>(imageUrl.value);
+    }
+    if (imageKey.present) {
+      map['image_key'] = Variable<String>(imageKey.value);
     }
     if (guid.present) {
       map['guid'] = Variable<String>(guid.value);
@@ -3075,8 +3075,8 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
           ..write('latitude: $latitude, ')
           ..write('longitude: $longitude, ')
           ..write('accuracy: $accuracy, ')
-          ..write('imagePath: $imagePath, ')
           ..write('imageUrl: $imageUrl, ')
+          ..write('imageKey: $imageKey, ')
           ..write('guid: $guid, ')
           ..write('timestamp: $timestamp, ')
           ..write('needSync: $needSync')
@@ -5606,17 +5606,17 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _imagePathMeta =
-      const VerificationMeta('imagePath');
-  @override
-  late final GeneratedColumn<String> imagePath = GeneratedColumn<String>(
-      'image_path', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _imageUrlMeta =
       const VerificationMeta('imageUrl');
   @override
   late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
       'image_url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _imageKeyMeta =
+      const VerificationMeta('imageKey');
+  @override
+  late final GeneratedColumn<String> imageKey = GeneratedColumn<String>(
+      'image_key', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _categoryIdMeta =
       const VerificationMeta('categoryId');
@@ -5748,8 +5748,8 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
   List<GeneratedColumn> get $columns => [
         id,
         name,
-        imagePath,
         imageUrl,
+        imageKey,
         categoryId,
         manufacturer,
         isHit,
@@ -5788,17 +5788,17 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('image_path')) {
-      context.handle(_imagePathMeta,
-          imagePath.isAcceptableOrUnknown(data['image_path']!, _imagePathMeta));
-    } else if (isInserting) {
-      context.missing(_imagePathMeta);
-    }
     if (data.containsKey('image_url')) {
       context.handle(_imageUrlMeta,
           imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta));
     } else if (isInserting) {
       context.missing(_imageUrlMeta);
+    }
+    if (data.containsKey('image_key')) {
+      context.handle(_imageKeyMeta,
+          imageKey.isAcceptableOrUnknown(data['image_key']!, _imageKeyMeta));
+    } else if (isInserting) {
+      context.missing(_imageKeyMeta);
     }
     if (data.containsKey('category_id')) {
       context.handle(
@@ -5939,10 +5939,10 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      imagePath: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}image_path'])!,
       imageUrl: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}image_url'])!,
+      imageKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_key'])!,
       categoryId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}category_id'])!,
       manufacturer: attachedDatabase.typeMapping
@@ -5994,8 +5994,8 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
 class Goods extends DataClass implements Insertable<Goods> {
   final int id;
   final String name;
-  final String imagePath;
   final String imageUrl;
+  final String imageKey;
   final int categoryId;
   final String? manufacturer;
   final bool isHit;
@@ -6018,8 +6018,8 @@ class Goods extends DataClass implements Insertable<Goods> {
   const Goods(
       {required this.id,
       required this.name,
-      required this.imagePath,
       required this.imageUrl,
+      required this.imageKey,
       required this.categoryId,
       this.manufacturer,
       required this.isHit,
@@ -6044,8 +6044,8 @@ class Goods extends DataClass implements Insertable<Goods> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
-    map['image_path'] = Variable<String>(imagePath);
     map['image_url'] = Variable<String>(imageUrl);
+    map['image_key'] = Variable<String>(imageKey);
     map['category_id'] = Variable<int>(categoryId);
     if (!nullToAbsent || manufacturer != null) {
       map['manufacturer'] = Variable<String>(manufacturer);
@@ -6076,8 +6076,8 @@ class Goods extends DataClass implements Insertable<Goods> {
     return AllGoodsCompanion(
       id: Value(id),
       name: Value(name),
-      imagePath: Value(imagePath),
       imageUrl: Value(imageUrl),
+      imageKey: Value(imageKey),
       categoryId: Value(categoryId),
       manufacturer: manufacturer == null && nullToAbsent
           ? const Value.absent()
@@ -6110,8 +6110,8 @@ class Goods extends DataClass implements Insertable<Goods> {
     return Goods(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      imagePath: serializer.fromJson<String>(json['imagePath']),
       imageUrl: serializer.fromJson<String>(json['imageUrl']),
+      imageKey: serializer.fromJson<String>(json['imageKey']),
       categoryId: serializer.fromJson<int>(json['categoryId']),
       manufacturer: serializer.fromJson<String?>(json['manufacturer']),
       isHit: serializer.fromJson<bool>(json['isHit']),
@@ -6140,8 +6140,8 @@ class Goods extends DataClass implements Insertable<Goods> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
-      'imagePath': serializer.toJson<String>(imagePath),
       'imageUrl': serializer.toJson<String>(imageUrl),
+      'imageKey': serializer.toJson<String>(imageKey),
       'categoryId': serializer.toJson<int>(categoryId),
       'manufacturer': serializer.toJson<String?>(manufacturer),
       'isHit': serializer.toJson<bool>(isHit),
@@ -6167,8 +6167,8 @@ class Goods extends DataClass implements Insertable<Goods> {
   Goods copyWith(
           {int? id,
           String? name,
-          String? imagePath,
           String? imageUrl,
+          String? imageKey,
           int? categoryId,
           Value<String?> manufacturer = const Value.absent(),
           bool? isHit,
@@ -6191,8 +6191,8 @@ class Goods extends DataClass implements Insertable<Goods> {
       Goods(
         id: id ?? this.id,
         name: name ?? this.name,
-        imagePath: imagePath ?? this.imagePath,
         imageUrl: imageUrl ?? this.imageUrl,
+        imageKey: imageKey ?? this.imageKey,
         categoryId: categoryId ?? this.categoryId,
         manufacturer:
             manufacturer.present ? manufacturer.value : this.manufacturer,
@@ -6220,8 +6220,8 @@ class Goods extends DataClass implements Insertable<Goods> {
     return (StringBuffer('Goods(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('imagePath: $imagePath, ')
           ..write('imageUrl: $imageUrl, ')
+          ..write('imageKey: $imageKey, ')
           ..write('categoryId: $categoryId, ')
           ..write('manufacturer: $manufacturer, ')
           ..write('isHit: $isHit, ')
@@ -6249,8 +6249,8 @@ class Goods extends DataClass implements Insertable<Goods> {
   int get hashCode => Object.hashAll([
         id,
         name,
-        imagePath,
         imageUrl,
+        imageKey,
         categoryId,
         manufacturer,
         isHit,
@@ -6277,8 +6277,8 @@ class Goods extends DataClass implements Insertable<Goods> {
       (other is Goods &&
           other.id == this.id &&
           other.name == this.name &&
-          other.imagePath == this.imagePath &&
           other.imageUrl == this.imageUrl &&
+          other.imageKey == this.imageKey &&
           other.categoryId == this.categoryId &&
           other.manufacturer == this.manufacturer &&
           other.isHit == this.isHit &&
@@ -6303,8 +6303,8 @@ class Goods extends DataClass implements Insertable<Goods> {
 class AllGoodsCompanion extends UpdateCompanion<Goods> {
   final Value<int> id;
   final Value<String> name;
-  final Value<String> imagePath;
   final Value<String> imageUrl;
+  final Value<String> imageKey;
   final Value<int> categoryId;
   final Value<String?> manufacturer;
   final Value<bool> isHit;
@@ -6327,8 +6327,8 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   const AllGoodsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
-    this.imagePath = const Value.absent(),
     this.imageUrl = const Value.absent(),
+    this.imageKey = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.manufacturer = const Value.absent(),
     this.isHit = const Value.absent(),
@@ -6352,8 +6352,8 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   AllGoodsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
-    required String imagePath,
     required String imageUrl,
+    required String imageKey,
     required int categoryId,
     this.manufacturer = const Value.absent(),
     required bool isHit,
@@ -6374,8 +6374,8 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     required int shelfLife,
     required String shelfLifeTypeName,
   })  : name = Value(name),
-        imagePath = Value(imagePath),
         imageUrl = Value(imageUrl),
+        imageKey = Value(imageKey),
         categoryId = Value(categoryId),
         isHit = Value(isHit),
         isNew = Value(isNew),
@@ -6396,8 +6396,8 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   static Insertable<Goods> custom({
     Expression<int>? id,
     Expression<String>? name,
-    Expression<String>? imagePath,
     Expression<String>? imageUrl,
+    Expression<String>? imageKey,
     Expression<int>? categoryId,
     Expression<String>? manufacturer,
     Expression<bool>? isHit,
@@ -6421,8 +6421,8 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (imagePath != null) 'image_path': imagePath,
       if (imageUrl != null) 'image_url': imageUrl,
+      if (imageKey != null) 'image_key': imageKey,
       if (categoryId != null) 'category_id': categoryId,
       if (manufacturer != null) 'manufacturer': manufacturer,
       if (isHit != null) 'is_hit': isHit,
@@ -6450,8 +6450,8 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   AllGoodsCompanion copyWith(
       {Value<int>? id,
       Value<String>? name,
-      Value<String>? imagePath,
       Value<String>? imageUrl,
+      Value<String>? imageKey,
       Value<int>? categoryId,
       Value<String?>? manufacturer,
       Value<bool>? isHit,
@@ -6474,8 +6474,8 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     return AllGoodsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
-      imagePath: imagePath ?? this.imagePath,
       imageUrl: imageUrl ?? this.imageUrl,
+      imageKey: imageKey ?? this.imageKey,
       categoryId: categoryId ?? this.categoryId,
       manufacturer: manufacturer ?? this.manufacturer,
       isHit: isHit ?? this.isHit,
@@ -6508,11 +6508,11 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
-    if (imagePath.present) {
-      map['image_path'] = Variable<String>(imagePath.value);
-    }
     if (imageUrl.present) {
       map['image_url'] = Variable<String>(imageUrl.value);
+    }
+    if (imageKey.present) {
+      map['image_key'] = Variable<String>(imageKey.value);
     }
     if (categoryId.present) {
       map['category_id'] = Variable<int>(categoryId.value);
@@ -6580,8 +6580,8 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     return (StringBuffer('AllGoodsCompanion(')
           ..write('id: $id, ')
           ..write('name: $name, ')
-          ..write('imagePath: $imagePath, ')
           ..write('imageUrl: $imageUrl, ')
+          ..write('imageKey: $imageKey, ')
           ..write('categoryId: $categoryId, ')
           ..write('manufacturer: $manufacturer, ')
           ..write('isHit: $isHit, ')
@@ -13981,7 +13981,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_path" AS "nested_0.image_path", "goods"."image_url" AS "nested_0.image_url", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_hit" AS "nested_0.is_hit", "goods"."is_new" AS "nested_0.is_new", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."mc_vol" AS "nested_0.mc_vol", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id) AS last_shipment_date, (SELECT MAX(shipment_lines.price) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN (SELECT MAX(shipments.date) AS last_shipment_date, shipments.buyer_id FROM shipments GROUP BY shipments.buyer_id) AS sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id) AS last_price FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE((goods.is_fridge = 1 AND fridge_stocks.goods_id IS NOT NULL)OR(goods.is_fridge = 0 AND normal_stocks.goods_id IS NOT NULL))AND buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
+        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_hit" AS "nested_0.is_hit", "goods"."is_new" AS "nested_0.is_new", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."mc_vol" AS "nested_0.mc_vol", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id) AS last_shipment_date, (SELECT MAX(shipment_lines.price) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN (SELECT MAX(shipments.date) AS last_shipment_date, shipments.buyer_id FROM shipments GROUP BY shipments.buyer_id) AS sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id) AS last_price FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE((goods.is_fridge = 1 AND fridge_stocks.goods_id IS NOT NULL)OR(goods.is_fridge = 0 AND normal_stocks.goods_id IS NOT NULL))AND buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
         variables: [
           Variable<int>(buyerId),
           for (var $ in goodsIds) Variable<int>($)

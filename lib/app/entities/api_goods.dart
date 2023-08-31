@@ -4,6 +4,7 @@ class ApiGoods extends Equatable {
   final int id;
   final String name;
   final String imageUrl;
+  final String imageKey;
   final int categoryId;
   final String? manufacturer;
   final bool isHit;
@@ -28,6 +29,7 @@ class ApiGoods extends Equatable {
     required this.id,
     required this.name,
     required this.imageUrl,
+    required this.imageKey,
     required this.categoryId,
     this.manufacturer,
     required this.isHit,
@@ -54,6 +56,7 @@ class ApiGoods extends Equatable {
       id: json['id'],
       name: json['name'],
       imageUrl: json['imageUrl'],
+      imageKey: json['imageKey'],
       categoryId: json['categoryId'],
       manufacturer: json['manufacturer'],
       isHit: json['isHit'],
@@ -81,6 +84,7 @@ class ApiGoods extends Equatable {
       id: id,
       name: name,
       imageUrl: imageUrl,
+      imageKey: imageKey,
       categoryId: categoryId,
       manufacturer: manufacturer,
       isHit: isHit,
@@ -99,8 +103,7 @@ class ApiGoods extends Equatable {
       mcVol: mcVol,
       isFridge: isFridge,
       shelfLife: shelfLife,
-      shelfLifeTypeName: shelfLifeTypeName,
-      imagePath: ''
+      shelfLifeTypeName: shelfLifeTypeName
     );
   }
 
@@ -109,6 +112,7 @@ class ApiGoods extends Equatable {
     id,
     name,
     imageUrl,
+    imageKey,
     categoryId,
     manufacturer,
     isHit,

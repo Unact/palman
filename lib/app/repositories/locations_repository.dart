@@ -37,8 +37,6 @@ class LocationsRepository extends BaseRepository {
   }
 
   Future<void> syncLocationChanges(List<Location> locations) async {
-    if (locations.length < kMinLocationPoint) return;
-
     try {
       List<Map<String, dynamic>> locationsData = locations.map((e) => {
         'latitude': e.latitude,
@@ -65,6 +63,8 @@ class LocationsRepository extends BaseRepository {
 
   Future<void> syncChanges() async {
     final locations = await dataStore.getLocations();
+
+    if (locations.length < kMinLocationPoint) return;
 
     await syncLocationChanges(locations);
   }

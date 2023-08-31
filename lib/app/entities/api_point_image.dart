@@ -7,6 +7,7 @@ class ApiPointImage extends Equatable {
   final double longitude;
   final double accuracy;
   final String imageUrl;
+  final String imageKey;
   final DateTime timestamp;
 
   const ApiPointImage({
@@ -16,6 +17,7 @@ class ApiPointImage extends Equatable {
     required this.longitude,
     required this.accuracy,
     required this.imageUrl,
+    required this.imageKey,
     required this.timestamp
   });
 
@@ -27,6 +29,7 @@ class ApiPointImage extends Equatable {
       longitude: Parsing.parseDouble(json['longitude'])!,
       accuracy: Parsing.parseDouble(json['accuracy'])!,
       imageUrl: json['imageUrl'],
+      imageKey: json['imageKey'],
       timestamp: Parsing.parseDate(json['timestamp'])!
     );
   }
@@ -40,9 +43,9 @@ class ApiPointImage extends Equatable {
       longitude: longitude,
       accuracy: accuracy,
       imageUrl: imageUrl,
+      imageKey: imageKey,
       timestamp: timestamp,
-      needSync: false,
-      imagePath: ''
+      needSync: false
     );
   }
 
@@ -54,6 +57,7 @@ class ApiPointImage extends Equatable {
     longitude,
     accuracy,
     imageUrl,
+    imageKey,
     timestamp
   ];
 }

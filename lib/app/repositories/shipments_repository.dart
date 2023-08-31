@@ -40,8 +40,6 @@ class ShipmentsRepository extends BaseRepository {
   }
 
   Future<void> syncIncRequests(List<IncRequest> incRequests) async {
-    if (incRequests.isEmpty) return;
-
     try {
       List<Map<String, dynamic>> incRequestsData = incRequests.map((e) => {
         'guid': e.guid,
@@ -73,6 +71,8 @@ class ShipmentsRepository extends BaseRepository {
 
   Future<void> syncChanges() async {
     final incRequests = await dataStore.shipmentsDao.getIncRequestsForSync();
+
+    if (incRequests.isEmpty) return;
 
     try {
       await blockIncRequests(true);
