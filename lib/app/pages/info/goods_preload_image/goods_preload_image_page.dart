@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/orders_repository.dart';
-import '/app/utils/misc.dart';
 
 part 'goods_preload_image_state.dart';
 part 'goods_preload_image_view_model.dart';
@@ -80,7 +80,7 @@ class _GoodsPreloadImageViewState extends State<_GoodsPreloadImageView> {
           case GoodsPreloadImageStateStatus.failure:
           case GoodsPreloadImageStateStatus.success:
           case GoodsPreloadImageStateStatus.canceled:
-          Misc.showMessage(context, state.message);
+            Misc.showMessage(context, state.message);
             Navigator.of(context).pop();
             break;
           default:

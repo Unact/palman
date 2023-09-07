@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/data/database.dart';
-import '/app/utils/parsing.dart';
 
 part 'api_bonus_program_group.dart';
 part 'api_bonus_program.dart';

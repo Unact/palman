@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:fk_user_agent/fk_user_agent.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import 'app/constants/strings.dart';
 import 'app/data/database.dart';
@@ -20,22 +20,15 @@ import 'app/repositories/points_repository.dart';
 import 'app/repositories/prices_repository.dart';
 import 'app/repositories/shipments_repository.dart';
 import 'app/repositories/users_repository.dart';
-import 'app/services/api.dart';
-import 'app/utils/misc.dart';
 
 void main() async {
   runZonedGuarded<Future<void>>(() async {
     Provider.debugCheckInvalidValueType = null;
-
-    bool isDebug = false;
-    assert(isDebug = true);
-
     WidgetsFlutterBinding.ensureInitialized();
-
     await PackageInfo.fromPlatform();
-    await FkUserAgent.init();
 
-    Api api = await Api.init();
+    bool isDebug = Misc.isDebug();
+    RenewApi api = await RenewApi.init(appName: Strings.appName);
     AppDataStore dataStore = AppDataStore(logStatements: isDebug);
     AppRepository appRepository = AppRepository(dataStore, api);
 
@@ -48,11 +41,16 @@ void main() async {
     ShipmentsRepository shipmentsRepository = ShipmentsRepository(dataStore, api);
     UsersRepository usersRepository = UsersRepository(dataStore, api);
 
-    await _initSentry(
+    await Initialization.initializeSentry(
       dsn: const String.fromEnvironment('PALMAN_SENTRY_DSN'),
-      capture: !isDebug,
-      repository: usersRepository
+      isDebug: isDebug,
+      userGenerator: () async {
+        User user = await usersRepository.getUser();
+
+        return SentryUser(id: user.id.toString(), username: user.username, email: user.email);
+      }
     );
+    Initialization.intializeFlogs(isDebug: isDebug);
 
     runApp(
       MultiRepositoryProvider(
@@ -92,26 +90,3 @@ void main() async {
     Misc.reportError(error, stackTrace);
   });
 }
-
-Future<void> _initSentry({
-    required String dsn,
-    required bool capture,
-    required UsersRepository repository
-  }) async {
-    if (!capture) return;
-
-    await SentryFlutter.init(
-      (options) {
-        options.dsn = dsn;
-        options.beforeSend = (SentryEvent event, {dynamic hint}) async {
-          User user = await repository.getUser();
-
-          return event.copyWith(user: SentryUser(
-            id: user.id.toString(),
-            username: user.username,
-            email: user.email
-          ));
-        };
-      },
-    );
-  }

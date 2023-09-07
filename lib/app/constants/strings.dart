@@ -1,5 +1,6 @@
 class Strings {
   static const appName = 'Palman';
+  static const repoName = 'palman';
   static const ruAppName = 'Продажи';
   static const envDevelopment = 'development';
   static const envProduction = 'production';

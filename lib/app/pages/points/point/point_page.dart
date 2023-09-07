@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:quiver/core.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
@@ -12,9 +13,6 @@ import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/points_repository.dart';
-import '/app/utils/misc.dart';
-import '/app/utils/permissions.dart';
-import '/app/widgets/widgets.dart';
 import 'address/address_page.dart';
 
 part 'point_state.dart';

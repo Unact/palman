@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
@@ -13,9 +14,6 @@ import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/prices_repository.dart';
-import '/app/utils/format.dart';
-import '/app/utils/parsing.dart';
-import '/app/widgets/widgets.dart';
 import 'bonus_programs/bonus_programs_page.dart';
 import 'goods_info/goods_info_page.dart';
 
