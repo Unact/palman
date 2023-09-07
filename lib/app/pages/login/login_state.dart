@@ -24,7 +24,7 @@ class LoginState {
     this.status = LoginStateStatus.initial,
     this.login = '',
     this.password = '',
-    this.url = '${const String.fromEnvironment('PALMAN_RENEW_URL')}/api/',
+    this.url = const String.fromEnvironment('PALMAN_RENEW_URL'),
     this.optsEnabled = false,
     this.message = '',
     this.fullVersion = ''
