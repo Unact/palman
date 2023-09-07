@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
@@ -8,7 +9,6 @@ import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/prices_repository.dart';
-import '/app/utils/format.dart';
 import '../../order/order_page.dart';
 
 part 'pre_order_state.dart';

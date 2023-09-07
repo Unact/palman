@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:quiver/core.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
@@ -13,9 +14,6 @@ import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/partners_repository.dart';
 import '/app/repositories/users_repository.dart';
-import '/app/utils/misc.dart';
-import '/app/widgets/widgets.dart';
-import '/app/utils/format.dart';
 import 'goods/goods_page.dart';
 
 part 'order_state.dart';

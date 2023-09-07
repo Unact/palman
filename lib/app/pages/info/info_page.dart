@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
@@ -22,9 +23,6 @@ import '/app/repositories/points_repository.dart';
 import '/app/repositories/prices_repository.dart';
 import '/app/repositories/shipments_repository.dart';
 import '/app/repositories/users_repository.dart';
-import '/app/utils/misc.dart';
-import '/app/utils/permissions.dart';
-import '/app/widgets/widgets.dart';
 import 'goods_preload_image/goods_preload_image_page.dart';
 import 'point_preload_image/point_preload_image_page.dart';
 

@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/data/database.dart';
-import '/app/services/api.dart';
 
 class BaseRepository extends ChangeNotifier {
   final AppDataStore dataStore;
-  final Api api;
+  final RenewApi api;
 
   BaseRepository(this.dataStore, this.api);
 }

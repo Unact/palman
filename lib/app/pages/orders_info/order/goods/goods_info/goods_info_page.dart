@@ -2,6 +2,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
@@ -9,9 +10,6 @@ import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/prices_repository.dart';
-import '/app/utils/format.dart';
-import '/app/utils/extensions.dart';
-import '/app/widgets/widgets.dart';
 import 'price_change/price_change_page.dart';
 
 part 'goods_info_state.dart';

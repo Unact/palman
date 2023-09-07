@@ -6,16 +6,16 @@ import 'package:drift/drift.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:quiver/core.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/repositories/base_repository.dart';
-import '/app/services/api.dart';
-import '/app/utils/misc.dart';
+import '../services/palman_api.dart';
 
 class OrdersRepository extends BaseRepository {
-  OrdersRepository(AppDataStore dataStore, Api api) : super(dataStore, api);
+  OrdersRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
   Future<void> loadBonusPrograms() async {
     try {

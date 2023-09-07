@@ -3,12 +3,11 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 import '/app/constants/strings.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/utils/misc.dart';
-import '/app/utils/permissions.dart';
 
 part 'address_state.dart';
 part 'address_view_model.dart';
