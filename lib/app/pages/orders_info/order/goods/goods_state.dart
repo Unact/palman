@@ -3,9 +3,9 @@ part of 'goods_page.dart';
 enum GoodsStateStatus {
   initial,
   dataLoaded,
-  orderUpdated,
   searchStarted,
-  searchFinished
+  searchFinished,
+  orderLineUpdated
 }
 
 class GoodsState {
@@ -48,6 +48,13 @@ class GoodsState {
 
   List<String> get goodsFirstWords => goodsDetails.map((e) => e.goods.name.split(' ')[0]).toSet().toList();
   List<OrderLineEx> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
+  bool get goodsListInitiallyExpanded => showOnlyActive || showOnlyOrder;
+  bool get categoriesListInitiallyExpanded =>
+    showOnlyActive ||
+    showOnlyOrder ||
+    selectedGoodsFilter != null ||
+    selectedBonusProgram != null ||
+    (goodsNameSearch ?? '').isNotEmpty;
 
   final List<Category> visibleCategories;
   final Category? selectedCategory;

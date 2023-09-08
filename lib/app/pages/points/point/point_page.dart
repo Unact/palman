@@ -292,6 +292,7 @@ class _PointViewState extends State<_PointView> {
   List<Widget> buildImages(BuildContext context) {
     final vm = context.read<PointViewModel>();
     final images = vm.state.pointEx.images.map((image) => EntityImage(
+      color: Colors.red,
       local: image.needSync || vm.state.showLocalImage,
       imageUrl: image.imageUrl,
       imagePath: image.imagePath,

@@ -242,7 +242,7 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
     final vm = context.read<DebtsInfoViewModel>();
 
     return ListTile(
-      title: Text(Format.dateStr(debtEx.debt.date)),
+      title: Text(Format.dateStr(debtEx.debt.date), style: Styles.tileText),
       subtitle: RichText(
         text: TextSpan(
           style: Styles.defaultTextSpan,
@@ -262,6 +262,10 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
             TextSpan(
               text: 'Оплата до: ${Format.dateStr(debtEx.debt.dateUntil)}\n',
               style: Styles.tileText
+            ),
+            TextSpan(
+              text: debtEx.debt.overdue ? 'Просрочено\n' : '',
+              style: Styles.tileText.copyWith(color: Colors.red)
             )
           ]
         )
@@ -274,7 +278,7 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
   Widget buildDebtPartnerTile(BuildContext context, Partner partner, List<DebtEx> debtExList) {
     return ExpansionTile(
       initiallyExpanded: true,
-      title: Text(partner.name),
+      title: Text(partner.name, style: const TextStyle(color: Colors.black)),
       children: debtExList.map((e) => buildDebtTile(context, e)).toList()
     );
   }

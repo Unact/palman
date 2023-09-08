@@ -348,6 +348,7 @@ class OrdersRepository extends BaseRepository {
       needProcessing: needProcessing == null ? const Value.absent() : Value(needProcessing.value),
       timestamp: Value(DateTime.now()),
       needSync: needSync == null ? const Value.absent() : Value(needSync.value),
+      isDeleted: const Value(false)
     );
 
     await dataStore.ordersDao.updateOrder(order.id, updatedOrder);
@@ -411,6 +412,7 @@ class OrdersRepository extends BaseRepository {
       rel: rel == null ? const Value.absent() : Value(rel.value),
       timestamp: Value(DateTime.now()),
       needSync: needSync == null ? const Value.absent() : Value(needSync.value),
+      isDeleted: const Value(false)
     );
 
     await dataStore.ordersDao.updateOrderLine(orderLine.id, updatedOrderLine);

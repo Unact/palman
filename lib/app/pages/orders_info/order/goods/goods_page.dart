@@ -156,7 +156,7 @@ class _GoodsViewState extends State<_GoodsView> {
                 compactMode ?
                   Container() :
                   SizedBox(width: 260, child: buildCategorySelect(context, vm.selectCategory)),
-                buildGoodsView(context)
+                buildGoodsView(context, compactMode)
               ],
             )
           ),
@@ -177,7 +177,7 @@ class _GoodsViewState extends State<_GoodsView> {
     );
   }
 
-  Widget buildGoodsView(BuildContext context) {
+  Widget buildGoodsView(BuildContext context, bool compactMode) {
     final vm = context.read<GoodsViewModel>();
     final Map<String, List<GoodsDetail>> groupedGoods = {};
 
@@ -193,7 +193,7 @@ class _GoodsViewState extends State<_GoodsView> {
 
     final itemScrollController = ItemScrollController();
     final items = groupedGoods.entries.sorted((a, b) => a.key.compareTo(b.key));
-    List<bool> groupedGoodsExpanded = List.filled(items.length, false);
+    List<bool> groupedGoodsExpanded = List.filled(items.length, vm.state.goodsListInitiallyExpanded);
     final goodsIndex = !vm.state.showGroupInfo ?
       Container() :
       SizedBox(
@@ -227,7 +227,10 @@ class _GoodsViewState extends State<_GoodsView> {
                 itemScrollController: itemScrollController,
                 itemCount: groupedGoods.entries.length,
                 itemBuilder: (context, index) {
-                  final children = items[index].value.map((g) => buildGoodsTile(context, g)).whereNotNull().toList();
+                  final children = items[index].value
+                    .map((g) => [buildGoodsTile(context, g), buildGoodsImage(context, g, compactMode)])
+                    .expand((e) => e)
+                    .whereNotNull().toList();
 
                   if (children.isEmpty) return Container();
 
@@ -497,12 +500,13 @@ class _GoodsViewState extends State<_GoodsView> {
     );
   }
 
-  Widget? buildGoodsTileLeading(BuildContext context, GoodsDetail goodsDetail) {
+  Widget buildGoodsImage(BuildContext context, GoodsDetail goodsDetail, bool compactMode) {
     final vm = context.read<GoodsViewModel>();
 
-    if (!vm.state.showGoodsImage) return null;
+    if (!vm.state.showGoodsImage) return Container();
 
     final image = EntityImage(
+      color: Colors.red,
       local: vm.state.showLocalImage,
       imageUrl: goodsDetail.goodsEx.goods.imageUrl,
       imagePath: goodsDetail.goodsEx.goods.imagePath,
@@ -519,8 +523,8 @@ class _GoodsViewState extends State<_GoodsView> {
         );
       },
       child: SizedBox(
-        width: 80,
-        height: 100,
+        width: compactMode ? 160 : 320,
+        height: compactMode ? 200 : 400,
         child: image
       )
     );
@@ -534,7 +538,6 @@ class _GoodsViewState extends State<_GoodsView> {
     return ListTile(
       contentPadding: const EdgeInsets.only(left: 8, top: 4, right: 8, bottom: 4),
       tileColor: Theme.of(context).scaffoldBackgroundColor,
-      leading: buildGoodsTileLeading(context, goodsDetail),
       trailing: buildGoodsTileTrailing(context, goodsDetail),
       subtitle: buildGoodsTileSubtitle(context, goodsDetail),
       title: buildGoodsTileTitle(context, goodsDetail),
@@ -566,12 +569,12 @@ class _GoodsViewState extends State<_GoodsView> {
         style: Styles.formStyle,
         decoration: InputDecoration(
           border: !enabled ? InputBorder.none : null,
-          prefixIcon: !enabled ? null : IconButton(
+          suffixIcon: !enabled ? null : IconButton(
             icon: const Icon(Icons.add),
             tooltip: 'Увеличить кол-во',
             onPressed: () => vm.updateOrderLineVol(goodsDetail, (orderLineEx?.line.vol ?? 0) + goodsDetail.stockRel)
           ),
-          suffixIcon: !enabled ? null : IconButton(
+          prefixIcon: !enabled ? null : IconButton(
             icon: const Icon(Icons.remove),
             tooltip: 'Уменьшить кол-во',
             onPressed: () => vm.updateOrderLineVol(goodsDetail, (orderLineEx?.line.vol ?? 0) - goodsDetail.stockRel)
@@ -625,7 +628,19 @@ class _GoodsViewState extends State<_GoodsView> {
         selected: node.data == vm.state.selectedCategory,
         title: Text(node.data.name),
       ),
-      onTreeReady: (controller) => categoryTreeController = controller
+      onTreeReady: (controller) {
+        categoryTreeController = controller;
+
+        if (vm.state.categoriesListInitiallyExpanded) {
+          categoryTreeController!.expandAllChildren(root);
+        } else {
+          for (var element in root.childrenAsList) {
+            if (categoryTreeController!.elementAt(element.path).isExpanded) {
+              categoryTreeController!.collapseNode(element as TreeNode);
+            }
+          }
+        }
+      }
     );
   }
 }

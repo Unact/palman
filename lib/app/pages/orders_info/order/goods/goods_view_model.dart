@@ -55,7 +55,10 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> selectBonusProgram(FilteredBonusProgramsResult? bonusProgram) async {
-    emit(state.copyWith(selectedBonusProgram: Optional.fromNullable(bonusProgram)));
+    emit(state.copyWith(
+      selectedBonusProgram: Optional.fromNullable(bonusProgram),
+      selectedCategory: const Optional.absent()
+    ));
 
     await searchGoods();
   }
@@ -67,13 +70,19 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> setGoodsNameSearch(String? goodsNameSearch) async {
-    emit(state.copyWith(goodsNameSearch: Optional.fromNullable(goodsNameSearch)));
+    emit(state.copyWith(
+      goodsNameSearch: Optional.fromNullable(goodsNameSearch),
+      selectedCategory: const Optional.absent()
+    ));
 
     await searchGoods();
   }
 
   Future<void> selectGoodsFilter(GoodsFilter? goodsFilter) async {
-    emit(state.copyWith(selectedGoodsFilter: Optional.fromNullable(goodsFilter)));
+    emit(state.copyWith(
+      selectedGoodsFilter: Optional.fromNullable(goodsFilter),
+      selectedCategory: const Optional.absent()
+    ));
 
     await searchGoods();
   }
@@ -157,8 +166,9 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       date: state.orderEx.order.date!,
       goodsIds: state.filteredOrderLinesExList.map((e) => e.goods.id).toList()
     );
+    final orderLinesEx = (await ordersRepository.getOrderLineExList(state.orderEx.order.id));
 
-    for (var orderLine in state.filteredOrderLinesExList) {
+    for (var orderLine in orderLinesEx) {
       final goodsDetail = goodsDetails.firstWhereOrNull((e) => e.goods == orderLine.goods);
 
       if (goodsDetail == null) continue;
@@ -174,7 +184,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> updateOrderLineVol(GoodsDetail goodsDetail, double? vol) async {
-    final orderLineEx = state.filteredOrderLinesExList
+    final orderLineEx = (await ordersRepository.getOrderLineExList(state.orderEx.order.id))
       .firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goodsEx.goods.id);
 
     if (vol == null || vol <= 0) {
@@ -187,6 +197,10 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       await ordersRepository.updateOrderLine(
         orderLineEx.line,
         vol: Optional.of(vol),
+        rel: Optional.of(goodsDetail.rel),
+        price: Optional.of(goodsDetail.price),
+        priceOriginal: Optional.of(goodsDetail.pricelistPrice),
+        package: Optional.of(goodsDetail.package),
         needSync: Optional.of(true)
       );
 

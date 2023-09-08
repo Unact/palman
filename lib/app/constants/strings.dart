@@ -27,6 +27,8 @@ class Strings {
   static const orderDraftStatus = 'draft';
   static const orderUploadStatus = 'upload';
   static const orderDeletedStatus = 'deleted';
+  static const orderOnHoldStatus = 'onhold';
+  static const orderDoneStatus = 'done';
 
   static const ok = 'ОК';
   static const cancel = 'Отмена';

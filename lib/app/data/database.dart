@@ -273,17 +273,23 @@ extension PointImageX on PointImage {
 }
 
 extension OrderX on Order {
-  String get statusName {
-    switch (status) {
-      case 'done': return 'Передан';
-      case Strings.orderUploadStatus: return 'В работе';
-      case 'processing': return 'Передача';
-      case Strings.orderDraftStatus: return 'Черновик';
-      case 'onhold': return 'Задержан';
-      case 'deleted': return 'Удален';
-      default: return 'Статус не определен';
-    }
-  }
+  OrderStatus get detailedStatus => OrderStatus.values
+    .firstWhere((e) => e.value == status, orElse: () => OrderStatus.unknown);
+}
+
+enum OrderStatus {
+  draft('draft', 'Черновик'),
+  upload('upload', 'В работе'),
+  deleted('deleted', 'Удален'),
+  onhold('onhold', 'Задержан'),
+  processing('processing', 'Передача'),
+  done('done', 'Передан'),
+  unknown('unknown', 'Статус не определен');
+
+  const OrderStatus(this.value, this.name);
+
+  final String value;
+  final String name;
 }
 
 extension OrderLineX on OrderLine {
