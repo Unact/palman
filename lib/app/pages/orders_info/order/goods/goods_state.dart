@@ -4,8 +4,7 @@ enum GoodsStateStatus {
   initial,
   dataLoaded,
   searchStarted,
-  searchFinished,
-  orderLineUpdated
+  searchFinished
 }
 
 class GoodsState {
