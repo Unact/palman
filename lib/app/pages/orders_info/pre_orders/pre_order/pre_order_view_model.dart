@@ -22,7 +22,7 @@ class PreOrderViewModel extends PageViewModel<PreOrderState, PreOrderStateStatus
 
   Future<void> createOrder() async {
     final orderEx = await ordersRepository.addOrder(
-      status: Strings.orderUploadStatus,
+      status: OrderStatus.upload.value,
       needProcessing: true,
       preOrderId: state.preOrderEx.preOrder.id,
       buyerId: state.preOrderEx.preOrder.buyerId,

@@ -294,7 +294,7 @@ class OrdersRepository extends BaseRepository {
     int? preOrderId,
     int? buyerId,
     DateTime? date,
-    String status = Strings.orderDraftStatus,
+    String? status,
     bool needProcessing = false,
     bool needDocs = false,
     bool isBonus = false,
@@ -303,7 +303,7 @@ class OrdersRepository extends BaseRepository {
   }) async {
     final id = await dataStore.ordersDao.addOrder(
       OrdersCompanion.insert(
-        status: status,
+        status: status ?? OrderStatus.draft.value,
         needDocs: needDocs,
         isBonus: isBonus,
         isPhysical: isPhysical,
