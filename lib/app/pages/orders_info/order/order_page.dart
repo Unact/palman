@@ -209,7 +209,7 @@ class _OrderViewState extends State<_OrderView> {
       InfoRow(
         trailingFlex: 2,
         title: const Text('Статус'),
-        trailing: Text(order.statusName)
+        trailing: Text(order.detailedStatus.name)
       ),
       !order.isEditable ? Container() : InfoRow(
         trailingFlex: 2,

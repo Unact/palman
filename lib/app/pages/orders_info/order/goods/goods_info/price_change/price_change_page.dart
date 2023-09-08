@@ -191,12 +191,12 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
           style: Styles.formStyle,
           textAlignVertical: TextAlignVertical.center,
           decoration: InputDecoration(
-            prefixIcon: IconButton(
+            suffixIcon: IconButton(
               icon: const Icon(Icons.add),
               tooltip: 'Увеличить цену',
               onPressed: () => updatePriceAndText(price + vm.state.priceStep)
             ),
-            suffixIcon: IconButton(
+            prefixIcon: IconButton(
               icon: const Icon(Icons.remove),
               tooltip: 'Уменьшить цену',
               onPressed: () => updatePriceAndText(price - vm.state.priceStep)

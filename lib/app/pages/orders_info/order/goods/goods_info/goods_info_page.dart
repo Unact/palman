@@ -96,16 +96,93 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
                 child: Text(goods.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold))
               ),
               Padding(padding: const EdgeInsets.only(top: 16), child: buildGoodsImage(context)),
-              InfoRow(title: const Text('Преднаименование'), trailing: Text(goods.preName)),
-              InfoRow(title: const Text('Штук в коробе'), trailing: Text(goods.categoryPackageRel.toString())),
-              InfoRow(title: const Text('Штук в блоке'), trailing: Text(goods.categoryBlockRel.toString())),
-              InfoRow(title: const Text('Вес короба'), trailing: Text(Format.numberStr(goods.weight))),
-              InfoRow(title: const Text('Объем короба'), trailing: Text(Format.numberStr(goods.mcVol))),
-              InfoRow(title: const Text('Себестоимость'), trailing: Text(Format.numberStr(goods.cost))),
-              InfoRow(title: const Text('Производитель'), trailing: Text(goods.manufacturer ?? '')),
-              InfoRow(
-                title: const Text('Срок годности'),
-                trailing: Text('${goods.shelfLife} ${goods.shelfLifeTypeName.toLowerCase()}')
+              TextFormField(
+                canRequestFocus: false,
+                enableInteractiveSelection: false,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  labelText: 'Преднаименование',
+                  border: InputBorder.none
+                ),
+                initialValue: goods.preName
+              ),
+              TextFormField(
+                canRequestFocus: false,
+                enableInteractiveSelection: false,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  labelText: 'Штук в коробе',
+                  border: InputBorder.none
+                ),
+                initialValue: goods.categoryPackageRel.toString()
+              ),
+              TextFormField(
+                canRequestFocus: false,
+                enableInteractiveSelection: false,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  labelText: 'Штук в блоке',
+                  border: InputBorder.none
+                ),
+                initialValue: goods.categoryBlockRel.toString()
+              ),
+              TextFormField(
+                canRequestFocus: false,
+                enableInteractiveSelection: false,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  labelText: 'Вес короба',
+                  border: InputBorder.none
+                ),
+                initialValue: Format.numberStr(goods.weight)
+              ),
+              TextFormField(
+                canRequestFocus: false,
+                enableInteractiveSelection: false,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  labelText: 'Объем короба',
+                  border: InputBorder.none
+                ),
+                initialValue: Format.numberStr(goods.mcVol)
+              ),
+              TextFormField(
+                canRequestFocus: false,
+                enableInteractiveSelection: false,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  labelText: 'Себестоимость',
+                  border: InputBorder.none
+                ),
+                initialValue: Format.numberStr(goods.cost)
+              ),
+              TextFormField(
+                canRequestFocus: false,
+                enableInteractiveSelection: false,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  labelText: 'Производитель',
+                  border: InputBorder.none
+                ),
+                initialValue: goods.manufacturer
+              ),
+              TextFormField(
+                canRequestFocus: false,
+                enableInteractiveSelection: false,
+                readOnly: true,
+                decoration: const InputDecoration(
+                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                  labelText: 'Срок годности',
+                  border: InputBorder.none
+                ),
+                initialValue: '${goods.shelfLife} ${goods.shelfLifeTypeName.toLowerCase()}'
               ),
               ExpansionTile(
                 tilePadding: const EdgeInsets.symmetric(horizontal: 8),
@@ -191,6 +268,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
   Widget buildGoodsImage(BuildContext context) {
     final vm = context.read<GoodsInfoViewModel>();
     final image = EntityImage(
+      color: Colors.red,
       local: vm.state.showLocalImage,
       imageUrl: vm.state.goodsEx.goods.imageUrl,
       imagePath: vm.state.goodsEx.goods.imagePath,

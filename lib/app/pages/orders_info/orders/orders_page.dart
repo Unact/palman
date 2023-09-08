@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
-import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
@@ -89,8 +88,8 @@ class _OrdersViewState extends State<_OrdersView> {
               style: Styles.tileText
             ),
             TextSpan(
-              text: 'Статус: ${orderEx.order.statusName}\n',
-              style: Styles.tileText.copyWith(color: Colors.blue)
+              text: 'Статус: ${orderEx.order.detailedStatus.name}\n',
+              style: Styles.tileText.copyWith(color: _statusColor(orderEx))
             ),
             TextSpan(
               text: orderEx.order.isBonus ? 'Бонусный\n' : '',
@@ -143,5 +142,17 @@ class _OrdersViewState extends State<_OrdersView> {
         fullscreenDialog: false
       )
     );
+  }
+
+  Color _statusColor(OrderExResult orderEx) {
+    switch (orderEx.order.detailedStatus) {
+      case OrderStatus.deleted: return Colors.red;
+      case OrderStatus.draft: return Colors.blue;
+      case OrderStatus.upload: return Colors.grey[700]!;
+      case OrderStatus.processing: return Colors.brown;
+      case OrderStatus.done: return Colors.green;
+      case OrderStatus.onhold: return Colors.red;
+      case OrderStatus.unknown: return Colors.black;
+    }
   }
 }

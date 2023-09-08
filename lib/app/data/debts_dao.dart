@@ -87,7 +87,7 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
         innerJoin(buyers, buyers.id.equalsExp(debts.buyerId)),
         innerJoin(partners, partners.id.equalsExp(buyers.partnerId))
       ])
-      ..orderBy([OrderingTerm(expression: partners.name)]);
+      ..orderBy([OrderingTerm(expression: partners.name), OrderingTerm(expression: debts.dateUntil)]);
 
     return res.map((row) => DebtEx(row.readTable(debts), row.readTable(buyers), row.readTable(partners))).get();
   }

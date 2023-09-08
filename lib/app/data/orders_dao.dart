@@ -183,10 +183,6 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     await (delete(orderLines)..where((tbl) => tbl.id.equals(orderLineId))).go();
   }
 
-  Future<void> updateGoods(int id, AllGoodsCompanion updatedGoods) async {
-    await (update(allGoods)..where((tbl) => tbl.id.equals(id))).write(updatedGoods);
-  }
-
   Future<List<Order>> getOrdersForSync() async {
     final hasOrderLineToSync = existsQuery(
       select(orderLines)

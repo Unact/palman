@@ -51,7 +51,7 @@ class _ShipmentsViewState extends State<_ShipmentsView> {
             SliverAppBar(
               centerTitle: true,
               pinned: true,
-              backgroundColor: Theme.of(context).colorScheme.surface,
+              backgroundColor: Colors.transparent,
               title: buildHeader(context),
             ),
             SliverList(delegate: buildShipmentListView(context))

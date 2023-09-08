@@ -160,7 +160,7 @@ class PricesRepository extends BaseRepository {
       pricelistSetId: pricelistSetId == null ? const Value.absent() : Value(pricelistSetId.value),
       discount: discount == null ? const Value.absent() : Value(discount.value),
       timestamp: Value(DateTime.now()),
-      needSync: needSync == null ? const Value.absent() : Value(needSync.value),
+      needSync: needSync == null ? const Value.absent() : Value(needSync.value)
     );
 
     await dataStore.pricesDao.updatePartnersPricelist(partnersPricelist.id, updatedPartnersPricelist);

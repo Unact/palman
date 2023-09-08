@@ -24,9 +24,6 @@ class Strings {
   static const pointReasonZone = 'zone';
 
   static const incRequestDefaultStatus = 'Не отправлен';
-  static const orderDraftStatus = 'draft';
-  static const orderUploadStatus = 'upload';
-  static const orderDeletedStatus = 'deleted';
 
   static const ok = 'ОК';
   static const cancel = 'Отмена';
