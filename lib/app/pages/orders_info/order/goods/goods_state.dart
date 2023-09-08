@@ -51,7 +51,6 @@ class GoodsState {
   bool get goodsListInitiallyExpanded => showOnlyActive || showOnlyOrder;
   bool get categoriesListInitiallyExpanded =>
     showOnlyActive ||
-    showOnlyOrder ||
     selectedGoodsFilter != null ||
     selectedBonusProgram != null ||
     (goodsNameSearch ?? '').isNotEmpty;

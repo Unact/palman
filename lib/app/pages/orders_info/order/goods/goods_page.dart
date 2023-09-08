@@ -49,7 +49,6 @@ class _GoodsView extends StatefulWidget {
 
 class _GoodsViewState extends State<_GoodsView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
-  AutoScrollController controller = AutoScrollController();
   TreeViewController? categoryTreeController;
   final Map<GoodsDetail, TextEditingController> volControllers = {};
   final TextEditingController nameController = TextEditingController();
@@ -346,38 +345,35 @@ class _GoodsViewState extends State<_GoodsView> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 12),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SegmentedButton(
-              segments: const <ButtonSegment<bool>>[
-                ButtonSegment<bool>(value: true, label: Text('ТМ', style: Styles.formStyle)),
-                ButtonSegment<bool>(value: false, label: Text('Название', style: Styles.formStyle))
-              ],
-              showSelectedIcon: false,
-              selected: {vm.state.groupByManufacturer},
-              onSelectionChanged: vm.changeGroupByManufacturer,
-              style: const ButtonStyle(
-                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                visualDensity: VisualDensity(horizontal: 0, vertical: 0),
-              ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SegmentedButton(
+            segments: const <ButtonSegment<bool>>[
+              ButtonSegment<bool>(value: true, label: Text('ТМ', style: Styles.formStyle)),
+              ButtonSegment<bool>(value: false, label: Text('Название', style: Styles.formStyle))
+            ],
+            showSelectedIcon: false,
+            selected: {vm.state.groupByManufacturer},
+            onSelectionChanged: vm.changeGroupByManufacturer,
+            style: const ButtonStyle(
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              visualDensity: VisualDensity(horizontal: 0, vertical: 0),
             ),
-            IconButton(
-              icon: vm.state.showGoodsImage ? const Icon(Icons.image) : const Icon(Icons.image_outlined),
-              onPressed: vm.toggleShowGoodsImage,
-              tooltip: 'Отобразить фото',
-            ),
-            IconButton(
-              icon: vm.state.showGroupInfo ? const Icon(Icons.book) : const Icon(Icons.book_outlined),
-              onPressed: vm.toggleShowGroupInfo,
-              tooltip: 'Отобразить индекс'
-            ),
-            Text('Сумма: ${Format.numberStr(vm.state.total)}', style: Styles.formStyle)
-          ]
-        )
+          ),
+          IconButton(
+            icon: vm.state.showGoodsImage ? const Icon(Icons.image) : const Icon(Icons.image_outlined),
+            onPressed: vm.toggleShowGoodsImage,
+            tooltip: 'Отобразить фото',
+          ),
+          IconButton(
+            icon: vm.state.showGroupInfo ? const Icon(Icons.book) : const Icon(Icons.book_outlined),
+            onPressed: vm.toggleShowGroupInfo,
+            tooltip: 'Отобразить индекс'
+          ),
+          Flexible(child: Text('Сумма: ${Format.numberStr(vm.state.total)}', style: Styles.formStyle))
+        ]
       )
     );
   }
@@ -449,57 +445,6 @@ class _GoodsViewState extends State<_GoodsView> {
     );
   }
 
-  Widget buildGoodsTileSubtitle(BuildContext context, GoodsDetail goodsDetail) {
-    final vm = context.read<GoodsViewModel>();
-    final goodsEx = goodsDetail.goodsEx;
-    final goods = goodsEx.goods;
-    final orderLineEx = vm.state.filteredOrderLinesExList.firstWhereOrNull((e) => e.line.goodsId == goods.id);
-    final stock = goodsDetail.stock;
-    final price = goodsDetail.pricelistPrice;
-    final minPrice = min(goods.handPrice ?? double.infinity, goods.minPrice);
-    final bonusPrice = goodsDetail.price;
-    final effPrice = (bonusPrice - (orderLineEx?.line.priceOriginal ?? price)).abs();
-    final linePrice = orderLineEx?.line.price ?? bonusPrice;
-
-    return RichText(
-      text: TextSpan(
-        style: Styles.defaultTextSpan.copyWith(fontSize: 12),
-        children: <InlineSpan>[
-          TextSpan(
-            text: (goodsEx.lastPrice ?? 0) > 0 && (goods.handPrice ?? 0) > 0 ?
-              'Спец. цена: ${Format.numberStr(goodsEx.lastPrice)} ' :
-              null,
-            style: const TextStyle(fontWeight: FontWeight.bold)
-          ),
-          TextSpan(
-            text: 'Цена: ${Format.numberStr(linePrice)}',
-            style: TextStyle(fontWeight: (goods.handPrice ?? 0) > 0 ? FontWeight.bold : FontWeight.normal)
-          ),
-          TextSpan(
-            text: effPrice > 0 ? '(${Format.numberStr(price)})' : null,
-            style: TextStyle(
-              color: goodsDetail.conditionalDiscount ? Colors.red : Colors.blue,
-              decoration: TextDecoration.lineThrough
-            )
-          ),
-          TextSpan(text: ' руб.${goods.cost > 0 ? ' (${((linePrice - goods.cost)/goods.cost*100).round()}%)' : ''}',),
-          TextSpan(
-            text: minPrice != 0 && minPrice < bonusPrice ? ' Мин. цена: ${Format.numberStr(minPrice)} ' : null
-          ),
-          TextSpan(text: goodsDetail.rel == 1 ? '\n' :'\nВложение: ${goodsDetail.rel} '),
-          TextSpan(text: 'Кратность: ${goodsDetail.stockRel} '),
-          const TextSpan(text: 'Остаток: '),
-          TextSpan(text: stock.vol~/goods.categoryPackageRel > 0 ? '${stock.vol~/goods.categoryPackageRel} к. ' : null),
-          TextSpan(text: stock.vol%goods.categoryPackageRel > 0 ?
-            '${(stock.vol%goods.categoryPackageRel).toInt()} шт. ' :
-            null
-          ),
-          TextSpan(text: orderLineEx != null ? '\nСтоимость: ${Format.numberStr(orderLineEx.line.total)}' : null),
-        ]
-      )
-    );
-  }
-
   Widget buildGoodsImage(BuildContext context, GoodsDetail goodsDetail, bool compactMode) {
     final vm = context.read<GoodsViewModel>();
 
@@ -532,23 +477,23 @@ class _GoodsViewState extends State<_GoodsView> {
 
   Widget? buildGoodsTile(BuildContext context, GoodsDetail goodsDetail) {
     final vm = context.read<GoodsViewModel>();
+    final orderLineEx = vm.state.filteredOrderLinesExList
+      .firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goods.id);
 
     if (goodsDetail.goodsEx.lastShipmentDate == null && vm.state.showOnlyActive) return null;
 
     return ListTile(
       contentPadding: const EdgeInsets.only(left: 8, top: 4, right: 8, bottom: 4),
       tileColor: Theme.of(context).scaffoldBackgroundColor,
-      trailing: buildGoodsTileTrailing(context, goodsDetail),
-      subtitle: buildGoodsTileSubtitle(context, goodsDetail),
+      trailing: buildGoodsTileTrailing(context, goodsDetail, orderLineEx),
+      subtitle: _GoodsSubtitle(goodsDetail, orderLineEx),
       title: buildGoodsTileTitle(context, goodsDetail),
       onTap: () => showGoodsInfoDialog(goodsDetail),
     );
   }
 
-  Widget buildGoodsTileTrailing(BuildContext context, GoodsDetail goodsDetail) {
+  Widget buildGoodsTileTrailing(BuildContext context, GoodsDetail goodsDetail, OrderLineEx? orderLineEx) {
     final vm = context.read<GoodsViewModel>();
-    final orderLineEx = vm.state.filteredOrderLinesExList
-      .firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goods.id);
     final controller = volControllers.putIfAbsent(
       goodsDetail,
       () => TextEditingController(text: orderLineEx?.line.vol.toInt().toString())
@@ -603,9 +548,9 @@ class _GoodsViewState extends State<_GoodsView> {
     }
 
     return TreeView.simple(
+      key: Key(vm.state.visibleCategories.hashCode.toString()),
       padding: EdgeInsets.zero,
       tree: root,
-      scrollController: controller,
       expansionBehavior: ExpansionBehavior.none,
       expansionIndicatorBuilder: (p0, p1) => NoExpansionIndicator(tree: root),
       showRootNode: false,
@@ -632,15 +577,149 @@ class _GoodsViewState extends State<_GoodsView> {
         categoryTreeController = controller;
 
         if (vm.state.categoriesListInitiallyExpanded) {
-          categoryTreeController!.expandAllChildren(root);
+          categoryTreeController!.expandAllChildren(categoryTreeController!.tree as TreeNode);
         } else {
-          for (var element in root.childrenAsList) {
-            if (categoryTreeController!.elementAt(element.path).isExpanded) {
-              categoryTreeController!.collapseNode(element as TreeNode);
+          for (var element in categoryTreeController!.tree.childrenAsList) {
+            if ((element as TreeNode).isExpanded) {
+              categoryTreeController!.collapseNode(element);
             }
           }
         }
       }
     );
+  }
+}
+
+class _GoodsSubtitle extends StatefulWidget {
+  final GoodsDetail goodsDetail;
+  final OrderLineEx? orderLineEx;
+
+  _GoodsSubtitle(
+    this.goodsDetail,
+    this.orderLineEx,
+    {Key? key}
+  ) : super(key: key);
+
+  @override
+  _GoodsSubtitleState createState() => _GoodsSubtitleState();
+}
+
+class _GoodsSubtitleState extends State<_GoodsSubtitle> {
+  bool expanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final goodsEx = widget.goodsDetail.goodsEx;
+    final goods = goodsEx.goods;
+    final stock = widget.goodsDetail.stock;
+    final price = widget.goodsDetail.pricelistPrice;
+    final minPrice = min(goods.handPrice ?? double.infinity, goods.minPrice);
+    final bonusPrice = widget.goodsDetail.price;
+    final effPrice = (bonusPrice - (widget.orderLineEx?.line.priceOriginal ?? price)).abs();
+    final linePrice = widget.orderLineEx?.line.price ?? bonusPrice;
+    List<Widget> children = [];
+
+    if (!expanded) {
+      children.addAll([
+        IconButton(
+          icon: const Icon(Icons.expand_circle_down),
+          onPressed: () => setState(() => expanded = true)
+        ),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: Styles.defaultTextSpan.copyWith(fontSize: 12),
+              children: <InlineSpan>[
+                TextSpan(
+                  text: 'Цена: ${Format.numberStr(linePrice)}',
+                  style: TextStyle(fontWeight: (goods.handPrice ?? 0) > 0 ? FontWeight.bold : FontWeight.normal)
+                ),
+                TextSpan(
+                  text: effPrice > 0 ? '(${Format.numberStr(price)})' : null,
+                  style: TextStyle(
+                    color: widget.goodsDetail.conditionalDiscount ? Colors.red : Colors.blue,
+                    decoration: TextDecoration.lineThrough
+                  )
+                ),
+                const TextSpan(text: ' руб.'),
+                TextSpan(text: widget.goodsDetail.rel == 1 ? '\n' :'\nВложение: ${widget.goodsDetail.rel} '),
+                TextSpan(text: 'Кратность: ${widget.goodsDetail.stockRel} '),
+                const TextSpan(text: 'Остаток: '),
+                TextSpan(text: stock.vol~/goods.categoryPackageRel > 0 ?
+                  '${stock.vol~/goods.categoryPackageRel} к. ' :
+                  null
+                  ),
+                TextSpan(text: stock.vol%goods.categoryPackageRel > 0 ?
+                  '${(stock.vol%goods.categoryPackageRel).toInt()} шт. ' :
+                  null
+                ),
+                TextSpan(
+                  text: widget.orderLineEx != null ?
+                    '\nСтоимость: ${Format.numberStr(widget.orderLineEx!.line.total)}' :
+                    null
+                ),
+              ]
+            )
+          )
+        )
+      ]);
+    } else {
+      children.addAll([
+        IconButton(
+          icon: Transform.rotate(angle: pi, child: const Icon(Icons.expand_circle_down)),
+          onPressed: () => setState(() => expanded = false)
+        ),
+        Expanded(
+          child: RichText(
+            text: TextSpan(
+              style: Styles.defaultTextSpan.copyWith(fontSize: 12),
+              children: <InlineSpan>[
+                TextSpan(
+                  text: (goodsEx.lastPrice ?? 0) > 0 && (goods.handPrice ?? 0) > 0 ?
+                    'Спец. цена: ${Format.numberStr(goodsEx.lastPrice)} ' :
+                    null,
+                  style: const TextStyle(fontWeight: FontWeight.bold)
+                ),
+                TextSpan(
+                  text: 'Цена: ${Format.numberStr(linePrice)}',
+                  style: TextStyle(fontWeight: (goods.handPrice ?? 0) > 0 ? FontWeight.bold : FontWeight.normal)
+                ),
+                TextSpan(
+                  text: effPrice > 0 ? '(${Format.numberStr(price)})' : null,
+                  style: TextStyle(
+                    color: widget.goodsDetail.conditionalDiscount ? Colors.red : Colors.blue,
+                    decoration: TextDecoration.lineThrough
+                  )
+                ),
+                TextSpan(
+                  text: ' руб.${goods.cost > 0 ? ' (${((linePrice - goods.cost)/goods.cost*100).round()}%)' : ''}'
+                ),
+                TextSpan(
+                  text: minPrice != 0 && minPrice < bonusPrice ? ' Мин. цена: ${Format.numberStr(minPrice)} ' : null
+                ),
+                TextSpan(text: widget.goodsDetail.rel == 1 ? '\n' :'\nВложение: ${widget.goodsDetail.rel} '),
+                TextSpan(text: 'Кратность: ${widget.goodsDetail.stockRel} '),
+                const TextSpan(text: 'Остаток: '),
+                TextSpan(text: stock.vol~/goods.categoryPackageRel > 0 ?
+                  '${stock.vol~/goods.categoryPackageRel} к. ' :
+                  null
+                ),
+                TextSpan(text: stock.vol%goods.categoryPackageRel > 0 ?
+                  '${(stock.vol%goods.categoryPackageRel).toInt()} шт. ' :
+                  null
+                ),
+                TextSpan(
+                  text: widget.orderLineEx != null ?
+                    '\nСтоимость: ${Format.numberStr(widget.orderLineEx!.line.total)}' :
+                    null
+                ),
+              ]
+            )
+          )
+        )
+      ]);
+    }
+
+    return Row(children: children);
   }
 }

@@ -1326,9 +1326,11 @@ packages:
   u_app_utils:
     dependency: "direct main"
     description:
-      path: "../u_app_utils"
-      relative: true
-    source: path
+      path: "."
+      ref: c746572
+      resolved-ref: c746572ca4f1a68c12aa437856e37a087985cd7c
+      url: "git@github.com:Unact/u_app_utils.git"
+    source: git
     version: "0.0.1"
   url_launcher:
     dependency: transitive
