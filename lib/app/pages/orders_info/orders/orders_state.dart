@@ -18,7 +18,7 @@ class OrdersState {
   final OrderExResult? newOrder;
 
   List<OrderExResult> get filteredOrderExList => orderExList
-    .where((e) => !e.order.isDeleted && e.order.detailedStatus == OrderStatus.deleted)
+    .where((e) => !e.order.isDeleted && e.order.detailedStatus != OrderStatus.deleted)
     .toList();
 
   OrdersState copyWith({
