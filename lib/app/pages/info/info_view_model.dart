@@ -63,6 +63,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
   @override
   Future<void> close() async {
+    await cancelPreloadGoodsImages();
+    await cancelPreloadPointImages();
     await super.close();
 
     await positionSubscription?.cancel();
@@ -209,5 +211,113 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
         showBackgroundLocationIndicator: true,
       );
     }
+  }
+
+  Future<void> cancelPreloadPointImages() async {
+    emit(state.copyWith(
+      status: InfoStateStatus.imageLoadCanceled,
+      pointImagePreloadCanceled: true,
+      message: 'Загрузка отменена',
+      pointImages: [],
+      loadedPointImages: 0
+    ));
+  }
+
+  Future<void> preloadPointImages() async {
+    final pointImages = await pointsRepository.getPointImages();
+
+    if (pointImages.isEmpty) {
+      emit(state.copyWith(status: InfoStateStatus.imageLoadFailure, message: 'Нет точек для загрузки фотографий'));
+      return;
+    }
+
+    emit(state.copyWith(
+      status: InfoStateStatus.imageLoadInProgress,
+      pointImages: pointImages,
+      pointImagePreloadCanceled: false,
+      loadedPointImages: 0,
+      message: 'Запущена загрузка фотографий точек'
+    ));
+
+    String? lastErrorMsg;
+
+    for (var pointImage in pointImages) {
+      try {
+        if (state.pointImagePreloadCanceled) return;
+
+        await pointsRepository.preloadPointImage(pointImage);
+        emit(state.copyWith(
+          status: InfoStateStatus.imageLoaded,
+          loadedPointImages: state.loadedPointImages + 1
+        ));
+      } on AppError catch(e) {
+        lastErrorMsg = e.message;
+      }
+    }
+    await pointsRepository.clearFiles(pointImages.map((e) => e.imageKey).toSet());
+
+    emit(state.copyWith(
+      status: InfoStateStatus.imageLoadSuccess,
+      pointImagePreloadCanceled: true,
+      pointImages: [],
+      loadedPointImages: 0,
+      message: lastErrorMsg == null ?
+        'Фотографии успешно загружены' :
+        'Не удалось загрузить все фотографии. $lastErrorMsg'
+    ));
+  }
+
+  Future<void> cancelPreloadGoodsImages() async {
+    emit(state.copyWith(
+      status: InfoStateStatus.imageLoadCanceled,
+      goodsImagePreloadCanceled: true,
+      message: 'Загрузка отменена',
+      goodsWithImage: [],
+      loadedGoodsImages: 0
+    ));
+  }
+
+  Future<void> preloadGoodsImages() async {
+    final goodsWithImage = await ordersRepository.getAllGoodsWithImage();
+
+    if (goodsWithImage.isEmpty) {
+      emit(state.copyWith(status: InfoStateStatus.imageLoadFailure, message: 'Нет товаров для загрузки фотографий'));
+      return;
+    }
+
+    emit(state.copyWith(
+      status: InfoStateStatus.imageLoadInProgress,
+      goodsWithImage: goodsWithImage,
+      goodsImagePreloadCanceled: false,
+      loadedGoodsImages: 0,
+      message: 'Запущена загрузка фотографий товаров'
+    ));
+
+    String? lastErrorMsg;
+
+    for (var goodsImage in goodsWithImage) {
+      try {
+        if (state.goodsImagePreloadCanceled) return;
+
+        await ordersRepository.preloadGoodsImages(goodsImage);
+        emit(state.copyWith(
+          status: InfoStateStatus.imageLoaded,
+          loadedGoodsImages: state.loadedGoodsImages + 1
+        ));
+      } on AppError catch(e) {
+        lastErrorMsg = e.message;
+      }
+    }
+    await ordersRepository.clearFiles(goodsWithImage.map((e) => e.imageKey).toSet());
+
+    emit(state.copyWith(
+      status: InfoStateStatus.imageLoadSuccess,
+      goodsImagePreloadCanceled: true,
+      goodsWithImage: [],
+      loadedGoodsImages: 0,
+      message: lastErrorMsg == null ?
+        'Фотографии успешно загружены' :
+        'Не удалось загрузить все фотографии. $lastErrorMsg'
+    ));
   }
 }

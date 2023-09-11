@@ -1,20 +1,31 @@
 import 'dart:async';
-import 'dart:io';
 
-import 'package:dio/dio.dart';
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:drift/drift.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
+import '/app/extensions/io_file_system.dart';
 import '/app/repositories/base_repository.dart';
-import '../services/palman_api.dart';
+import '/app/services/palman_api.dart';
 
 class OrdersRepository extends BaseRepository {
+  static const _kGoodsFileFolder = 'goods';
+  static final _goodsCacheRepo = JsonCacheInfoRepository(databaseName: _kGoodsFileFolder);
+  static CacheManager goodsCacheManager = CacheManager(
+    Config(
+      _kGoodsFileFolder,
+      stalePeriod: const Duration(days: 365),
+      maxNrOfCacheObjects: 10000,
+      repo: _goodsCacheRepo,
+      fileSystem: IOFileSystem(_kGoodsFileFolder),
+      fileService: HttpFileService(),
+    ),
+  );
+
   OrdersRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
   Future<void> loadBonusPrograms() async {
@@ -95,15 +106,10 @@ class OrdersRepository extends BaseRepository {
   }
 
   Future<bool> preloadGoodsImages(Goods goods) async {
-    final directory = await getApplicationDocumentsDirectory();
-    final fullImagePath = p.join(directory.path, goods.imagePath);
-
-    if (File(fullImagePath).existsSync()) return true;
+    if (await goodsCacheManager.getFileFromCache(goods.imageKey) != null) return true;
 
     try {
-      await Dio().download(goods.imageUrl, fullImagePath);
-    } on DioException catch(e) {
-      throw AppError(e.message ?? 'Ошибка при загрузке фотографии');
+      await goodsCacheManager.downloadFile(goods.imageUrl, key: goods.imageKey);
     } catch(e, trace) {
       Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
@@ -433,7 +439,13 @@ class OrdersRepository extends BaseRepository {
     return;
   }
 
-  Future<void> clearFiles([Set<String> newRelFilePaths = const <String>{}]) async {
-    await Misc.clearFiles(AppDataStore.kGoodsFileFolder, newRelFilePaths);
+
+  Future<void> clearFiles([Set<String> newKeys = const <String>{}]) async {
+    final cacheObjects = await _goodsCacheRepo.getAllObjects();
+    final oldCacheObjects = cacheObjects.where((e) => !newKeys.contains(e.key));
+
+    for (var oldCacheObject in oldCacheObjects) {
+      await goodsCacheManager.removeFile(oldCacheObject.key);
+    }
   }
 }

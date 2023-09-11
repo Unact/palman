@@ -450,11 +450,12 @@ class _GoodsViewState extends State<_GoodsView> {
 
     if (!vm.state.showGoodsImage) return Container();
 
-    final image = EntityImage(
+    final image = RetryableImage(
       color: Colors.red,
-      local: vm.state.showLocalImage,
+      cached: vm.state.showLocalImage,
       imageUrl: goodsDetail.goodsEx.goods.imageUrl,
-      imagePath: goodsDetail.goodsEx.goods.imagePath,
+      cacheKey: goodsDetail.goodsEx.goods.imageKey,
+      cacheManager: OrdersRepository.goodsCacheManager,
     );
 
     return GestureDetector(

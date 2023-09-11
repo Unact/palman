@@ -14,9 +14,11 @@ dependencies:
   dio: ^5.2.1
   drift: ^2.9.0
   equatable: ^2.0.5
+  file: ^6.0.0
   flutter:
     sdk: flutter
   flutter_bloc: ^8.1.2
+  flutter_cache_manager: ^3.3.1
   flutter_localizations:
     sdk: flutter
   flutter_typeahead: ^4.7.0
@@ -34,7 +36,7 @@ dependencies:
   u_app_utils:
     git:
       url: git@github.com:Unact/u_app_utils.git
-      ref: c746572
+      ref: 7ac43e6
   yandex_mapkit: ^3.3.3
 
 dev_dependencies:
