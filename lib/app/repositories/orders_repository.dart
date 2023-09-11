@@ -14,12 +14,13 @@ import '/app/io_file_system.dart';
 
 class OrdersRepository extends BaseRepository {
   static const _kGoodsFileFolder = 'goods';
+  static final _goodsCacheRepo = JsonCacheInfoRepository(databaseName: _kGoodsFileFolder);
   static CacheManager goodsCacheManager = CacheManager(
     Config(
       _kGoodsFileFolder,
       stalePeriod: const Duration(days: 365),
       maxNrOfCacheObjects: 10000,
-      repo: JsonCacheInfoRepository(databaseName: _kGoodsFileFolder),
+      repo: _goodsCacheRepo,
       fileSystem: IOFileSystem(_kGoodsFileFolder),
       fileService: HttpFileService(),
     ),
@@ -438,7 +439,13 @@ class OrdersRepository extends BaseRepository {
     return;
   }
 
-  Future<void> clearFiles() async {
-    await goodsCacheManager.emptyCache();
+
+  Future<void> clearFiles([Set<String> newKeys = const <String>{}]) async {
+    final cacheObjects = await _goodsCacheRepo.getAllObjects();
+    final oldCacheObjects = cacheObjects.where((e) => !newKeys.contains(e.key));
+
+    for (var oldCacheObject in oldCacheObjects) {
+      await goodsCacheManager.removeFile(oldCacheObject.key);
+    }
   }
 }

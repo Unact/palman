@@ -17,12 +17,13 @@ import '/app/io_file_system.dart';
 
 class PointsRepository extends BaseRepository {
   static const _kPointImagesFileFolder = 'point_images';
-  static CacheManager pointImagesCacheManager = CacheManager(
+  static final _pointImagesCacheRepo = JsonCacheInfoRepository(databaseName: _kPointImagesFileFolder);
+  static final pointImagesCacheManager = CacheManager(
     Config(
       _kPointImagesFileFolder,
       stalePeriod: const Duration(days: 365),
       maxNrOfCacheObjects: 10000,
-      repo: JsonCacheInfoRepository(databaseName: _kPointImagesFileFolder),
+      repo: _pointImagesCacheRepo,
       fileSystem: IOFileSystem(_kPointImagesFileFolder),
       fileService: HttpFileService(),
     ),
@@ -282,7 +283,12 @@ class PointsRepository extends BaseRepository {
     }
   }
 
-  Future<void> clearFiles() async {
-    await pointImagesCacheManager.emptyCache();
+  Future<void> clearFiles([Set<String> newKeys = const <String>{}]) async {
+    final cacheObjects = await _pointImagesCacheRepo.getAllObjects();
+    final oldCacheObjects = cacheObjects.where((e) => !newKeys.contains(e.key));
+
+    for (var oldCacheObject in oldCacheObjects) {
+      await pointImagesCacheManager.removeFile(oldCacheObject.key);
+    }
   }
 }

@@ -23,8 +23,6 @@ import '/app/repositories/points_repository.dart';
 import '/app/repositories/prices_repository.dart';
 import '/app/repositories/shipments_repository.dart';
 import '/app/repositories/users_repository.dart';
-import 'goods_preload_image/goods_preload_image_page.dart';
-import 'point_preload_image/point_preload_image_page.dart';
 
 part 'info_state.dart';
 part 'info_view_model.dart';
@@ -86,28 +84,6 @@ class _InfoViewState extends State<_InfoView> {
     homeVm.setPageChangeable(pageChangeable);
   }
 
-  Future<void> showPointPreloadImagePage() async {
-    await showDialog(
-      context: context,
-      builder: (_) => WillPopScope(
-        onWillPop: () async => false,
-        child: PointPreloadImagePage()
-      ),
-      barrierDismissible: false
-    );
-  }
-
-  Future<void> showGoodsPreloadImagePage() async {
-    await showDialog(
-      context: context,
-      builder: (_) => WillPopScope(
-        onWillPop: () async => false,
-        child: GoodsPreloadImagePage()
-      ),
-      barrierDismissible: false
-    );
-  }
-
   Future<void> showConfirmationDialog() async {
     final vm = context.read<InfoViewModel>();
     final result = await showDialog<bool>(
@@ -142,15 +118,17 @@ class _InfoViewState extends State<_InfoView> {
                 color: Colors.white,
                 icon: const Icon(Icons.local_mall_sharp),
                 tooltip: 'Загрузить фотографии точек',
-                onPressed: state.isBusy ?
+                onPressed: state.isBusy || !state.pointImagePreloadCanceled ?
                   null :
-                  state.pointImagePreloadCanceled ? vm.preloadPointImages : vm.cancelPreloadPointImages
+                  vm.preloadPointImages
               ),
               IconButton(
                 color: Colors.white,
                 icon: const Icon(Icons.warehouse),
                 tooltip: 'Загрузить фотографии товаров',
-                onPressed: state.isBusy ? null : showGoodsPreloadImagePage
+                onPressed: state.isBusy || !state.goodsImagePreloadCanceled ?
+                  null :
+                  vm.preloadGoodsImages
               ),
               Center(
                 child: Badge(
@@ -256,7 +234,8 @@ class _InfoViewState extends State<_InfoView> {
       buildPointsCard(context),
       buildDebtsCard(context),
       buildOrdersCard(context),
-      buildPreloadCard(context),
+      buildPreloadPointImagesCard(context),
+      buildPreloadGoodsImagesCard(context),
       buildInfoCard(context),
       buildErrorCard(context)
     ];
@@ -275,15 +254,20 @@ class _InfoViewState extends State<_InfoView> {
     );
   }
 
-  Widget buildPreloadCard(BuildContext context) {
+  Widget buildPreloadPointImagesCard(BuildContext context) {
     final vm = context.read<InfoViewModel>();
 
     if (vm.state.pointImages.isEmpty) return Container();
 
     return Card(
       child: ListTile(
+        trailing: IconButton(
+          icon: const Icon(Icons.cancel),
+          tooltip: 'Отменить',
+          onPressed: vm.cancelPreloadPointImages
+        ),
         isThreeLine: true,
-        title: const Text('Загрузка фото'),
+        title: const Text('Загрузка фотографий точек'),
         subtitle: RichText(
           text: TextSpan(
             style: Styles.defaultTextSpan,
@@ -294,6 +278,39 @@ class _InfoViewState extends State<_InfoView> {
               ),
               TextSpan(
                 text: 'Всего: ${vm.state.pointImages.length}',
+                style: Styles.tileText
+              )
+            ]
+          )
+        )
+      )
+    );
+  }
+
+  Widget buildPreloadGoodsImagesCard(BuildContext context) {
+    final vm = context.read<InfoViewModel>();
+
+    if (vm.state.goodsWithImage.isEmpty) return Container();
+
+    return Card(
+      child: ListTile(
+        trailing: IconButton(
+          icon: const Icon(Icons.cancel),
+          tooltip: 'Отменить',
+          onPressed: vm.cancelPreloadGoodsImages
+        ),
+        isThreeLine: true,
+        title: const Text('Загрузка фотографий товаров'),
+        subtitle: RichText(
+          text: TextSpan(
+            style: Styles.defaultTextSpan,
+            children: <TextSpan>[
+              TextSpan(
+                text: 'Загружено: ${vm.state.loadedGoodsImages}\n',
+                style: Styles.tileText
+              ),
+              TextSpan(
+                text: 'Всего: ${vm.state.goodsWithImage.length}',
                 style: Styles.tileText
               )
             ]
