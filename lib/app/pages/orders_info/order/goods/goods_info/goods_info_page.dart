@@ -269,7 +269,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
     final vm = context.read<GoodsInfoViewModel>();
     final image = RetryableImage(
       color: Colors.red,
-      local: vm.state.showLocalImage,
+      cached: vm.state.showLocalImage,
       imageUrl: vm.state.goodsEx.goods.imageUrl,
       cacheKey: vm.state.goodsEx.goods.imageKey,
       cacheManager: OrdersRepository.goodsCacheManager,

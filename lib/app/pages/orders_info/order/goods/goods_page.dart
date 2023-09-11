@@ -452,7 +452,7 @@ class _GoodsViewState extends State<_GoodsView> {
 
     final image = RetryableImage(
       color: Colors.red,
-      local: vm.state.showLocalImage,
+      cached: vm.state.showLocalImage,
       imageUrl: goodsDetail.goodsEx.goods.imageUrl,
       cacheKey: goodsDetail.goodsEx.goods.imageKey,
       cacheManager: OrdersRepository.goodsCacheManager,

@@ -293,7 +293,7 @@ class _PointViewState extends State<_PointView> {
     final vm = context.read<PointViewModel>();
     final images = vm.state.pointEx.images.map((image) => RetryableImage(
       color: Colors.red,
-      local: image.needSync || vm.state.showLocalImage,
+      cached: image.needSync || vm.state.showLocalImage,
       imageUrl: image.imageUrl,
       cacheKey: image.imageKey,
       cacheManager: PointsRepository.pointImagesCacheManager,

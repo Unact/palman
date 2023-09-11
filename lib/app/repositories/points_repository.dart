@@ -11,9 +11,9 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
+import '/app/extensions/io_file_system.dart';
 import '/app/repositories/base_repository.dart';
 import '/app/services/palman_api.dart';
-import '/app/io_file_system.dart';
 
 class PointsRepository extends BaseRepository {
   static const _kPointImagesFileFolder = 'point_images';
