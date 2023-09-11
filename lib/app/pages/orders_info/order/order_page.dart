@@ -84,6 +84,13 @@ class _OrderViewState extends State<_OrderView> {
             actions: [
               IconButton(
                 color: Colors.white,
+                icon: const Icon(Icons.copy),
+                splashRadius: 12,
+                tooltip: 'Создать дубликат',
+                onPressed: state.orderEx.order.isEditable ? vm.copy : null
+              ),
+              IconButton(
+                color: Colors.white,
                 icon: const Icon(Icons.save),
                 splashRadius: 12,
                 tooltip: 'Сохранить изменения',
@@ -106,6 +113,13 @@ class _OrderViewState extends State<_OrderView> {
       },
       listener: (context, state) {
         switch (state.status) {
+          case OrderStateStatus.orderCopied:
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Misc.showMessage(context, state.message);
+              Navigator.of(context).pop();
+              openOrderPage(state.newOrder!);
+            });
+            break;
           case OrderStateStatus.saveInProgress:
             progressDialog.open();
             break;
@@ -315,6 +329,16 @@ class _OrderViewState extends State<_OrderView> {
       background: Container(color: Colors.red[500]),
       onDismissed: (direction) => vm.deleteOrderLine(orderLineEx),
       child: tile
+    );
+  }
+
+  Future<void> openOrderPage(OrderExResult orderEx) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => OrderPage(orderEx: orderEx),
+        fullscreenDialog: false
+      )
     );
   }
 }
