@@ -432,7 +432,7 @@ packages:
     source: hosted
     version: "0.7.0"
   flutter_cache_manager:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: flutter_cache_manager
       sha256: "8207f27539deb83732fdda03e259349046a39a4c767269285f449ade355d54ba"
@@ -1326,11 +1326,9 @@ packages:
   u_app_utils:
     dependency: "direct main"
     description:
-      path: "."
-      ref: c746572
-      resolved-ref: c746572ca4f1a68c12aa437856e37a087985cd7c
-      url: "git@github.com:Unact/u_app_utils.git"
-    source: git
+      path: "../u_app_utils"
+      relative: true
+    source: path
     version: "0.0.1"
   url_launcher:
     dependency: transitive

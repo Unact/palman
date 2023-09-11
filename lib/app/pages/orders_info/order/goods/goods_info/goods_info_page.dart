@@ -267,11 +267,12 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
 
   Widget buildGoodsImage(BuildContext context) {
     final vm = context.read<GoodsInfoViewModel>();
-    final image = EntityImage(
+    final image = RetryableImage(
       color: Colors.red,
       local: vm.state.showLocalImage,
       imageUrl: vm.state.goodsEx.goods.imageUrl,
-      imagePath: vm.state.goodsEx.goods.imagePath,
+      cacheKey: vm.state.goodsEx.goods.imageKey,
+      cacheManager: OrdersRepository.goodsCacheManager,
     );
 
     return GestureDetector(

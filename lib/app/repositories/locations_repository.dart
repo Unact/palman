@@ -5,7 +5,7 @@ import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/repositories/base_repository.dart';
-import '../services/palman_api.dart';
+import '/app/services/palman_api.dart';
 
 class LocationsRepository extends BaseRepository {
   static const int kMinLocationPoint = 10;

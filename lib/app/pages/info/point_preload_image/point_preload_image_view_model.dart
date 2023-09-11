@@ -54,7 +54,7 @@ class PointPreloadImageViewModel extends PageViewModel<PointPreloadImageState, P
         lastErrorMsg = e.message;
       }
     }
-    await pointsRepository.clearFiles(state.pointImages.map((e) => e.imagePath).toSet());
+    await pointsRepository.clearFiles();
 
     emit(state.copyWith(
       status: PointPreloadImageStateStatus.success,

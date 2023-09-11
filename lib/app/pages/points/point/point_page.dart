@@ -78,7 +78,7 @@ class _PointViewState extends State<_PointView> {
         fullscreenDialog: true,
         builder: (BuildContext context) => CameraView(
           onError: (String message) => WidgetsBinding.instance.addPostFrameCallback(
-            (_) => Misc.showMessage(context, message)
+            (_) => Misc.showMessage(this.context, message)
           ),
           onTakePicture: (XFile file) => vm.addPointImage(file)
         )
@@ -291,11 +291,12 @@ class _PointViewState extends State<_PointView> {
 
   List<Widget> buildImages(BuildContext context) {
     final vm = context.read<PointViewModel>();
-    final images = vm.state.pointEx.images.map((image) => EntityImage(
+    final images = vm.state.pointEx.images.map((image) => RetryableImage(
       color: Colors.red,
       local: image.needSync || vm.state.showLocalImage,
       imageUrl: image.imageUrl,
-      imagePath: image.imagePath,
+      cacheKey: image.imageKey,
+      cacheManager: PointsRepository.pointImagesCacheManager,
     )).toList();
 
     return images.mapIndexed((idx, imageWidget) {

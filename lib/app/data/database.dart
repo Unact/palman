@@ -104,9 +104,6 @@ part 'users_dao.dart';
   },
 )
 class AppDataStore extends _$AppDataStore {
-  static const kGoodsFileFolder = 'goods';
-  static const kPointImagesFileFolder = 'point_images';
-
   AppDataStore({
     required bool logStatements
   }) : super(_openConnection(logStatements));
@@ -254,7 +251,7 @@ LazyDatabase _openConnection(bool logStatements) {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, '${Strings.appName}.sqlite'));
 
-    return NativeDatabase.createInBackground(file, logStatements: logStatements, cachePreparedStatements: true);
+    return NativeDatabase.createInBackground(file, logStatements: false, cachePreparedStatements: true);
   });
 }
 
@@ -265,11 +262,6 @@ extension BuyerX on Buyer {
 extension GoodsX on Goods {
   String get preName => name.split(' ')[0];
 
-  String get imagePath => p.join(AppDataStore.kGoodsFileFolder, '$imageKey.jpg');
-}
-
-extension PointImageX on PointImage {
-  String get imagePath => p.join(AppDataStore.kPointImagesFileFolder, '$imageKey.jpg');
 }
 
 extension OrderX on Order {

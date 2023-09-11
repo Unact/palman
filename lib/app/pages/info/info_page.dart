@@ -142,7 +142,9 @@ class _InfoViewState extends State<_InfoView> {
                 color: Colors.white,
                 icon: const Icon(Icons.local_mall_sharp),
                 tooltip: 'Загрузить фотографии точек',
-                onPressed: state.isBusy ? null : showPointPreloadImagePage
+                onPressed: state.isBusy ?
+                  null :
+                  state.pointImagePreloadCanceled ? vm.preloadPointImages : vm.cancelPreloadPointImages
               ),
               IconButton(
                 color: Colors.white,
@@ -210,6 +212,12 @@ class _InfoViewState extends State<_InfoView> {
       },
       listener: (context, state) {
         switch (state.status) {
+          case InfoStateStatus.imageLoadInProgress:
+          case InfoStateStatus.imageLoadSuccess:
+          case InfoStateStatus.imageLoadCanceled:
+          case InfoStateStatus.imageLoadFailure:
+            Misc.showMessage(context, state.message);
+            break;
           case InfoStateStatus.loadConfirmation:
             showConfirmationDialog();
             break;
@@ -229,6 +237,13 @@ class _InfoViewState extends State<_InfoView> {
             Misc.showMessage(context, state.message);
             progressDialog.close();
             break;
+          case InfoStateStatus.syncInProgress:
+            setPageChangeable(false);
+            break;
+          case InfoStateStatus.syncSuccess:
+          case InfoStateStatus.syncFailure:
+            setPageChangeable(true);
+            break;
           default:
             break;
         }
@@ -241,6 +256,7 @@ class _InfoViewState extends State<_InfoView> {
       buildPointsCard(context),
       buildDebtsCard(context),
       buildOrdersCard(context),
+      buildPreloadCard(context),
       buildInfoCard(context),
       buildErrorCard(context)
     ];
@@ -255,6 +271,34 @@ class _InfoViewState extends State<_InfoView> {
         onTap: () => changePage(1),
         title: const Text(Strings.pointsPageName),
         subtitle: Text('Загружено: ${vm.state.pointsTotal}', style: Styles.tileText)
+      )
+    );
+  }
+
+  Widget buildPreloadCard(BuildContext context) {
+    final vm = context.read<InfoViewModel>();
+
+    if (vm.state.pointImages.isEmpty) return Container();
+
+    return Card(
+      child: ListTile(
+        isThreeLine: true,
+        title: const Text('Загрузка фото'),
+        subtitle: RichText(
+          text: TextSpan(
+            style: Styles.defaultTextSpan,
+            children: <TextSpan>[
+              TextSpan(
+                text: 'Загружено: ${vm.state.loadedPointImages}\n',
+                style: Styles.tileText
+              ),
+              TextSpan(
+                text: 'Всего: ${vm.state.pointImages.length}',
+                style: Styles.tileText
+              )
+            ]
+          )
+        )
       )
     );
   }

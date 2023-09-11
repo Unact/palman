@@ -210,4 +210,58 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       );
     }
   }
+
+  Future<void> cancelPreloadPointImages() async {
+    emit(state.copyWith(
+      status: InfoStateStatus.imageLoadCanceled,
+      pointImagePreloadCanceled: true,
+      message: 'Загрузка отменена',
+      pointImages: [],
+      loadedPointImages: 0
+    ));
+  }
+
+  Future<void> preloadPointImages() async {
+    final pointImages = await pointsRepository.getPointImages();
+
+    if (pointImages.isEmpty) {
+      emit(state.copyWith(status: InfoStateStatus.imageLoadFailure, message: 'Нет точек для загрузки фотографий'));
+      return;
+    }
+
+    emit(state.copyWith(
+      status: InfoStateStatus.imageLoadInProgress,
+      pointImages: pointImages,
+      pointImagePreloadCanceled: false,
+      loadedPointImages: 0,
+      message: 'Запущена загрузка фотографий'
+    ));
+
+    String? lastErrorMsg;
+
+    for (var pointImage in state.pointImages) {
+      try {
+        if (state.pointImagePreloadCanceled) return;
+
+        await pointsRepository.preloadPointImage(pointImage);
+        emit(state.copyWith(
+          status: InfoStateStatus.imageLoaded,
+          loadedPointImages: state.loadedPointImages + 1
+        ));
+      } on AppError catch(e) {
+        lastErrorMsg = e.message;
+      }
+    }
+    await pointsRepository.clearFiles();
+
+    emit(state.copyWith(
+      status: InfoStateStatus.imageLoadSuccess,
+      pointImagePreloadCanceled: true,
+      pointImages: [],
+      loadedPointImages: 0,
+      message: lastErrorMsg == null ?
+        'Фотографии успешно загружены' :
+        'Не удалось загрузить все фотографии. $lastErrorMsg'
+    ));
+  }
 }

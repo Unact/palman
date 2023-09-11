@@ -14,6 +14,11 @@ enum InfoStateStatus {
   syncSuccess,
   syncFailure,
   syncInProgress,
+  imageLoaded,
+  imageLoadInProgress,
+  imageLoadFailure,
+  imageLoadSuccess,
+  imageLoadCanceled
 }
 
 class InfoState {
@@ -23,7 +28,10 @@ class InfoState {
     this.message = '',
     this.syncMessage = '',
     this.isBusy = false,
-    this.appInfo
+    this.appInfo,
+    this.pointImages = const [],
+    this.loadedPointImages = 0,
+    this.pointImagePreloadCanceled = true
   });
 
   final InfoStateStatus status;
@@ -32,6 +40,9 @@ class InfoState {
   final String syncMessage;
   final bool isBusy;
   final AppInfoResult? appInfo;
+  final List<PointImage> pointImages;
+  final int loadedPointImages;
+  final bool pointImagePreloadCanceled;
 
   int get pendingChanges => appInfo == null ? 0 : appInfo!.syncTotal;
   bool get hasPendingChanges => pendingChanges != 0;
@@ -48,7 +59,10 @@ class InfoState {
     String? message,
     String? syncMessage,
     bool? isBusy,
-    AppInfoResult? appInfo
+    AppInfoResult? appInfo,
+    List<PointImage>? pointImages,
+    int? loadedPointImages,
+    bool? pointImagePreloadCanceled
   }) {
     return InfoState(
       status: status ?? this.status,
@@ -56,7 +70,10 @@ class InfoState {
       message: message ?? this.message,
       syncMessage: syncMessage ?? this.syncMessage,
       isBusy: isBusy ?? this.isBusy,
-      appInfo: appInfo ?? this.appInfo
+      appInfo: appInfo ?? this.appInfo,
+      pointImages: pointImages ?? this.pointImages,
+      loadedPointImages: loadedPointImages ?? this.loadedPointImages,
+      pointImagePreloadCanceled: pointImagePreloadCanceled ?? this.pointImagePreloadCanceled
     );
   }
 }

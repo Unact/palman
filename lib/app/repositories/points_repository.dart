@@ -1,23 +1,33 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
+import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:crypto/crypto.dart';
-import 'package:dio/dio.dart';
 import 'package:drift/drift.dart';
 import 'package:quiver/core.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:path/path.dart' as p;
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/repositories/base_repository.dart';
-import '../services/palman_api.dart';
+import '/app/services/palman_api.dart';
+import '/app/io_file_system.dart';
 
 class PointsRepository extends BaseRepository {
+  static const _kPointImagesFileFolder = 'point_images';
+  static CacheManager pointImagesCacheManager = CacheManager(
+    Config(
+      _kPointImagesFileFolder,
+      stalePeriod: const Duration(days: 365),
+      maxNrOfCacheObjects: 10000,
+      repo: JsonCacheInfoRepository(databaseName: _kPointImagesFileFolder),
+      fileSystem: IOFileSystem(_kPointImagesFileFolder),
+      fileService: HttpFileService(),
+    ),
+  );
+
   PointsRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
   Future<PointEx?> getPointEx(int id) {
@@ -59,15 +69,10 @@ class PointsRepository extends BaseRepository {
   }
 
   Future<bool> preloadPointImage(PointImage pointImage) async {
-    final directory = await getApplicationDocumentsDirectory();
-    final fullImagePath = p.join(directory.path, pointImage.imagePath);
-
-    if (File(fullImagePath).existsSync()) return true;
+    if (await pointImagesCacheManager.getFileFromCache(pointImage.imageKey) != null) return true;
 
     try {
-      await Dio().download(pointImage.imageUrl, fullImagePath);
-    } on DioException catch(e) {
-      throw AppError(e.message ?? 'Ошибка при загрузке фотографии');
+      await pointImagesCacheManager.downloadFile(pointImage.imageUrl, key: pointImage.imageKey);
     } catch(e, trace) {
       Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
@@ -102,7 +107,6 @@ class PointsRepository extends BaseRepository {
     required DateTime timestamp
   }) async {
     final imageKey = md5.convert(await file.readAsBytes());
-    final directory = await getApplicationDocumentsDirectory();
     final id = await dataStore.pointsDao.addPointImage(
       PointImagesCompanion.insert(
         pointId: point.id,
@@ -116,10 +120,7 @@ class PointsRepository extends BaseRepository {
       )
     );
     final pointImage = (await dataStore.pointsDao.getPointImages()).firstWhere((e) => e.id == id);
-    final fullImagePath = p.join(directory.path, pointImage.imagePath);
-
-    await File(fullImagePath).create(recursive: true);
-    await file.saveTo(fullImagePath);
+    await pointImagesCacheManager.putFile('', await file.readAsBytes(), key: pointImage.imageKey);
 
     notifyListeners();
   }
@@ -183,10 +184,7 @@ class PointsRepository extends BaseRepository {
     if (pointImage.guid != null) return;
 
     await dataStore.pointsDao.deletePointImage(pointImage.id);
-    final directory = await getApplicationDocumentsDirectory();
-    final fullImagePath = p.join(directory.path, pointImage.imagePath);
-
-    await File(fullImagePath).delete();
+    await pointImagesCacheManager.removeFile(pointImage.imageKey);
 
     notifyListeners();
     return;
@@ -199,7 +197,12 @@ class PointsRepository extends BaseRepository {
 
   Future<List<PointEx>> syncPoints(List<Point> points, List<PointImage> pointImages) async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
+      final Map<PointImage, FileInfo?> images = {};
+      for (var pointImage in pointImages) {
+        final file = await pointImagesCacheManager.getFileFromCache(pointImage.imageKey);
+        images.putIfAbsent(pointImage, () => file);
+      }
+
       List<Map<String, dynamic>> pointsData = points.map((e) => {
         'guid': e.guid,
         'timestamp': e.timestamp.toIso8601String(),
@@ -226,9 +229,7 @@ class PointsRepository extends BaseRepository {
           'latitude': i.latitude,
           'longitude': i.longitude,
           'accuracy': i.accuracy,
-          'imageData': File(p.join(directory.path, i.imagePath)).existsSync() ?
-            base64Encode(File(p.join(directory.path, i.imagePath)).readAsBytesSync()) :
-            null
+          'imageData': images[i] != null ? base64Encode(images[i]!.file.readAsBytesSync()) : null
         }).toList()
       }).toList();
 
@@ -281,7 +282,7 @@ class PointsRepository extends BaseRepository {
     }
   }
 
-  Future<void> clearFiles([Set<String> newRelFilePaths = const <String>{}]) async {
-    await Misc.clearFiles(AppDataStore.kPointImagesFileFolder, newRelFilePaths);
+  Future<void> clearFiles() async {
+    await pointImagesCacheManager.emptyCache();
   }
 }
