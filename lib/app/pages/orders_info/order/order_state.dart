@@ -4,6 +4,7 @@ enum OrderStateStatus {
   initial,
   dataLoaded,
   orderUpdated,
+  orderCopied,
   saveInProgress,
   saveFailure,
   saveSuccess
@@ -17,7 +18,8 @@ class OrderState {
     this.message = '',
     this.linesExList = const [],
     this.workdates = const [],
-    this.buyers = const []
+    this.buyers = const [],
+    this.newOrder
   });
 
   final OrderStateStatus status;
@@ -28,6 +30,7 @@ class OrderState {
   final List<OrderLineEx> linesExList;
   final List<Workdate> workdates;
   final List<Buyer> buyers;
+  final OrderExResult? newOrder;
 
   bool get canAddLines => orderEx.order.isEditable && orderEx.buyer != null && orderEx.order.date != null;
   List<OrderLineEx> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
@@ -43,7 +46,8 @@ class OrderState {
     OrderExResult? orderEx,
     List<OrderLineEx>? linesExList,
     List<Workdate>? workdates,
-    List<Buyer>? buyers
+    List<Buyer>? buyers,
+    OrderExResult? newOrder
   }) {
     return OrderState(
       status: status ?? this.status,
@@ -52,7 +56,8 @@ class OrderState {
       orderEx: orderEx ?? this.orderEx,
       linesExList: linesExList ?? this.linesExList,
       workdates: workdates ?? this.workdates,
-      buyers: buyers ?? this.buyers
+      buyers: buyers ?? this.buyers,
+      newOrder: newOrder ?? this.newOrder
     );
   }
 }
