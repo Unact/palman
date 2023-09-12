@@ -71,9 +71,23 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
           ),
           actions: <Widget>[
             TextButton(
-              onPressed: state.validPrice ?
-                () => Navigator.of(context).pop((state.dateFrom, state.dateTo ?? endOfTime, state.price)) :
-                null,
+              onPressed: () {
+                  if (!validPrice(state.price)) {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Ошибка'),
+                        content: const Text('Указана некорректная цена'),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text(Strings.ok))
+                        ]
+                      )
+                    );
+                    return;
+                  }
+
+                  Navigator.of(context).pop((state.dateFrom, state.dateTo ?? endOfTime, state.price));
+                },
               child: const Text(Strings.ok)
             ),
             TextButton(
@@ -194,12 +208,16 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
             suffixIcon: IconButton(
               icon: const Icon(Icons.add),
               tooltip: 'Увеличить цену',
-              onPressed: () => updatePriceAndText(price + vm.state.priceStep)
+              onPressed: validPrice(price + vm.state.priceStep) ?
+                () => updatePriceAndText(price + vm.state.priceStep) :
+                null
             ),
             prefixIcon: IconButton(
               icon: const Icon(Icons.remove),
               tooltip: 'Уменьшить цену',
-              onPressed: () => updatePriceAndText(price - vm.state.priceStep)
+              onPressed: validPrice(price - vm.state.priceStep) ?
+                () => updatePriceAndText(price - vm.state.priceStep) :
+                null
             )
           ),
           onTap: () => vm.updatePrice(Parsing.parseDouble(controller!.text))
@@ -214,5 +232,13 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
     controller!.text = Format.numberStr(sum);
     vm.updatePrice(sum);
     Misc.unfocus(context);
+  }
+
+  bool validPrice(double? price) {
+    final vm = context.read<PriceChangeViewModel>();
+
+    if (price == null) return false;
+
+    return price >= vm.state.goodsEx.goods.minPrice && price != vm.state.goodsPricelist.price;
   }
 }

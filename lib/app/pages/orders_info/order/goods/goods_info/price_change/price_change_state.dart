@@ -28,7 +28,6 @@ class PriceChangeState {
   double get minStepValue => goodsEx.goods.minPrice;
   double get maxStepValue => goodsPricelist.price + 1000;
   double get priceStep => [((goodsPricelist.price - goodsEx.goods.minPrice).abs() / 20).roundDigits(2), 0.01].max;
-  bool get validPrice => price != null && price! >= goodsEx.goods.minPrice && price != goodsPricelist.price;
 
   PriceChangeState copyWith({
     PriceChangeStateStatus? status,
