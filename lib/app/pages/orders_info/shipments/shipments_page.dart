@@ -179,7 +179,7 @@ class _ShipmentsViewState extends State<_ShipmentsView> {
                 SizedBox(
                   width: 200,
                   child: Text(
-                    'Стоимость: ${Format.numberStr(shipmentEx.shipment.shipmentSum)}',
+                    'Сумма: ${Format.numberStr(shipmentEx.shipment.shipmentSum)}',
                     style: Styles.tileText.copyWith(color: Colors.grey)
                   ),
                 ),
