@@ -77,6 +77,7 @@ class _PointViewState extends State<_PointView> {
       MaterialPageRoute(
         fullscreenDialog: true,
         builder: (BuildContext context) => CameraView(
+          compress: true,
           onError: (String message) => WidgetsBinding.instance.addPostFrameCallback(
             (_) => Misc.showMessage(this.context, message)
           ),

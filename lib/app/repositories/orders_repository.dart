@@ -226,8 +226,8 @@ class OrdersRepository extends BaseRepository {
     return dataStore.ordersDao.getShopDepartments();
   }
 
-  Future<List<Category>> getCategories() async {
-    return dataStore.ordersDao.getCategories();
+  Future<List<CategoriesExResult>> getCategories({required int buyerId}) async {
+    return dataStore.ordersDao.getCategories(buyerId: buyerId);
   }
 
   Future<List<Goods>> getAllGoodsWithImage() async {

@@ -202,7 +202,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -245,8 +245,12 @@ class AppDataStore extends _$AppDataStore {
         'CREATE INDEX pre_order_lines_pre_order_idx ON pre_order_lines(pre_order_id)'
       ));
       await m.createIndex(Index(
-        'goods_bonus_programs_idx',
-        'CREATE INDEX goods_bonus_programs_idx ON goods_bonus_programs(goods_id)'
+        'goods_bonus_programs_goods_idx',
+        'CREATE INDEX goods_bonus_programs_goods_idx ON goods_bonus_programs(goods_id)'
+      ));
+      await m.createIndex(Index(
+        'goods_bonus_programs_bonus_program_idx',
+        'CREATE INDEX goods_bonus_programs_bonus_program_idx ON goods_bonus_programs(bonus_program_id)'
       ));
       await m.createIndex(Index(
         'pricelist_prices_idx',
@@ -255,6 +259,10 @@ class AppDataStore extends _$AppDataStore {
       await m.createIndex(Index(
         'point_images_point_idx',
         'CREATE INDEX point_images_point_idx ON point_images(point_id)'
+      ));
+      await m.createIndex(Index(
+        'goods_category_idx',
+        'CREATE INDEX goods_category_idx ON goods(category_id)'
       ));
     },
     beforeOpen: (details) async {

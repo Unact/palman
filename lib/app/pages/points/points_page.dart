@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart' as ym;
 
 import '/app/constants/strings.dart';
@@ -221,6 +222,10 @@ class _PointsViewState extends State<_PointsView> {
       key: Key(pointEx.hashCode.toString()),
       background: Container(color: Colors.red[500]),
       onDismissed: (direction) => vm.deletePoint(pointEx),
+      confirmDismiss: (direction) => ConfirmationDialog(
+        context: context,
+        confirmationText: 'Вы точно хотите удалить точку?'
+      ).open(),
       child: tile
     );
   }

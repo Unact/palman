@@ -58,7 +58,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
     await saveChangesBackground();
 
-    syncTimer = Timer.periodic(const Duration(minutes: 10), saveChangesBackground);
+    syncTimer = Timer.periodic(const Duration(minutes: 1), saveChangesBackground);
   }
 
   @override
@@ -157,35 +157,55 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   }
 
   Future<void> getData(bool declined) async {
+    Future<void> loadData(Future<void> Function() method) async {
+      await method.call();
+      emit(state.copyWith(loaded: state.loaded + 1));
+    }
     if (declined) {
-      emit(state.copyWith(status: InfoStateStatus.loadDeclined));
+      emit(state.copyWith(status: InfoStateStatus.loadDeclined, message: 'Обновление отменено'));
       return;
     }
 
     if (state.isBusy) return;
 
-    emit(state.copyWith(status: InfoStateStatus.loadInProgress, syncMessage: '', isBusy: true));
+    final futures = [
+      appRepository.loadData,
+      pointsRepository.loadPoints,
+      debtsRepository.loadDebts,
+      ordersRepository.loadBonusPrograms,
+      ordersRepository.loadRemains,
+      ordersRepository.loadOrders,
+      pricesRepository.loadPrices,
+      shipmentsRepository.loadShipments,
+    ];
+
+    emit(state.copyWith(
+      status: InfoStateStatus.loadInProgress,
+      syncMessage: '',
+      isBusy: true,
+      toLoad: futures.length + 1
+    ));
 
     try {
-      await usersRepository.loadUserData();
-
-      final futures = [
-        appRepository.loadData(),
-        pointsRepository.loadPoints(),
-        debtsRepository.loadDebts(),
-        ordersRepository.loadBonusPrograms(),
-        ordersRepository.loadRemains(),
-        ordersRepository.loadOrders(),
-        pricesRepository.loadPrices(),
-        shipmentsRepository.loadShipments(),
-      ];
-
-      await Future.wait(futures);
+      await loadData(usersRepository.loadUserData);
+      await Future.wait(futures.map((e) => loadData(e)));
       await appRepository.updatePref(lastSyncTime: Optional.of(DateTime.now()));
 
-      emit(state.copyWith(status: InfoStateStatus.loadSuccess, message: 'Данные успешно обновлены', isBusy: false));
+      emit(state.copyWith(
+        status: InfoStateStatus.loadSuccess,
+        message: 'Данные успешно обновлены',
+        isBusy: false,
+        loaded: 0,
+        toLoad: 0
+      ));
     } on AppError catch(e) {
-      emit(state.copyWith(status: InfoStateStatus.loadFailure, message: e.message, isBusy: false));
+      emit(state.copyWith(
+        status: InfoStateStatus.loadFailure,
+        message: e.message,
+        isBusy: false,
+        loaded: 0,
+        toLoad: 0
+      ));
     }
   }
 

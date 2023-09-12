@@ -34,7 +34,9 @@ class InfoState {
     this.pointImagePreloadCanceled = true,
     this.goodsWithImage = const [],
     this.loadedGoodsImages = 0,
-    this.goodsImagePreloadCanceled = true
+    this.goodsImagePreloadCanceled = true,
+    this.loaded = 0,
+    this.toLoad = 0
   });
 
   final InfoStateStatus status;
@@ -49,6 +51,8 @@ class InfoState {
   final List<Goods> goodsWithImage;
   final int loadedGoodsImages;
   final bool goodsImagePreloadCanceled;
+  final int loaded;
+  final int toLoad;
 
   int get pendingChanges => appInfo == null ? 0 : appInfo!.syncTotal;
   bool get hasPendingChanges => pendingChanges != 0;
@@ -71,7 +75,9 @@ class InfoState {
     bool? pointImagePreloadCanceled,
     List<Goods>? goodsWithImage,
     int? loadedGoodsImages,
-    bool? goodsImagePreloadCanceled
+    bool? goodsImagePreloadCanceled,
+    int? loaded,
+    int? toLoad,
   }) {
     return InfoState(
       status: status ?? this.status,
@@ -86,6 +92,8 @@ class InfoState {
       goodsWithImage: goodsWithImage ?? this.goodsWithImage,
       loadedGoodsImages: loadedGoodsImages ?? this.loadedGoodsImages,
       goodsImagePreloadCanceled: goodsImagePreloadCanceled ?? this.goodsImagePreloadCanceled,
+      loaded: loaded ?? this.loaded,
+      toLoad: toLoad ?? this.toLoad,
     );
   }
 }

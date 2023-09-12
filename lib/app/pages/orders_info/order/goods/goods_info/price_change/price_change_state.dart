@@ -25,8 +25,6 @@ class PriceChangeState {
   final DateTime? dateTo;
   final double? price;
 
-  double get minStepValue => goodsEx.goods.minPrice;
-  double get maxStepValue => goodsPricelist.price + 1000;
   double get priceStep => [((goodsPricelist.price - goodsEx.goods.minPrice).abs() / 20).roundDigits(2), 0.01].max;
 
   PriceChangeState copyWith({

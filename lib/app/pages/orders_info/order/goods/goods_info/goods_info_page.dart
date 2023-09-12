@@ -267,13 +267,6 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
 
   Widget buildGoodsImage(BuildContext context) {
     final vm = context.read<GoodsInfoViewModel>();
-    final image = RetryableImage(
-      color: Colors.red,
-      cached: vm.state.showLocalImage,
-      imageUrl: vm.state.goodsEx.goods.imageUrl,
-      cacheKey: vm.state.goodsEx.goods.imageKey,
-      cacheManager: OrdersRepository.goodsCacheManager,
-    );
 
     return GestureDetector(
       onTap: () {
@@ -281,14 +274,29 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
           context,
           MaterialPageRoute(
             fullscreenDialog: true,
-            builder: (BuildContext context) => ImagesView(images: [image], idx: 0)
+            builder: (BuildContext context) => ImagesView(
+              images: [
+                RetryableImage(
+                  color: Colors.red,
+                  cached: vm.state.showLocalImage,
+                  imageUrl: vm.state.goodsEx.goods.imageUrl,
+                  cacheKey: vm.state.goodsEx.goods.imageKey,
+                  cacheManager: OrdersRepository.goodsCacheManager,
+                )
+              ],
+              idx: 0
+            )
           )
         );
       },
-      child: SizedBox(
+      child: RetryableImage(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height/5,
-        child: image
+        color: Colors.red,
+        cached: vm.state.showLocalImage,
+        imageUrl: vm.state.goodsEx.goods.imageUrl,
+        cacheKey: vm.state.goodsEx.goods.imageKey,
+        cacheManager: OrdersRepository.goodsCacheManager,
       )
     );
   }

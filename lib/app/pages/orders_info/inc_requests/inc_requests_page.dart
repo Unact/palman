@@ -108,6 +108,10 @@ class _IncRequestsViewState extends State<_IncRequestsView> {
       key: Key(incRequestEx.hashCode.toString()),
       background: Container(color: Colors.red[500]),
       onDismissed: (direction) => vm.deleteIncRequest(incRequestEx),
+      confirmDismiss: (direction) => ConfirmationDialog(
+        context: context,
+        confirmationText: 'Вы точно хотите удалить заявку?'
+      ).open(),
       child: tile
     );
   }
