@@ -556,8 +556,6 @@ class _GoodsViewState extends State<_GoodsView> {
       expansionIndicatorBuilder: (p0, p1) => NoExpansionIndicator(tree: root),
       showRootNode: false,
       onItemTap: (node) {
-        if (vm.state.categoriesListDisabled) return;
-
         if (node.data is Category) {
           onCategoryTap.call(node.data as Category);
           return;
@@ -571,7 +569,6 @@ class _GoodsViewState extends State<_GoodsView> {
       },
       builder: (context, node) => ListTile(
         contentPadding: const EdgeInsets.only(left: 8, top: 1, right: 8, bottom: 1),
-        enabled: !vm.state.categoriesListDisabled,
         selected: node.data == vm.state.selectedCategory,
         title: Text(node.data.name),
       ),
