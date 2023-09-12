@@ -101,12 +101,20 @@ class _PointViewState extends State<_PointView> {
           appBar: AppBar(
             title: const Text('Точка'),
             actions: [
-              IconButton(
-                color: Colors.white,
-                icon: const Icon(Icons.save),
-                splashRadius: 12,
-                tooltip: 'Сохранить изменения',
-                onPressed: state.needSync ? vm.save : null
+              Center(
+                child: Badge(
+                  backgroundColor: Colors.green,
+                  label: const Text(' '),
+                  isLabelVisible: state.needSync,
+                  offset: const Offset(-4, 4),
+                  child: IconButton(
+                    color: Colors.white,
+                    icon: const Icon(Icons.save),
+                    splashRadius: 12,
+                    tooltip: 'Сохранить изменения',
+                    onPressed: state.needSync ? vm.save : null
+                  )
+                ),
               )
             ],
           ),

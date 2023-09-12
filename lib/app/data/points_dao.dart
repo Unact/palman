@@ -102,7 +102,7 @@ class PointEx {
   final Point point;
   final List<PointImage> images;
 
-  bool get filled => images.length > 3 && point.pointFormat != null && point.numberOfCdesks != null;
+  bool get filled => images.length >= 3 && point.pointFormat != null && point.numberOfCdesks != null;
 
   PointEx(this.point, this.images);
 }
