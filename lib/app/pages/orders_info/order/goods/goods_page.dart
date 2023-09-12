@@ -236,7 +236,7 @@ class _GoodsViewState extends State<_GoodsView> {
                   return ListTileTheme(
                     tileColor: Colors.red,
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 1),
+                      padding: const EdgeInsets.only(bottom: 2),
                       child: ExpansionTile(
                         key: Key(items[index].key),
                         collapsedBackgroundColor: Colors.red,
@@ -261,7 +261,7 @@ class _GoodsViewState extends State<_GoodsView> {
     final vm = context.read<GoodsViewModel>();
 
     return Container(
-      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 8),
+      padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
       color: Theme.of(context).scaffoldBackgroundColor,
       child: Column(
         children: [
@@ -512,7 +512,7 @@ class _GoodsViewState extends State<_GoodsView> {
         textAlignVertical: TextAlignVertical.center,
         decimal: false,
         controller: controller,
-        style: Styles.formStyle,
+        style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           border: !enabled ? InputBorder.none : null,
           suffixIcon: !enabled ? null : IconButton(
@@ -556,7 +556,7 @@ class _GoodsViewState extends State<_GoodsView> {
       expansionIndicatorBuilder: (p0, p1) => NoExpansionIndicator(tree: root),
       showRootNode: false,
       onItemTap: (node) {
-        if (vm.state.showOnlyOrder) return;
+        if (vm.state.categoriesListDisabled) return;
 
         if (node.data is Category) {
           onCategoryTap.call(node.data as Category);
@@ -570,7 +570,8 @@ class _GoodsViewState extends State<_GoodsView> {
         }
       },
       builder: (context, node) => ListTile(
-        enabled: !vm.state.showOnlyOrder,
+        contentPadding: const EdgeInsets.only(left: 8, top: 1, right: 8, bottom: 1),
+        enabled: !vm.state.categoriesListDisabled,
         selected: node.data == vm.state.selectedCategory,
         title: Text(node.data.name),
       ),
@@ -629,11 +630,15 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
         Expanded(
           child: RichText(
             text: TextSpan(
-              style: Styles.defaultTextSpan.copyWith(fontSize: 12),
+              style: Styles.defaultTextSpan.copyWith(
+                fontSize: 12,
+                color: Colors.grey[700],
+                fontWeight: FontWeight.w500
+              ),
               children: <InlineSpan>[
                 TextSpan(
                   text: 'Цена: ${Format.numberStr(linePrice)}',
-                  style: TextStyle(fontWeight: (goods.handPrice ?? 0) > 0 ? FontWeight.bold : FontWeight.normal)
+                  style: TextStyle(fontWeight: (goods.handPrice ?? 0) > 0 ? FontWeight.bold : null)
                 ),
                 TextSpan(
                   text: effPrice > 0 ? '(${Format.numberStr(price)})' : null,
@@ -673,7 +678,11 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
         Expanded(
           child: RichText(
             text: TextSpan(
-              style: Styles.defaultTextSpan.copyWith(fontSize: 12),
+              style: Styles.defaultTextSpan.copyWith(
+                fontSize: 12,
+                color: Colors.grey[700],
+                fontWeight: FontWeight.w500
+              ),
               children: <InlineSpan>[
                 TextSpan(
                   text: (goodsEx.lastPrice ?? 0) > 0 && (goods.handPrice ?? 0) > 0 ?
@@ -683,7 +692,7 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
                 ),
                 TextSpan(
                   text: 'Цена: ${Format.numberStr(linePrice)}',
-                  style: TextStyle(fontWeight: (goods.handPrice ?? 0) > 0 ? FontWeight.bold : FontWeight.normal)
+                  style: TextStyle(fontWeight: (goods.handPrice ?? 0) > 0 ? FontWeight.bold : null)
                 ),
                 TextSpan(
                   text: effPrice > 0 ? '(${Format.numberStr(price)})' : null,

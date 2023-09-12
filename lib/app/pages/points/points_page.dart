@@ -129,7 +129,7 @@ class _PointsViewState extends State<_PointsView> {
       kSliverHeaderHeight;
 
     if (vm.state.listView) {
-      return ListView(children: vm.state.filteredPointExList.map((e) => buildPointCard(context, e)).toList());
+      return ListView(children: vm.state.filteredPointExList.map((e) => buildPointTile(context, e)).toList());
     }
 
     return SizedBox(
@@ -170,8 +170,11 @@ class _PointsViewState extends State<_PointsView> {
           mapId: mapId,
           point: ym.Point(latitude: e.point.latitude!, longitude: e.point.longitude!),
           consumeTapEvents: true,
+          opacity: 0.75,
           icon: ym.PlacemarkIcon.single(ym.PlacemarkIconStyle(
-            image: ym.BitmapDescriptor.fromAssetImage('assets/placeicon.png'),
+            image: ym.BitmapDescriptor.fromAssetImage(
+              e.filled ? 'assets/filled_placeicon.png' : 'assets/not_filled_placeicon.png'
+            )
           )),
           text: ym.PlacemarkText(text: (tappedPoint?.mapId == mapId) ? e.point.buyerName : '', style: textStyle),
           onTap: (self, point) => setState(() => tappedPoint = self)
@@ -179,10 +182,18 @@ class _PointsViewState extends State<_PointsView> {
       }).toList();
   }
 
-  Widget buildPointCard(BuildContext context, PointEx pointEx) {
+  Widget buildPointTile(BuildContext context, PointEx pointEx) {
     final vm = context.read<PointsViewModel>();
+
     final tile = ListTile(
       contentPadding: const EdgeInsets.all(8),
+      minLeadingWidth: 1,
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 4),
+        child: pointEx.filled ?
+          const Icon(Icons.check, color: Colors.green) :
+          const Icon(Icons.hourglass_empty, color: Colors.yellow)
+      ),
       title: Text(pointEx.point.buyerName),
       subtitle: RichText(
         text: TextSpan(

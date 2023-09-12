@@ -47,7 +47,13 @@ class GoodsState {
 
   List<String> get goodsFirstWords => goodsDetails.map((e) => e.goods.name.split(' ')[0]).toSet().toList();
   List<OrderLineEx> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
-  bool get goodsListInitiallyExpanded => showOnlyActive || showOnlyOrder;
+
+  bool get showAllGoods => selectedCategory != null ||
+    selectedBonusProgram != null ||
+    (goodsNameSearch ?? '').isNotEmpty;
+
+  bool get categoriesListDisabled => false;
+  bool get goodsListInitiallyExpanded => showOnlyActive || showOnlyOrder || selectedBonusProgram != null;
   bool get categoriesListInitiallyExpanded =>
     showOnlyActive ||
     selectedGoodsFilter != null ||

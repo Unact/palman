@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '/app/constants/strings.dart';
+import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/orders_repository.dart';
 import 'inc_requests/inc_requests_page.dart';
 import 'orders/orders_page.dart';
 import 'pre_orders/pre_orders_page.dart';
@@ -19,7 +21,9 @@ class OrdersInfoPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<OrdersInfoViewModel>(
-      create: (context) => OrdersInfoViewModel(),
+      create: (context) => OrdersInfoViewModel(
+        RepositoryProvider.of<OrdersRepository>(context)
+      ),
       child: _OrdersInfoView(),
     );
   }
@@ -40,12 +44,20 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> {
           child: Scaffold(
             appBar: AppBar(
               title: const Text(Strings.ordersInfoPageName),
-              bottom: const TabBar(
+              bottom: TabBar(
                 tabs: [
-                  Tab(text: 'Заказы'),
-                  Tab(text: 'Заявки'),
-                  Tab(text: 'Отгрузки'),
-                  Tab(text: 'Предзаказы ТП'),
+                  const Tab(text: 'Заказы'),
+                  const Tab(text: 'Заявки'),
+                  const Tab(text: 'Отгрузки'),
+                  Tab(
+                    child: Badge(
+                      backgroundColor: Colors.green,
+                      label: Text(state.notSeenCnt.toString()),
+                      isLabelVisible: state.notSeenCnt != 0,
+                      offset: const Offset(16, -16),
+                      child: const Text('Предзаказы других ТП'),
+                    )
+                  )
                 ],
               ),
             ),

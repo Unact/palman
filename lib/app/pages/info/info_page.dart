@@ -132,6 +132,7 @@ class _InfoViewState extends State<_InfoView> {
               ),
               Center(
                 child: Badge(
+                  backgroundColor: Colors.green,
                   label: Text(state.pendingChanges.toString()),
                   isLabelVisible: state.hasPendingChanges,
                   offset: const Offset(-4, 4),

@@ -410,3 +410,7 @@ class PreOrderLines extends Table {
   IntColumn get package => integer()();
   IntColumn get rel => integer()();
 }
+
+class SeenPreOrders extends Table {
+  IntColumn get id => integer().autoIncrement()();
+}

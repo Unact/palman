@@ -12,8 +12,9 @@ part of 'database.dart';
   queries: {
     'shipmentEx': '''
       SELECT
-        shipments.** AS shipment,
-        buyers.** AS buyer
+        shipments.** AS "shipment",
+        buyers.** AS "buyer",
+        (SELECT COUNT(*) FROM shipment_lines where shipments.id = shipment_lines.shipment_id) AS "lines_count"
       FROM shipments
       JOIN buyers on buyers.id = shipments.buyer_id
       ORDER BY shipments.date DESC, buyers.name

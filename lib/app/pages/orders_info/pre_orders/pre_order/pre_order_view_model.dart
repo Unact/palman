@@ -11,6 +11,13 @@ class PreOrderViewModel extends PageViewModel<PreOrderState, PreOrderStateStatus
   PreOrderStateStatus get status => state.status;
 
   @override
+  Future<void> initViewModel() async {
+    await _saveSeen();
+
+    await super.initViewModel();
+  }
+
+  @override
   Future<void> loadData() async {
     final linesExList = await ordersRepository.getPreOrderLineExList(state.preOrderEx.preOrder.id);
 
@@ -18,6 +25,12 @@ class PreOrderViewModel extends PageViewModel<PreOrderState, PreOrderStateStatus
       status: PreOrderStateStatus.dataLoaded,
       linesExList: linesExList
     ));
+  }
+
+  Future<void> _saveSeen() async {
+    if (state.preOrderEx.wasSeen) return;
+
+    await ordersRepository.addSeenPreOrder(id: state.preOrderEx.preOrder.id);
   }
 
   Future<void> createOrder() async {

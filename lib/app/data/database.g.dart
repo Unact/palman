@@ -9512,6 +9512,144 @@ class PreOrderLinesCompanion extends UpdateCompanion<PreOrderLine> {
   }
 }
 
+class $SeenPreOrdersTable extends SeenPreOrders
+    with TableInfo<$SeenPreOrdersTable, SeenPreOrder> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SeenPreOrdersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  @override
+  List<GeneratedColumn> get $columns => [id];
+  @override
+  String get aliasedName => _alias ?? 'seen_pre_orders';
+  @override
+  String get actualTableName => 'seen_pre_orders';
+  @override
+  VerificationContext validateIntegrity(Insertable<SeenPreOrder> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SeenPreOrder map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SeenPreOrder(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+    );
+  }
+
+  @override
+  $SeenPreOrdersTable createAlias(String alias) {
+    return $SeenPreOrdersTable(attachedDatabase, alias);
+  }
+}
+
+class SeenPreOrder extends DataClass implements Insertable<SeenPreOrder> {
+  final int id;
+  const SeenPreOrder({required this.id});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    return map;
+  }
+
+  SeenPreOrdersCompanion toCompanion(bool nullToAbsent) {
+    return SeenPreOrdersCompanion(
+      id: Value(id),
+    );
+  }
+
+  factory SeenPreOrder.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SeenPreOrder(
+      id: serializer.fromJson<int>(json['id']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+    };
+  }
+
+  SeenPreOrder copyWith({int? id}) => SeenPreOrder(
+        id: id ?? this.id,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('SeenPreOrder(')
+          ..write('id: $id')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => id.hashCode;
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) || (other is SeenPreOrder && other.id == this.id);
+}
+
+class SeenPreOrdersCompanion extends UpdateCompanion<SeenPreOrder> {
+  final Value<int> id;
+  const SeenPreOrdersCompanion({
+    this.id = const Value.absent(),
+  });
+  SeenPreOrdersCompanion.insert({
+    this.id = const Value.absent(),
+  });
+  static Insertable<SeenPreOrder> custom({
+    Expression<int>? id,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+    });
+  }
+
+  SeenPreOrdersCompanion copyWith({Value<int>? id}) {
+    return SeenPreOrdersCompanion(
+      id: id ?? this.id,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SeenPreOrdersCompanion(')
+          ..write('id: $id')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $BonusProgramGroupsTable extends BonusProgramGroups
     with TableInfo<$BonusProgramGroupsTable, BonusProgramGroup> {
   @override
@@ -13667,6 +13805,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final $OrderLinesTable orderLines = $OrderLinesTable(this);
   late final $PreOrdersTable preOrders = $PreOrdersTable(this);
   late final $PreOrderLinesTable preOrderLines = $PreOrderLinesTable(this);
+  late final $SeenPreOrdersTable seenPreOrders = $SeenPreOrdersTable(this);
   late final $BonusProgramGroupsTable bonusProgramGroups =
       $BonusProgramGroupsTable(this);
   late final $BonusProgramsTable bonusPrograms = $BonusProgramsTable(this);
@@ -13760,6 +13899,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         orderLines,
         preOrders,
         preOrderLines,
+        seenPreOrders,
         bonusProgramGroups,
         bonusPrograms,
         buyersSets,
@@ -13935,6 +14075,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
   $OrderLinesTable get orderLines => attachedDatabase.orderLines;
   $PreOrdersTable get preOrders => attachedDatabase.preOrders;
   $PreOrderLinesTable get preOrderLines => attachedDatabase.preOrderLines;
+  $SeenPreOrdersTable get seenPreOrders => attachedDatabase.seenPreOrders;
   Selectable<OrderExResult> orderEx() {
     return customSelect(
         'SELECT"orders"."id" AS "nested_0.id", "orders"."date" AS "nested_0.date", "orders"."status" AS "nested_0.status", "orders"."pre_order_id" AS "nested_0.pre_order_id", "orders"."need_docs" AS "nested_0.need_docs", "orders"."need_inc" AS "nested_0.need_inc", "orders"."is_bonus" AS "nested_0.is_bonus", "orders"."is_physical" AS "nested_0.is_physical", "orders"."buyer_id" AS "nested_0.buyer_id", "orders"."info" AS "nested_0.info", "orders"."need_processing" AS "nested_0.need_processing", "orders"."is_blocked" AS "nested_0.is_blocked", "orders"."is_editable" AS "nested_0.is_editable", "orders"."is_deleted" AS "nested_0.is_deleted", "orders"."guid" AS "nested_0.guid", "orders"."timestamp" AS "nested_0.timestamp", "orders"."need_sync" AS "nested_0.need_sync","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", COALESCE((SELECT SUM(order_lines.rel * order_lines.vol *(order_lines.price - goods.cost)) FROM order_lines JOIN goods ON goods.id = order_lines.goods_id JOIN categories ON categories.id = goods.category_id WHERE order_lines.order_id = orders.id AND order_lines.is_deleted = 0), 0) AS lines_profit_total, COALESCE((SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price) FROM order_lines WHERE order_lines.order_id = orders.id AND order_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM order_lines WHERE order_id = orders.id) AS lines_count FROM orders LEFT JOIN buyers ON buyers.id = orders.buyer_id ORDER BY orders.date DESC, buyers.name',
@@ -13958,12 +14099,13 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
 
   Selectable<PreOrderExResult> preOrderEx() {
     return customSelect(
-        'SELECT"pre_orders"."id" AS "nested_0.id", "pre_orders"."date" AS "nested_0.date", "pre_orders"."buyer_id" AS "nested_0.buyer_id", "pre_orders"."need_docs" AS "nested_0.need_docs", "pre_orders"."info" AS "nested_0.info","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", COALESCE((SELECT SUM(pre_order_lines.rel * pre_order_lines.vol * pre_order_lines.price) FROM pre_order_lines WHERE pre_order_lines.pre_order_id = pre_orders.id), 0) AS lines_total, (SELECT COUNT(*) FROM pre_order_lines WHERE pre_order_id = pre_orders.id) AS lines_count, EXISTS (SELECT 1 AS _c0 FROM orders WHERE pre_order_id = pre_orders.id) AS has_order FROM pre_orders JOIN buyers ON buyers.id = pre_orders.buyer_id ORDER BY pre_orders.date DESC, buyers.name',
+        'SELECT"pre_orders"."id" AS "nested_0.id", "pre_orders"."date" AS "nested_0.date", "pre_orders"."buyer_id" AS "nested_0.buyer_id", "pre_orders"."need_docs" AS "nested_0.need_docs", "pre_orders"."info" AS "nested_0.info","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", COALESCE((SELECT SUM(pre_order_lines.rel * pre_order_lines.vol * pre_order_lines.price) FROM pre_order_lines WHERE pre_order_lines.pre_order_id = pre_orders.id), 0) AS lines_total, (SELECT COUNT(*) FROM pre_order_lines WHERE pre_order_id = pre_orders.id) AS lines_count, EXISTS (SELECT 1 AS _c0 FROM orders WHERE pre_order_id = pre_orders.id) AS has_order, EXISTS (SELECT 1 AS _c1 FROM seen_pre_orders WHERE id = pre_orders.id) AS was_seen FROM pre_orders JOIN buyers ON buyers.id = pre_orders.buyer_id ORDER BY pre_orders.date DESC, buyers.name',
         variables: [],
         readsFrom: {
           preOrderLines,
           preOrders,
           orders,
+          seenPreOrders,
           buyers,
         }).asyncMap((QueryRow row) async {
       return PreOrderExResult(
@@ -13972,6 +14114,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
         linesTotal: row.read<double>('lines_total'),
         linesCount: row.read<int>('lines_count'),
         hasOrder: row.read<bool>('has_order'),
+        wasSeen: row.read<bool>('was_seen'),
       );
     });
   }
@@ -14032,12 +14175,14 @@ class PreOrderExResult {
   final double linesTotal;
   final int linesCount;
   final bool hasOrder;
+  final bool wasSeen;
   PreOrderExResult({
     required this.preOrder,
     required this.buyer,
     required this.linesTotal,
     required this.linesCount,
     required this.hasOrder,
+    required this.wasSeen,
   });
 }
 
@@ -14165,15 +14310,17 @@ mixin _$ShipmentsDaoMixin on DatabaseAccessor<AppDataStore> {
   $WorkdatesTable get workdates => attachedDatabase.workdates;
   Selectable<ShipmentExResult> shipmentEx() {
     return customSelect(
-        'SELECT"shipments"."id" AS "nested_0.id", "shipments"."date" AS "nested_0.date", "shipments"."ndoc" AS "nested_0.ndoc", "shipments"."info" AS "nested_0.info", "shipments"."status" AS "nested_0.status", "shipments"."debt_sum" AS "nested_0.debt_sum", "shipments"."shipment_sum" AS "nested_0.shipment_sum", "shipments"."buyer_id" AS "nested_0.buyer_id","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id" FROM shipments JOIN buyers ON buyers.id = shipments.buyer_id ORDER BY shipments.date DESC, buyers.name',
+        'SELECT"shipments"."id" AS "nested_0.id", "shipments"."date" AS "nested_0.date", "shipments"."ndoc" AS "nested_0.ndoc", "shipments"."info" AS "nested_0.info", "shipments"."status" AS "nested_0.status", "shipments"."debt_sum" AS "nested_0.debt_sum", "shipments"."shipment_sum" AS "nested_0.shipment_sum", "shipments"."buyer_id" AS "nested_0.buyer_id","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", (SELECT COUNT(*) FROM shipment_lines WHERE shipments.id = shipment_lines.shipment_id) AS lines_count FROM shipments JOIN buyers ON buyers.id = shipments.buyer_id ORDER BY shipments.date DESC, buyers.name',
         variables: [],
         readsFrom: {
+          shipmentLines,
           shipments,
           buyers,
         }).asyncMap((QueryRow row) async {
       return ShipmentExResult(
         shipment: await shipments.mapFromRow(row, tablePrefix: 'nested_0'),
         buyer: await buyers.mapFromRow(row, tablePrefix: 'nested_1'),
+        linesCount: row.read<int>('lines_count'),
       );
     });
   }
@@ -14201,9 +14348,11 @@ mixin _$ShipmentsDaoMixin on DatabaseAccessor<AppDataStore> {
 class ShipmentExResult {
   final Shipment shipment;
   final Buyer buyer;
+  final int linesCount;
   ShipmentExResult({
     required this.shipment,
     required this.buyer,
+    required this.linesCount,
   });
 }
 

@@ -57,6 +57,10 @@ class _PreOrdersViewState extends State<_PreOrdersView> {
           style: Styles.defaultTextSpan,
           children: <TextSpan>[
             TextSpan(
+              text: preOrderEx.wasSeen ? '' : 'Новый!\n',
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.bold, color: Colors.red)
+            ),
+            TextSpan(
               text: '${preOrderEx.buyer.fullname}\n',
               style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
             ),

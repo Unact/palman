@@ -15,7 +15,8 @@ part of 'database.dart';
     Orders,
     OrderLines,
     PreOrders,
-    PreOrderLines
+    PreOrderLines,
+    SeenPreOrders
   ],
   queries: {
     'orderEx': '''
@@ -58,7 +59,8 @@ part of 'database.dart';
           0
         ) AS "lines_total",
         (SELECT COUNT(*) FROM pre_order_lines where pre_order_id = pre_orders.id) AS "lines_count",
-        EXISTS(SELECT 1 FROM orders where pre_order_id = pre_orders.id) AS "has_order"
+        EXISTS(SELECT 1 FROM orders where pre_order_id = pre_orders.id) AS "has_order",
+        EXISTS(SELECT 1 FROM seen_pre_orders where id = pre_orders.id) AS "was_seen"
       FROM pre_orders
       JOIN buyers on buyers.id = pre_orders.buyer_id
       ORDER BY pre_orders.date DESC, buyers.name
@@ -181,6 +183,10 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
 
   Future<void> deleteOrderLine(int orderLineId) async {
     await (delete(orderLines)..where((tbl) => tbl.id.equals(orderLineId))).go();
+  }
+
+  Future<int> addSeenPreOrder(SeenPreOrdersCompanion newSeenPreOrder) async {
+    return await into(seenPreOrders).insert(newSeenPreOrder);
   }
 
   Future<List<Order>> getOrdersForSync() async {
