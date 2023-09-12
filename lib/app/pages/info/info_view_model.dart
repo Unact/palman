@@ -193,9 +193,9 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     if (defaultTargetPlatform == TargetPlatform.android) {
       return AndroidSettings(
         accuracy: LocationAccuracy.best,
-        distanceFilter: 10,
+        distanceFilter: 40,
         forceLocationManager: true,
-        intervalDuration: const Duration(seconds: 10),
+        intervalDuration: const Duration(seconds: 30),
         foregroundNotificationConfig: const ForegroundNotificationConfig(
           notificationIcon: AndroidResource(name: 'launcher_icon', defType: 'mipmap'),
           notificationText: 'Приложение продолжит получать информацию о местоположении',
@@ -207,7 +207,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       return AppleSettings(
         accuracy: LocationAccuracy.best,
         activityType: ActivityType.other,
-        distanceFilter: 10,
+        distanceFilter: 40,
         showBackgroundLocationIndicator: true,
       );
     }
