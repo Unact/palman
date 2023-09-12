@@ -89,12 +89,20 @@ class _OrderViewState extends State<_OrderView> {
                 tooltip: 'Создать дубликат',
                 onPressed: state.orderEx.order.isEditable ? vm.copy : null
               ),
-              IconButton(
-                color: Colors.white,
-                icon: const Icon(Icons.save),
-                splashRadius: 12,
-                tooltip: 'Сохранить изменения',
-                onPressed: state.needSync ? vm.save : null
+              Center(
+                child: Badge(
+                  backgroundColor: Colors.green,
+                  label: const Text(' '),
+                  isLabelVisible: state.needSync,
+                  offset: const Offset(-4, 4),
+                  child: IconButton(
+                    color: Colors.white,
+                    icon: const Icon(Icons.save),
+                    splashRadius: 12,
+                    tooltip: 'Сохранить изменения',
+                    onPressed: state.needSync ? vm.save : null
+                  )
+                ),
               )
             ],
           ),

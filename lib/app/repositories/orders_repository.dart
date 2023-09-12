@@ -296,6 +296,14 @@ class OrdersRepository extends BaseRepository {
     return dataStore.ordersDao.getPreOrderLineExList(preOrderId);
   }
 
+  Future<void> addSeenPreOrder({
+    required int id
+  }) async {
+    await dataStore.ordersDao.addSeenPreOrder(SeenPreOrdersCompanion(id: Value(id)));
+
+    notifyListeners();
+  }
+
   Future<OrderExResult> addOrder({
     int? preOrderId,
     int? buyerId,

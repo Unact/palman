@@ -106,6 +106,10 @@ class _OrdersViewState extends State<_OrdersView> {
             TextSpan(
               text: orderEx.order.isPhysical ? 'Физ. лицо\n' : '',
               style: Styles.tileText
+            ),
+            TextSpan(
+              text: orderEx.order.info,
+              style: Styles.tileText
             )
           ]
         )

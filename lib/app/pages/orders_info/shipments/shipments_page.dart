@@ -51,7 +51,7 @@ class _ShipmentsViewState extends State<_ShipmentsView> {
             SliverAppBar(
               centerTitle: true,
               pinned: true,
-              backgroundColor: Colors.transparent,
+              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
               title: buildHeader(context),
             ),
             SliverList(delegate: buildShipmentListView(context))
@@ -64,7 +64,6 @@ class _ShipmentsViewState extends State<_ShipmentsView> {
   Widget buildHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(top: 8, bottom: 16),
-      color: Theme.of(context).scaffoldBackgroundColor,
       child: buildBuyerSearch(context)
     );
   }
@@ -155,7 +154,7 @@ class _ShipmentsViewState extends State<_ShipmentsView> {
       subtitle: RichText(
         text: TextSpan(
           style: Styles.defaultTextSpan,
-          children: <TextSpan>[
+          children: <InlineSpan>[
             TextSpan(
               text: 'Номер: ${shipmentEx.shipment.ndoc}\n',
               style: Styles.tileText
@@ -164,16 +163,29 @@ class _ShipmentsViewState extends State<_ShipmentsView> {
               text: 'Статус: ${shipmentEx.shipment.status}\n',
               style: Styles.tileText
             ),
+            TextSpan(
+              text: shipmentEx.shipment.info.isNotEmpty ? 'Примечание: ${shipmentEx.shipment.info}\n' : '',
+              style: Styles.tileText
+            ),
             shipmentEx.shipment.debtSum == null ?
               const TextSpan() :
               TextSpan(
                 text: 'Задолженность: ${Format.numberStr(shipmentEx.shipment.debtSum)}\n',
                 style: Styles.tileText
               ),
-            TextSpan(
-              text: 'Стоимость: ${Format.numberStr(shipmentEx.shipment.shipmentSum)}\n',
-              style: Styles.tileText
-            )
+            WidgetSpan(child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  width: 200,
+                  child: Text(
+                    'Сумма: ${Format.numberStr(shipmentEx.shipment.shipmentSum)}',
+                    style: Styles.tileText.copyWith(color: Colors.grey)
+                  ),
+                ),
+                Text('Позиций: ${shipmentEx.linesCount}\n', style: Styles.tileText.copyWith(color: Colors.grey))
+              ],
+            ))
           ]
         )
       ),

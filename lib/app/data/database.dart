@@ -46,6 +46,7 @@ part 'users_dao.dart';
     OrderLines,
     PreOrders,
     PreOrderLines,
+    SeenPreOrders,
     BonusProgramGroups,
     BonusPrograms,
     BuyersSets,
@@ -201,7 +202,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -224,12 +225,24 @@ class AppDataStore extends _$AppDataStore {
         'CREATE INDEX shipment_lines_goods_idx ON shipment_lines(goods_id)'
       ));
       await m.createIndex(Index(
+        'shipment_lines_shipment_id_idx',
+        'CREATE INDEX shipment_lines_shipment_idx ON shipment_lines(shipment_id)'
+      ));
+      await m.createIndex(Index(
         'order_lines_goods_idx',
         'CREATE INDEX order_lines_goods_idx ON order_lines(goods_id)'
       ));
       await m.createIndex(Index(
+        'order_lines_order_idx',
+        'CREATE INDEX order_lines_order_idx ON order_lines(order_id)'
+      ));
+      await m.createIndex(Index(
         'pre_order_lines_goods_idx',
         'CREATE INDEX pre_order_lines_goods_idx ON pre_order_lines(goods_id)'
+      ));
+      await m.createIndex(Index(
+        'pre_order_lines_pre_order_idx',
+        'CREATE INDEX pre_order_lines_pre_order_idx ON pre_order_lines(pre_order_id)'
       ));
       await m.createIndex(Index(
         'goods_bonus_programs_idx',
@@ -238,6 +251,10 @@ class AppDataStore extends _$AppDataStore {
       await m.createIndex(Index(
         'pricelist_prices_idx',
         'CREATE INDEX pricelist_prices_idx ON pricelist_prices(goods_id, pricelist_id)'
+      ));
+      await m.createIndex(Index(
+        'point_images_point_idx',
+        'CREATE INDEX point_images_point_idx ON point_images(point_id)'
       ));
     },
     beforeOpen: (details) async {

@@ -140,7 +140,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     final visibleCategories = state.selectedCategory == null ?
       state.allCategories.where((e) => categoryIds.contains(e.id)).toList() :
       state.visibleCategories;
-    final List<GoodsDetail> goodsDetails = state.selectedCategory == null ?
+    final List<GoodsDetail> goodsDetails = !state.showAllGoods ?
       [] :
       await ordersRepository.getGoodsDetails(
         buyerId: state.orderEx.buyer!.id,
