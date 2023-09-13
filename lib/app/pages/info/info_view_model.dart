@@ -58,7 +58,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
     await saveChangesBackground();
 
-    syncTimer = Timer.periodic(const Duration(minutes: 1), saveChangesBackground);
+    syncTimer = Timer.periodic(const Duration(minutes: 10), saveChangesBackground);
   }
 
   @override
