@@ -27,7 +27,7 @@ part of 'database.dart';
       FROM shipments
       JOIN shipment_lines ON shipment_lines.shipment_id = shipments.id
       WHERE shipments.buyer_id = :buyer_id AND shipment_lines.goods_id = :goods_id
-      ORDER BY shipments.date
+      ORDER BY shipments.date DESC
     '''
   }
 )

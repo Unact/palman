@@ -215,6 +215,10 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
       key: Key(encashmentEx.hashCode.toString()),
       background: Container(color: Colors.red[500]),
       onDismissed: (direction) => vm.deleteEncashment(encashmentEx),
+      confirmDismiss: (direction) => ConfirmationDialog(
+        context: context,
+        confirmationText: 'Вы точно хотите удалить инкассацию?'
+      ).open(),
       child: ListTile(
         title: Text(encashmentEx.buyer.name),
         subtitle: RichText(

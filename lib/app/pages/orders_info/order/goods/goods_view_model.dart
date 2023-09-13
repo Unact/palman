@@ -15,7 +15,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   Future<void> loadData() async {
     final orderEx = await ordersRepository.getOrderEx(state.orderEx.order.id);
     final linesExList = await ordersRepository.getOrderLineExList(state.orderEx.order.id);
-    final categories = await ordersRepository.getCategories();
+    final categories = await ordersRepository.getCategories(buyerId: state.orderEx.order.buyerId!);
     final shopDepartments = await ordersRepository.getShopDepartments();
     final goodsFilters = await ordersRepository.getGoodsFilters();
     final pref = await appRepository.getPref();
@@ -63,7 +63,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     await searchGoods();
   }
 
-  Future<void> selectCategory(Category? category) async {
+  Future<void> selectCategory(CategoriesExResult? category) async {
     emit(state.copyWith(selectedCategory: Optional.fromNullable(category)));
 
     await searchGoods();
@@ -100,7 +100,10 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> toggleShowOnlyActive() async {
-    emit(state.copyWith(showOnlyActive: !state.showOnlyActive));
+    emit(state.copyWith(
+      showOnlyActive: !state.showOnlyActive,
+      selectedCategory: const Optional.absent()
+    ));
 
     await searchGoods();
   }
@@ -117,24 +120,13 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   Future<void> searchGoods() async {
     emit(state.copyWith(status: GoodsStateStatus.searchStarted));
 
-    if (state.showOnlyOrder) {
-      final goodsDetails = await ordersRepository.getGoodsDetails(
-        buyerId: state.orderEx.buyer!.id,
-        date: state.orderEx.order.date!,
-        goodsIds: state.filteredOrderLinesExList.map((e) => e.goods.id).toList()
-      );
-
-      emit(state.copyWith(status: GoodsStateStatus.searchFinished, goodsDetails: goodsDetails));
-      return;
-    }
-
     final goods = await ordersRepository.getGoods(
       name: state.goodsNameSearch,
       extraLabel: state.selectedGoodsFilter?.value,
       categoryId: state.selectedCategory?.id,
       bonusProgramId: state.selectedBonusProgram?.id,
       buyerId: state.showOnlyActive ? state.orderEx.buyer!.id : null,
-      goodsIds: null
+      goodsIds: state.showOnlyOrder ? state.filteredOrderLinesExList.map((e) => e.goods.id).toList() : null
     );
     final categoryIds = goods.map((e) => e.categoryId).toSet();
     final visibleCategories = state.selectedCategory == null ?
@@ -215,6 +207,14 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       priceOriginal: goodsDetail.pricelistPrice,
       rel: goodsDetail.rel,
       package: goodsDetail.package
+    );
+  }
+
+  Future<void> updateOrderLinePrice(OrderLineEx orderLineEx, double price) async {
+    await ordersRepository.updateOrderLine(
+      orderLineEx.line,
+      price: Optional.of(price),
+      needSync: Optional.of(true)
     );
   }
 }

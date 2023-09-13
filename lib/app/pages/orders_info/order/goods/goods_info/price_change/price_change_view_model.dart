@@ -36,7 +36,7 @@ class PriceChangeViewModel extends PageViewModel<PriceChangeState, PriceChangeSt
 
   void updatePrice(double? price) async {
     emit(state.copyWith(
-      status: PriceChangeStateStatus.dateUpdated,
+      status: PriceChangeStateStatus.priceUpdated,
       price: Optional.fromNullable(price?.roundDigits(2))
     ));
   }

@@ -33,7 +33,7 @@ class GoodsState {
 
   final OrderExResult orderEx;
   final List<OrderLineEx> linesExList;
-  final List<Category> allCategories;
+  final List<CategoriesExResult> allCategories;
   final List<ShopDepartment> shopDepartments;
   final List<GoodsFilter> goodsFilters;
   final List<GoodsDetail> goodsDetails;
@@ -50,17 +50,19 @@ class GoodsState {
 
   bool get showAllGoods => selectedCategory != null ||
     selectedBonusProgram != null ||
-    (goodsNameSearch ?? '').isNotEmpty;
+    (goodsNameSearch ?? '').isNotEmpty ||
+    showOnlyOrder;
 
   bool get goodsListInitiallyExpanded => showOnlyActive || showOnlyOrder || selectedBonusProgram != null;
   bool get categoriesListInitiallyExpanded =>
     showOnlyActive ||
+    showOnlyOrder ||
     selectedGoodsFilter != null ||
     selectedBonusProgram != null ||
     (goodsNameSearch ?? '').isNotEmpty;
 
-  final List<Category> visibleCategories;
-  final Category? selectedCategory;
+  final List<CategoriesExResult> visibleCategories;
+  final CategoriesExResult? selectedCategory;
   final GoodsFilter? selectedGoodsFilter;
   final FilteredBonusProgramsResult? selectedBonusProgram;
   final String? goodsNameSearch;
@@ -77,13 +79,13 @@ class GoodsState {
     GoodsStateStatus? status,
     OrderExResult? orderEx,
     List<OrderLineEx>? linesExList,
-    List<Category>? allCategories,
+    List<CategoriesExResult>? allCategories,
     List<ShopDepartment>? shopDepartments,
     List<GoodsFilter>? goodsFilters,
     List<GoodsDetail>? goodsDetails,
-    List<Category>? visibleCategories,
+    List<CategoriesExResult>? visibleCategories,
     Optional<FilteredBonusProgramsResult>? selectedBonusProgram,
-    Optional<Category>? selectedCategory,
+    Optional<CategoriesExResult>? selectedCategory,
     Optional<GoodsFilter>? selectedGoodsFilter,
     Optional<String>? goodsNameSearch,
     bool? groupByManufacturer,

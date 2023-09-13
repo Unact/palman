@@ -16,6 +16,7 @@ import '/app/repositories/orders_repository.dart';
 import '/app/repositories/prices_repository.dart';
 import 'bonus_programs/bonus_programs_page.dart';
 import 'goods_info/goods_info_page.dart';
+import 'hand_price_change/hand_price_change_page.dart';
 
 part 'goods_state.dart';
 part 'goods_view_model.dart';
@@ -92,7 +93,7 @@ class _GoodsViewState extends State<_GoodsView> {
 
   Future<void> showCategorySelectDialog() async {
     final vm = context.read<GoodsViewModel>();
-    final result = await showDialog<Category>(
+    final result = await showDialog<CategoriesExResult>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext dialogContext) {
@@ -101,7 +102,10 @@ class _GoodsViewState extends State<_GoodsView> {
             width: 360,
             child: Scaffold(
               appBar: AppBar(title: const Text('Выберите категорию')),
-              body: buildCategorySelect(context, (Category category) => Navigator.of(dialogContext).pop(category))
+              body: buildCategorySelect(
+                context,
+                (CategoriesExResult category) => Navigator.of(dialogContext).pop(category)
+              )
             )
           )
         );
@@ -273,7 +277,6 @@ class _GoodsViewState extends State<_GoodsView> {
                   width: 160,
                   child: TextField(
                     readOnly: true,
-                    enabled: !vm.state.showOnlyOrder,
                     decoration: InputDecoration(
                       labelText: 'Категория',
                       suffixIcon: IconButton(
@@ -289,7 +292,6 @@ class _GoodsViewState extends State<_GoodsView> {
               Flexible(
                 child: TextField(
                   readOnly: true,
-                  enabled: !vm.state.showOnlyOrder,
                   decoration: InputDecoration(
                     labelText: 'Акция',
                     suffixIcon: vm.state.selectedBonusProgram == null ?
@@ -314,7 +316,6 @@ class _GoodsViewState extends State<_GoodsView> {
             decoration: const InputDecoration(labelText: 'Наименование'),
             onFieldSubmitted: vm.setGoodsNameSearch,
             autocorrect: false,
-            enabled: !vm.state.showOnlyOrder,
             style: Styles.formStyle,
             controller: nameController,
           ),
@@ -335,7 +336,7 @@ class _GoodsViewState extends State<_GoodsView> {
         label: Text(e.name),
         labelStyle: Styles.formStyle,
         selected: e == vm.state.selectedGoodsFilter,
-        onSelected: vm.state.showOnlyOrder ? null : (bool selected) => vm.selectGoodsFilter(selected ? e : null)
+        onSelected: (bool selected) => vm.selectGoodsFilter(selected ? e : null)
       )).toList()
     );
   }
@@ -450,28 +451,35 @@ class _GoodsViewState extends State<_GoodsView> {
 
     if (!vm.state.showGoodsImage) return Container();
 
-    final image = RetryableImage(
-      color: Colors.red,
-      cached: vm.state.showLocalImage,
-      imageUrl: goodsDetail.goodsEx.goods.imageUrl,
-      cacheKey: goodsDetail.goodsEx.goods.imageKey,
-      cacheManager: OrdersRepository.goodsCacheManager,
-    );
-
     return GestureDetector(
       onTap: () {
         Navigator.push<String>(
           context,
           MaterialPageRoute(
             fullscreenDialog: true,
-            builder: (BuildContext context) => ImagesView(images: [image], idx: 0)
+            builder: (BuildContext context) => ImagesView(
+              images: [
+                RetryableImage(
+                  color: Colors.red,
+                  cached: vm.state.showLocalImage,
+                  imageUrl: goodsDetail.goodsEx.goods.imageUrl,
+                  cacheKey: goodsDetail.goodsEx.goods.imageKey,
+                  cacheManager: OrdersRepository.goodsCacheManager,
+                )
+              ],
+              idx: 0
+            )
           )
         );
       },
-      child: SizedBox(
-        width: compactMode ? 160 : 320,
-        height: compactMode ? 200 : 400,
-        child: image
+      child: RetryableImage(
+        height: compactMode ? 120 : 240,
+        width: compactMode ? 150 : 300,
+        color: Colors.red,
+        cached: vm.state.showLocalImage,
+        imageUrl: goodsDetail.goodsEx.goods.imageUrl,
+        cacheKey: goodsDetail.goodsEx.goods.imageKey,
+        cacheManager: OrdersRepository.goodsCacheManager,
       )
     );
   }
@@ -556,8 +564,8 @@ class _GoodsViewState extends State<_GoodsView> {
       expansionIndicatorBuilder: (p0, p1) => NoExpansionIndicator(tree: root),
       showRootNode: false,
       onItemTap: (node) {
-        if (node.data is Category) {
-          onCategoryTap.call(node.data as Category);
+        if (node.data is CategoriesExResult) {
+          onCategoryTap.call(node.data as CategoriesExResult);
           return;
         }
 
@@ -570,7 +578,9 @@ class _GoodsViewState extends State<_GoodsView> {
       builder: (context, node) => ListTile(
         contentPadding: const EdgeInsets.only(left: 8, top: 1, right: 8, bottom: 1),
         selected: node.data == vm.state.selectedCategory,
-        title: Text(node.data.name),
+        title: node.data is CategoriesExResult ?
+          buildCategoryTileTitle(vm.state.showOnlyActive, node.data) :
+          Text(node.data.name)
       ),
       onTreeReady: (controller) {
         categoryTreeController = controller;
@@ -585,6 +595,31 @@ class _GoodsViewState extends State<_GoodsView> {
           }
         }
       }
+    );
+  }
+
+  Widget buildCategoryTileTitle(bool showOnlyActive, CategoriesExResult category) {
+    final daysDiff = category.lastShipmentDate != null ?
+      DateTime.now().difference(category.lastShipmentDate!) :
+      null;
+
+    if (!showOnlyActive || daysDiff == null) return Text(category.name);
+
+    return Row(
+      children: [
+        Expanded(child: Text(category.name)),
+        Padding(
+          padding: const EdgeInsets.all(1),
+          child: Chip(
+            materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+            labelPadding: EdgeInsets.zero,
+            visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+            label: Text(daysDiff.inDays.toString(), style: Styles.chipStyle),
+            backgroundColor: Colors.green,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
+          )
+        )
+      ]
     );
   }
 }
@@ -605,6 +640,21 @@ class _GoodsSubtitle extends StatefulWidget {
 
 class _GoodsSubtitleState extends State<_GoodsSubtitle> {
   bool expanded = false;
+
+  Future<void> showPriceChangeDialog() async {
+    final vm = context.read<GoodsViewModel>();
+
+    final result = await showDialog<double?>(
+      context: context,
+      barrierDismissible: true,
+      builder: (BuildContext context) => HandPriceChangePage(
+        minHandPrice: widget.goodsDetail.goods.handPrice!,
+        handPrice: widget.orderLineEx!.line.price,
+      )
+    );
+
+    if (result != null) await vm.updateOrderLinePrice(widget.orderLineEx!, result);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -633,10 +683,24 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
                 fontWeight: FontWeight.w500
               ),
               children: <InlineSpan>[
-                TextSpan(
-                  text: 'Цена: ${Format.numberStr(linePrice)}',
-                  style: TextStyle(fontWeight: (goods.handPrice ?? 0) > 0 ? FontWeight.bold : null)
-                ),
+                const TextSpan(text: 'Цена: '),
+                (goods.handPrice ?? 0) > 0 ?
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsets.all(1),
+                      child: ActionChip(
+                        onPressed: widget.orderLineEx == null ? null : showPriceChangeDialog,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        labelPadding: EdgeInsets.zero,
+                        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                        label: Text(Format.numberStr(linePrice), style: Styles.chipStyle),
+                        backgroundColor: Colors.black87,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
+                      )
+                    )
+                  ) :
+                  TextSpan(text: Format.numberStr(linePrice)),
                 TextSpan(
                   text: effPrice > 0 ? '(${Format.numberStr(price)})' : null,
                   style: TextStyle(
@@ -687,10 +751,24 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
                     null,
                   style: const TextStyle(fontWeight: FontWeight.bold)
                 ),
-                TextSpan(
-                  text: 'Цена: ${Format.numberStr(linePrice)}',
-                  style: TextStyle(fontWeight: (goods.handPrice ?? 0) > 0 ? FontWeight.bold : null)
-                ),
+                const TextSpan(text: 'Цена: '),
+                (goods.handPrice ?? 0) > 0 ?
+                  WidgetSpan(
+                    alignment: PlaceholderAlignment.middle,
+                    child: Padding(
+                      padding: const EdgeInsets.all(1),
+                      child: ActionChip(
+                        onPressed: widget.orderLineEx == null ? null : showPriceChangeDialog,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        labelPadding: EdgeInsets.zero,
+                        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                        label: Text(Format.numberStr(linePrice), style: Styles.chipStyle),
+                        backgroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
+                      )
+                    )
+                  ) :
+                  TextSpan(text: Format.numberStr(linePrice)),
                 TextSpan(
                   text: effPrice > 0 ? '(${Format.numberStr(price)})' : null,
                   style: TextStyle(

@@ -14152,6 +14152,30 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
       );
     });
   }
+
+  Selectable<CategoriesExResult> categoriesEx(int buyerId) {
+    return customSelect(
+        'SELECT categories.*, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN goods ON shipment_lines.goods_id = goods.id WHERE categories.id = goods.category_id AND shipments.buyer_id = ?1) AS last_shipment_date FROM categories WHERE EXISTS (SELECT 1 AS _c0 FROM goods WHERE goods.category_id = categories.id) ORDER BY categories.name',
+        variables: [
+          Variable<int>(buyerId)
+        ],
+        readsFrom: {
+          shipments,
+          shipmentLines,
+          allGoods,
+          categories,
+        }).map((QueryRow row) {
+      return CategoriesExResult(
+        id: row.read<int>('id'),
+        name: row.read<String>('name'),
+        ord: row.read<int>('ord'),
+        shopDepartmentId: row.read<int>('shop_department_id'),
+        package: row.read<int>('package'),
+        userPackage: row.read<int>('user_package'),
+        lastShipmentDate: row.readNullable<DateTime>('last_shipment_date'),
+      );
+    });
+  }
 }
 
 class OrderExResult {
@@ -14204,6 +14228,25 @@ class GoodsExResult {
     required this.restricted,
     this.lastShipmentDate,
     this.lastPrice,
+  });
+}
+
+class CategoriesExResult {
+  final int id;
+  final String name;
+  final int ord;
+  final int shopDepartmentId;
+  final int package;
+  final int userPackage;
+  final DateTime? lastShipmentDate;
+  CategoriesExResult({
+    required this.id,
+    required this.name,
+    required this.ord,
+    required this.shopDepartmentId,
+    required this.package,
+    required this.userPackage,
+    this.lastShipmentDate,
   });
 }
 
@@ -14327,7 +14370,7 @@ mixin _$ShipmentsDaoMixin on DatabaseAccessor<AppDataStore> {
 
   Selectable<GoodsShipmentsResult> goodsShipments(int buyerId, int goodsId) {
     return customSelect(
-        'SELECT shipments.date, shipment_lines.vol, shipment_lines.price FROM shipments JOIN shipment_lines ON shipment_lines.shipment_id = shipments.id WHERE shipments.buyer_id = ?1 AND shipment_lines.goods_id = ?2 ORDER BY shipments.date',
+        'SELECT shipments.date, shipment_lines.vol, shipment_lines.price FROM shipments JOIN shipment_lines ON shipment_lines.shipment_id = shipments.id WHERE shipments.buyer_id = ?1 AND shipment_lines.goods_id = ?2 ORDER BY shipments.date DESC',
         variables: [
           Variable<int>(buyerId),
           Variable<int>(goodsId)

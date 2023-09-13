@@ -24,7 +24,7 @@ class BonusProgramsState {
 
   final DateTime date;
   final Buyer buyer;
-  final Category? category;
+  final CategoriesExResult? category;
   final GoodsExResult? goodsEx;
   final List<BonusProgramGroup> bonusProgramGroups;
   final List<FilteredBonusProgramsResult> bonusPrograms;
@@ -36,7 +36,7 @@ class BonusProgramsState {
     BonusProgramsStateStatus? status,
     DateTime? date,
     Buyer? buyer,
-    Category? category,
+    CategoriesExResult? category,
     GoodsExResult? goodsEx,
     List<BonusProgramGroup>? bonusProgramGroups,
     List<FilteredBonusProgramsResult>? bonusPrograms,

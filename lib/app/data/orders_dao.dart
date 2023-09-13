@@ -111,6 +111,20 @@ part of 'database.dart';
         buyers.id = :buyer_id AND
         goods.id IN :goods_ids
       ORDER BY goods.name
+    ''',
+    'categoriesEx': '''
+      SELECT
+        categories.*,
+        (
+          SELECT MAX(shipments.date)
+          FROM shipment_lines
+          JOIN shipments ON shipments.id = shipment_lines.shipment_id
+          JOIN goods ON shipment_lines.goods_id = goods.id
+          WHERE categories.id = goods.category_id AND shipments.buyer_id = :buyer_id
+        ) AS "last_shipment_date"
+      FROM categories
+      WHERE EXISTS(SELECT 1 FROM goods WHERE goods.category_id = categories.id)
+      ORDER BY categories.name
     '''
   }
 )
@@ -226,10 +240,6 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     required int? buyerId,
     required List<int>? goodsIds
   }) async {
-    if (goodsIds != null) {
-      return (select(allGoods)..where((tbl) => tbl.id.isIn(goodsIds))).get();
-    }
-
     final hasBonusProgram = existsQuery(
       select(goodsBonusPrograms)
         ..where((tbl) => tbl.goodsId.equalsExp(allGoods.id))
@@ -255,16 +265,14 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
       ..where(categoryId != null ? (tbl) => tbl.categoryId.equals(categoryId) : (tbl) => const Constant(true))
       ..where(bonusProgramId != null ? (tbl) => hasBonusProgram : (tbl) => const Constant(true))
       ..where(buyerId != null ? (tbl) => hasShipment : (tbl) => const Constant(true))
-      ..where((tbl) => hasStock);
+      ..where((tbl) => hasStock)
+      ..where(goodsIds != null ? (tbl) => tbl.id.isIn(goodsIds) : (tbl) => const Constant(true));
 
     return query.get();
   }
 
-  Future<List<Category>> getCategories() async {
-    final hasGoods = existsQuery(
-      select(allGoods)..where((row) => row.categoryId.equalsExp(categories.id)));
-
-    return (select(categories)..where((row) => hasGoods)..orderBy([(tbl) => OrderingTerm(expression: tbl.name)])).get();
+  Future<List<CategoriesExResult>> getCategories({required int buyerId}) async {
+    return categoriesEx(buyerId).get();
   }
 
   Future<List<GoodsFilter>> getGoodsFilters() async {

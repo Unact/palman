@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -59,7 +60,7 @@ class _InfoView extends StatefulWidget {
 class _InfoViewState extends State<_InfoView> {
   final GlobalKey<RefreshIndicatorState> refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
-  Completer<void> refresherCompleter = Completer();
+  Completer<IndicatorResult> refresherCompleter = Completer();
 
   Future<void> openRefresher() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -67,8 +68,8 @@ class _InfoViewState extends State<_InfoView> {
     });
   }
 
-  void closeRefresher() {
-    refresherCompleter.complete();
+  void closeRefresher(IndicatorResult result) {
+    refresherCompleter.complete(result);
     refresherCompleter = Completer();
   }
 
@@ -109,6 +110,9 @@ class _InfoViewState extends State<_InfoView> {
     return BlocConsumer<InfoViewModel, InfoState>(
       builder: (context, state) {
         final vm = context.read<InfoViewModel>();
+        final lastSyncTime = state.appInfo?.lastSyncTime != null ?
+          Format.dateTimeStr(state.appInfo?.lastSyncTime) :
+          'Загрузка не проводилась';
 
         return Scaffold(
           appBar: AppBar(
@@ -163,17 +167,26 @@ class _InfoViewState extends State<_InfoView> {
               )
             ]
           ),
-          body: RefreshIndicator(
-            key: refreshIndicatorKey,
+          body: EasyRefresh(
+            header: ClassicHeader(
+              dragText: 'Потяните чтобы обновить',
+              armedText: 'Отпустите чтобы обновить',
+              readyText: 'Загрузка',
+              processingText: state.toLoad != 0 ? 'Загружено ${state.loaded} из ${state.toLoad} словарей' : 'Загрузка',
+              messageText: 'Последнее обновление: $lastSyncTime',
+              failedText: state.message,
+              processedText: 'Словари успешно обновлены',
+              noMoreText: 'Идет сохранение данных'
+            ),
             onRefresh: () async {
-              if (vm.state.isBusy) return;
+              if (vm.state.isBusy) return IndicatorResult.noMore;
 
               setPageChangeable(false);
               vm.tryGetData();
-              await refresherCompleter.future;
+              final result = await refresherCompleter.future;
               setPageChangeable(true);
 
-              return;
+              return result;
             },
             child: ListView(
               physics: const AlwaysScrollableScrollPhysics(),
@@ -201,12 +214,13 @@ class _InfoViewState extends State<_InfoView> {
             showConfirmationDialog();
             break;
           case InfoStateStatus.loadDeclined:
-            closeRefresher();
+            closeRefresher(IndicatorResult.fail);
             break;
           case InfoStateStatus.loadFailure:
+            closeRefresher(IndicatorResult.fail);
+            break;
           case InfoStateStatus.loadSuccess:
-            Misc.showMessage(context, state.message);
-            closeRefresher();
+            closeRefresher(IndicatorResult.success);
             break;
           case InfoStateStatus.saveInProgress:
             progressDialog.open();

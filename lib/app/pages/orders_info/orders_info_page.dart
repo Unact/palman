@@ -54,8 +54,8 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> {
                       backgroundColor: Colors.green,
                       label: Text(state.notSeenCnt.toString()),
                       isLabelVisible: state.notSeenCnt != 0,
-                      offset: const Offset(16, -16),
-                      child: const Text('Предзаказы других ТП'),
+                      offset: const Offset(12, -12),
+                      child: const Text('Предзаказы других ТП', overflow: TextOverflow.fade, softWrap: false),
                     )
                   )
                 ],

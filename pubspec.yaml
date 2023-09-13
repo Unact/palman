@@ -13,6 +13,7 @@ dependencies:
   collection: ^1.17.1
   dio: ^5.2.1
   drift: ^2.9.0
+  easy_refresh: ^3.3.2
   equatable: ^2.0.5
   file: ^6.0.0
   flutter:
@@ -36,7 +37,7 @@ dependencies:
   u_app_utils:
     git:
       url: git@github.com:Unact/u_app_utils.git
-      ref: 7ac43e6
+      ref: 9f7b521
   yandex_mapkit: ^3.3.3
 
 dev_dependencies:

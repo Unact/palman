@@ -14,7 +14,7 @@ part 'bonus_programs_view_model.dart';
 class BonusProgramsPage extends StatelessWidget {
   final DateTime date;
   final Buyer buyer;
-  final Category? category;
+  final CategoriesExResult? category;
   final GoodsExResult? goodsEx;
 
   BonusProgramsPage({

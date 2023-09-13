@@ -87,7 +87,7 @@ class _OrderViewState extends State<_OrderView> {
                 icon: const Icon(Icons.copy),
                 splashRadius: 12,
                 tooltip: 'Создать дубликат',
-                onPressed: state.orderEx.order.isEditable ? vm.copy : null
+                onPressed: state.isEditable ? vm.copy : null
               ),
               Center(
                 child: Badge(
@@ -106,7 +106,7 @@ class _OrderViewState extends State<_OrderView> {
               )
             ],
           ),
-          floatingActionButton: !state.orderEx.order.isEditable ? null : FloatingActionButton(
+          floatingActionButton: state.canBeProcessed ? null : FloatingActionButton(
             heroTag: null,
             onPressed: vm.updateNeedProcessing,
             child: Icon(state.orderEx.order.needProcessing ? Icons.undo : Icons.redo)
@@ -170,7 +170,7 @@ class _OrderViewState extends State<_OrderView> {
     final vm = context.read<OrderViewModel>();
     final theme = Theme.of(context);
 
-    if (!vm.state.orderEx.order.isEditable) {
+    if (!vm.state.isEditable) {
       return Text(vm.state.orderEx.buyer?.fullname ?? '', style: Styles.formStyle);
     }
 
@@ -233,7 +233,7 @@ class _OrderViewState extends State<_OrderView> {
         title: const Text('Статус'),
         trailing: Text(order.detailedStatus.name)
       ),
-      !order.isEditable ? Container() : InfoRow(
+      !vm.state.orderEx.order.isEditable ? Container() : InfoRow(
         trailingFlex: 2,
         title: const Text('Передан в работу'),
         trailing: Text(order.needProcessing ? 'Да' : 'Нет')
@@ -247,28 +247,28 @@ class _OrderViewState extends State<_OrderView> {
         title: const Text('Бонусный'),
         trailing: Checkbox(
           value: order.isBonus,
-          onChanged: !order.isEditable ? null : (bool? value) => vm.updateIsBonus(value!)
+          onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateIsBonus(value!)
         )
       ),
       vm.state.preOrderMode ? Container() : InfoRow(
         title: const Text('Требуется инкассация'),
         trailing: Checkbox(
           value: order.needInc,
-          onChanged: !order.isEditable ? null : (bool? value) => vm.updateNeedInc(value!)
+          onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateNeedInc(value!)
         )
       ),
       InfoRow(
         title: const Text('Нужна счет-фактура'),
         trailing: Checkbox(
           value: order.needDocs,
-          onChanged: !order.isEditable ? null : (bool? value) => vm.updateNeedDocs(value!)
+          onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateNeedDocs(value!)
         )
       ),
       vm.state.preOrderMode ? Container() : InfoRow(
         title: const Text('Физ. лицо'),
         trailing: Checkbox(
           value: order.isPhysical,
-          onChanged: !order.isEditable ? null : (bool? value) => vm.updateIsPhysical(value!)
+          onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateIsPhysical(value!)
         )
       ),
       InfoRow(
@@ -278,7 +278,7 @@ class _OrderViewState extends State<_OrderView> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Text(Format.dateStr(order.date), style: Styles.formStyle),
-            !order.isEditable || vm.state.workdates.isEmpty ?
+            !vm.state.isEditable || vm.state.workdates.isEmpty ?
               Container() :
               IconButton(
                 onPressed: showDateDialog,
@@ -291,7 +291,7 @@ class _OrderViewState extends State<_OrderView> {
       InfoRow(
         title: const Text('Комментарий'),
         trailing: TextFormField(
-          enabled: order.isEditable,
+          enabled: vm.state.isEditable,
           initialValue: order.info,
           onFieldSubmitted: vm.updateInfo,
           style: Styles.formStyle
@@ -330,12 +330,16 @@ class _OrderViewState extends State<_OrderView> {
       )
     );
 
-    if (!vm.state.orderEx.order.isEditable) return tile;
+    if (!vm.state.isEditable) return tile;
 
     return Dismissible(
       key: Key(orderLineEx.hashCode.toString()),
       background: Container(color: Colors.red[500]),
       onDismissed: (direction) => vm.deleteOrderLine(orderLineEx),
+      confirmDismiss: (direction) => ConfirmationDialog(
+        context: context,
+        confirmationText: 'Вы точно хотите удалить позицию?'
+      ).open(),
       child: tile
     );
   }

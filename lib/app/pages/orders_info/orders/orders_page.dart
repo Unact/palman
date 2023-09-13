@@ -124,6 +124,10 @@ class _OrdersViewState extends State<_OrdersView> {
       key: Key(orderEx.hashCode.toString()),
       background: Container(color: Colors.red[500]),
       onDismissed: (direction) => vm.deleteOrder(orderEx),
+      confirmDismiss: (direction) => ConfirmationDialog(
+        context: context,
+        confirmationText: 'Вы точно хотите удалить заказ?'
+      ).open(),
       child: tile
     );
   }

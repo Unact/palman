@@ -6,7 +6,7 @@ class BonusProgramsViewModel extends PageViewModel<BonusProgramsState, BonusProg
   BonusProgramsViewModel(this.ordersRepository, {
     required DateTime date,
     required Buyer buyer,
-    required Category? category,
+    required CategoriesExResult? category,
     required GoodsExResult? goodsEx
   }) : super(
     BonusProgramsState(date: date, buyer: buyer, category: category, goodsEx: goodsEx),
