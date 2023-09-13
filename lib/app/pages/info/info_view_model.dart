@@ -213,7 +213,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     if (defaultTargetPlatform == TargetPlatform.android) {
       return AndroidSettings(
         accuracy: LocationAccuracy.best,
-        distanceFilter: 40,
+        distanceFilter: 60,
         forceLocationManager: true,
         intervalDuration: const Duration(seconds: 30),
         foregroundNotificationConfig: const ForegroundNotificationConfig(
@@ -227,7 +227,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       return AppleSettings(
         accuracy: LocationAccuracy.best,
         activityType: ActivityType.other,
-        distanceFilter: 40,
+        distanceFilter: 60,
         showBackgroundLocationIndicator: true,
       );
     }
