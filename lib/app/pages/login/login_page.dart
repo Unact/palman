@@ -164,7 +164,7 @@ class _LoginViewState extends State<_LoginView> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                      backgroundColor: Colors.red,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                     ),
                     onPressed: () {
                       Misc.unfocus(context);
@@ -181,7 +181,7 @@ class _LoginViewState extends State<_LoginView> {
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                      backgroundColor: Colors.red,
+                      backgroundColor: Theme.of(context).colorScheme.primary,
                     ),
                     onPressed: () {
                       Misc.unfocus(context);

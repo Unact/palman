@@ -212,7 +212,7 @@ class _PointsViewState extends State<_PointsView> {
         )
       ),
       dense: true,
-      trailing: pointEx.point.needSync ? const Icon(Icons.sync, color: Colors.red) : null,
+      trailing: pointEx.point.needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
       onTap: () => openPointPage(pointEx)
     );
 

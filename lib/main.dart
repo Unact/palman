@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -67,8 +68,13 @@ void main() async {
         ],
         child: MaterialApp(
           title: Strings.ruAppName,
-          theme: ThemeData(
-            primarySwatch: Colors.red,
+          theme: FlexThemeData.light(
+            scheme: FlexScheme.hippieBlue,
+            subThemesData: const FlexSubThemesData(
+              inputDecoratorBorderType: FlexInputBorderType.underline,
+              inputDecoratorFocusedBorderWidth: 0,
+              inputDecoratorBackgroundAlpha: 0
+            ),
             platform: TargetPlatform.android,
             visualDensity: VisualDensity.adaptivePlatformDensity
           ),

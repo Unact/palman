@@ -89,7 +89,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
             ]
           ),
           body: ListView(
-            padding: const EdgeInsets.only(top: 24, bottom: 24),
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 4),
             children: [
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -192,7 +192,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
               ExpansionTile(
                 tilePadding: const EdgeInsets.symmetric(horizontal: 8),
                 title: const Text('Прайс-листы'),
-                trailing: state.needSync ? const Icon(Icons.sync, color: Colors.red) : null,
+                trailing: state.needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
                 children: state.goodsPricelists.map((e) => buildGoodsPricelistTile(context, e)).toList()
               )
             ],
@@ -277,7 +277,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
             builder: (BuildContext context) => ImagesView(
               images: [
                 RetryableImage(
-                  color: Colors.red,
+                  color: Theme.of(context).colorScheme.primary,
                   cached: vm.state.showLocalImage,
                   imageUrl: vm.state.goodsEx.goods.imageUrl,
                   cacheKey: vm.state.goodsEx.goods.imageKey,
@@ -292,7 +292,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
       child: RetryableImage(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height/5,
-        color: Colors.red,
+        color: Theme.of(context).colorScheme.primary,
         cached: vm.state.showLocalImage,
         imageUrl: vm.state.goodsEx.goods.imageUrl,
         cacheKey: vm.state.goodsEx.goods.imageKey,

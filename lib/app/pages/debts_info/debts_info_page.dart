@@ -156,7 +156,7 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
   Widget buildDepositTile(BuildContext context, Deposit deposit) {
     return ListTile(
       title: Text(Format.dateStr(deposit.date)),
-      trailing: deposit.needSync ? const Icon(Icons.sync, color: Colors.red) : null,
+      trailing: deposit.needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
       subtitle: RichText(
         text: TextSpan(
           style: Styles.defaultTextSpan,
