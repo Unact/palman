@@ -5,7 +5,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/styles.dart';
@@ -53,6 +53,19 @@ class _GoodsViewState extends State<_GoodsView> {
   TreeViewController? categoryTreeController;
   final Map<GoodsDetail, TextEditingController> volControllers = {};
   final TextEditingController nameController = TextEditingController();
+  final Map<String, ExpansionTileController> groupedGroupsExpansion = {};
+  late final AutoScrollController controller = AutoScrollController(
+    keepScrollOffset: false,
+    axis: Axis.vertical,
+    viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+  );
+
+  void _scrollToGroup(AutoScrollController controller, int index) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 100));
+      controller.scrollToIndex(index, preferPosition: AutoScrollPosition.begin);
+    });
+  }
 
   Future<void> showBonusProgramSelectDialog([GoodsExResult? goodsEx]) async {
     final vm = context.read<GoodsViewModel>();
@@ -194,9 +207,10 @@ class _GoodsViewState extends State<_GoodsView> {
       }
     }
 
-    final itemScrollController = ItemScrollController();
     final items = groupedGoods.entries.sorted((a, b) => a.key.compareTo(b.key));
-    List<bool> groupedGoodsExpanded = List.filled(items.length, vm.state.goodsListInitiallyExpanded);
+    for (var item in items) {
+      groupedGroupsExpansion.putIfAbsent(item.key, () => ExpansionTileController());
+    }
     final goodsIndex = !vm.state.showGroupInfo ?
       Container() :
       SizedBox(
@@ -210,8 +224,11 @@ class _GoodsViewState extends State<_GoodsView> {
               label: Text(e.$2.key),
               labelStyle: Styles.formStyle,
               onPressed: () {
-                groupedGoodsExpanded = List.generate(items.length, (index) => index == e.$1);
-                itemScrollController.jumpTo(index: e.$1);
+                for (var name in groupedGoods.keys) {
+                  if (groupedGroupsExpansion[name]!.isExpanded) groupedGroupsExpansion[name]!.collapse();
+                  if (e.$2.key == name) groupedGroupsExpansion[name]!.expand();
+                }
+                _scrollToGroup(controller, e.$1);
               }
             )).toList()
           )
@@ -224,12 +241,10 @@ class _GoodsViewState extends State<_GoodsView> {
           Flexible(
             child: Material(
               color: Colors.transparent,
-              child: ScrollablePositionedList.builder(
-                addAutomaticKeepAlives: false,
-                addSemanticIndexes: false,
-                itemScrollController: itemScrollController,
-                itemCount: groupedGoods.entries.length,
-                itemBuilder: (context, index) {
+              child: CustomScrollView(
+                key: Key(vm.state.goodsDetails.hashCode.toString()),
+                controller: controller,
+                slivers: groupedGoods.entries.mapIndexed((index, e) {
                   final children = items[index].value
                     .map((g) => [buildGoodsTile(context, g), buildGoodsImage(context, g, compactMode)])
                     .expand((e) => e)
@@ -237,21 +252,32 @@ class _GoodsViewState extends State<_GoodsView> {
 
                   if (children.isEmpty) return Container();
 
-                  return ListTileTheme(
-                    tileColor: Colors.red,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 2),
-                      child: ExpansionTile(
-                        key: Key(items[index].key),
-                        collapsedBackgroundColor: Colors.red,
-                        initiallyExpanded: groupedGoodsExpanded[index],
-                        trailing: Container(width: 0),
-                        title: Text(items[index].key, style: const TextStyle(color: Colors.white)),
-                        children: children
-                      ),
+                  return SliverToBoxAdapter(
+                    child: AutoScrollTag(
+                      controller: controller,
+                      index: index,
+                      key: Key(items[index].key),
+                      child: ListTileTheme(
+                        tileColor: Colors.red,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 2),
+                          child: ExpansionTile(
+                            controller: groupedGroupsExpansion[items[index].key],
+                            key: Key(items[index].key),
+                            onExpansionChanged: (changed) {
+                              if (changed) _scrollToGroup(controller, index);
+                            },
+                            collapsedBackgroundColor: Colors.red,
+                            initiallyExpanded: vm.state.goodsListInitiallyExpanded,
+                            trailing: Container(width: 0),
+                            title: Text(items[index].key, style: const TextStyle(color: Colors.white)),
+                            children: children
+                          ),
+                        )
+                      )
                     )
                   );
-                }
+                }).toList()..add(SliverFillRemaining(hasScrollBody: true, child: Container()))
               )
             )
           ),
