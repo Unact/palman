@@ -136,7 +136,7 @@ class _InfoViewState extends State<_InfoView> {
               ),
               Center(
                 child: Badge(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Theme.of(context).colorScheme.error,
                   label: Text(state.pendingChanges.toString()),
                   isLabelVisible: state.hasPendingChanges,
                   offset: const Offset(-4, 4),
@@ -402,7 +402,7 @@ class _InfoViewState extends State<_InfoView> {
       child: ListTile(
         isThreeLine: true,
         title: const Text('Синхронизация'),
-        subtitle: Text(vm.state.syncMessage, style: const TextStyle(color: Colors.redAccent)),
+        subtitle: Text(vm.state.syncMessage, style: const TextStyle(color: Colors.red)),
       )
     );
   }

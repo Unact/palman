@@ -72,7 +72,9 @@ class _IncRequestsViewState extends State<_IncRequestsView> {
     final vm = context.read<IncRequestsViewModel>();
     final tile = ListTile(
       title: Text(Format.dateStr(incRequestEx.incRequest.date)),
-      trailing: incRequestEx.incRequest.needSync ? const Icon(Icons.sync, color: Colors.red) : null,
+      trailing: incRequestEx.incRequest.needSync ?
+        Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) :
+        null,
       subtitle: RichText(
         text: TextSpan(
           style: Styles.defaultTextSpan,

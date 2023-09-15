@@ -94,7 +94,6 @@ class _EncashmentViewState extends State<_EncashmentView> {
                       onPressed: () => updateEncSumAndText(debt.debtSum)
                     ),
                   labelText: '',
-                  border: const UnderlineInputBorder(),
                   contentPadding: const EdgeInsets.only(),
                   errorMaxLines: 2,
                   isDense: true

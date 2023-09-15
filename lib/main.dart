@@ -7,6 +7,8 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
 import 'package:u_app_utils/u_app_utils.dart';
+import 'package:flex_color_scheme/flex_color_scheme.dart';
+
 
 import 'app/constants/strings.dart';
 import 'app/data/database.dart';
@@ -67,8 +69,13 @@ void main() async {
         ],
         child: MaterialApp(
           title: Strings.ruAppName,
-          theme: ThemeData(
-            primarySwatch: Colors.red,
+          theme: FlexThemeData.light(
+            scheme: FlexScheme.hippieBlue,
+            subThemesData: const FlexSubThemesData(
+              inputDecoratorBorderType: FlexInputBorderType.underline,
+              inputDecoratorFocusedBorderWidth: 0,
+              inputDecoratorBackgroundAlpha: 0
+            ),
             platform: TargetPlatform.android,
             visualDensity: VisualDensity.adaptivePlatformDensity
           ),

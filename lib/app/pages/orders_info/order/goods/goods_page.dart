@@ -223,6 +223,7 @@ class _GoodsViewState extends State<_GoodsView> {
             children: items.indexed.map((e) => ActionChip(
               label: Text(e.$2.key),
               labelStyle: Styles.formStyle,
+              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
               onPressed: () {
                 for (var name in groupedGoods.keys) {
                   if (groupedGroupsExpansion[name]!.isExpanded) groupedGroupsExpansion[name]!.collapse();
@@ -258,7 +259,7 @@ class _GoodsViewState extends State<_GoodsView> {
                       index: index,
                       key: Key(items[index].key),
                       child: ListTileTheme(
-                        tileColor: Colors.red,
+                        tileColor: Theme.of(context).colorScheme.primary,
                         child: Padding(
                           padding: const EdgeInsets.only(bottom: 2),
                           child: ExpansionTile(
@@ -267,7 +268,7 @@ class _GoodsViewState extends State<_GoodsView> {
                             onExpansionChanged: (changed) {
                               if (changed) _scrollToGroup(controller, index);
                             },
-                            collapsedBackgroundColor: Colors.red,
+                            collapsedBackgroundColor: Theme.of(context).colorScheme.primary,
                             initiallyExpanded: vm.state.goodsListInitiallyExpanded,
                             trailing: Container(width: 0),
                             title: Text(items[index].key, style: const TextStyle(color: Colors.white)),
@@ -486,7 +487,7 @@ class _GoodsViewState extends State<_GoodsView> {
             builder: (BuildContext context) => ImagesView(
               images: [
                 RetryableImage(
-                  color: Colors.red,
+                  color: Theme.of(context).colorScheme.primary,
                   cached: vm.state.showLocalImage,
                   imageUrl: goodsDetail.goodsEx.goods.imageUrl,
                   cacheKey: goodsDetail.goodsEx.goods.imageKey,
@@ -501,7 +502,7 @@ class _GoodsViewState extends State<_GoodsView> {
       child: RetryableImage(
         height: compactMode ? 120 : 240,
         width: compactMode ? 150 : 300,
-        color: Colors.red,
+        color: Theme.of(context).colorScheme.primary,
         cached: vm.state.showLocalImage,
         imageUrl: goodsDetail.goodsEx.goods.imageUrl,
         cacheKey: goodsDetail.goodsEx.goods.imageKey,

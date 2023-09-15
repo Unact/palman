@@ -104,7 +104,7 @@ class _PointViewState extends State<_PointView> {
             actions: [
               Center(
                 child: Badge(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Theme.of(context).colorScheme.error,
                   label: const Text(' '),
                   isLabelVisible: state.needSync,
                   offset: const Offset(-4, 4),
@@ -301,7 +301,7 @@ class _PointViewState extends State<_PointView> {
   List<Widget> buildImages(BuildContext context) {
     final vm = context.read<PointViewModel>();
     final images = vm.state.pointEx.images.map((image) => RetryableImage(
-      color: Colors.red,
+      color: Theme.of(context).colorScheme.primary,
       cached: image.needSync || vm.state.showLocalImage,
       imageUrl: image.imageUrl,
       cacheKey: image.imageKey,

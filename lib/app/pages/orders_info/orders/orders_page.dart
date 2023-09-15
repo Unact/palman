@@ -74,7 +74,7 @@ class _OrdersViewState extends State<_OrdersView> {
     final vm = context.read<OrdersViewModel>();
     final tile = ListTile(
       title: Text(orderEx.buyer != null ? '${orderEx.buyer!.fullname}\n' : 'Клиент не указан\n'),
-      trailing: orderEx.order.needSync ? const Icon(Icons.sync, color: Colors.red) : null,
+      trailing: orderEx.order.needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
       subtitle: RichText(
         text: TextSpan(
           style: Styles.defaultTextSpan,

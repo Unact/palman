@@ -51,7 +51,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> {
                   const Tab(text: 'Отгрузки'),
                   Tab(
                     child: Badge(
-                      backgroundColor: Colors.green,
+                      backgroundColor: Theme.of(context).colorScheme.error,
                       label: Text(state.notSeenCnt.toString()),
                       isLabelVisible: state.notSeenCnt != 0,
                       offset: const Offset(12, -12),
