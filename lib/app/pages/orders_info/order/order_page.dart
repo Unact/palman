@@ -91,7 +91,7 @@ class _OrderViewState extends State<_OrderView> {
               ),
               Center(
                 child: Badge(
-                  backgroundColor: Colors.green,
+                  backgroundColor: Theme.of(context).colorScheme.error,
                   label: const Text(' '),
                   isLabelVisible: state.needSync,
                   offset: const Offset(-4, 4),
