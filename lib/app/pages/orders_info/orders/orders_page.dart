@@ -111,9 +111,14 @@ class _OrdersViewState extends State<_OrdersView> {
               return result;
             },
             child: ListView.builder(
-            itemCount: orderDateList.length,
-            itemBuilder: (context, idx) => buildOrderDateTile(context, orderDateList[idx].key, orderDateList[idx].value)
-          ))
+              itemCount: orderDateList.length,
+              itemBuilder: (context, idx) => buildOrderDateTile(
+                context,
+                orderDateList[idx].key,
+                orderDateList[idx].value
+              )
+            )
+          )
         );
       },
       listener: (context, state) async {
