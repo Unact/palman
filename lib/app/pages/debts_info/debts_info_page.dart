@@ -163,11 +163,11 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
           children: <TextSpan>[
             TextSpan(
               text: 'Выручка всего: ${Format.numberStr(deposit.totalSum)}\n',
-              style: Styles.tileText
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
             ),
             TextSpan(
               text: 'Выручка ККМ: ${Format.numberStr(deposit.checkTotalSum)}\n',
-              style: Styles.tileText
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
             )
           ]
         )
@@ -195,7 +195,7 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
             ),
             TextSpan(
               text: 'Сумма: ${Format.numberStr(encashmentEx.encashment.encSum)}\n',
-              style: Styles.tileText
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
             ),
             TextSpan(
               text: 'Сдана: ${Format.dateStr(encashmentEx.deposit!.date)}\n',
@@ -257,7 +257,7 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
             ),
             TextSpan(
               text: 'Сумма: ${Format.numberStr(debtEx.debt.orderSum)}\n',
-              style: Styles.tileText
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
             ),
             TextSpan(
               text: 'Задолженность: ${Format.numberStr(debtEx.debt.debtSum)}\n',

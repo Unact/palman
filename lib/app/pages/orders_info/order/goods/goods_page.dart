@@ -52,6 +52,7 @@ class _GoodsViewState extends State<_GoodsView> {
   TreeViewController? categoryTreeController;
   final Map<GoodsDetail, TextEditingController> volControllers = {};
   final TextEditingController nameController = TextEditingController();
+  final Map<String, ExpansionTileController> groupedCategoriesExpansion = {};
   final Map<String, ExpansionTileController> groupedGroupsExpansion = {};
   final Map<String, bool> groupedGroupsActive = {};
   late final AutoScrollController controller = AutoScrollController(
@@ -246,7 +247,7 @@ class _GoodsViewState extends State<_GoodsView> {
               child: CustomScrollView(
                 key: Key(vm.state.goodsDetails.hashCode.toString()),
                 controller: controller,
-                slivers: groupedGoods.entries.mapIndexed((index, e) {
+                slivers: items.mapIndexed((index, e) {
                   return buildGoodsViewGroup(context, index, e.key, e.value, compactMode);
                 }).toList()..add(SliverFillRemaining(hasScrollBody: true, child: Container()))
               )
@@ -372,8 +373,6 @@ class _GoodsViewState extends State<_GoodsView> {
 
   Widget buildGoodsFiltersRow(BuildContext context) {
     final vm = context.read<GoodsViewModel>();
-
-    if (vm.state.goodsFilters.isEmpty) return Container();
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -558,7 +557,10 @@ class _GoodsViewState extends State<_GoodsView> {
       () => TextEditingController(text: orderLineEx?.line.vol.toInt().toString())
     );
     final volStr = orderLineEx?.line.vol.toInt().toString() ?? '';
-    final enabled = !(goodsDetail.price == 0 || goodsDetail.goodsEx.restricted);
+    final enabled = goodsDetail.price != 0 &&
+      !goodsDetail.goodsEx.restricted &&
+      vm.state.orderEx.order.isEditable &&
+      !vm.state.orderEx.order.needProcessing;
 
     if (controller.text != volStr) controller.text = volStr;
 
@@ -590,7 +592,62 @@ class _GoodsViewState extends State<_GoodsView> {
     );
   }
 
-  Widget buildCategorySelect(BuildContext context, Function onCategoryTap) {
+  Widget buildCategorySelect(BuildContext context, void Function(CategoriesExResult) onCategoryTap) {
+    final vm = context.read<GoodsViewModel>();
+    final Map<String, List<CategoriesExResult>> groupedCategories = {};
+
+    for (var e in vm.state.shopDepartments) {
+      groupedCategories[e.name] = vm.state.visibleCategories.where((c) => c.shopDepartmentId == e.id).toList();
+    }
+
+    for (var item in groupedCategories.entries) {
+      groupedCategoriesExpansion.putIfAbsent(item.key, () => ExpansionTileController());
+    }
+
+    return CustomScrollView(
+      key: Key(vm.state.visibleCategories.hashCode.toString()),
+      slivers: groupedCategories.entries.where((e) => e.value.isNotEmpty).mapIndexed((index, e) {
+        return buildCat1(context, index, e.key, e.value, onCategoryTap);
+      }).toList()
+    );
+  }
+
+  Widget buildCat1(
+    BuildContext context,
+    int index,
+    String name,
+    List<CategoriesExResult> groupCategories,
+    void Function(CategoriesExResult) onCategoryTap
+  ) {
+    final vm = context.read<GoodsViewModel>();
+    final children = groupCategories
+      .map((e) => ListTile(
+        title: buildCategoryTileTitle(vm.state.showOnlyActive, e),
+        tileColor: Colors.transparent,
+        selected: e == vm.state.selectedCategory,
+        onTap: () => onCategoryTap.call(e)
+      )).toList();
+
+    return SliverToBoxAdapter(
+      child: ListTileTheme(
+        tileColor: Theme.of(context).colorScheme.primary,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 2, right: 2),
+          child: ExpansionTile(
+            //controller: groupedCategoriesExpansion[name],
+            key: Key(name),
+            collapsedBackgroundColor: Theme.of(context).colorScheme.primary,
+            initiallyExpanded: vm.state.categoriesListInitiallyExpanded,
+            trailing: Container(width: 0),
+            title: Text(name, style: const TextStyle(color: Colors.white)),
+            children: children
+          ),
+        )
+      )
+    );
+  }
+
+  Widget buildCategorySelect1(BuildContext context, Function onCategoryTap) {
     final vm = context.read<GoodsViewModel>();
     final TreeNode root = TreeNode.root(data: '');
 
@@ -627,11 +684,12 @@ class _GoodsViewState extends State<_GoodsView> {
         }
       },
       builder: (context, node) => ListTile(
-        contentPadding: const EdgeInsets.only(left: 8, top: 1, right: 8, bottom: 1),
+        contentPadding: const EdgeInsets.only(left: 8, right: 8),
         selected: node.data == vm.state.selectedCategory,
         title: node.data is CategoriesExResult ?
           buildCategoryTileTitle(vm.state.showOnlyActive, node.data) :
-          Text(node.data.name)
+          Text(node.data.name, style: TextStyle(color: Colors.white)),
+        tileColor: node.data is CategoriesExResult ? null : Theme.of(context).colorScheme.primary
       ),
       onTreeReady: (controller) {
         categoryTreeController = controller;

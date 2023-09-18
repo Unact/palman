@@ -157,7 +157,7 @@ class _OrdersViewState extends State<_OrdersView> {
           children: <TextSpan>[
             TextSpan(
               text: 'Сумма: ${Format.numberStr(orderEx.linesTotal)}\n',
-              style: Styles.tileText
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
             ),
             TextSpan(
               text: 'Позиций: ${orderEx.linesCount}\n',

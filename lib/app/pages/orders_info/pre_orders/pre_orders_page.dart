@@ -66,7 +66,7 @@ class _PreOrdersViewState extends State<_PreOrdersView> {
             ),
             TextSpan(
               text: 'Сумма: ${Format.numberStr(preOrderEx.linesTotal)}\n',
-              style: Styles.tileText
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
             ),
             TextSpan(
               text: 'Позиций: ${preOrderEx.linesCount}\n',

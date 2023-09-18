@@ -157,7 +157,7 @@ class _ShipmentsViewState extends State<_ShipmentsView> {
           children: <InlineSpan>[
             TextSpan(
               text: 'Номер: ${shipmentEx.shipment.ndoc}\n',
-              style: Styles.tileText
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
             ),
             TextSpan(
               text: 'Статус: ${shipmentEx.shipment.status}\n',
@@ -180,10 +180,10 @@ class _ShipmentsViewState extends State<_ShipmentsView> {
                   width: 200,
                   child: Text(
                     'Сумма: ${Format.numberStr(shipmentEx.shipment.shipmentSum)}',
-                    style: Styles.tileText.copyWith(color: Colors.grey)
+                    style: Styles.tileText.copyWith(fontWeight: FontWeight.bold, color: Colors.grey)
                   ),
                 ),
-                Text('Позиций: ${shipmentEx.linesCount}\n', style: Styles.tileText.copyWith(color: Colors.grey))
+                Text('Позиций: ${shipmentEx.linesCount}\n', style: Styles.tileText)
               ],
             ))
           ]
