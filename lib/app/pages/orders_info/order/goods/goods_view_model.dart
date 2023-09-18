@@ -57,14 +57,15 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   Future<void> selectBonusProgram(FilteredBonusProgramsResult? bonusProgram) async {
     emit(state.copyWith(
       selectedBonusProgram: Optional.fromNullable(bonusProgram),
-      selectedCategory: const Optional.absent()
+      selectedCategory: const Optional.absent(),
+      goodsDetails: []
     ));
 
     await searchGoods();
   }
 
   Future<void> selectCategory(CategoriesExResult? category) async {
-    emit(state.copyWith(selectedCategory: Optional.fromNullable(category)));
+    emit(state.copyWith(selectedCategory: Optional.fromNullable(category), goodsDetails: []));
 
     await searchGoods();
   }
@@ -72,7 +73,8 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   Future<void> setGoodsNameSearch(String? goodsNameSearch) async {
     emit(state.copyWith(
       goodsNameSearch: Optional.fromNullable(goodsNameSearch),
-      selectedCategory: const Optional.absent()
+      selectedCategory: const Optional.absent(),
+      goodsDetails: []
     ));
 
     await searchGoods();
@@ -81,7 +83,8 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   Future<void> selectGoodsFilter(GoodsFilter? goodsFilter) async {
     emit(state.copyWith(
       selectedGoodsFilter: Optional.fromNullable(goodsFilter),
-      selectedCategory: const Optional.absent()
+      selectedCategory: const Optional.absent(),
+      goodsDetails: []
     ));
 
     await searchGoods();
@@ -102,7 +105,8 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   Future<void> toggleShowOnlyActive() async {
     emit(state.copyWith(
       showOnlyActive: !state.showOnlyActive,
-      selectedCategory: const Optional.absent()
+      selectedCategory: const Optional.absent(),
+      goodsDetails: []
     ));
 
     await searchGoods();
@@ -118,7 +122,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> searchGoods() async {
-    emit(state.copyWith(status: GoodsStateStatus.searchStarted, goodsDetails: []));
+    emit(state.copyWith(status: GoodsStateStatus.searchStarted));
 
     final goods = await ordersRepository.getGoods(
       name: state.goodsNameSearch,

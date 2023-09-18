@@ -246,7 +246,6 @@ class _GoodsViewState extends State<_GoodsView> {
             child: Material(
               color: Colors.transparent,
               child: CustomScrollView(
-                key: Key(vm.state.goodsDetails.hashCode.toString()),
                 controller: groupsController,
                 slivers: items.mapIndexed((index, e) {
                   return buildGoodsViewGroup(context, index, e.key, e.value, compactMode);
@@ -284,7 +283,7 @@ class _GoodsViewState extends State<_GoodsView> {
           child: Padding(
             padding: const EdgeInsets.only(bottom: 2),
             child: ExpansionTile(
-              controller: groupedGroupsExpansion[name],
+              //controller: groupedGroupsExpansion[name],
               key: Key(name),
               onExpansionChanged: (changed) {
                 if (changed) _scrollToIndex(groupsController, index);
