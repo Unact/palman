@@ -205,7 +205,6 @@ class OrdersRepository extends BaseRepository {
     required String? extraLabel,
     required int? categoryId,
     required int? bonusProgramId,
-    required int? buyerId,
     required List<int>? goodsIds,
   }) async {
     return dataStore.ordersDao.getGoods(
@@ -213,7 +212,6 @@ class OrdersRepository extends BaseRepository {
       extraLabel: extraLabel,
       categoryId: categoryId,
       bonusProgramId: bonusProgramId,
-      buyerId: buyerId,
       goodsIds: goodsIds,
     );
   }
