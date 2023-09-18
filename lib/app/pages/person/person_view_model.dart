@@ -32,6 +32,10 @@ class PersonViewModel extends PageViewModel<PersonState, PersonStateStatus> {
     await appRepository.updatePref(showLocalImage: Optional.of(newValue));
   }
 
+  Future<void> updateShowWithPrice(bool newValue) async {
+    await appRepository.updatePref(showWithPrice: Optional.of(newValue));
+  }
+
   Future<void> apiLogout() async {
     emit(state.copyWith(status: PersonStateStatus.inProgress));
 

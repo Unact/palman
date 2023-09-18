@@ -36,11 +36,13 @@ class AppRepository extends BaseRepository {
 
   Future<void> updatePref({
     Optional<DateTime>? lastSyncTime,
-    Optional<bool>? showLocalImage
+    Optional<bool>? showLocalImage,
+    Optional<bool>? showWithPrice
   }) async {
     final newPref = PrefsCompanion(
       lastSyncTime: lastSyncTime == null ? const Value.absent() : Value(lastSyncTime.value),
-      showLocalImage: showLocalImage == null ? const Value.absent() : Value(showLocalImage.value)
+      showLocalImage: showLocalImage == null ? const Value.absent() : Value(showLocalImage.value),
+      showWithPrice: showWithPrice == null ? const Value.absent() : Value(showWithPrice.value)
     );
 
     await dataStore.updatePref(newPref);

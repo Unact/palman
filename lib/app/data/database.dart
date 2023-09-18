@@ -190,7 +190,7 @@ class AppDataStore extends _$AppDataStore {
         preOrderMode: false,
         version: '0.0.0'
       ));
-      batch.insert(prefs, const Pref(showLocalImage: true));
+      batch.insert(prefs, const Pref(showLocalImage: true, showWithPrice: false));
     });
   }
 
@@ -202,7 +202,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
