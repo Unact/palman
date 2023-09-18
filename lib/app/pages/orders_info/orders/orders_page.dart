@@ -1,10 +1,16 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
+import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
+import '/app/entities/entities.dart';
+import '/app/pages/home/home_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
@@ -36,6 +42,40 @@ class _OrdersView extends StatefulWidget {
 }
 
 class _OrdersViewState extends State<_OrdersView> {
+  Completer<IndicatorResult> refresherCompleter = Completer();
+
+  void setPageChangeable(bool pageChangeable) {
+    final homeVm = context.read<HomeViewModel>();
+
+    homeVm.setPageChangeable(pageChangeable);
+  }
+
+  void closeRefresher(IndicatorResult result) {
+    refresherCompleter.complete(result);
+    refresherCompleter = Completer();
+  }
+
+  Future<void> showConfirmationDialog() async {
+    final vm = context.read<OrdersViewModel>();
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Внимание'),
+          content: const SingleChildScrollView(child: Text('Присутствуют не сохраненные изменения. Продолжить?')),
+          actions: <Widget>[
+            TextButton(child: const Text(Strings.ok), onPressed: () => Navigator.of(context).pop(false)),
+            TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(true))
+          ],
+        );
+      }
+    ) ?? true;
+
+    await vm.getData(result);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<OrdersViewModel, OrdersState>(
@@ -51,14 +91,50 @@ class _OrdersViewState extends State<_OrdersView> {
             onPressed: vm.addNewOrder,
             child: const Icon(Icons.add)
           ),
-          body: ListView.builder(
-            itemCount: orderDateList.length,
-            itemBuilder: (context, idx) => buildOrderDateTile(context, orderDateList[idx].key, orderDateList[idx].value)
+          body: EasyRefresh(
+            header: ClassicHeader(
+              dragText: 'Потяните чтобы обновить',
+              armedText: 'Отпустите чтобы обновить',
+              readyText: 'Загрузка',
+              processingText: 'Загрузка',
+              messageText: 'Последнее обновление: %T',
+              failedText: state.message,
+              processedText: 'Данные успешно обновлены',
+              noMoreText: 'Идет сохранение данных'
+            ),
+            onRefresh: () async {
+              setPageChangeable(false);
+              vm.tryGetData();
+              final result = await refresherCompleter.future;
+              setPageChangeable(true);
+
+              return result;
+            },
+            child: ListView.builder(
+              itemCount: orderDateList.length,
+              itemBuilder: (context, idx) => buildOrderDateTile(
+                context,
+                orderDateList[idx].key,
+                orderDateList[idx].value
+              )
+            )
           )
         );
       },
       listener: (context, state) async {
         switch (state.status) {
+          case OrdersStateStatus.loadConfirmation:
+            showConfirmationDialog();
+            break;
+          case OrdersStateStatus.loadDeclined:
+            closeRefresher(IndicatorResult.fail);
+            break;
+          case OrdersStateStatus.loadFailure:
+            closeRefresher(IndicatorResult.fail);
+            break;
+          case OrdersStateStatus.loadSuccess:
+            closeRefresher(IndicatorResult.success);
+            break;
           case OrdersStateStatus.orderAdded:
             WidgetsBinding.instance.addPostFrameCallback((_) {
               openOrderPage(state.newOrder!);
