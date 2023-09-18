@@ -42,9 +42,6 @@ class OrdersViewModel extends PageViewModel<OrdersState, OrdersStateStatus> {
   }
 
   Future<void> getData(bool declined) async {
-    Future<void> loadData(Future<void> Function() method) async {
-      await method.call();
-    }
     if (declined) {
       emit(state.copyWith(status: OrdersStateStatus.loadDeclined, message: 'Обновление отменено'));
       return;
@@ -52,13 +49,13 @@ class OrdersViewModel extends PageViewModel<OrdersState, OrdersStateStatus> {
 
     final futures = [
       ordersRepository.loadRemains,
-      ordersRepository.loadOrders,
+      ordersRepository.loadOrders
     ];
 
     emit(state.copyWith(status: OrdersStateStatus.loadInProgress));
 
     try {
-      await Future.wait(futures.map((e) => loadData(e)));
+      await Future.wait(futures.map((e) => e.call()));
 
       emit(state.copyWith(status: OrdersStateStatus.loadSuccess, message: 'Данные успешно обновлены',));
     } on AppError catch(e) {
