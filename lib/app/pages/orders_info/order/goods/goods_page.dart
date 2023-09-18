@@ -745,8 +745,14 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         labelPadding: EdgeInsets.zero,
                         visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                        label: Text(Format.numberStr(linePrice), style: Styles.chipStyle),
-                        backgroundColor: Colors.black87,
+                        label: Text(
+                          Format.numberStr(linePrice),
+                          style: Styles.chipStyle.copyWith(
+                            color: widget.orderLineEx == null ? Colors.black : Colors.white,
+                            fontWeight: FontWeight.w500
+                          )
+                        ),
+                        backgroundColor: Colors.black,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
                       )
                     )
@@ -813,8 +819,14 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
                         labelPadding: EdgeInsets.zero,
                         visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                        label: Text(Format.numberStr(linePrice), style: Styles.chipStyle),
-                        backgroundColor: Colors.black,
+                        label: Text(
+                          Format.numberStr(linePrice),
+                          style: Styles.chipStyle.copyWith(
+                            color: widget.orderLineEx == null ? Colors.black : Colors.white,
+                            fontWeight: FontWeight.w500
+                          )
+                        ),
+                        backgroundColor: Colors.black87,
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
                       )
                     )
