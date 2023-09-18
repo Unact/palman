@@ -95,28 +95,29 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
   Future<void> _unblockEntities() async {
     final futures = [
-      pointsRepository.blockPoints(false),
-      debtsRepository.blockDeposits(false),
-      ordersRepository.blockOrders(false),
-      pricesRepository.blockPrices(false),
-      shipmentsRepository.blockIncRequests(false)
+      pointsRepository.blockPoints,
+      debtsRepository.blockDeposits,
+      ordersRepository.blockOrders,
+      pricesRepository.blockPartnersPrices,
+      pricesRepository.blockPartnersPricelists,
+      shipmentsRepository.blockIncRequests
     ];
 
-    await Future.wait(futures);
+    await Future.wait(futures.map((e) => e.call(false)));
   }
 
   Future<void> _syncChanges() async {
     await locationsRepository.syncChanges();
 
     final futures = [
-      pointsRepository.syncChanges(),
-      debtsRepository.syncChanges(),
-      ordersRepository.syncChanges(),
-      pricesRepository.syncChanges(),
-      shipmentsRepository.syncChanges()
+      pointsRepository.syncChanges,
+      debtsRepository.syncChanges,
+      ordersRepository.syncChanges,
+      pricesRepository.syncChanges,
+      shipmentsRepository.syncChanges
     ];
 
-    await Future.wait(futures);
+    await Future.wait(futures.map((e) => e.call()));
   }
 
   Future<void> saveChangesBackground([Timer? _]) async {

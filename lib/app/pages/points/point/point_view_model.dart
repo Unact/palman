@@ -12,7 +12,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
 
   @override
   Future<void> initViewModel() async {
-    await pointsRepository.blockPoints(true);
+    await pointsRepository.blockPoints(true, ids: [state.pointEx.point.id]);
 
     await super.initViewModel();
   }
@@ -35,7 +35,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> close() async {
     await super.close();
 
-    await pointsRepository.blockPoints(false);
+    await pointsRepository.blockPoints(false, ids: [state.pointEx.point.id]);
   }
 
   Future<void> tryTakePicture() async {

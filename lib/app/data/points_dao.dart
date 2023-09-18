@@ -10,8 +10,10 @@ part of 'database.dart';
 class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
   PointsDao(AppDataStore db) : super(db);
 
-  Future<void> blockPoints(bool block) async {
-    await update(points).write(PointsCompanion(isBlocked: Value(block)));
+  Future<void> blockPoints(bool block, {List<int>? ids}) async {
+    final companion = PointsCompanion(isBlocked: Value(block));
+
+    await (update(points)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))).write(companion);
   }
 
   Future<void> loadPoints(List<Point> list) async {

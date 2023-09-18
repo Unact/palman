@@ -21,7 +21,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
 
   @override
   Future<void> initViewModel() async {
-    await ordersRepository.blockOrders(true);
+    await ordersRepository.blockOrders(true, ids: [state.orderEx.order.id]);
 
     await super.initViewModel();
   }
@@ -48,7 +48,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> close() async {
     await super.close();
 
-    await ordersRepository.blockOrders(false);
+    await ordersRepository.blockOrders(false, ids: [state.orderEx.order.id]);
   }
 
   Future<void> updateNeedProcessing() async {
@@ -125,6 +125,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
 
   Future<void> deleteOrderLine(OrderLineEx orderLineEx) async {
     await ordersRepository.deleteOrderLine(orderLineEx.line);
+    emit(state.copyWith(linesExList: state.linesExList.where((e) => e != orderLineEx).toList()));
   }
 
   Future<void> copy() async {

@@ -51,8 +51,8 @@ class DebtsRepository extends BaseRepository {
     }
   }
 
-  Future<void> blockDeposits(bool block) async {
-    await dataStore.debtsDao.blockDeposits(block);
+  Future<void> blockDeposits(bool block, {List<int>? ids}) async {
+    await dataStore.debtsDao.blockDeposits(block, ids: ids);
     notifyListeners();
   }
 

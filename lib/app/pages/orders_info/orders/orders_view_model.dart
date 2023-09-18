@@ -30,6 +30,8 @@ class OrdersViewModel extends PageViewModel<OrdersState, OrdersStateStatus> {
 
   Future<void> deleteOrder(OrderExResult orderEx) async {
     await ordersRepository.deleteOrder(orderEx.order);
+
+    emit(state.copyWith(orderExList: state.orderExList.where((e) => e != orderEx).toList()));
   }
 
   Future<void> tryGetData() async {

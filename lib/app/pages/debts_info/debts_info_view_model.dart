@@ -43,5 +43,6 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
       debtSum: Optional.of(encashmentEx.debt!.debtSum + (encashmentEx.encashment.encSum ?? 0)),
     );
     await debtsRepository.deleteEncashment(encashmentEx.encashment);
+    emit(state.copyWith(encashmentExList: state.encashmentExList.where((e) => e != encashmentEx).toList()));
   }
 }

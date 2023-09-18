@@ -118,8 +118,8 @@ class OrdersRepository extends BaseRepository {
     return true;
   }
 
-  Future<void> blockOrders(bool block) async {
-    await dataStore.ordersDao.blockOrders(block);
+  Future<void> blockOrders(bool block, {List<int>? ids}) async {
+    await dataStore.ordersDao.blockOrders(block, ids: ids);
     notifyListeners();
   }
 

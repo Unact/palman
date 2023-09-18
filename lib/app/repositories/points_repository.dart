@@ -191,8 +191,8 @@ class PointsRepository extends BaseRepository {
     return;
   }
 
-  Future<void> blockPoints(bool block) async {
-    await dataStore.pointsDao.blockPoints(block);
+  Future<void> blockPoints(bool block, {List<int>? ids}) async {
+    await dataStore.pointsDao.blockPoints(block, ids: ids);
     notifyListeners();
   }
 

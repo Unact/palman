@@ -11,13 +11,6 @@ class EncashmentViewModel extends PageViewModel<EncashmentState, EncashmentState
   EncashmentStateStatus get status => state.status;
 
   @override
-  Future<void> initViewModel() async {
-    await debtsRepository.blockDeposits(true);
-
-    await super.initViewModel();
-  }
-
-  @override
   Future<void> loadData() async {
     final encashmentEx = await debtsRepository.getEncashmentEx(state.encashmentEx.encashment.id);
 
@@ -25,13 +18,6 @@ class EncashmentViewModel extends PageViewModel<EncashmentState, EncashmentState
       status: EncashmentStateStatus.dataLoaded,
       encashmentEx: encashmentEx
     ));
-  }
-
-  @override
-  Future<void> close() async {
-    await super.close();
-
-    await debtsRepository.blockDeposits(false);
   }
 
   Future<void> updateEncSum(double? encSum) async {
