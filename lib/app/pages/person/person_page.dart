@@ -103,7 +103,7 @@ class _PersonViewState extends State<_PersonView> {
           title: const Text('Показывать нулевые цены'),
           trailing: state.pref == null ? null : Checkbox(
             value: !state.pref!.showWithPrice,
-            onChanged: (newValue) => vm.updateShowLocalImage(!newValue!)
+            onChanged: (newValue) => vm.updateShowWithPrice(!newValue!)
           )
         ),
         InfoRow(title: const Text('Версия'), trailing: Text(state.fullVersion)),
