@@ -2,6 +2,7 @@ part of 'database.dart';
 
 class Prefs extends Table {
   BoolColumn get showLocalImage => boolean()();
+  BoolColumn get showWithPrice => boolean()();
   DateTimeColumn get lastSyncTime => dateTime().nullable()();
 }
 

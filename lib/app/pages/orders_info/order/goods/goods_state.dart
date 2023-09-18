@@ -79,6 +79,7 @@ class GoodsState {
   final Pref? pref;
 
   bool get showLocalImage => pref?.showLocalImage ?? true;
+  bool get showWithPrice => pref?.showWithPrice ?? false;
 
   GoodsState copyWith({
     GoodsStateStatus? status,

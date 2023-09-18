@@ -353,6 +353,18 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
             SqlDialect.mysql: '',
             SqlDialect.postgres: '',
           }));
+  static const VerificationMeta _showWithPriceMeta =
+      const VerificationMeta('showWithPrice');
+  @override
+  late final GeneratedColumn<bool> showWithPrice =
+      GeneratedColumn<bool>('show_with_price', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: true,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("show_with_price" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _lastSyncTimeMeta =
       const VerificationMeta('lastSyncTime');
   @override
@@ -360,7 +372,8 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
       'last_sync_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
   @override
-  List<GeneratedColumn> get $columns => [showLocalImage, lastSyncTime];
+  List<GeneratedColumn> get $columns =>
+      [showLocalImage, showWithPrice, lastSyncTime];
   @override
   String get aliasedName => _alias ?? 'prefs';
   @override
@@ -377,6 +390,14 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
               data['show_local_image']!, _showLocalImageMeta));
     } else if (isInserting) {
       context.missing(_showLocalImageMeta);
+    }
+    if (data.containsKey('show_with_price')) {
+      context.handle(
+          _showWithPriceMeta,
+          showWithPrice.isAcceptableOrUnknown(
+              data['show_with_price']!, _showWithPriceMeta));
+    } else if (isInserting) {
+      context.missing(_showWithPriceMeta);
     }
     if (data.containsKey('last_sync_time')) {
       context.handle(
@@ -395,6 +416,8 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
     return Pref(
       showLocalImage: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}show_local_image'])!,
+      showWithPrice: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}show_with_price'])!,
       lastSyncTime: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
     );
@@ -408,12 +431,17 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
 
 class Pref extends DataClass implements Insertable<Pref> {
   final bool showLocalImage;
+  final bool showWithPrice;
   final DateTime? lastSyncTime;
-  const Pref({required this.showLocalImage, this.lastSyncTime});
+  const Pref(
+      {required this.showLocalImage,
+      required this.showWithPrice,
+      this.lastSyncTime});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['show_local_image'] = Variable<bool>(showLocalImage);
+    map['show_with_price'] = Variable<bool>(showWithPrice);
     if (!nullToAbsent || lastSyncTime != null) {
       map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
     }
@@ -423,6 +451,7 @@ class Pref extends DataClass implements Insertable<Pref> {
   PrefsCompanion toCompanion(bool nullToAbsent) {
     return PrefsCompanion(
       showLocalImage: Value(showLocalImage),
+      showWithPrice: Value(showWithPrice),
       lastSyncTime: lastSyncTime == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSyncTime),
@@ -434,6 +463,7 @@ class Pref extends DataClass implements Insertable<Pref> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Pref(
       showLocalImage: serializer.fromJson<bool>(json['showLocalImage']),
+      showWithPrice: serializer.fromJson<bool>(json['showWithPrice']),
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
     );
   }
@@ -442,15 +472,18 @@ class Pref extends DataClass implements Insertable<Pref> {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
       'showLocalImage': serializer.toJson<bool>(showLocalImage),
+      'showWithPrice': serializer.toJson<bool>(showWithPrice),
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
     };
   }
 
   Pref copyWith(
           {bool? showLocalImage,
+          bool? showWithPrice,
           Value<DateTime?> lastSyncTime = const Value.absent()}) =>
       Pref(
         showLocalImage: showLocalImage ?? this.showLocalImage,
+        showWithPrice: showWithPrice ?? this.showWithPrice,
         lastSyncTime:
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
       );
@@ -458,42 +491,50 @@ class Pref extends DataClass implements Insertable<Pref> {
   String toString() {
     return (StringBuffer('Pref(')
           ..write('showLocalImage: $showLocalImage, ')
+          ..write('showWithPrice: $showWithPrice, ')
           ..write('lastSyncTime: $lastSyncTime')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(showLocalImage, lastSyncTime);
+  int get hashCode => Object.hash(showLocalImage, showWithPrice, lastSyncTime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Pref &&
           other.showLocalImage == this.showLocalImage &&
+          other.showWithPrice == this.showWithPrice &&
           other.lastSyncTime == this.lastSyncTime);
 }
 
 class PrefsCompanion extends UpdateCompanion<Pref> {
   final Value<bool> showLocalImage;
+  final Value<bool> showWithPrice;
   final Value<DateTime?> lastSyncTime;
   final Value<int> rowid;
   const PrefsCompanion({
     this.showLocalImage = const Value.absent(),
+    this.showWithPrice = const Value.absent(),
     this.lastSyncTime = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PrefsCompanion.insert({
     required bool showLocalImage,
+    required bool showWithPrice,
     this.lastSyncTime = const Value.absent(),
     this.rowid = const Value.absent(),
-  }) : showLocalImage = Value(showLocalImage);
+  })  : showLocalImage = Value(showLocalImage),
+        showWithPrice = Value(showWithPrice);
   static Insertable<Pref> custom({
     Expression<bool>? showLocalImage,
+    Expression<bool>? showWithPrice,
     Expression<DateTime>? lastSyncTime,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (showLocalImage != null) 'show_local_image': showLocalImage,
+      if (showWithPrice != null) 'show_with_price': showWithPrice,
       if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
       if (rowid != null) 'rowid': rowid,
     });
@@ -501,10 +542,12 @@ class PrefsCompanion extends UpdateCompanion<Pref> {
 
   PrefsCompanion copyWith(
       {Value<bool>? showLocalImage,
+      Value<bool>? showWithPrice,
       Value<DateTime?>? lastSyncTime,
       Value<int>? rowid}) {
     return PrefsCompanion(
       showLocalImage: showLocalImage ?? this.showLocalImage,
+      showWithPrice: showWithPrice ?? this.showWithPrice,
       lastSyncTime: lastSyncTime ?? this.lastSyncTime,
       rowid: rowid ?? this.rowid,
     );
@@ -515,6 +558,9 @@ class PrefsCompanion extends UpdateCompanion<Pref> {
     final map = <String, Expression>{};
     if (showLocalImage.present) {
       map['show_local_image'] = Variable<bool>(showLocalImage.value);
+    }
+    if (showWithPrice.present) {
+      map['show_with_price'] = Variable<bool>(showWithPrice.value);
     }
     if (lastSyncTime.present) {
       map['last_sync_time'] = Variable<DateTime>(lastSyncTime.value);
@@ -529,6 +575,7 @@ class PrefsCompanion extends UpdateCompanion<Pref> {
   String toString() {
     return (StringBuffer('PrefsCompanion(')
           ..write('showLocalImage: $showLocalImage, ')
+          ..write('showWithPrice: $showWithPrice, ')
           ..write('lastSyncTime: $lastSyncTime, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -13860,6 +13907,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         }).map((QueryRow row) {
       return AppInfoResult(
         showLocalImage: row.read<bool>('show_local_image'),
+        showWithPrice: row.read<bool>('show_with_price'),
         lastSyncTime: row.readNullable<DateTime>('last_sync_time'),
         syncTotal: row.read<int>('sync_total'),
         pointsTotal: row.read<int>('points_total'),
@@ -13920,6 +13968,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
 
 class AppInfoResult {
   final bool showLocalImage;
+  final bool showWithPrice;
   final DateTime? lastSyncTime;
   final int syncTotal;
   final int pointsTotal;
@@ -13929,6 +13978,7 @@ class AppInfoResult {
   final int preOrdersTotal;
   AppInfoResult({
     required this.showLocalImage,
+    required this.showWithPrice,
     this.lastSyncTime,
     required this.syncTotal,
     required this.pointsTotal,

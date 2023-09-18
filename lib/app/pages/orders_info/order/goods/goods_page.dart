@@ -269,8 +269,7 @@ class _GoodsViewState extends State<_GoodsView> {
     final showOnlyActive = groupedGroupsActive[name]!;
     final children = groupGoods
       .where((g) => vm.state.showOnlyActive ? g.hadShipment || !showOnlyActive : true)
-      .map((g) => [buildGoodsTile(context, g), buildGoodsImage(context, g, compactMode)])
-      .expand((e) => e)
+      .map((g) => buildGoodsTile(context, g, compactMode))
       .whereNotNull().toList();
 
     return SliverToBoxAdapter(
@@ -530,18 +529,25 @@ class _GoodsViewState extends State<_GoodsView> {
     );
   }
 
-  Widget? buildGoodsTile(BuildContext context, GoodsDetail goodsDetail) {
+  Widget? buildGoodsTile(BuildContext context, GoodsDetail goodsDetail, bool compactMode) {
     final vm = context.read<GoodsViewModel>();
     final orderLineEx = vm.state.filteredOrderLinesExList
       .firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goods.id);
 
-    return ListTile(
-      contentPadding: const EdgeInsets.only(left: 8, top: 4, right: 8, bottom: 4),
-      tileColor: Colors.transparent,
-      trailing: buildGoodsTileTrailing(context, goodsDetail, orderLineEx),
-      subtitle: _GoodsSubtitle(goodsDetail, orderLineEx),
-      title: buildGoodsTileTitle(context, goodsDetail),
-      onTap: () => showGoodsInfoDialog(goodsDetail),
+    if (vm.state.showWithPrice && goodsDetail.price == 0 && orderLineEx == null) return null;
+
+    return Column(
+      children: [
+        ListTile(
+          contentPadding: const EdgeInsets.only(left: 8, top: 4, right: 8, bottom: 4),
+          tileColor: Colors.transparent,
+          trailing: buildGoodsTileTrailing(context, goodsDetail, orderLineEx),
+          subtitle: _GoodsSubtitle(goodsDetail, orderLineEx),
+          title: buildGoodsTileTitle(context, goodsDetail),
+          onTap: () => showGoodsInfoDialog(goodsDetail),
+        ),
+        buildGoodsImage(context, goodsDetail, compactMode)
+      ]
     );
   }
 
