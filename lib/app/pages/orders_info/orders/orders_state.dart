@@ -3,19 +3,26 @@ part of 'orders_page.dart';
 enum OrdersStateStatus {
   initial,
   dataLoaded,
-  orderAdded
+  orderAdded,
+  loadInProgress,
+  loadConfirmation,
+  loadDeclined,
+  loadFailure,
+  loadSuccess
 }
 
 class OrdersState {
   OrdersState({
     this.status = OrdersStateStatus.initial,
     this.orderExList = const [],
-    this.newOrder
+    this.newOrder,
+    this.message = ''
   });
 
   final OrdersStateStatus status;
   final List<OrderExResult> orderExList;
   final OrderExResult? newOrder;
+  final String message;
 
   List<OrderExResult> get filteredOrderExList => orderExList
     .where((e) => !e.order.isDeleted && e.order.detailedStatus != OrderStatus.deleted)
@@ -24,12 +31,14 @@ class OrdersState {
   OrdersState copyWith({
     OrdersStateStatus? status,
     List<OrderExResult>? orderExList,
-    OrderExResult? newOrder
+    OrderExResult? newOrder,
+    String? message
   }) {
     return OrdersState(
       status: status ?? this.status,
       orderExList: orderExList ?? this.orderExList,
-      newOrder: newOrder ?? this.newOrder
+      newOrder: newOrder ?? this.newOrder,
+      message: message ?? this.message
     );
   }
 }
