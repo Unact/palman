@@ -118,19 +118,20 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> searchGoods() async {
-    emit(state.copyWith(status: GoodsStateStatus.searchStarted));
+    emit(state.copyWith(status: GoodsStateStatus.searchStarted, goodsDetails: []));
 
     final goods = await ordersRepository.getGoods(
       name: state.goodsNameSearch,
       extraLabel: state.selectedGoodsFilter?.value,
       categoryId: state.selectedCategory?.id,
       bonusProgramId: state.selectedBonusProgram?.id,
-      buyerId: state.showOnlyActive ? state.orderEx.buyer!.id : null,
       goodsIds: state.showOnlyOrder ? state.filteredOrderLinesExList.map((e) => e.goods.id).toList() : null
     );
     final categoryIds = goods.map((e) => e.categoryId).toSet();
     final visibleCategories = state.selectedCategory == null ?
-      state.allCategories.where((e) => categoryIds.contains(e.id)).toList() :
+      state.allCategories
+        .where((e) => categoryIds.contains(e.id))
+        .where((e) => state.showOnlyActive ? e.lastShipmentDate != null : true).toList() :
       state.visibleCategories;
     final List<GoodsDetail> goodsDetails = !state.showAllGoods ?
       [] :

@@ -237,7 +237,6 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     required String? extraLabel,
     required int? categoryId,
     required int? bonusProgramId,
-    required int? buyerId,
     required List<int>? goodsIds
   }) async {
     final hasBonusProgram = existsQuery(
@@ -249,22 +248,11 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
       select(goodsStocks)
         ..where((tbl) => tbl.goodsId.equalsExp(allGoods.id))
     );
-    final hasShipment = existsQuery(
-      selectOnly(shipments)
-        .join([
-          innerJoin(shipmentLines, shipments.id.equalsExp(shipmentLines.shipmentId), useColumns: false),
-        ])
-        ..addColumns([shipments.id])
-        ..where(shipmentLines.goodsId.equalsExp(allGoods.id))
-        ..where(shipments.buyerId.equalsNullable(buyerId))
-    );
-
     final query = select(allGoods)
       ..where((tbl) => tbl.name.containsCase(name ?? ''))
       ..where((tbl) => tbl.extraLabel.containsCase(extraLabel ?? ''))
       ..where(categoryId != null ? (tbl) => tbl.categoryId.equals(categoryId) : (tbl) => const Constant(true))
       ..where(bonusProgramId != null ? (tbl) => hasBonusProgram : (tbl) => const Constant(true))
-      ..where(buyerId != null ? (tbl) => hasShipment : (tbl) => const Constant(true))
       ..where((tbl) => hasStock)
       ..where(goodsIds != null ? (tbl) => tbl.id.isIn(goodsIds) : (tbl) => const Constant(true));
 
@@ -362,6 +350,7 @@ class GoodsDetail {
 
   GoodsDetail(this.goodsEx, this.prices, this.bonusPrograms);
 
+  bool get hadShipment => goodsEx.lastShipmentDate != null;
   Goods get goods => goodsEx.goods;
   GoodsStock get stock => goods.isFridge ? goodsEx.fridgeStock! : goodsEx.normalStock!;
   bool get conditionalDiscount => bonusPrograms.any((e) => e.conditionalDiscount);

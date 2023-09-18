@@ -53,6 +53,7 @@ class _GoodsViewState extends State<_GoodsView> {
   final Map<GoodsDetail, TextEditingController> volControllers = {};
   final TextEditingController nameController = TextEditingController();
   final Map<String, ExpansionTileController> groupedGroupsExpansion = {};
+  final Map<String, bool> groupedGroupsActive = {};
   late final AutoScrollController controller = AutoScrollController(
     keepScrollOffset: false,
     axis: Axis.vertical,
@@ -209,6 +210,7 @@ class _GoodsViewState extends State<_GoodsView> {
     final items = groupedGoods.entries.sorted((a, b) => a.key.compareTo(b.key));
     for (var item in items) {
       groupedGroupsExpansion.putIfAbsent(item.key, () => ExpansionTileController());
+      groupedGroupsActive.putIfAbsent(item.key, () => vm.state.showOnlyActive);
     }
     final goodsIndex = !vm.state.showGroupInfo ?
       Container() :
@@ -245,44 +247,62 @@ class _GoodsViewState extends State<_GoodsView> {
                 key: Key(vm.state.goodsDetails.hashCode.toString()),
                 controller: controller,
                 slivers: groupedGoods.entries.mapIndexed((index, e) {
-                  final children = items[index].value
-                    .map((g) => [buildGoodsTile(context, g), buildGoodsImage(context, g, compactMode)])
-                    .expand((e) => e)
-                    .whereNotNull().toList();
-
-                  if (children.isEmpty) return Container();
-
-                  return SliverToBoxAdapter(
-                    child: AutoScrollTag(
-                      controller: controller,
-                      index: index,
-                      key: Key(items[index].key),
-                      child: ListTileTheme(
-                        tileColor: Theme.of(context).colorScheme.primary,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 2),
-                          child: ExpansionTile(
-                            controller: groupedGroupsExpansion[items[index].key],
-                            key: Key(items[index].key),
-                            onExpansionChanged: (changed) {
-                              if (changed) _scrollToGroup(controller, index);
-                            },
-                            collapsedBackgroundColor: Theme.of(context).colorScheme.primary,
-                            initiallyExpanded: vm.state.goodsListInitiallyExpanded,
-                            trailing: Container(width: 0),
-                            title: Text(items[index].key, style: const TextStyle(color: Colors.white)),
-                            children: children
-                          ),
-                        )
-                      )
-                    )
-                  );
+                  return buildGoodsViewGroup(context, index, e.key, e.value, compactMode);
                 }).toList()..add(SliverFillRemaining(hasScrollBody: true, child: Container()))
               )
             )
           ),
           goodsIndex
         ]
+      )
+    );
+  }
+
+  Widget buildGoodsViewGroup(
+    BuildContext context,
+    int index,
+    String name,
+    List<GoodsDetail> groupGoods,
+    bool compactMode
+  ) {
+    final vm = context.read<GoodsViewModel>();
+    final showOnlyActive = groupedGroupsActive[name]!;
+    final children = groupGoods
+      .where((g) => vm.state.showOnlyActive ? g.hadShipment || !showOnlyActive : true)
+      .map((g) => [buildGoodsTile(context, g), buildGoodsImage(context, g, compactMode)])
+      .expand((e) => e)
+      .whereNotNull().toList();
+
+    return SliverToBoxAdapter(
+      child: AutoScrollTag(
+        controller: controller,
+        index: index,
+        key: Key(name),
+        child: ListTileTheme(
+          tileColor: Theme.of(context).colorScheme.primary,
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 2),
+            child: ExpansionTile(
+              controller: groupedGroupsExpansion[name],
+              key: Key(name),
+              onExpansionChanged: (changed) {
+                if (changed) _scrollToGroup(controller, index);
+              },
+              collapsedBackgroundColor: Theme.of(context).colorScheme.primary,
+              initiallyExpanded: vm.state.goodsListInitiallyExpanded,
+              trailing: !vm.state.showOnlyActive ?
+                Container(width: 0) :
+                IconButton(
+                  color: Colors.white,
+                  icon: Icon(showOnlyActive ? Icons.access_time_filled : Icons.access_time),
+                  tooltip: 'Показать актив',
+                  onPressed: () => setState(() => groupedGroupsActive[name] = !showOnlyActive)
+                ),
+              title: Text(name, style: const TextStyle(color: Colors.white)),
+              children: children
+            ),
+          )
+        )
       )
     );
   }
@@ -410,7 +430,7 @@ class _GoodsViewState extends State<_GoodsView> {
     final goods = goodsEx.goods;
     final stock = goods.isFridge ? goodsEx.fridgeStock! : goodsEx.normalStock!;
     final tags = goodsDetail.bonusPrograms;
-    final daysDiff = goodsEx.lastShipmentDate != null ? DateTime.now().difference(goodsEx.lastShipmentDate!) : null;
+    final daysDiff = goodsDetail.hadShipment ? DateTime.now().difference(goodsEx.lastShipmentDate!) : null;
 
     return RichText(
       text: TextSpan(
@@ -515,11 +535,9 @@ class _GoodsViewState extends State<_GoodsView> {
     final orderLineEx = vm.state.filteredOrderLinesExList
       .firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goods.id);
 
-    if (goodsDetail.goodsEx.lastShipmentDate == null && vm.state.showOnlyActive) return null;
-
     return ListTile(
       contentPadding: const EdgeInsets.only(left: 8, top: 4, right: 8, bottom: 4),
-      tileColor: Theme.of(context).scaffoldBackgroundColor,
+      tileColor: Colors.transparent,
       trailing: buildGoodsTileTrailing(context, goodsDetail, orderLineEx),
       subtitle: _GoodsSubtitle(goodsDetail, orderLineEx),
       title: buildGoodsTileTitle(context, goodsDetail),
@@ -548,6 +566,7 @@ class _GoodsViewState extends State<_GoodsView> {
         controller: controller,
         style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
+          fillColor: Colors.transparent,
           border: !enabled ? InputBorder.none : null,
           suffixIcon: !enabled ? null : IconButton(
             icon: const Icon(Icons.add),
