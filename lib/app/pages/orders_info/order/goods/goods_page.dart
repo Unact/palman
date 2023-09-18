@@ -210,7 +210,7 @@ class _GoodsViewState extends State<_GoodsView> {
     final items = groupedGoods.entries.sorted((a, b) => a.key.compareTo(b.key));
     for (var item in items) {
       groupedGroupsExpansion.putIfAbsent(item.key, () => ExpansionTileController());
-      groupedGroupsActive.putIfAbsent(item.key, () => true);
+      groupedGroupsActive.putIfAbsent(item.key, () => vm.state.showOnlyActive);
     }
     final goodsIndex = !vm.state.showGroupInfo ?
       Container() :
