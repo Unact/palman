@@ -73,7 +73,8 @@ void main() async {
             subThemesData: const FlexSubThemesData(
               inputDecoratorBorderType: FlexInputBorderType.underline,
               inputDecoratorFocusedBorderWidth: 0,
-              inputDecoratorBackgroundAlpha: 0
+              inputDecoratorBackgroundAlpha: 0,
+              inputDecoratorFillColor: Colors.transparent
             ),
             platform: TargetPlatform.android,
             visualDensity: VisualDensity.adaptivePlatformDensity
