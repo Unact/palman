@@ -57,8 +57,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   Future<void> selectBonusProgram(FilteredBonusProgramsResult? bonusProgram) async {
     emit(state.copyWith(
       selectedBonusProgram: Optional.fromNullable(bonusProgram),
-      selectedCategory: const Optional.absent(),
-      goodsDetails: []
+      selectedCategory: const Optional.absent()
     ));
 
     await searchGoods();
