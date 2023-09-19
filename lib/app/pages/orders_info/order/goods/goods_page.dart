@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:collection/collection.dart';
+import 'package:expansion_tile_group/expansion_tile_group.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
@@ -51,15 +52,18 @@ class _GoodsViewState extends State<_GoodsView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
   final Map<GoodsDetail, TextEditingController> volControllers = {};
   final TextEditingController nameController = TextEditingController();
-  final Map<String, ExpansionTileController> groupedCategoriesExpansion = {};
-  final Map<String, ExpansionTileController> groupedGroupsExpansion = {};
-  final Map<String, bool> groupedGroupsActive = {};
+  final Map<String, GlobalKey<ExpansionTileCustomState>> groupedCategoriesExpansion = {};
+  final Map<String, GlobalKey<ExpansionTileCustomState>> groupedGoodsExpansion = {};
+  final Map<String, bool> groupedGoodsActive = {};
+  final Map<String, bool> groupedCategoriesActive = {};
+  Key groupedCategoriesScrollKey = const Key('');
+  Key groupedGoodsScrollKey = const Key('');
   late final AutoScrollController categoriesController = AutoScrollController(
     keepScrollOffset: false,
     axis: Axis.vertical,
     viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
   );
-  late final AutoScrollController groupsController = AutoScrollController(
+  late final AutoScrollController goodsController = AutoScrollController(
     keepScrollOffset: false,
     axis: Axis.vertical,
     viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
@@ -67,7 +71,7 @@ class _GoodsViewState extends State<_GoodsView> {
 
   void _scrollToIndex(AutoScrollController controller, int index) {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(milliseconds: 100));
+      await Future.delayed(const Duration(milliseconds: 200));
       controller.scrollToIndex(index, preferPosition: AutoScrollPosition.begin);
     });
   }
@@ -198,6 +202,8 @@ class _GoodsViewState extends State<_GoodsView> {
   Widget buildGoodsView(BuildContext context, bool compactMode) {
     final vm = context.read<GoodsViewModel>();
     final Map<String, List<GoodsDetail>> groupedGoods = {};
+    final scrollKey = Key(vm.state.goodsDetails.fold(0, (prev, e) => prev + e.goods.hashCode).toString());
+    final List<Widget> slivers = [];
 
     if (vm.state.groupByManufacturer) {
       for (var e in vm.state.manufacturers) {
@@ -209,11 +215,20 @@ class _GoodsViewState extends State<_GoodsView> {
       }
     }
 
-    final items = groupedGoods.entries.sorted((a, b) => a.key.compareTo(b.key));
-    for (var item in items) {
-      groupedGroupsExpansion.putIfAbsent(item.key, () => ExpansionTileController());
-      groupedGroupsActive.putIfAbsent(item.key, () => vm.state.showOnlyActive);
+    if (groupedGoodsScrollKey != scrollKey) {
+      groupedGoodsExpansion.clear();
+      groupedGoodsActive.clear();
+      groupedGoodsScrollKey = scrollKey;
     }
+
+    final items = groupedGoods.entries.sorted((a, b) => a.key.compareTo(b.key));
+
+    items.where((e) => e.value.isNotEmpty).forEachIndexed((index, e) {
+      groupedGoodsExpansion.putIfAbsent(e.key, () => GlobalKey());
+      groupedGoodsActive.putIfAbsent(e.key, () => vm.state.showOnlyActive);
+      slivers.add(buildGoodsViewGroup(context, index, e.key, e.value, compactMode));
+    });
+
     final goodsIndex = !vm.state.showGroupInfo ?
       Container() :
       SizedBox(
@@ -229,10 +244,10 @@ class _GoodsViewState extends State<_GoodsView> {
               backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
               onPressed: () {
                 for (var name in groupedGoods.keys) {
-                  if (groupedGroupsExpansion[name]!.isExpanded) groupedGroupsExpansion[name]!.collapse();
-                  if (e.$2.key == name) groupedGroupsExpansion[name]!.expand();
+                  groupedGoodsExpansion[name]?.currentState?.collapse();
                 }
-                _scrollToIndex(groupsController, e.$1);
+                groupedGoodsExpansion[e.$2.key]?.currentState?.expand();
+                _scrollToIndex(goodsController, e.$1);
               }
             )).toList()
           )
@@ -246,14 +261,19 @@ class _GoodsViewState extends State<_GoodsView> {
             child: Material(
               color: Colors.transparent,
               child: CustomScrollView(
-                controller: groupsController,
-                slivers: items.mapIndexed((index, e) {
-                  return buildGoodsViewGroup(context, index, e.key, e.value, compactMode);
-                }).toList()..add(SliverFillRemaining(hasScrollBody: true, child: Container()))
+                key: scrollKey,
+                controller: goodsController,
+                slivers: [
+                  SliverToBoxAdapter(child: Column(children: slivers)),
+                  const SliverFillRemaining()
+                ]
               )
             )
           ),
-          goodsIndex
+          Padding(
+            padding: const EdgeInsets.only(bottom: 68),
+            child: goodsIndex
+          )
         ]
       )
     );
@@ -267,41 +287,43 @@ class _GoodsViewState extends State<_GoodsView> {
     bool compactMode
   ) {
     final vm = context.read<GoodsViewModel>();
-    final showOnlyActive = groupedGroupsActive[name]!;
+    final showOnlyActive = groupedGoodsActive[name]!;
     final children = groupGoods
       .where((g) => vm.state.showOnlyActive ? g.hadShipment || !showOnlyActive : true)
-      .map((g) => buildGoodsTile(context, g, compactMode))
-      .whereNotNull().toList();
+      .map((g) => buildGoodsTile(context, g, compactMode)).toList();
 
-    return SliverToBoxAdapter(
-      child: AutoScrollTag(
-        controller: groupsController,
-        index: index,
-        key: Key(name),
-        child: ListTileTheme(
-          tileColor: Theme.of(context).colorScheme.primary,
-          child: Padding(
-            padding: const EdgeInsets.only(bottom: 2),
-            child: ExpansionTile(
-              //controller: groupedGroupsExpansion[name],
-              key: Key(name),
-              onExpansionChanged: (changed) {
-                if (changed) _scrollToIndex(groupsController, index);
-              },
-              collapsedBackgroundColor: Theme.of(context).colorScheme.primary,
-              initiallyExpanded: vm.state.goodsListInitiallyExpanded,
-              trailing: !vm.state.showOnlyActive ?
-                Container(width: 0) :
-                IconButton(
-                  color: Colors.white,
-                  icon: Icon(showOnlyActive ? Icons.access_time_filled : Icons.access_time),
-                  tooltip: 'Показать актив',
-                  onPressed: () => setState(() => groupedGroupsActive[name] = !showOnlyActive)
-                ),
-              title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              children: children
-            ),
-          )
+    return AutoScrollTag(
+      controller: goodsController,
+      index: index,
+      key: Key(name),
+      child: ListTileTheme(
+        tileColor: Theme.of(context).colorScheme.primary,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 2),
+          child: ExpansionTileItem(
+            expansionKey: groupedGoodsExpansion[name],
+            initiallyExpanded: vm.state.goodsListInitiallyExpanded,
+            onExpansionChanged: (changed) {
+              if (!changed) return;
+
+              _scrollToIndex(goodsController, index);
+              for (var e in groupedGoodsExpansion.entries) {
+                if (e.key != name) e.value.currentState?.collapse();
+              }
+            },
+            childrenPadding: EdgeInsets.zero,
+            decoration: const BoxDecoration(),
+            trailing: !vm.state.showOnlyActive ?
+              Container(width: 0) :
+              IconButton(
+                color: Colors.white,
+                icon: Icon(showOnlyActive ? Icons.access_time_filled : Icons.access_time),
+                tooltip: 'Показать актив',
+                onPressed: () => setState(() => groupedGoodsActive[name] = !showOnlyActive)
+              ),
+            title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            children: children
+          ),
         )
       )
     );
@@ -528,12 +550,12 @@ class _GoodsViewState extends State<_GoodsView> {
     );
   }
 
-  Widget? buildGoodsTile(BuildContext context, GoodsDetail goodsDetail, bool compactMode) {
+  Widget buildGoodsTile(BuildContext context, GoodsDetail goodsDetail, bool compactMode) {
     final vm = context.read<GoodsViewModel>();
     final orderLineEx = vm.state.filteredOrderLinesExList
       .firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goods.id);
 
-    if (vm.state.showWithPrice && goodsDetail.price == 0 && orderLineEx == null) return null;
+    if (vm.state.showWithPrice && goodsDetail.price == 0 && orderLineEx == null) return Container();
 
     return Column(
       children: [
@@ -595,20 +617,32 @@ class _GoodsViewState extends State<_GoodsView> {
   Widget buildCategorySelect(BuildContext context, void Function(CategoriesExResult) onCategoryTap) {
     final vm = context.read<GoodsViewModel>();
     final Map<String, List<CategoriesExResult>> groupedCategories = {};
+    final scrollKey = Key(vm.state.visibleCategories.hashCode.toString());
+    final List<Widget> slivers = [];
 
     for (var e in vm.state.shopDepartments) {
       groupedCategories[e.name] = vm.state.visibleCategories.where((c) => c.shopDepartmentId == e.id).toList();
     }
 
-    for (var item in groupedCategories.entries) {
-      groupedCategoriesExpansion.putIfAbsent(item.key, () => ExpansionTileController());
+    if (groupedCategoriesScrollKey != scrollKey) {
+      groupedCategoriesExpansion.clear();
+      groupedCategoriesActive.clear();
+      groupedCategoriesScrollKey = scrollKey;
     }
 
+    groupedCategories.entries.where((e) => e.value.isNotEmpty).forEachIndexed((index, e) {
+      groupedCategoriesExpansion.putIfAbsent(e.key, () => GlobalKey());
+      groupedCategoriesActive.putIfAbsent(e.key, () => vm.state.showOnlyActive);
+      slivers.add(buildCategorySelectGroup(context, index, e.key, e.value, onCategoryTap));
+    });
+
     return CustomScrollView(
+      key: scrollKey,
       controller: categoriesController,
-      slivers: groupedCategories.entries.where((e) => e.value.isNotEmpty).mapIndexed((index, e) {
-        return buildCategorySelectGroup(context, index, e.key, e.value, onCategoryTap);
-      }).toList()..add(SliverFillRemaining(hasScrollBody: true, child: Container()))
+      slivers: [
+        SliverToBoxAdapter(child: Column(children: slivers)),
+        const SliverFillRemaining()
+      ]
     );
   }
 
@@ -620,34 +654,43 @@ class _GoodsViewState extends State<_GoodsView> {
     void Function(CategoriesExResult) onCategoryTap
   ) {
     final vm = context.read<GoodsViewModel>();
-    final children = groupCategories.map((e) => buildCategoryTile(e, onCategoryTap)).toList();
+    final showOnlyActive = groupedCategoriesActive[name]!;
+    final children = groupCategories
+      .where((e) => vm.state.showOnlyActive ? e.lastShipmentDate != null || !showOnlyActive : true)
+      .map((e) => buildCategoryTile(e, onCategoryTap)).toList();
 
-    return SliverToBoxAdapter(
+    return AutoScrollTag(
+      controller: categoriesController,
+      index: index,
       key: Key(name),
-      child: AutoScrollTag(
-        controller: categoriesController,
-        index: index,
-        key: Key(name),
-        child: ListTileTheme(
-          tileColor: Theme.of(context).colorScheme.primary,
-            child: ListTileTheme(
-              tileColor: Theme.of(context).colorScheme.primary,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 2, right: 2),
-                child: ExpansionTile(
-                  //controller: groupedCategoriesExpansion[name],
-                  key: Key(name),
-                  collapsedBackgroundColor: Theme.of(context).colorScheme.primary,
-                  initiallyExpanded: vm.state.categoriesListInitiallyExpanded,
-                  onExpansionChanged: (changed) {
-                    if (changed) _scrollToIndex(categoriesController, index);
-                  },
-                  trailing: Container(width: 0),
-                  title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                  children: children
-                ),
-              )
-            )
+      child: ListTileTheme(
+        tileColor: Theme.of(context).colorScheme.primary,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 2),
+          child: ExpansionTileItem(
+            expansionKey: groupedCategoriesExpansion[name],
+            initiallyExpanded: vm.state.categoriesListInitiallyExpanded,
+            onExpansionChanged: (changed) {
+              if (!changed) return;
+
+              _scrollToIndex(categoriesController, index);
+              for (var e in groupedCategoriesExpansion.entries) {
+                if (e.key != name) e.value.currentState?.collapse();
+              }
+            },
+            childrenPadding: EdgeInsets.zero,
+            decoration: const BoxDecoration(),
+            trailing: !vm.state.showOnlyActive ?
+              Container(width: 0) :
+              IconButton(
+                color: Colors.white,
+                icon: Icon(showOnlyActive ? Icons.access_time_filled : Icons.access_time),
+                tooltip: 'Показать актив',
+                onPressed: () => setState(() => groupedCategoriesActive[name] = !showOnlyActive)
+              ),
+            title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+            children: children
+          ),
         )
       )
     );
