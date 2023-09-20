@@ -10,8 +10,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   final PricesRepository pricesRepository;
   final ShipmentsRepository shipmentsRepository;
   final UsersRepository usersRepository;
-  late final StreamSubscription<Position>? positionSubscription;
-  late final Timer syncTimer;
+  StreamSubscription<Position>? positionSubscription;
+  Timer? syncTimer;
 
   InfoViewModel(
     this.appRepository,
@@ -68,7 +68,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     await super.close();
 
     await positionSubscription?.cancel();
-    syncTimer.cancel();
+    syncTimer?.cancel();
   }
 
   Future<void> _saveLocation(Position? position) async {
