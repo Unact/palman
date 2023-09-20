@@ -262,7 +262,7 @@ class _GoodsViewState extends State<_GoodsView> {
               )
             ],
           ),
-          SizedBox(height: 2),
+          const SizedBox(height: 2),
           TextFormField(
             decoration: const InputDecoration(labelText: 'Наименование'),
             onFieldSubmitted: vm.setGoodsNameSearch,
