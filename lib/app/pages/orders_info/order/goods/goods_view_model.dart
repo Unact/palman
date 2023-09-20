@@ -156,12 +156,12 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> updateOrderLinePrices() async {
+    final orderLinesEx = (await ordersRepository.getOrderLineExList(state.orderEx.order.id));
     final goodsDetails = await ordersRepository.getGoodsDetails(
       buyerId: state.orderEx.buyer!.id,
       date: state.orderEx.order.date!,
-      goodsIds: state.filteredOrderLinesExList.map((e) => e.goods.id).toList()
+      goodsIds: orderLinesEx.map((e) => e.goods.id).toList()
     );
-    final orderLinesEx = (await ordersRepository.getOrderLineExList(state.orderEx.order.id));
 
     for (var orderLine in orderLinesEx) {
       final goodsDetail = goodsDetails.firstWhereOrNull((e) => e.goods == orderLine.goods);

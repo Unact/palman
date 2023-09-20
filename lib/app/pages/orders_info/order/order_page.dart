@@ -157,7 +157,7 @@ class _OrderViewState extends State<_OrderView> {
             context,
             MaterialPageRoute(
               builder: (BuildContext context) => GoodsPage(orderEx: vm.state.orderEx),
-              fullscreenDialog: true
+              fullscreenDialog: false
             )
           );
         },

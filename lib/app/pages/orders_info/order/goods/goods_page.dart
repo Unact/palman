@@ -50,33 +50,9 @@ class _GoodsView extends StatefulWidget {
 
 class _GoodsViewState extends State<_GoodsView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
-  final Map<GoodsDetail, TextEditingController> volControllers = {};
   final TextEditingController nameController = TextEditingController();
-  final Map<String, GlobalKey<ExpansionTileCustomState>> groupedCategoriesExpansion = {};
-  final Map<String, GlobalKey<ExpansionTileCustomState>> groupedGoodsExpansion = {};
-  final Map<String, bool> groupedGoodsActive = {};
-  final Map<String, bool> groupedCategoriesActive = {};
-  Key groupedCategoriesScrollKey = const Key('');
-  Key groupedGoodsScrollKey = const Key('');
-  late final AutoScrollController categoriesController = AutoScrollController(
-    keepScrollOffset: false,
-    axis: Axis.vertical,
-    viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
-  );
-  late final AutoScrollController goodsController = AutoScrollController(
-    keepScrollOffset: false,
-    axis: Axis.vertical,
-    viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
-  );
 
-  void _scrollToIndex(AutoScrollController controller, int index) {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await Future.delayed(const Duration(milliseconds: 200));
-      controller.scrollToIndex(index, preferPosition: AutoScrollPosition.begin);
-    });
-  }
-
-  Future<void> showBonusProgramSelectDialog([GoodsExResult? goodsEx]) async {
+  Future<void> showBonusProgramSelectDialog([GoodsDetail? goodsDetail]) async {
     final vm = context.read<GoodsViewModel>();
     final result = await showDialog<FilteredBonusProgramsResult>(
       context: context,
@@ -87,7 +63,7 @@ class _GoodsViewState extends State<_GoodsView> {
             date: vm.state.orderEx.order.date!,
             buyer: vm.state.orderEx.buyer!,
             category: vm.state.selectedCategory,
-            goodsEx: goodsEx
+            goodsEx: goodsDetail?.goodsEx
           )
         );
       }
@@ -106,7 +82,7 @@ class _GoodsViewState extends State<_GoodsView> {
           buyer: vm.state.orderEx.buyer!,
           goodsEx: goodsDetail.goodsEx
         ),
-        fullscreenDialog: true
+        fullscreenDialog: false
       )
     ) ?? false;
 
@@ -124,7 +100,7 @@ class _GoodsViewState extends State<_GoodsView> {
             width: 360,
             child: Scaffold(
               appBar: AppBar(title: const Text('Выберите категорию')),
-              body: buildCategorySelect(
+              body: buildCategoryView(
                 context,
                 (CategoriesExResult category) => Navigator.of(dialogContext).pop(category)
               )
@@ -166,7 +142,10 @@ class _GoodsViewState extends State<_GoodsView> {
                 color: Colors.white,
                 icon: const Icon(Icons.cleaning_services),
                 tooltip: 'Очистить',
-                onPressed: vm.clearFilters,
+                onPressed: () async {
+                  Misc.unfocus(context);
+                  await vm.clearFilters();
+                }
               )
             ],
             bottom: PreferredSize(
@@ -178,11 +157,14 @@ class _GoodsViewState extends State<_GoodsView> {
             children: [
               compactMode ?
                 Container() :
-                SizedBox(width: 260, child: buildCategorySelect(context, vm.selectCategory)),
+                Padding(
+                  padding: const EdgeInsets.only(right: 2),
+                  child: SizedBox(width: 260, child: buildCategoryView(context, vm.selectCategory))
+                ),
               buildGoodsView(context, compactMode)
             ]
           ),
-          bottomSheet: buildViewOptionsRow(context, compactMode)
+          bottomSheet: buildViewOptionsRow(context)
         );
       },
       listener: (context, state) async {
@@ -202,8 +184,6 @@ class _GoodsViewState extends State<_GoodsView> {
   Widget buildGoodsView(BuildContext context, bool compactMode) {
     final vm = context.read<GoodsViewModel>();
     final Map<String, List<GoodsDetail>> groupedGoods = {};
-    final scrollKey = Key(vm.state.goodsDetails.fold(0, (prev, e) => prev + e.goods.hashCode).toString());
-    final List<Widget> slivers = [];
 
     if (vm.state.groupByManufacturer) {
       for (var e in vm.state.manufacturers) {
@@ -215,117 +195,19 @@ class _GoodsViewState extends State<_GoodsView> {
       }
     }
 
-    if (groupedGoodsScrollKey != scrollKey) {
-      groupedGoodsExpansion.clear();
-      groupedGoodsActive.clear();
-      groupedGoodsScrollKey = scrollKey;
-    }
-
-    final items = groupedGoods.entries.sorted((a, b) => a.key.compareTo(b.key));
-
-    items.where((e) => e.value.isNotEmpty).forEachIndexed((index, e) {
-      groupedGoodsExpansion.putIfAbsent(e.key, () => GlobalKey());
-      groupedGoodsActive.putIfAbsent(e.key, () => vm.state.showOnlyActive);
-      slivers.add(buildGoodsViewGroup(context, index, e.key, e.value, compactMode));
-    });
-
-    final goodsIndex = !vm.state.showGroupInfo ?
-      Container() :
-      SizedBox(
-        height: 124,
-        child: SingleChildScrollView(
-          scrollDirection: Axis.vertical,
-          child: Wrap(
-            spacing: 4,
-            runSpacing: -8,
-            children: items.indexed.map((e) => ActionChip(
-              label: Text(e.$2.key),
-              labelStyle: Styles.formStyle,
-              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-              onPressed: () {
-                for (var name in groupedGoods.keys) {
-                  groupedGoodsExpansion[name]?.currentState?.collapse();
-                }
-                groupedGoodsExpansion[e.$2.key]?.currentState?.expand();
-                _scrollToIndex(goodsController, e.$1);
-              }
-            )).toList()
-          )
-        )
-      );
-
-    return Expanded(
-      child: Column(
-        children: [
-          Flexible(
-            child: Material(
-              color: Colors.transparent,
-              child: CustomScrollView(
-                key: scrollKey,
-                controller: goodsController,
-                slivers: [
-                  SliverToBoxAdapter(child: Column(children: slivers)),
-                  const SliverFillRemaining()
-                ]
-              )
-            )
-          ),
-          Padding(
-            padding: const EdgeInsets.only(bottom: 68),
-            child: goodsIndex
-          )
-        ]
-      )
-    );
-  }
-
-  Widget buildGoodsViewGroup(
-    BuildContext context,
-    int index,
-    String name,
-    List<GoodsDetail> groupGoods,
-    bool compactMode
-  ) {
-    final vm = context.read<GoodsViewModel>();
-    final showOnlyActive = groupedGoodsActive[name]!;
-    final children = groupGoods
-      .where((g) => vm.state.showOnlyActive ? g.hadShipment || !showOnlyActive : true)
-      .map((g) => buildGoodsTile(context, g, compactMode)).toList();
-
-    return AutoScrollTag(
-      controller: goodsController,
-      index: index,
-      key: Key(name),
-      child: ListTileTheme(
-        tileColor: Theme.of(context).colorScheme.primary,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 2),
-          child: ExpansionTileItem(
-            expansionKey: groupedGoodsExpansion[name],
-            initiallyExpanded: vm.state.goodsListInitiallyExpanded,
-            onExpansionChanged: (changed) {
-              if (!changed) return;
-
-              _scrollToIndex(goodsController, index);
-              for (var e in groupedGoodsExpansion.entries) {
-                if (e.key != name) e.value.currentState?.collapse();
-              }
-            },
-            childrenPadding: EdgeInsets.zero,
-            decoration: const BoxDecoration(),
-            trailing: !vm.state.showOnlyActive ?
-              Container(width: 0) :
-              IconButton(
-                color: Colors.white,
-                icon: Icon(showOnlyActive ? Icons.access_time_filled : Icons.access_time),
-                tooltip: 'Показать актив',
-                onPressed: () => setState(() => groupedGoodsActive[name] = !showOnlyActive)
-              ),
-            title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            children: children
-          ),
-        )
-      )
+    return _GoodsGroupsView(
+      key: Key(vm.state.goodsDetails.fold(0, (prev, e) => prev + e.goods.hashCode).toString()),
+      groupedGoods: groupedGoods,
+      showOnlyActive: vm.state.showOnlyActive,
+      initiallyExpanded: vm.state.goodsListInitiallyExpanded,
+      compactMode: compactMode,
+      showGroupInfo: vm.state.showGroupInfo,
+      showGoodsImage: vm.state.showGoodsImage,
+      onVolChange: vm.updateOrderLineVol,
+      orderEx: vm.state.orderEx,
+      linesExList: vm.state.filteredOrderLinesExList,
+      onBonusProgramTap: showBonusProgramSelectDialog,
+      onTap: showGoodsInfoDialog
     );
   }
 
@@ -380,6 +262,7 @@ class _GoodsViewState extends State<_GoodsView> {
               )
             ],
           ),
+          SizedBox(height: 2),
           TextFormField(
             decoration: const InputDecoration(labelText: 'Наименование'),
             onFieldSubmitted: vm.setGoodsNameSearch,
@@ -407,7 +290,7 @@ class _GoodsViewState extends State<_GoodsView> {
     );
   }
 
-  Widget buildViewOptionsRow(BuildContext context, bool compactMode) {
+  Widget buildViewOptionsRow(BuildContext context) {
     final vm = context.read<GoodsViewModel>();
 
     return Padding(
@@ -444,6 +327,316 @@ class _GoodsViewState extends State<_GoodsView> {
       )
     );
   }
+
+  Widget buildCategoryView(BuildContext context, void Function(CategoriesExResult) onCategoryTap) {
+    final vm = context.read<GoodsViewModel>();
+    final Map<String, List<CategoriesExResult>> groupedCategories = {};
+
+    for (var e in vm.state.shopDepartments) {
+      groupedCategories[e.name] = vm.state.visibleCategories.where((c) => c.shopDepartmentId == e.id).toList();
+    }
+
+    return _CategoriesView(
+      key: Key(vm.state.visibleCategories.hashCode.toString()),
+      selectedCategory: vm.state.selectedCategory,
+      groupedCategories: groupedCategories,
+      showOnlyActive: vm.state.showOnlyActive,
+      initiallyExpanded: vm.state.categoriesListInitiallyExpanded,
+      onCategoryTap: onCategoryTap
+    );
+  }
+}
+
+class _CategoriesView extends StatefulWidget {
+  final Map<String, List<CategoriesExResult>> groupedCategories;
+  final CategoriesExResult? selectedCategory;
+  final void Function(CategoriesExResult) onCategoryTap;
+  final bool showOnlyActive;
+  final bool initiallyExpanded;
+
+  _CategoriesView({
+    required this.selectedCategory,
+    required this.groupedCategories,
+    required this.onCategoryTap,
+    required this.showOnlyActive,
+    required this.initiallyExpanded,
+    Key? key
+  }) : super(key: key);
+
+  @override
+  _CategoriesViewState createState() => _CategoriesViewState();
+}
+
+class _CategoriesViewState extends State<_CategoriesView> {
+  final Map<String, GlobalKey<ExpansionTileCustomState>> groupedCategoriesExpansion = {};
+  final Map<String, bool> groupedCategoriesActive = {};
+  late final AutoScrollController categoriesController = AutoScrollController(
+    keepScrollOffset: false,
+    axis: Axis.vertical,
+    viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+  );
+
+   void _scrollToIndex(AutoScrollController controller, int index) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 200));
+      controller.scrollToIndex(index, preferPosition: AutoScrollPosition.begin);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> children = [];
+
+    widget.groupedCategories.entries.where((e) => e.value.isNotEmpty).forEachIndexed((index, e) {
+      groupedCategoriesExpansion.putIfAbsent(e.key, () => GlobalKey());
+      groupedCategoriesActive.putIfAbsent(e.key, () => widget.showOnlyActive);
+      children.add(buildCategorySelectGroup(context, index, e.key, e.value));
+    });
+
+    return CustomScrollView(
+      controller: categoriesController,
+      slivers: [
+        SliverToBoxAdapter(child: Column(children: children)),
+        const SliverFillRemaining()
+      ]
+    );
+  }
+
+  Widget buildCategorySelectGroup(
+    BuildContext context,
+    int index,
+    String name,
+    List<CategoriesExResult> groupCategories
+  ) {
+    final showOnlyActive = groupedCategoriesActive[name]!;
+    final children = groupCategories
+      .where((e) => widget.showOnlyActive ? e.lastShipmentDate != null || !showOnlyActive : true)
+      .map((e) => buildCategoryTile(e)).toList();
+
+    return AutoScrollTag(
+      controller: categoriesController,
+      index: index,
+      key: Key(name),
+      child: ListTileTheme(
+        tileColor: Theme.of(context).colorScheme.primary,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 2),
+          child: ExpansionTileItem(
+            expansionKey: groupedCategoriesExpansion[name],
+            initiallyExpanded: widget.initiallyExpanded,
+            onExpansionChanged: (changed) {
+              if (!changed) return;
+
+              _scrollToIndex(categoriesController, index);
+              for (var e in groupedCategoriesExpansion.entries) {
+                if (e.key != name) e.value.currentState?.collapse();
+              }
+            },
+            childrenPadding: EdgeInsets.zero,
+            decoration: const BoxDecoration(),
+            trailing: !widget.showOnlyActive ?
+              Container(width: 0) :
+              IconButton(
+                color: Colors.white,
+                icon: Icon(showOnlyActive ? Icons.access_time_filled : Icons.access_time),
+                tooltip: 'Показать актив',
+                onPressed: () => setState(() => groupedCategoriesActive[name] = !showOnlyActive)
+              ),
+            title: Text(name, style: const TextStyle(color: Colors.white)),
+            children: children
+          ),
+        )
+      )
+    );
+  }
+
+  Widget buildCategoryTile(CategoriesExResult category) {
+    return ListTile(
+      title: buildCategoryTileTitle(category),
+      tileColor: Colors.transparent,
+      selected: category == widget.selectedCategory,
+      onTap: () => widget.onCategoryTap.call(category)
+    );
+  }
+
+  Widget buildCategoryTileTitle(CategoriesExResult category) {
+    final daysDiff = category.lastShipmentDate != null ?
+      DateTime.now().difference(category.lastShipmentDate!) :
+      null;
+
+    return Row(
+      children: [
+        Expanded(child: Text(category.name)),
+        daysDiff == null ?
+          Container() :
+          Padding(
+            padding: const EdgeInsets.all(1),
+            child: Chip(
+              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              labelPadding: EdgeInsets.zero,
+              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+              label: Text(daysDiff.inDays.toString(), style: Styles.chipStyle),
+              backgroundColor: Colors.green,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
+            )
+          )
+      ]
+    );
+  }
+}
+
+class _GoodsGroupsView extends StatefulWidget {
+  final Map<String, List<GoodsDetail>> groupedGoods;
+  final bool showOnlyActive;
+  final bool initiallyExpanded;
+  final bool showGroupInfo;
+  final bool showGoodsImage;
+  final bool compactMode;
+  final void Function(GoodsDetail) onTap;
+  final void Function(GoodsDetail) onBonusProgramTap;
+  final void Function(GoodsDetail goodsDetail, double? vol) onVolChange;
+  final OrderExResult orderEx;
+  final List<OrderLineEx> linesExList;
+
+  _GoodsGroupsView({
+    required this.groupedGoods,
+    required this.showOnlyActive,
+    required this.initiallyExpanded,
+    required this.showGroupInfo,
+    required this.showGoodsImage,
+    required this.compactMode,
+    required this.onTap,
+    required this.onBonusProgramTap,
+    required this.onVolChange,
+    required this.orderEx,
+    required this.linesExList,
+    Key? key
+  }) : super(key: key);
+
+  @override
+  _GoodsGroupsViewState createState() => _GoodsGroupsViewState();
+}
+
+class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
+  final Map<String, GlobalKey<ExpansionTileCustomState>> groupedGoodsExpansion = {};
+  final Map<String, bool> groupedGoodsActive = {};
+  late final AutoScrollController goodsController = AutoScrollController(
+    keepScrollOffset: false,
+    axis: Axis.vertical,
+    viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
+  );
+  final Map<GoodsDetail, TextEditingController> volControllers = {};
+
+  void _scrollToIndex(AutoScrollController controller, int index) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await Future.delayed(const Duration(milliseconds: 200));
+      controller.scrollToIndex(index, preferPosition: AutoScrollPosition.begin);
+    });
+  }
+
+  Widget buildGoodsViewGroup(BuildContext context, int index, String name, List<GoodsDetail> groupGoods) {
+    final showOnlyActive = groupedGoodsActive[name]!;
+    final children = groupGoods
+      .where((g) => widget.showOnlyActive ? g.hadShipment || !showOnlyActive : true)
+      .map((g) => buildGoodsTile(context, g)).toList();
+
+    return AutoScrollTag(
+      controller: goodsController,
+      index: index,
+      key: Key(name),
+      child: ListTileTheme(
+        tileColor: Theme.of(context).colorScheme.primary,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 2),
+          child: ExpansionTileItem(
+            expansionKey: groupedGoodsExpansion[name],
+            initiallyExpanded: widget.initiallyExpanded,
+            onExpansionChanged: (changed) {
+              if (!changed) return;
+
+              _scrollToIndex(goodsController, index);
+              for (var e in groupedGoodsExpansion.entries) {
+                if (e.key != name) e.value.currentState?.collapse();
+              }
+            },
+            childrenPadding: EdgeInsets.zero,
+            decoration: const BoxDecoration(),
+            trailing: !widget.showOnlyActive ?
+              Container(width: 0) :
+              IconButton(
+                color: Colors.white,
+                icon: Icon(showOnlyActive ? Icons.access_time_filled : Icons.access_time),
+                tooltip: 'Показать актив',
+                onPressed: () => setState(() => groupedGoodsActive[name] = !showOnlyActive)
+              ),
+            title: Text(name, style: const TextStyle(color: Colors.white)),
+            children: children
+          ),
+        )
+      )
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Widget> children = [];
+    final items = widget.groupedGoods.entries.sorted((a, b) => a.key.compareTo(b.key));
+
+    items.where((e) => e.value.isNotEmpty).forEachIndexed((index, e) {
+      groupedGoodsExpansion.putIfAbsent(e.key, () => GlobalKey());
+      groupedGoodsActive.putIfAbsent(e.key, () => widget.showOnlyActive);
+      children.add(buildGoodsViewGroup(context, index, e.key, e.value));
+    });
+
+    final goodsIndex = !widget.showGroupInfo ?
+      Container() :
+      SizedBox(
+        height: widget.compactMode ? 88 : 124,
+        child: SingleChildScrollView(
+          scrollDirection: Axis.vertical,
+          child: Wrap(
+            spacing: 4,
+            runSpacing: -8,
+            children: items.indexed.map((e) => ActionChip(
+              label: Text(e.$2.key),
+              labelStyle: Styles.formStyle,
+              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+              onPressed: () {
+                for (var name in widget.groupedGoods.keys) {
+                  groupedGoodsExpansion[name]?.currentState?.collapse();
+                }
+                groupedGoodsExpansion[e.$2.key]?.currentState?.expand();
+                _scrollToIndex(goodsController, e.$1);
+              }
+            )).toList()
+          )
+        )
+      );
+
+    return Expanded(
+      child: Column(
+        children: [
+          Flexible(
+            child: Material(
+              color: Colors.transparent,
+              child: CustomScrollView(
+                controller: goodsController,
+                slivers: [
+                  SliverToBoxAdapter(child: Column(children: children)),
+                  const SliverFillRemaining()
+                ]
+              )
+            )
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 68),
+            child: goodsIndex
+          )
+        ]
+      )
+    );
+  }
+
 
   Widget buildGoodsTileTitle(BuildContext context, GoodsDetail goodsDetail) {
     final goodsEx = goodsDetail.goodsEx;
@@ -503,7 +696,7 @@ class _GoodsViewState extends State<_GoodsView> {
                 label: Text(e.tagText, style: Styles.chipStyle),
                 backgroundColor: Colors.grey,
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                onPressed: () => showBonusProgramSelectDialog(goodsEx)
+                onPressed: () => widget.onBonusProgramTap(goodsDetail)
               )
             ),
           ))
@@ -512,7 +705,7 @@ class _GoodsViewState extends State<_GoodsView> {
     );
   }
 
-  Widget buildGoodsImage(BuildContext context, GoodsDetail goodsDetail, bool compactMode) {
+  Widget buildGoodsImage(BuildContext context, GoodsDetail goodsDetail) {
     final vm = context.read<GoodsViewModel>();
 
     if (!vm.state.showGoodsImage) return Container();
@@ -522,7 +715,7 @@ class _GoodsViewState extends State<_GoodsView> {
         Navigator.push<String>(
           context,
           MaterialPageRoute(
-            fullscreenDialog: true,
+            fullscreenDialog: false,
             builder: (BuildContext context) => ImagesView(
               images: [
                 RetryableImage(
@@ -539,8 +732,8 @@ class _GoodsViewState extends State<_GoodsView> {
         );
       },
       child: RetryableImage(
-        height: compactMode ? 120 : 240,
-        width: compactMode ? 150 : 300,
+        height: widget.compactMode ? 120 : 240,
+        width: widget.compactMode ? 150 : 300,
         color: Theme.of(context).colorScheme.primary,
         cached: vm.state.showLocalImage,
         imageUrl: goodsDetail.goodsEx.goods.imageUrl,
@@ -550,10 +743,9 @@ class _GoodsViewState extends State<_GoodsView> {
     );
   }
 
-  Widget buildGoodsTile(BuildContext context, GoodsDetail goodsDetail, bool compactMode) {
+  Widget buildGoodsTile(BuildContext context, GoodsDetail goodsDetail) {
     final vm = context.read<GoodsViewModel>();
-    final orderLineEx = vm.state.filteredOrderLinesExList
-      .firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goods.id);
+    final orderLineEx = widget.linesExList.firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goods.id);
 
     if (vm.state.showWithPrice && goodsDetail.price == 0 && orderLineEx == null) return Container();
 
@@ -565,15 +757,14 @@ class _GoodsViewState extends State<_GoodsView> {
           trailing: buildGoodsTileTrailing(context, goodsDetail, orderLineEx),
           subtitle: _GoodsSubtitle(goodsDetail, orderLineEx),
           title: buildGoodsTileTitle(context, goodsDetail),
-          onTap: () => showGoodsInfoDialog(goodsDetail),
+          onTap: () => widget.onTap(goodsDetail)
         ),
-        buildGoodsImage(context, goodsDetail, compactMode)
+        buildGoodsImage(context, goodsDetail)
       ]
     );
   }
 
   Widget buildGoodsTileTrailing(BuildContext context, GoodsDetail goodsDetail, OrderLineEx? orderLineEx) {
-    final vm = context.read<GoodsViewModel>();
     final controller = volControllers.putIfAbsent(
       goodsDetail,
       () => TextEditingController(text: orderLineEx?.line.vol.toInt().toString())
@@ -581,8 +772,8 @@ class _GoodsViewState extends State<_GoodsView> {
     final volStr = orderLineEx?.line.vol.toInt().toString() ?? '';
     final enabled = goodsDetail.price != 0 &&
       !goodsDetail.goodsEx.restricted &&
-      vm.state.orderEx.order.isEditable &&
-      !vm.state.orderEx.order.needProcessing;
+      widget.orderEx.order.isEditable &&
+      !widget.orderEx.order.needProcessing;
 
     if (controller.text != volStr) controller.text = volStr;
 
@@ -601,134 +792,16 @@ class _GoodsViewState extends State<_GoodsView> {
           suffixIcon: !enabled ? null : IconButton(
             icon: const Icon(Icons.add),
             tooltip: 'Увеличить кол-во',
-            onPressed: () => vm.updateOrderLineVol(goodsDetail, (orderLineEx?.line.vol ?? 0) + goodsDetail.stockRel)
+            onPressed: () => widget.onVolChange(goodsDetail, (orderLineEx?.line.vol ?? 0) + goodsDetail.stockRel)
           ),
           prefixIcon: !enabled ? null : IconButton(
             icon: const Icon(Icons.remove),
             tooltip: 'Уменьшить кол-во',
-            onPressed: () => vm.updateOrderLineVol(goodsDetail, (orderLineEx?.line.vol ?? 0) - goodsDetail.stockRel)
+            onPressed: () => widget.onVolChange(goodsDetail, (orderLineEx?.line.vol ?? 0) - goodsDetail.stockRel)
           )
         ),
-        onTap: () => vm.updateOrderLineVol(goodsDetail, Parsing.parseDouble(controller.text))
+        onTap: () => widget.onVolChange(goodsDetail, Parsing.parseDouble(controller.text))
       )
-    );
-  }
-
-  Widget buildCategorySelect(BuildContext context, void Function(CategoriesExResult) onCategoryTap) {
-    final vm = context.read<GoodsViewModel>();
-    final Map<String, List<CategoriesExResult>> groupedCategories = {};
-    final scrollKey = Key(vm.state.visibleCategories.hashCode.toString());
-    final List<Widget> slivers = [];
-
-    for (var e in vm.state.shopDepartments) {
-      groupedCategories[e.name] = vm.state.visibleCategories.where((c) => c.shopDepartmentId == e.id).toList();
-    }
-
-    if (groupedCategoriesScrollKey != scrollKey) {
-      groupedCategoriesExpansion.clear();
-      groupedCategoriesActive.clear();
-      groupedCategoriesScrollKey = scrollKey;
-    }
-
-    groupedCategories.entries.where((e) => e.value.isNotEmpty).forEachIndexed((index, e) {
-      groupedCategoriesExpansion.putIfAbsent(e.key, () => GlobalKey());
-      groupedCategoriesActive.putIfAbsent(e.key, () => vm.state.showOnlyActive);
-      slivers.add(buildCategorySelectGroup(context, index, e.key, e.value, onCategoryTap));
-    });
-
-    return CustomScrollView(
-      key: scrollKey,
-      controller: categoriesController,
-      slivers: [
-        SliverToBoxAdapter(child: Column(children: slivers)),
-        const SliverFillRemaining()
-      ]
-    );
-  }
-
-  Widget buildCategorySelectGroup(
-    BuildContext context,
-    int index,
-    String name,
-    List<CategoriesExResult> groupCategories,
-    void Function(CategoriesExResult) onCategoryTap
-  ) {
-    final vm = context.read<GoodsViewModel>();
-    final showOnlyActive = groupedCategoriesActive[name]!;
-    final children = groupCategories
-      .where((e) => vm.state.showOnlyActive ? e.lastShipmentDate != null || !showOnlyActive : true)
-      .map((e) => buildCategoryTile(e, onCategoryTap)).toList();
-
-    return AutoScrollTag(
-      controller: categoriesController,
-      index: index,
-      key: Key(name),
-      child: ListTileTheme(
-        tileColor: Theme.of(context).colorScheme.primary,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 2),
-          child: ExpansionTileItem(
-            expansionKey: groupedCategoriesExpansion[name],
-            initiallyExpanded: vm.state.categoriesListInitiallyExpanded,
-            onExpansionChanged: (changed) {
-              if (!changed) return;
-
-              _scrollToIndex(categoriesController, index);
-              for (var e in groupedCategoriesExpansion.entries) {
-                if (e.key != name) e.value.currentState?.collapse();
-              }
-            },
-            childrenPadding: EdgeInsets.zero,
-            decoration: const BoxDecoration(),
-            trailing: !vm.state.showOnlyActive ?
-              Container(width: 0) :
-              IconButton(
-                color: Colors.white,
-                icon: Icon(showOnlyActive ? Icons.access_time_filled : Icons.access_time),
-                tooltip: 'Показать актив',
-                onPressed: () => setState(() => groupedCategoriesActive[name] = !showOnlyActive)
-              ),
-            title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            children: children
-          ),
-        )
-      )
-    );
-  }
-
-  Widget buildCategoryTile(CategoriesExResult category, void Function(CategoriesExResult) onCategoryTap) {
-    final vm = context.read<GoodsViewModel>();
-
-    return ListTile(
-      title: buildCategoryTileTitle(category, vm.state.showOnlyActive),
-      tileColor: Colors.transparent,
-      selected: category == vm.state.selectedCategory,
-      onTap: () => onCategoryTap.call(category)
-    );
-  }
-
-  Widget buildCategoryTileTitle(CategoriesExResult category, bool showOnlyActive) {
-    final daysDiff = category.lastShipmentDate != null ?
-      DateTime.now().difference(category.lastShipmentDate!) :
-      null;
-
-    return Row(
-      children: [
-        Expanded(child: Text(category.name)),
-        daysDiff == null ?
-          Container() :
-          Padding(
-            padding: const EdgeInsets.all(1),
-            child: Chip(
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              labelPadding: EdgeInsets.zero,
-              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-              label: Text(daysDiff.inDays.toString(), style: Styles.chipStyle),
-              backgroundColor: Colors.green,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
-            )
-          )
-      ]
     );
   }
 }

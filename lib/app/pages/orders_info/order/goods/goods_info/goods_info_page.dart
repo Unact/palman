@@ -273,7 +273,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
         Navigator.push<String>(
           context,
           MaterialPageRoute(
-            fullscreenDialog: true,
+            fullscreenDialog: false,
             builder: (BuildContext context) => ImagesView(
               images: [
                 RetryableImage(

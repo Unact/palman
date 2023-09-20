@@ -199,7 +199,7 @@ class _ShipmentsViewState extends State<_ShipmentsView> {
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => ShipmentPage(shipmentEx: shipmentEx),
-        fullscreenDialog: true
+        fullscreenDialog: false
       )
     );
   }
