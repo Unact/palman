@@ -637,7 +637,6 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     );
   }
 
-
   Widget buildGoodsTileTitle(BuildContext context, GoodsDetail goodsDetail) {
     final goodsEx = goodsDetail.goodsEx;
     final goods = goodsEx.goods;
