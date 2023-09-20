@@ -42,7 +42,6 @@ class PricesRepository extends BaseRepository {
     notifyListeners();
   }
 
-
   Future<void> blockPartnersPricelists(bool block, {List<int>? ids}) async {
     await dataStore.pricesDao.blockPartnersPricelists(block, ids: ids);
     notifyListeners();
