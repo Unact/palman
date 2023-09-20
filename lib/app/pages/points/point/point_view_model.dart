@@ -104,7 +104,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updateNumberOfCdesk(String numberOfCdesk) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      numberOfCdesks: Optional.of(int.tryParse(numberOfCdesk)),
+      numberOfCdesks: Optional.fromNullable(int.tryParse(numberOfCdesk)),
       needSync: Optional.of(true)
     );
     _notifyPointUpdated();
@@ -140,7 +140,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updateMaxdebt(String maxdebt) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      maxdebt: Optional.of(int.tryParse(maxdebt)),
+      maxdebt: Optional.fromNullable(int.tryParse(maxdebt)),
       needSync: Optional.of(true)
     );
     _notifyPointUpdated();
@@ -149,7 +149,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updateNds10(String nds10) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      nds10: Optional.of(int.tryParse(nds10)),
+      nds10: Optional.fromNullable(int.tryParse(nds10)),
       needSync: Optional.of(true)
     );
     _notifyPointUpdated();
@@ -158,7 +158,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updateNds20(String nds20) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      nds20: Optional.of(int.tryParse(nds20)),
+      nds20: Optional.fromNullable(int.tryParse(nds20)),
       needSync: Optional.of(true)
     );
     _notifyPointUpdated();
@@ -167,7 +167,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updatePlong(String plong) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      plong: Optional.of(int.tryParse(plong)),
+      plong: Optional.fromNullable(int.tryParse(plong)),
       needSync: Optional.of(true)
     );
     _notifyPointUpdated();

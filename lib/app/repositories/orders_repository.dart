@@ -1,7 +1,9 @@
+import 'dart:io';
 import 'dart:async';
 
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:drift/drift.dart';
+import 'package:http/http.dart';
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
@@ -110,10 +112,15 @@ class OrdersRepository extends BaseRepository {
 
     try {
       await goodsCacheManager.downloadFile(goods.imageUrl, key: goods.imageKey);
+    } on HttpException catch(e) {
+      throw AppError('Ошибка загрузки: ${e.message}');
+    } on ClientException catch(e) {
+      throw AppError('Ошибка загрузки: ${e.message}');
     } catch(e, trace) {
       Misc.reportError(e, trace);
       throw AppError(Strings.genericErrorMsg);
     }
+
 
     return true;
   }

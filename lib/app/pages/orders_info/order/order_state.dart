@@ -35,7 +35,6 @@ class OrderState {
   bool get isEditable => orderEx.order.isEditable && !orderEx.order.needProcessing;
   bool get canBeProcessed => !orderEx.order.isEditable || filteredOrderLinesExList.isEmpty;
 
-  bool get canAddLines => isEditable && orderEx.buyer != null && orderEx.order.date != null;
   List<OrderLineEx> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
 
   bool get preOrderMode => user?.preOrderMode ?? false;

@@ -152,7 +152,7 @@ class _OrderViewState extends State<_OrderView> {
       trailing: IconButton(
         icon: const Icon(Icons.shopping_cart),
         tooltip: 'Добавить',
-        onPressed: () async {
+        onPressed: vm.state.orderEx.buyer == null || vm.state.orderEx.order.date == null ? null : () async {
           await Navigator.push(
             context,
             MaterialPageRoute(
