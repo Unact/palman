@@ -48,5 +48,6 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     }
 
     await pointsRepository.deletePoint(pointEx.point);
+    emit(state.copyWith(pointExList: state.pointExList.where((e) => e != pointEx).toList()));
   }
 }

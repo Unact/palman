@@ -34,8 +34,10 @@ part of 'database.dart';
 class ShipmentsDao extends DatabaseAccessor<AppDataStore> with _$ShipmentsDaoMixin {
   ShipmentsDao(AppDataStore db) : super(db);
 
-  Future<void> blockIncRequests(bool block) async {
-    await update(incRequests).write(IncRequestsCompanion(isBlocked: Value(block)));
+  Future<void> blockIncRequests(bool block, {List<int>? ids}) async {
+    final companion = IncRequestsCompanion(isBlocked: Value(block));
+
+    await (update(incRequests)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))).write(companion);
   }
 
   Future<void> loadShipments(List<Shipment> list) async {

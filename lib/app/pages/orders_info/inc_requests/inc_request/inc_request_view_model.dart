@@ -17,7 +17,7 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
 
   @override
   Future<void> initViewModel() async {
-    await shipmentsRepository.blockIncRequests(true);
+    await shipmentsRepository.blockIncRequests(true, ids: [state.incRequestEx.incRequest.id]);
 
     await super.initViewModel();
   }
@@ -40,7 +40,7 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
   Future<void> close() async {
     await super.close();
 
-    await shipmentsRepository.blockIncRequests(false);
+    await shipmentsRepository.blockIncRequests(false, ids: [state.incRequestEx.incRequest.id]);
   }
 
   Future<void> updateIncSum(double? incSum) async {

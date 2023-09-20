@@ -87,7 +87,7 @@ class _IncRequestsViewState extends State<_IncRequestsView> {
             ),
             TextSpan(
               text: 'Сумма: ${Format.numberStr(incRequestEx.incRequest.incSum)}\n',
-              style: Styles.tileText
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
             ),
             TextSpan(
               text: 'Комментарий: ${incRequestEx.incRequest.info ?? ''}\n',

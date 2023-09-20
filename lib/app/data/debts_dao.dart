@@ -12,8 +12,10 @@ part of 'database.dart';
 class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
   DebtsDao(AppDataStore db) : super(db);
 
-  Future<void> blockDeposits(bool block) async {
-    await update(deposits).write(DepositsCompanion(isBlocked: Value(block)));
+  Future<void> blockDeposits(bool block, {List<int>? ids}) async {
+    final companion = DepositsCompanion(isBlocked: Value(block));
+
+    await (update(deposits)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))).write(companion);
   }
 
   Future<void> loadDebts(List<Debt> list) async {

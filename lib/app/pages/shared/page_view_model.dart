@@ -36,6 +36,6 @@ abstract class PageViewModel<T, P> extends Cubit<T> {
       el.removeListener(loadData);
     }
 
-    super.close();
+    await super.close();
   }
 }

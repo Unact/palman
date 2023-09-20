@@ -150,14 +150,14 @@ class _OrderViewState extends State<_OrderView> {
       initiallyExpanded: true,
       tilePadding: const EdgeInsets.symmetric(horizontal: 8),
       trailing: IconButton(
-        icon: const Icon(Icons.add),
+        icon: const Icon(Icons.shopping_cart),
         tooltip: 'Добавить',
-        onPressed: !vm.state.canAddLines ? null : () async {
+        onPressed: () async {
           await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (BuildContext context) => GoodsPage(orderEx: vm.state.orderEx),
-              fullscreenDialog: true
+              fullscreenDialog: false
             )
           );
         },

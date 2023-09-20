@@ -75,7 +75,7 @@ class _PointViewState extends State<_PointView> {
     await Navigator.push<String>(
       context,
       MaterialPageRoute(
-        fullscreenDialog: true,
+        fullscreenDialog: false,
         builder: (BuildContext context) => CameraView(
           compress: true,
           onError: (String message) => WidgetsBinding.instance.addPostFrameCallback(
@@ -314,7 +314,7 @@ class _PointViewState extends State<_PointView> {
           Navigator.push<String>(
             context,
             MaterialPageRoute(
-              fullscreenDialog: true,
+              fullscreenDialog: false,
               builder: (BuildContext context) => ImagesView(images: images, idx: idx)
             )
           );

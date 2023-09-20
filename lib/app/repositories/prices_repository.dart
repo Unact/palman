@@ -37,9 +37,13 @@ class PricesRepository extends BaseRepository {
     }
   }
 
-  Future<void> blockPrices(bool block) async {
-    await dataStore.pricesDao.blockPartnersPrices(block);
-    await dataStore.pricesDao.blockPartnersPricelists(block);
+  Future<void> blockPartnersPrices(bool block, {List<int>? ids}) async {
+    await dataStore.pricesDao.blockPartnersPrices(block, ids: ids);
+    notifyListeners();
+  }
+
+  Future<void> blockPartnersPricelists(bool block, {List<int>? ids}) async {
+    await dataStore.pricesDao.blockPartnersPricelists(block, ids: ids);
     notifyListeners();
   }
 
@@ -98,10 +102,12 @@ class PricesRepository extends BaseRepository {
     if (prices.isEmpty && pricelists.isEmpty) return;
 
     try {
-      await blockPrices(true);
+      await blockPartnersPrices(true);
+      await blockPartnersPricelists(true);
       await syncPrices(prices, pricelists);
     } finally {
-      await blockPrices(false);
+      await blockPartnersPrices(false);
+      await blockPartnersPricelists(false);
     }
   }
 

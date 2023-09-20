@@ -89,12 +89,20 @@ part of 'database.dart';
 class PricesDao extends DatabaseAccessor<AppDataStore> with _$PricesDaoMixin {
   PricesDao(AppDataStore db) : super(db);
 
-  Future<void> blockPartnersPrices(bool block) async {
-    await update(partnersPrices).write(PartnersPricesCompanion(isBlocked: Value(block)));
+  Future<void> blockPartnersPrices(bool block, {List<int>? ids}) async {
+    final companion = PartnersPricesCompanion(isBlocked: Value(block));
+
+    await (
+      update(partnersPrices)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))
+    ).write(companion);
   }
 
-  Future<void> blockPartnersPricelists(bool block) async {
-    await update(partnersPricelists).write(PartnersPricelistsCompanion(isBlocked: Value(block)));
+  Future<void> blockPartnersPricelists(bool block, {List<int>? ids}) async {
+    final companion = PartnersPricelistsCompanion(isBlocked: Value(block));
+
+    await (
+      update(partnersPricelists)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))
+    ).write(companion);
   }
 
   Future<void> loadPricelists(List<Pricelist> list) async {

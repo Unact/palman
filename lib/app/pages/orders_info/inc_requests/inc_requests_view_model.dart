@@ -34,5 +34,6 @@ class IncRequestsViewModel extends PageViewModel<IncRequestsState, IncRequestsSt
 
   Future<void> deleteIncRequest(IncRequestEx newIncRequestEx) async {
     await shipmentsRepository.deleteIncRequest(newIncRequestEx.incRequest);
+    emit(state.copyWith(incRequestExList: state.incRequestExList.where((e) => e != newIncRequestEx).toList()));
   }
 }

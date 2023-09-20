@@ -34,8 +34,8 @@ class ShipmentsRepository extends BaseRepository {
     }
   }
 
-  Future<void> blockIncRequests(bool block) async {
-    await dataStore.shipmentsDao.blockIncRequests(block);
+  Future<void> blockIncRequests(bool block, {List<int>? ids}) async {
+    await dataStore.shipmentsDao.blockIncRequests(block, ids: ids);
     notifyListeners();
   }
 

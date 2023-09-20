@@ -160,7 +160,7 @@ class _InfoViewState extends State<_InfoView> {
                       context,
                       MaterialPageRoute(
                         builder: (BuildContext context) => PersonPage(),
-                        fullscreenDialog: true
+                        fullscreenDialog: false
                       )
                     );
                   }
