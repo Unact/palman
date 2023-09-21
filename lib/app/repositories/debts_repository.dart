@@ -168,7 +168,7 @@ class DebtsRepository extends BaseRepository {
         date: DateTime.now(),
         isCheck: debt.isCheck,
         buyerId: buyer.id,
-        debtId: debt.id,
+        debtId: Value(debt.id),
         timestamp: DateTime.now(),
         needSync: true
       )
