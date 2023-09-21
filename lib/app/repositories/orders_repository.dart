@@ -239,8 +239,12 @@ class OrdersRepository extends BaseRepository {
     return dataStore.ordersDao.getAllGoodsWithImage();
   }
 
-  Future<List<BonusProgramGroup>> getBonusProgramGroups() async {
-    return dataStore.bonusProgramsDao.getBonusProgramGroups();
+  Future<List<BonusProgramGroup>> getBonusProgramGroups({
+    required int buyerId
+  }) async {
+    return dataStore.bonusProgramsDao.getBonusProgramGroups(
+      buyerId: buyerId
+    );
   }
 
   Future<List<GoodsShipmentsResult>> getGoodsShipments({

@@ -18,7 +18,7 @@ class BonusProgramsViewModel extends PageViewModel<BonusProgramsState, BonusProg
 
   @override
   Future<void> loadData() async {
-    final bonusProgramGroups = await ordersRepository.getBonusProgramGroups();
+    final bonusProgramGroups = await ordersRepository.getBonusProgramGroups(buyerId: state.buyer.id);
 
     emit(state.copyWith(
       status: BonusProgramsStateStatus.dataLoaded,

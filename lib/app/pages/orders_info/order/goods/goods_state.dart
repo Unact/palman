@@ -43,7 +43,7 @@ class GoodsState {
     .map((e) => e.goods.manufacturer!)
     .toSet().toList();
 
-  double get total => linesExList.fold(0, (acc, e) => acc + e.line.total);
+  double get total => filteredOrderLinesExList.fold(0, (acc, e) => acc + e.line.total);
 
   List<String> get goodsFirstWords => goodsDetails.map((e) => e.goods.name.split(' ')[0]).toSet().toList();
   List<OrderLineEx> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();

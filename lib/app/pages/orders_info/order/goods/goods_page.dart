@@ -253,7 +253,7 @@ class _GoodsViewState extends State<_GoodsView> {
                       IconButton(
                         onPressed: () => vm.selectBonusProgram(null),
                         icon: const Icon(Icons.delete),
-                        tooltip: 'Очистить',
+                        tooltip: 'Очистить фильтры',
                       )
                   ),
                   controller: TextEditingController(text: vm.state.selectedBonusProgram?.name),
@@ -264,7 +264,14 @@ class _GoodsViewState extends State<_GoodsView> {
           ),
           const SizedBox(height: 2),
           TextFormField(
-            decoration: const InputDecoration(labelText: 'Наименование'),
+            decoration: InputDecoration(
+              labelText: 'Наименование',
+              suffixIcon: vm.state.goodsNameSearch?.isEmpty ?? true ? null :  IconButton(
+                icon: const Icon(Icons.delete),
+                tooltip: 'Очистить',
+                onPressed: () => vm.setGoodsNameSearch(null)
+              )
+            ),
             onFieldSubmitted: vm.setGoodsNameSearch,
             autocorrect: false,
             style: Styles.formStyle,

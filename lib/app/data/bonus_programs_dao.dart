@@ -95,8 +95,23 @@ class BonusProgramsDao extends DatabaseAccessor<AppDataStore> with _$BonusProgra
     await db._loadData(goodsBonusProgramPrices, list);
   }
 
-  Future<List<BonusProgramGroup>> getBonusProgramGroups() async {
-    return (select(bonusProgramGroups)..orderBy([(tbl) => OrderingTerm(expression: tbl.name)])).get();
+  Future<List<BonusProgramGroup>> getBonusProgramGroups({required int buyerId}) async {
+    final hasBonusProgram = existsQuery(
+      select(bonusPrograms)
+        .join([
+          innerJoin(buyersSetsBonusPrograms, buyersSetsBonusPrograms.bonusProgramId.equalsExp(bonusPrograms.id)),
+          innerJoin(buyersSetsBuyers, buyersSetsBuyers.buyersSetId.equalsExp(buyersSetsBonusPrograms.buyersSetId)),
+          innerJoin(buyersSets, buyersSets.id.equalsExp(buyersSetsBuyers.buyersSetId)),
+        ])
+        ..where(bonusPrograms.bonusProgramGroupId.equalsExp(bonusProgramGroups.id))
+        ..where(buyersSetsBuyers.buyerId.equals(buyerId))
+    );
+
+    return (
+      select(bonusProgramGroups)
+        ..where((tbl) => hasBonusProgram)
+        ..orderBy([(tbl) => OrderingTerm(expression: tbl.name)])
+    ).get();
   }
 
   Future<List<FilteredBonusProgramsResult>> getBonusPrograms({
