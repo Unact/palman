@@ -237,7 +237,7 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
           )
         ),
         dense: false,
-        onTap: () => openEncashmentPage(encashmentEx)
+        onTap: encashmentEx.debt == null ? null : () => openEncashmentPage(encashmentEx)
       )
     );
   }

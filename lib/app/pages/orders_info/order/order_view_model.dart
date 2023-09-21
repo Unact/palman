@@ -168,8 +168,10 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
         state.linesExList.map((e) => e.line).toList()
       );
 
+      await ordersRepository.blockOrders(true, ids: [orders.first.order.id]);
+
       emit(state.copyWith(
-        orderEx: orders.firstOrNull,
+        orderEx: orders.first,
         status: OrderStateStatus.saveSuccess,
         message: Strings.changesSaved
       ));

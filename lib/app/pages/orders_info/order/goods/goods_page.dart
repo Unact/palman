@@ -400,12 +400,16 @@ class _CategoriesViewState extends State<_CategoriesView> {
       children.add(buildCategorySelectGroup(context, index, e.key, e.value));
     });
 
-    return CustomScrollView(
-      controller: categoriesController,
-      slivers: [
-        SliverToBoxAdapter(child: Column(children: children)),
-        const SliverFillRemaining()
-      ]
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return CustomScrollView(
+          controller: categoriesController,
+          slivers: [
+            SliverToBoxAdapter(child: Column(children: children)),
+            SliverToBoxAdapter(child: SizedBox(height: constraints.maxHeight*0.9))
+          ]
+        );
+      },
     );
   }
 
@@ -626,12 +630,16 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
           Flexible(
             child: Material(
               color: Colors.transparent,
-              child: CustomScrollView(
-                controller: goodsController,
-                slivers: [
-                  SliverToBoxAdapter(child: Column(children: children)),
-                  const SliverFillRemaining()
-                ]
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return CustomScrollView(
+                    controller: goodsController,
+                    slivers: [
+                      SliverToBoxAdapter(child: Column(children: children)),
+                      SliverToBoxAdapter(child: SizedBox(height: constraints.maxHeight*0.9))
+                    ]
+                  );
+                },
               )
             )
           ),

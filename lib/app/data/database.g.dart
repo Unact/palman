@@ -3173,8 +3173,8 @@ class $EncashmentsTable extends Encashments
   static const VerificationMeta _debtIdMeta = const VerificationMeta('debtId');
   @override
   late final GeneratedColumn<int> debtId = GeneratedColumn<int>(
-      'debt_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      'debt_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _depositIdMeta =
       const VerificationMeta('depositId');
   @override
@@ -3255,8 +3255,6 @@ class $EncashmentsTable extends Encashments
     if (data.containsKey('debt_id')) {
       context.handle(_debtIdMeta,
           debtId.isAcceptableOrUnknown(data['debt_id']!, _debtIdMeta));
-    } else if (isInserting) {
-      context.missing(_debtIdMeta);
     }
     if (data.containsKey('deposit_id')) {
       context.handle(_depositIdMeta,
@@ -3300,7 +3298,7 @@ class $EncashmentsTable extends Encashments
       buyerId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}buyer_id'])!,
       debtId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}debt_id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}debt_id']),
       depositId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}deposit_id']),
       encSum: attachedDatabase.typeMapping
@@ -3325,7 +3323,7 @@ class Encashment extends DataClass implements Insertable<Encashment> {
   final DateTime date;
   final bool isCheck;
   final int buyerId;
-  final int debtId;
+  final int? debtId;
   final int? depositId;
   final double? encSum;
   final String? guid;
@@ -3336,7 +3334,7 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       required this.date,
       required this.isCheck,
       required this.buyerId,
-      required this.debtId,
+      this.debtId,
       this.depositId,
       this.encSum,
       this.guid,
@@ -3349,7 +3347,9 @@ class Encashment extends DataClass implements Insertable<Encashment> {
     map['date'] = Variable<DateTime>(date);
     map['is_check'] = Variable<bool>(isCheck);
     map['buyer_id'] = Variable<int>(buyerId);
-    map['debt_id'] = Variable<int>(debtId);
+    if (!nullToAbsent || debtId != null) {
+      map['debt_id'] = Variable<int>(debtId);
+    }
     if (!nullToAbsent || depositId != null) {
       map['deposit_id'] = Variable<int>(depositId);
     }
@@ -3370,7 +3370,8 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       date: Value(date),
       isCheck: Value(isCheck),
       buyerId: Value(buyerId),
-      debtId: Value(debtId),
+      debtId:
+          debtId == null && nullToAbsent ? const Value.absent() : Value(debtId),
       depositId: depositId == null && nullToAbsent
           ? const Value.absent()
           : Value(depositId),
@@ -3390,7 +3391,7 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       date: serializer.fromJson<DateTime>(json['date']),
       isCheck: serializer.fromJson<bool>(json['isCheck']),
       buyerId: serializer.fromJson<int>(json['buyerId']),
-      debtId: serializer.fromJson<int>(json['debtId']),
+      debtId: serializer.fromJson<int?>(json['debtId']),
       depositId: serializer.fromJson<int?>(json['depositId']),
       encSum: serializer.fromJson<double?>(json['encSum']),
       guid: serializer.fromJson<String?>(json['guid']),
@@ -3406,7 +3407,7 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       'date': serializer.toJson<DateTime>(date),
       'isCheck': serializer.toJson<bool>(isCheck),
       'buyerId': serializer.toJson<int>(buyerId),
-      'debtId': serializer.toJson<int>(debtId),
+      'debtId': serializer.toJson<int?>(debtId),
       'depositId': serializer.toJson<int?>(depositId),
       'encSum': serializer.toJson<double?>(encSum),
       'guid': serializer.toJson<String?>(guid),
@@ -3420,7 +3421,7 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           DateTime? date,
           bool? isCheck,
           int? buyerId,
-          int? debtId,
+          Value<int?> debtId = const Value.absent(),
           Value<int?> depositId = const Value.absent(),
           Value<double?> encSum = const Value.absent(),
           Value<String?> guid = const Value.absent(),
@@ -3431,7 +3432,7 @@ class Encashment extends DataClass implements Insertable<Encashment> {
         date: date ?? this.date,
         isCheck: isCheck ?? this.isCheck,
         buyerId: buyerId ?? this.buyerId,
-        debtId: debtId ?? this.debtId,
+        debtId: debtId.present ? debtId.value : this.debtId,
         depositId: depositId.present ? depositId.value : this.depositId,
         encSum: encSum.present ? encSum.value : this.encSum,
         guid: guid.present ? guid.value : this.guid,
@@ -3479,7 +3480,7 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
   final Value<DateTime> date;
   final Value<bool> isCheck;
   final Value<int> buyerId;
-  final Value<int> debtId;
+  final Value<int?> debtId;
   final Value<int?> depositId;
   final Value<double?> encSum;
   final Value<String?> guid;
@@ -3502,7 +3503,7 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
     required DateTime date,
     required bool isCheck,
     required int buyerId,
-    required int debtId,
+    this.debtId = const Value.absent(),
     this.depositId = const Value.absent(),
     this.encSum = const Value.absent(),
     this.guid = const Value.absent(),
@@ -3511,7 +3512,6 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
   })  : date = Value(date),
         isCheck = Value(isCheck),
         buyerId = Value(buyerId),
-        debtId = Value(debtId),
         timestamp = Value(timestamp),
         needSync = Value(needSync);
   static Insertable<Encashment> custom({
@@ -3545,7 +3545,7 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
       Value<DateTime>? date,
       Value<bool>? isCheck,
       Value<int>? buyerId,
-      Value<int>? debtId,
+      Value<int?>? debtId,
       Value<int?>? depositId,
       Value<double?>? encSum,
       Value<String?>? guid,

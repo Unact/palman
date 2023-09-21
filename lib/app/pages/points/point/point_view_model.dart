@@ -200,8 +200,10 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
         state.pointEx.images.toList()
       );
 
+      await pointsRepository.blockPoints(true, ids: [points.first.point.id]);
+
       emit(state.copyWith(
-        pointEx: points.firstOrNull,
+        pointEx: points.first,
         status: PointStateStatus.saveSuccess,
         message: Strings.changesSaved
       ));

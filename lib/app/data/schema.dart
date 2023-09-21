@@ -91,7 +91,7 @@ class Encashments extends Table {
   DateTimeColumn get date => dateTime()();
   BoolColumn get isCheck => boolean()();
   IntColumn get buyerId => integer()();
-  IntColumn get debtId => integer()();
+  IntColumn get debtId => integer().nullable()();
   IntColumn get depositId => integer().nullable()();
   RealColumn get encSum => real().nullable()();
 
