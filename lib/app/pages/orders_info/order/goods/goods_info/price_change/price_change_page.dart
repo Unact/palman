@@ -71,6 +71,10 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
           ),
           actions: <Widget>[
             TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(Strings.cancel)
+            ),
+            TextButton(
               onPressed: () {
                   if (!validPrice(state.price)) {
                     showDialog(
@@ -89,10 +93,6 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
                   Navigator.of(context).pop((state.dateFrom, state.dateTo ?? endOfTime, state.price));
                 },
               child: const Text(Strings.ok)
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text(Strings.cancel)
             )
           ],
         );
@@ -164,26 +164,25 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           Text(vm.state.dateTo != null ? Format.dateStr(vm.state.dateTo!) : 'Бессрочно', style: Styles.formStyle),
-          vm.state.dateTo != null ?
-            IconButton(
-              icon: const Icon(Icons.clear),
-              tooltip: 'Очистить',
-              onPressed: () => vm.updateDateTo(null)
-            ) :
-            IconButton(
-              onPressed: () async {
-                final newDate = await showDatePicker(
-                  context: context,
-                  firstDate: vm.state.dateFrom,
-                  lastDate: endOfTime,
-                  initialDate: vm.state.dateFrom
-                );
+          IconButton(
+            onPressed: () async {
+              final newDate = await showDatePicker(
+                context: context,
+                firstDate: vm.state.dateFrom,
+                lastDate: endOfTime,
+                initialDate: vm.state.dateFrom
+              );
 
-                vm.updateDateTo(newDate);
-              },
-              tooltip: 'Указать дату',
-              icon: const Icon(Icons.calendar_month)
-            )
+              if (newDate != null) vm.updateDateTo(newDate);
+            },
+            tooltip: 'Указать дату',
+            icon: const Icon(Icons.calendar_month)
+          ),
+          IconButton(
+            icon: const Icon(Icons.hourglass_full_sharp),
+            tooltip: 'Бессрочно',
+            onPressed: () => vm.updateDateTo(null)
+          )
         ]
       )
     );

@@ -646,8 +646,6 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
 
   Widget buildGoodsTileTitle(BuildContext context, GoodsDetail goodsDetail) {
     final goodsEx = goodsDetail.goodsEx;
-    final goods = goodsEx.goods;
-    final stock = goods.isFridge ? goodsEx.fridgeStock! : goodsEx.normalStock!;
     final tags = goodsDetail.bonusPrograms;
     final daysDiff = goodsDetail.hadShipment ? DateTime.now().difference(goodsEx.lastShipmentDate!) : null;
 
@@ -657,7 +655,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
         children: <InlineSpan>[
           TextSpan(
             text: goodsEx.goods.name,
-            style: TextStyle(fontSize: 14.0, color: stock.isVollow ? Colors.pink : Colors.black)
+            style: TextStyle(fontSize: 14.0, color: goodsDetail.stock?.isVollow ?? false ? Colors.pink : Colors.black)
           ),
           daysDiff == null ?
             const TextSpan() :
@@ -752,34 +750,35 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
   Widget buildGoodsTile(BuildContext context, GoodsDetail goodsDetail) {
     final vm = context.read<GoodsViewModel>();
     final orderLineEx = widget.linesExList.firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goods.id);
+    final enabled = goodsDetail.price != 0 &&
+      !goodsDetail.goodsEx.restricted &&
+      widget.orderEx.order.isEditable &&
+      !widget.orderEx.order.needProcessing;
 
     if (vm.state.showWithPrice && goodsDetail.price == 0 && orderLineEx == null) return Container();
+    if (goodsDetail.stock == null && orderLineEx == null) return Container();
 
     return Column(
       children: [
         ListTile(
           contentPadding: const EdgeInsets.only(left: 8, top: 4, right: 8, bottom: 4),
           tileColor: Colors.transparent,
-          trailing: buildGoodsTileTrailing(context, goodsDetail, orderLineEx),
+          trailing: buildGoodsTileTrailing(context, goodsDetail, orderLineEx, enabled),
           subtitle: _GoodsSubtitle(goodsDetail, orderLineEx),
           title: buildGoodsTileTitle(context, goodsDetail),
-          onTap: () => widget.onTap(goodsDetail)
+          onTap: !enabled ? null : () => widget.onTap(goodsDetail)
         ),
         buildGoodsImage(context, goodsDetail)
       ]
     );
   }
 
-  Widget buildGoodsTileTrailing(BuildContext context, GoodsDetail goodsDetail, OrderLineEx? orderLineEx) {
+  Widget buildGoodsTileTrailing(BuildContext context, GoodsDetail goodsDetail, OrderLineEx? orderLineEx, bool enabled) {
     final controller = volControllers.putIfAbsent(
       goodsDetail,
       () => TextEditingController(text: orderLineEx?.line.vol.toInt().toString())
     );
     final volStr = orderLineEx?.line.vol.toInt().toString() ?? '';
-    final enabled = goodsDetail.price != 0 &&
-      !goodsDetail.goodsEx.restricted &&
-      widget.orderEx.order.isEditable &&
-      !widget.orderEx.order.needProcessing;
 
     if (controller.text != volStr) controller.text = volStr;
 
@@ -849,6 +848,7 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
     final goodsEx = widget.goodsDetail.goodsEx;
     final goods = goodsEx.goods;
     final stock = widget.goodsDetail.stock;
+    final stockVol = stock?.vol ?? 0;
     final price = widget.goodsDetail.pricelistPrice;
     final minPrice = min(goods.handPrice ?? double.infinity, goods.minPrice);
     final bonusPrice = widget.goodsDetail.price;
@@ -905,13 +905,13 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
                 const TextSpan(text: ' руб.'),
                 TextSpan(text: widget.goodsDetail.rel == 1 ? '\n' :'\nВложение: ${widget.goodsDetail.rel} '),
                 TextSpan(text: 'Кратность: ${widget.goodsDetail.stockRel} '),
-                const TextSpan(text: 'Остаток: '),
-                TextSpan(text: stock.vol~/goods.categoryPackageRel > 0 ?
-                  '${stock.vol~/goods.categoryPackageRel} к. ' :
+                TextSpan(text: 'Остаток: ${stockVol != 0 ? '' : '0 шт.'}'),
+                TextSpan(text: stockVol~/goods.categoryPackageRel > 0 ?
+                  '${stockVol~/goods.categoryPackageRel} к. ' :
                   null
                   ),
-                TextSpan(text: stock.vol%goods.categoryPackageRel > 0 ?
-                  '${(stock.vol%goods.categoryPackageRel).toInt()} шт. ' :
+                TextSpan(text: stockVol%goods.categoryPackageRel > 0 ?
+                  '${(stockVol%goods.categoryPackageRel).toInt()} шт. ' :
                   null
                 ),
                 TextSpan(
@@ -984,13 +984,13 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
                 ),
                 TextSpan(text: widget.goodsDetail.rel == 1 ? '\n' :'\nВложение: ${widget.goodsDetail.rel} '),
                 TextSpan(text: 'Кратность: ${widget.goodsDetail.stockRel} '),
-                const TextSpan(text: 'Остаток: '),
-                TextSpan(text: stock.vol~/goods.categoryPackageRel > 0 ?
-                  '${stock.vol~/goods.categoryPackageRel} к. ' :
+                TextSpan(text: 'Остаток: ${stockVol != 0 ? '' : '0 шт.'}'),
+                TextSpan(text: stockVol~/goods.categoryPackageRel > 0 ?
+                  '${stockVol~/goods.categoryPackageRel} к. ' :
                   null
                 ),
-                TextSpan(text: stock.vol%goods.categoryPackageRel > 0 ?
-                  '${(stock.vol%goods.categoryPackageRel).toInt()} шт. ' :
+                TextSpan(text: stockVol%goods.categoryPackageRel > 0 ?
+                  '${(stockVol%goods.categoryPackageRel).toInt()} шт. ' :
                   null
                 ),
                 TextSpan(

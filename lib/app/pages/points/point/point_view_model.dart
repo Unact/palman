@@ -72,10 +72,10 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
     _notifyPointUpdated();
   }
 
-  Future<void> updateAddress(String address, double latitude, double longitude) async {
+  Future<void> updateAddress(String? address, double latitude, double longitude) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      address: Optional.of(address),
+      address: Optional.fromNullable(address),
       latitude: Optional.of(latitude),
       longitude: Optional.of(longitude),
       needSync: Optional.of(true)

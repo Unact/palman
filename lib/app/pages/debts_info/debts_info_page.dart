@@ -52,8 +52,8 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
             Text('Сдать инкассации на сумму ${Format.numberStr(total)} рублей?')
           ])),
           actions: <Widget>[
-            TextButton(child: const Text(Strings.ok), onPressed: () => Navigator.of(context).pop(true)),
-            TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(false))
+            TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(false)),
+            TextButton(child: const Text(Strings.ok), onPressed: () => Navigator.of(context).pop(true))
           ],
         );
       }

@@ -56,7 +56,7 @@ class _PointViewState extends State<_PointView> {
     final vm = context.read<PointViewModel>();
     final point = vm.state.pointEx.point;
 
-    final result = await showDialog<(String, double, double)?>(
+    final result = await showDialog<(String?, double, double)?>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AddressPage(

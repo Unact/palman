@@ -58,6 +58,10 @@ class _HandPriceChangeViewState extends State<_HandPriceChangeView> {
           ),
           actions: <Widget>[
             TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(Strings.cancel)
+            ),
+            TextButton(
               onPressed: () {
                   if (!validHandPrice(state.handPrice)) {
                     showDialog(
@@ -76,10 +80,6 @@ class _HandPriceChangeViewState extends State<_HandPriceChangeView> {
                   Navigator.of(context).pop(state.handPrice);
                 },
               child: const Text(Strings.ok)
-            ),
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text(Strings.cancel)
             )
           ],
         );

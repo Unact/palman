@@ -66,8 +66,8 @@ class _OrdersViewState extends State<_OrdersView> {
           title: const Text('Внимание'),
           content: const SingleChildScrollView(child: Text('Присутствуют не сохраненные изменения. Продолжить?')),
           actions: <Widget>[
-            TextButton(child: const Text(Strings.ok), onPressed: () => Navigator.of(context).pop(false)),
-            TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(true))
+            TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(true)),
+            TextButton(child: const Text(Strings.ok), onPressed: () => Navigator.of(context).pop(false))
           ],
         );
       }
