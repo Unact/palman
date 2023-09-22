@@ -105,7 +105,7 @@ class _PointViewState extends State<_PointView> {
               Center(
                 child: Badge(
                   backgroundColor: Theme.of(context).colorScheme.error,
-                  label: const Text(' '),
+                  label: const Text('1'),
                   isLabelVisible: state.needSync,
                   offset: const Offset(-4, 4),
                   child: IconButton(

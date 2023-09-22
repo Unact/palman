@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:drift/drift.dart';
 import 'package:http/http.dart';
@@ -456,6 +457,56 @@ class OrdersRepository extends BaseRepository {
     return;
   }
 
+
+  Future<OrderExResult> copyOrder(Order order, List<OrderLine> orderLines) async {
+    return await dataStore.transaction(() async {
+      final id = await dataStore.ordersDao.addOrder(order.toCompanion(false).copyWith(
+        id: const Value.absent(),
+        guid: const Value.absent(),
+        timestamp: Value(DateTime.now()),
+        isDeleted: const Value(false),
+        needSync: const Value(true)
+      ));
+      for (var orderLine in orderLines) {
+        await dataStore.ordersDao.addOrderLine(orderLine.toCompanion(false).copyWith(
+          orderId: Value(id),
+          id: const Value.absent(),
+          guid: const Value.absent(),
+          timestamp: Value(DateTime.now()),
+          isDeleted: const Value(false),
+          needSync: const Value(true)
+        ));
+      }
+      notifyListeners();
+      return (await dataStore.ordersDao.getOrderEx(id))!;
+    });
+  }
+
+  Future<void> updateOrderLinePrices(Order order) async {
+    await dataStore.transaction(() async {
+      final orderLinesEx = await dataStore.ordersDao.getOrderLineExList(order.id);
+      final goodsDetails = await dataStore.ordersDao.getGoodsDetails(
+        buyerId: order.buyerId!,
+        date: order.date!,
+        goodsIds: orderLinesEx.map((e) => e.goods.id).toList()
+      );
+
+      for (var orderLine in orderLinesEx) {
+        final goodsDetail = goodsDetails.firstWhereOrNull((e) => e.goods == orderLine.goods);
+
+        if (goodsDetail == null) continue;
+        if (orderLine.line.price != orderLine.line.priceOriginal) continue;
+
+        await updateOrderLine(
+          orderLine.line,
+          price: Optional.of(goodsDetail.price),
+          priceOriginal: Optional.of(goodsDetail.price),
+          needSync: Optional.of(true)
+        );
+      }
+      notifyListeners();
+    });
+  }
 
   Future<void> clearFiles([Set<String> newKeys = const <String>{}]) async {
     final cacheObjects = await _goodsCacheRepo.getAllObjects();

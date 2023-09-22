@@ -151,31 +151,8 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> updateGoodsPrices() async {
-    await updateOrderLinePrices();
+    await ordersRepository.updateOrderLinePrices(state.orderEx.order);
     await searchGoods();
-  }
-
-  Future<void> updateOrderLinePrices() async {
-    final orderLinesEx = (await ordersRepository.getOrderLineExList(state.orderEx.order.id));
-    final goodsDetails = await ordersRepository.getGoodsDetails(
-      buyerId: state.orderEx.buyer!.id,
-      date: state.orderEx.order.date!,
-      goodsIds: orderLinesEx.map((e) => e.goods.id).toList()
-    );
-
-    for (var orderLine in orderLinesEx) {
-      final goodsDetail = goodsDetails.firstWhereOrNull((e) => e.goods == orderLine.goods);
-
-      if (goodsDetail == null) continue;
-      if (orderLine.line.price != orderLine.line.priceOriginal) continue;
-
-      await ordersRepository.updateOrderLine(
-        orderLine.line,
-        price: Optional.of(goodsDetail.price),
-        priceOriginal: Optional.of(goodsDetail.price),
-        needSync: Optional.of(true)
-      );
-    }
   }
 
   Future<void> updateOrderLineVol(GoodsDetail goodsDetail, double? vol) async {
