@@ -8,7 +8,7 @@ import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/prices_repository.dart';
-import '../../order/order_page.dart';
+import '../order/order_page.dart';
 
 part 'pre_order_state.dart';
 part 'pre_order_view_model.dart';

@@ -18,10 +18,10 @@ import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/partners_repository.dart';
 import '/app/repositories/shipments_repository.dart';
-import 'inc_requests/inc_request/inc_request_page.dart';
+import 'inc_request/inc_request_page.dart';
 import 'order/order_page.dart';
-import 'pre_orders/pre_order/pre_order_page.dart';
-import 'shipments/shipment/shipment_page.dart';
+import 'pre_order/pre_order_page.dart';
+import 'shipment/shipment_page.dart';
 
 part 'orders_info_state.dart';
 part 'orders_info_view_model.dart';
