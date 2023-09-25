@@ -5,9 +5,19 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
   final OrdersRepository ordersRepository;
   final ShipmentsRepository shipmentsRepository;
   final PartnersRepository partnersRepository;
+  final UsersRepository usersRepository;
 
-  OrdersInfoViewModel(this.appRepository, this.ordersRepository, this.partnersRepository, this.shipmentsRepository) :
-    super(OrdersInfoState(), [appRepository, ordersRepository, shipmentsRepository, partnersRepository]);
+  OrdersInfoViewModel(
+    this.appRepository,
+    this.ordersRepository,
+    this.partnersRepository,
+    this.shipmentsRepository,
+    this.usersRepository
+  ) :
+    super(
+      OrdersInfoState(),
+      [appRepository, ordersRepository, shipmentsRepository, partnersRepository, usersRepository]
+    );
 
   @override
   OrdersInfoStateStatus get status => state.status;
@@ -47,6 +57,8 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
   }
 
   Future<void> _syncChanges() async {
+    await usersRepository.refresh();
+
     final futures = [
       ordersRepository.syncChanges,
       shipmentsRepository.syncChanges
@@ -71,6 +83,8 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
     }
 
     if (state.isBusy) return;
+
+    await usersRepository.refresh();
 
     final futures = [
       ordersRepository.loadRemains,

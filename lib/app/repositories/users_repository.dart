@@ -65,4 +65,15 @@ class UsersRepository extends BaseRepository {
       throw AppError(Strings.genericErrorMsg);
     }
   }
+
+  Future<void> refresh() async {
+    try {
+      await api.refresh();
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
 }
