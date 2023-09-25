@@ -766,8 +766,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     final orderLineEx = widget.linesExList.firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goods.id);
     final enabled = goodsDetail.price != 0 &&
       !goodsDetail.goodsEx.restricted &&
-      widget.orderEx.order.isEditable &&
-      !widget.orderEx.order.needProcessing;
+      widget.orderEx.order.isEditable;
 
     if (vm.state.showWithPrice && goodsDetail.price == 0 && orderLineEx == null) return Container();
     if (goodsDetail.stock == null && orderLineEx == null) return Container();

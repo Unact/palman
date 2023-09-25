@@ -32,7 +32,7 @@ class OrderState {
   final List<Buyer> buyers;
   final OrderExResult? newOrder;
 
-  bool get isEditable => orderEx.order.isEditable && !orderEx.order.needProcessing;
+  bool get isEditable => orderEx.order.isEditable;
   bool get canBeProcessed => !orderEx.order.isEditable || filteredOrderLinesExList.isEmpty;
 
   List<OrderLineExResult> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
