@@ -13889,7 +13889,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final UsersDao usersDao = UsersDao(this as AppDataStore);
   Selectable<AppInfoResult> appInfo() {
     return customSelect(
-        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_id = points.id AND need_sync = 1)) + (SELECT COUNT(*) FROM deposits WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND need_sync = 1)) + (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_id = orders.id AND need_sync = 1)) + (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) + (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) + (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS sync_total, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM encashments) AS encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total FROM prefs',
+        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_id = points.id AND need_sync = 1)) AS points_to_sync, (SELECT COUNT(*) FROM deposits WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND need_sync = 1)) AS deposits_to_sync, (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_id = orders.id AND need_sync = 1)) AS orders_to_sync, (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS inc_requests_to_sync, (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS partner_prices_to_sync, (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS partners_pricelists_to_sync, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM encashments) AS encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total FROM prefs',
         variables: [],
         readsFrom: {
           points,
@@ -13909,7 +13909,12 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         showLocalImage: row.read<bool>('show_local_image'),
         showWithPrice: row.read<bool>('show_with_price'),
         lastSyncTime: row.readNullable<DateTime>('last_sync_time'),
-        syncTotal: row.read<int>('sync_total'),
+        pointsToSync: row.read<int>('points_to_sync'),
+        depositsToSync: row.read<int>('deposits_to_sync'),
+        ordersToSync: row.read<int>('orders_to_sync'),
+        incRequestsToSync: row.read<int>('inc_requests_to_sync'),
+        partnerPricesToSync: row.read<int>('partner_prices_to_sync'),
+        partnersPricelistsToSync: row.read<int>('partners_pricelists_to_sync'),
         pointsTotal: row.read<int>('points_total'),
         encashmentsTotal: row.read<int>('encashments_total'),
         shipmentsTotal: row.read<int>('shipments_total'),
@@ -13970,7 +13975,12 @@ class AppInfoResult {
   final bool showLocalImage;
   final bool showWithPrice;
   final DateTime? lastSyncTime;
-  final int syncTotal;
+  final int pointsToSync;
+  final int depositsToSync;
+  final int ordersToSync;
+  final int incRequestsToSync;
+  final int partnerPricesToSync;
+  final int partnersPricelistsToSync;
   final int pointsTotal;
   final int encashmentsTotal;
   final int shipmentsTotal;
@@ -13980,7 +13990,12 @@ class AppInfoResult {
     required this.showLocalImage,
     required this.showWithPrice,
     this.lastSyncTime,
-    required this.syncTotal,
+    required this.pointsToSync,
+    required this.depositsToSync,
+    required this.ordersToSync,
+    required this.incRequestsToSync,
+    required this.partnerPricesToSync,
+    required this.partnersPricelistsToSync,
     required this.pointsTotal,
     required this.encashmentsTotal,
     required this.shipmentsTotal,

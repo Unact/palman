@@ -54,7 +54,14 @@ class InfoState {
   final int loaded;
   final int toLoad;
 
-  int get pendingChanges => appInfo == null ? 0 : appInfo!.syncTotal;
+  int get pendingChanges => appInfo == null ?
+    0 :
+    appInfo!.pointsToSync +
+    appInfo!.depositsToSync +
+    appInfo!.ordersToSync +
+    appInfo!.incRequestsToSync +
+    appInfo!.partnerPricesToSync +
+    appInfo!.partnersPricelistsToSync;
   bool get hasPendingChanges => pendingChanges != 0;
 
   int get encashmentsTotal => appInfo == null ? 0 : appInfo!.encashmentsTotal;

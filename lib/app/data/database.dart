@@ -81,20 +81,20 @@ part 'users_dao.dart';
           SELECT COUNT(*)
           FROM points
           WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM point_images WHERE point_id = points.id AND need_sync = 1)
-        ) +
+        ) AS "points_to_sync",
         (
           SELECT COUNT(*)
           FROM deposits
           WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND need_sync = 1)
-        ) +
+        ) AS "deposits_to_sync",
         (
           SELECT COUNT(*)
           FROM orders
           WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM order_lines WHERE order_id = orders.id AND need_sync = 1)
-        ) +
-        (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) +
-        (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) +
-        (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS "sync_total",
+        ) AS "orders_to_sync",
+        (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS "inc_requests_to_sync",
+        (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS "partner_prices_to_sync",
+        (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS "partners_pricelists_to_sync",
         (SELECT COUNT(*) FROM points) AS "points_total",
         (SELECT COUNT(*) FROM encashments) AS "encashments_total",
         (SELECT COUNT(*) FROM shipments) AS "shipments_total",
