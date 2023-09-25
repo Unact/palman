@@ -2,7 +2,6 @@ part of 'login_page.dart';
 
 enum LoginStateStatus {
   initial,
-  dataLoaded,
   failure,
   inProgress,
   passwordSent,
