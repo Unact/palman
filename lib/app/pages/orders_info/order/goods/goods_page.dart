@@ -147,7 +147,7 @@ class _GoodsViewState extends State<_GoodsView> {
               IconButton(
                 color: Colors.white,
                 icon: const Icon(Icons.cleaning_services),
-                tooltip: 'Очистить',
+                tooltip: 'Очистить фильтры',
                 onPressed: () async {
                   Misc.unfocus(context);
                   await vm.clearFilters();
@@ -259,7 +259,7 @@ class _GoodsViewState extends State<_GoodsView> {
                       IconButton(
                         onPressed: () => vm.selectBonusProgram(null),
                         icon: const Icon(Icons.delete),
-                        tooltip: 'Очистить фильтры',
+                        tooltip: 'Очистить',
                       )
                   ),
                   controller: TextEditingController(text: vm.state.selectedBonusProgram?.name),
