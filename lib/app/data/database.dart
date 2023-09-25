@@ -4,8 +4,10 @@ import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/extensions/native.dart';
 import 'package:drift/native.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:pub_semver/pub_semver.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
@@ -81,20 +83,20 @@ part 'users_dao.dart';
           SELECT COUNT(*)
           FROM points
           WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM point_images WHERE point_id = points.id AND need_sync = 1)
-        ) +
+        ) AS "points_to_sync",
         (
           SELECT COUNT(*)
           FROM deposits
           WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND need_sync = 1)
-        ) +
+        ) AS "deposits_to_sync",
         (
           SELECT COUNT(*)
           FROM orders
           WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM order_lines WHERE order_id = orders.id AND need_sync = 1)
-        ) +
-        (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) +
-        (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) +
-        (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS "sync_total",
+        ) AS "orders_to_sync",
+        (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS "inc_requests_to_sync",
+        (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS "partner_prices_to_sync",
+        (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS "partners_pricelists_to_sync",
         (SELECT COUNT(*) FROM points) AS "points_total",
         (SELECT COUNT(*) FROM encashments) AS "encashments_total",
         (SELECT COUNT(*) FROM shipments) AS "shipments_total",
@@ -111,10 +113,6 @@ class AppDataStore extends _$AppDataStore {
 
   Future<AppInfoResult> getAppInfo() async {
     return appInfo().getSingle();
-  }
-
-  Future<Pref> getPref() async {
-    return select(prefs).getSingle();
   }
 
   Future<List<Workdate>> getWorkdates() async {
@@ -202,7 +200,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -315,4 +313,12 @@ extension OrderLineX on OrderLine {
 
 extension PreOrderLineX on PreOrderLine {
   double get total => vol * price * rel;
+}
+
+extension UserX on User {
+  Future<bool> get newVersionAvailable async {
+    final currentVersion = (await PackageInfo.fromPlatform()).version;
+
+    return Version.parse(version) > Version.parse(currentVersion);
+  }
 }

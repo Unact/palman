@@ -101,14 +101,14 @@ class AddressViewState extends State<_AddressView> {
             ])),
             actions: <Widget>[
               TextButton(
-                child: const Text(Strings.ok),
-                onPressed: () => Navigator.of(context).pop((vm.state.address, vm.state.latitude, vm.state.longitude))
-              ),
-              TextButton(
                 child: const Text(Strings.cancel),
                 onPressed: () => Navigator.of(context).pop()
+              ),
+              TextButton(
+                child: const Text(Strings.ok),
+                onPressed: () => Navigator.of(context).pop((vm.state.address, vm.state.latitude, vm.state.longitude))
               )
-            ],
+            ]
           )
         );
       },

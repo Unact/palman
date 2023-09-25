@@ -3173,8 +3173,8 @@ class $EncashmentsTable extends Encashments
   static const VerificationMeta _debtIdMeta = const VerificationMeta('debtId');
   @override
   late final GeneratedColumn<int> debtId = GeneratedColumn<int>(
-      'debt_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      'debt_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _depositIdMeta =
       const VerificationMeta('depositId');
   @override
@@ -3255,8 +3255,6 @@ class $EncashmentsTable extends Encashments
     if (data.containsKey('debt_id')) {
       context.handle(_debtIdMeta,
           debtId.isAcceptableOrUnknown(data['debt_id']!, _debtIdMeta));
-    } else if (isInserting) {
-      context.missing(_debtIdMeta);
     }
     if (data.containsKey('deposit_id')) {
       context.handle(_depositIdMeta,
@@ -3300,7 +3298,7 @@ class $EncashmentsTable extends Encashments
       buyerId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}buyer_id'])!,
       debtId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}debt_id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}debt_id']),
       depositId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}deposit_id']),
       encSum: attachedDatabase.typeMapping
@@ -3325,7 +3323,7 @@ class Encashment extends DataClass implements Insertable<Encashment> {
   final DateTime date;
   final bool isCheck;
   final int buyerId;
-  final int debtId;
+  final int? debtId;
   final int? depositId;
   final double? encSum;
   final String? guid;
@@ -3336,7 +3334,7 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       required this.date,
       required this.isCheck,
       required this.buyerId,
-      required this.debtId,
+      this.debtId,
       this.depositId,
       this.encSum,
       this.guid,
@@ -3349,7 +3347,9 @@ class Encashment extends DataClass implements Insertable<Encashment> {
     map['date'] = Variable<DateTime>(date);
     map['is_check'] = Variable<bool>(isCheck);
     map['buyer_id'] = Variable<int>(buyerId);
-    map['debt_id'] = Variable<int>(debtId);
+    if (!nullToAbsent || debtId != null) {
+      map['debt_id'] = Variable<int>(debtId);
+    }
     if (!nullToAbsent || depositId != null) {
       map['deposit_id'] = Variable<int>(depositId);
     }
@@ -3370,7 +3370,8 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       date: Value(date),
       isCheck: Value(isCheck),
       buyerId: Value(buyerId),
-      debtId: Value(debtId),
+      debtId:
+          debtId == null && nullToAbsent ? const Value.absent() : Value(debtId),
       depositId: depositId == null && nullToAbsent
           ? const Value.absent()
           : Value(depositId),
@@ -3390,7 +3391,7 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       date: serializer.fromJson<DateTime>(json['date']),
       isCheck: serializer.fromJson<bool>(json['isCheck']),
       buyerId: serializer.fromJson<int>(json['buyerId']),
-      debtId: serializer.fromJson<int>(json['debtId']),
+      debtId: serializer.fromJson<int?>(json['debtId']),
       depositId: serializer.fromJson<int?>(json['depositId']),
       encSum: serializer.fromJson<double?>(json['encSum']),
       guid: serializer.fromJson<String?>(json['guid']),
@@ -3406,7 +3407,7 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       'date': serializer.toJson<DateTime>(date),
       'isCheck': serializer.toJson<bool>(isCheck),
       'buyerId': serializer.toJson<int>(buyerId),
-      'debtId': serializer.toJson<int>(debtId),
+      'debtId': serializer.toJson<int?>(debtId),
       'depositId': serializer.toJson<int?>(depositId),
       'encSum': serializer.toJson<double?>(encSum),
       'guid': serializer.toJson<String?>(guid),
@@ -3420,7 +3421,7 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           DateTime? date,
           bool? isCheck,
           int? buyerId,
-          int? debtId,
+          Value<int?> debtId = const Value.absent(),
           Value<int?> depositId = const Value.absent(),
           Value<double?> encSum = const Value.absent(),
           Value<String?> guid = const Value.absent(),
@@ -3431,7 +3432,7 @@ class Encashment extends DataClass implements Insertable<Encashment> {
         date: date ?? this.date,
         isCheck: isCheck ?? this.isCheck,
         buyerId: buyerId ?? this.buyerId,
-        debtId: debtId ?? this.debtId,
+        debtId: debtId.present ? debtId.value : this.debtId,
         depositId: depositId.present ? depositId.value : this.depositId,
         encSum: encSum.present ? encSum.value : this.encSum,
         guid: guid.present ? guid.value : this.guid,
@@ -3479,7 +3480,7 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
   final Value<DateTime> date;
   final Value<bool> isCheck;
   final Value<int> buyerId;
-  final Value<int> debtId;
+  final Value<int?> debtId;
   final Value<int?> depositId;
   final Value<double?> encSum;
   final Value<String?> guid;
@@ -3502,7 +3503,7 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
     required DateTime date,
     required bool isCheck,
     required int buyerId,
-    required int debtId,
+    this.debtId = const Value.absent(),
     this.depositId = const Value.absent(),
     this.encSum = const Value.absent(),
     this.guid = const Value.absent(),
@@ -3511,7 +3512,6 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
   })  : date = Value(date),
         isCheck = Value(isCheck),
         buyerId = Value(buyerId),
-        debtId = Value(debtId),
         timestamp = Value(timestamp),
         needSync = Value(needSync);
   static Insertable<Encashment> custom({
@@ -3545,7 +3545,7 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
       Value<DateTime>? date,
       Value<bool>? isCheck,
       Value<int>? buyerId,
-      Value<int>? debtId,
+      Value<int?>? debtId,
       Value<int?>? depositId,
       Value<double?>? encSum,
       Value<String?>? guid,
@@ -13889,7 +13889,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final UsersDao usersDao = UsersDao(this as AppDataStore);
   Selectable<AppInfoResult> appInfo() {
     return customSelect(
-        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_id = points.id AND need_sync = 1)) + (SELECT COUNT(*) FROM deposits WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND need_sync = 1)) + (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_id = orders.id AND need_sync = 1)) + (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) + (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) + (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS sync_total, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM encashments) AS encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total FROM prefs',
+        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_id = points.id AND need_sync = 1)) AS points_to_sync, (SELECT COUNT(*) FROM deposits WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND need_sync = 1)) AS deposits_to_sync, (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_id = orders.id AND need_sync = 1)) AS orders_to_sync, (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS inc_requests_to_sync, (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS partner_prices_to_sync, (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS partners_pricelists_to_sync, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM encashments) AS encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total FROM prefs',
         variables: [],
         readsFrom: {
           points,
@@ -13909,7 +13909,12 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         showLocalImage: row.read<bool>('show_local_image'),
         showWithPrice: row.read<bool>('show_with_price'),
         lastSyncTime: row.readNullable<DateTime>('last_sync_time'),
-        syncTotal: row.read<int>('sync_total'),
+        pointsToSync: row.read<int>('points_to_sync'),
+        depositsToSync: row.read<int>('deposits_to_sync'),
+        ordersToSync: row.read<int>('orders_to_sync'),
+        incRequestsToSync: row.read<int>('inc_requests_to_sync'),
+        partnerPricesToSync: row.read<int>('partner_prices_to_sync'),
+        partnersPricelistsToSync: row.read<int>('partners_pricelists_to_sync'),
         pointsTotal: row.read<int>('points_total'),
         encashmentsTotal: row.read<int>('encashments_total'),
         shipmentsTotal: row.read<int>('shipments_total'),
@@ -13970,7 +13975,12 @@ class AppInfoResult {
   final bool showLocalImage;
   final bool showWithPrice;
   final DateTime? lastSyncTime;
-  final int syncTotal;
+  final int pointsToSync;
+  final int depositsToSync;
+  final int ordersToSync;
+  final int incRequestsToSync;
+  final int partnerPricesToSync;
+  final int partnersPricelistsToSync;
   final int pointsTotal;
   final int encashmentsTotal;
   final int shipmentsTotal;
@@ -13980,7 +13990,12 @@ class AppInfoResult {
     required this.showLocalImage,
     required this.showWithPrice,
     this.lastSyncTime,
-    required this.syncTotal,
+    required this.pointsToSync,
+    required this.depositsToSync,
+    required this.ordersToSync,
+    required this.incRequestsToSync,
+    required this.partnerPricesToSync,
+    required this.partnersPricelistsToSync,
     required this.pointsTotal,
     required this.encashmentsTotal,
     required this.shipmentsTotal,
@@ -14147,6 +14162,23 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     });
   }
 
+  Selectable<OrderLineExResult> orderLineEx(int orderId) {
+    return customSelect(
+        'SELECT"order_lines"."id" AS "nested_0.id", "order_lines"."order_id" AS "nested_0.order_id", "order_lines"."goods_id" AS "nested_0.goods_id", "order_lines"."vol" AS "nested_0.vol", "order_lines"."price" AS "nested_0.price", "order_lines"."price_original" AS "nested_0.price_original", "order_lines"."package" AS "nested_0.package", "order_lines"."rel" AS "nested_0.rel", "order_lines"."guid" AS "nested_0.guid", "order_lines"."is_deleted" AS "nested_0.is_deleted", "order_lines"."timestamp" AS "nested_0.timestamp", "order_lines"."need_sync" AS "nested_0.need_sync", goods.name AS goods_name FROM order_lines JOIN goods ON goods.id = order_lines.goods_id WHERE order_lines.order_id = ?1 ORDER BY goods.name',
+        variables: [
+          Variable<int>(orderId)
+        ],
+        readsFrom: {
+          allGoods,
+          orderLines,
+        }).asyncMap((QueryRow row) async {
+      return OrderLineExResult(
+        line: await orderLines.mapFromRow(row, tablePrefix: 'nested_0'),
+        goodsName: row.read<String>('goods_name'),
+      );
+    });
+  }
+
   Selectable<PreOrderExResult> preOrderEx() {
     return customSelect(
         'SELECT"pre_orders"."id" AS "nested_0.id", "pre_orders"."date" AS "nested_0.date", "pre_orders"."buyer_id" AS "nested_0.buyer_id", "pre_orders"."need_docs" AS "nested_0.need_docs", "pre_orders"."info" AS "nested_0.info","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", COALESCE((SELECT SUM(pre_order_lines.rel * pre_order_lines.vol * pre_order_lines.price) FROM pre_order_lines WHERE pre_order_lines.pre_order_id = pre_orders.id), 0) AS lines_total, (SELECT COUNT(*) FROM pre_order_lines WHERE pre_order_id = pre_orders.id) AS lines_count, EXISTS (SELECT 1 AS _c0 FROM orders WHERE pre_order_id = pre_orders.id) AS has_order, EXISTS (SELECT 1 AS _c1 FROM seen_pre_orders WHERE id = pre_orders.id) AS was_seen FROM pre_orders JOIN buyers ON buyers.id = pre_orders.buyer_id ORDER BY pre_orders.date DESC, buyers.name',
@@ -14169,12 +14201,29 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     });
   }
 
+  Selectable<PreOrderLineExResult> preOrderLineEx(int preOrderId) {
+    return customSelect(
+        'SELECT"pre_order_lines"."id" AS "nested_0.id", "pre_order_lines"."pre_order_id" AS "nested_0.pre_order_id", "pre_order_lines"."goods_id" AS "nested_0.goods_id", "pre_order_lines"."vol" AS "nested_0.vol", "pre_order_lines"."price" AS "nested_0.price", "pre_order_lines"."package" AS "nested_0.package", "pre_order_lines"."rel" AS "nested_0.rel", goods.name AS goods_name FROM pre_order_lines JOIN goods ON goods.id = pre_order_lines.goods_id WHERE pre_order_lines.pre_order_id = ?1 ORDER BY goods.name',
+        variables: [
+          Variable<int>(preOrderId)
+        ],
+        readsFrom: {
+          allGoods,
+          preOrderLines,
+        }).asyncMap((QueryRow row) async {
+      return PreOrderLineExResult(
+        line: await preOrderLines.mapFromRow(row, tablePrefix: 'nested_0'),
+        goodsName: row.read<String>('goods_name'),
+      );
+    });
+  }
+
   Selectable<GoodsExResult> goodsEx(int buyerId, List<int> goodsIds) {
     var $arrayStartIndex = 2;
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_hit" AS "nested_0.is_hit", "goods"."is_new" AS "nested_0.is_new", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."mc_vol" AS "nested_0.mc_vol", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id) AS last_shipment_date, (SELECT MAX(shipment_lines.price) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN (SELECT MAX(shipments.date) AS last_shipment_date, shipments.buyer_id FROM shipments GROUP BY shipments.buyer_id) AS sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id) AS last_price FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE((goods.is_fridge = 1 AND fridge_stocks.goods_id IS NOT NULL)OR(goods.is_fridge = 0 AND normal_stocks.goods_id IS NOT NULL))AND buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
+        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_hit" AS "nested_0.is_hit", "goods"."is_new" AS "nested_0.is_new", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."mc_vol" AS "nested_0.mc_vol", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date, (SELECT MAX(shipment_lines.price) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN (SELECT MAX(shipments.date) AS last_shipment_date, shipments.buyer_id FROM shipments GROUP BY shipments.buyer_id) AS sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_price FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
         variables: [
           Variable<int>(buyerId),
           for (var $ in goodsIds) Variable<int>($)
@@ -14205,7 +14254,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
 
   Selectable<CategoriesExResult> categoriesEx(int buyerId) {
     return customSelect(
-        'SELECT categories.*, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN goods ON shipment_lines.goods_id = goods.id WHERE categories.id = goods.category_id AND shipments.buyer_id = ?1) AS last_shipment_date FROM categories WHERE EXISTS (SELECT 1 AS _c0 FROM goods WHERE goods.category_id = categories.id) ORDER BY categories.name',
+        'SELECT categories.*, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN goods ON shipment_lines.goods_id = goods.id WHERE categories.id = goods.category_id AND shipments.buyer_id = ?1 AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM categories WHERE EXISTS (SELECT 1 AS _c0 FROM goods WHERE goods.category_id = categories.id) ORDER BY categories.name',
         variables: [
           Variable<int>(buyerId)
         ],
@@ -14243,6 +14292,15 @@ class OrderExResult {
   });
 }
 
+class OrderLineExResult {
+  final OrderLine line;
+  final String goodsName;
+  OrderLineExResult({
+    required this.line,
+    required this.goodsName,
+  });
+}
+
 class PreOrderExResult {
   final PreOrder preOrder;
   final Buyer buyer;
@@ -14257,6 +14315,15 @@ class PreOrderExResult {
     required this.linesCount,
     required this.hasOrder,
     required this.wasSeen,
+  });
+}
+
+class PreOrderLineExResult {
+  final PreOrderLine line;
+  final String goodsName;
+  PreOrderLineExResult({
+    required this.line,
+    required this.goodsName,
   });
 }
 

@@ -24,10 +24,10 @@ enum InfoStateStatus {
 class InfoState {
   InfoState({
     this.status = InfoStateStatus.initial,
-    this.newVersionAvailable = false,
     this.message = '',
     this.syncMessage = '',
     this.isBusy = false,
+    this.user,
     this.appInfo,
     this.pointImages = const [],
     this.loadedPointImages = 0,
@@ -40,10 +40,10 @@ class InfoState {
   });
 
   final InfoStateStatus status;
-  final bool newVersionAvailable;
   final String message;
   final String syncMessage;
   final bool isBusy;
+  final User? user;
   final AppInfoResult? appInfo;
   final List<PointImage> pointImages;
   final int loadedPointImages;
@@ -54,7 +54,14 @@ class InfoState {
   final int loaded;
   final int toLoad;
 
-  int get pendingChanges => appInfo == null ? 0 : appInfo!.syncTotal;
+  int get pendingChanges => appInfo == null ?
+    0 :
+    appInfo!.pointsToSync +
+    appInfo!.depositsToSync +
+    appInfo!.ordersToSync +
+    appInfo!.incRequestsToSync +
+    appInfo!.partnerPricesToSync +
+    appInfo!.partnersPricelistsToSync;
   bool get hasPendingChanges => pendingChanges != 0;
 
   int get encashmentsTotal => appInfo == null ? 0 : appInfo!.encashmentsTotal;
@@ -65,10 +72,10 @@ class InfoState {
 
   InfoState copyWith({
     InfoStateStatus? status,
-    bool? newVersionAvailable,
     String? message,
     String? syncMessage,
     bool? isBusy,
+    User? user,
     AppInfoResult? appInfo,
     List<PointImage>? pointImages,
     int? loadedPointImages,
@@ -81,10 +88,10 @@ class InfoState {
   }) {
     return InfoState(
       status: status ?? this.status,
-      newVersionAvailable: newVersionAvailable ?? this.newVersionAvailable,
       message: message ?? this.message,
       syncMessage: syncMessage ?? this.syncMessage,
       isBusy: isBusy ?? this.isBusy,
+      user: user ?? this.user,
       appInfo: appInfo ?? this.appInfo,
       pointImages: pointImages ?? this.pointImages,
       loadedPointImages: loadedPointImages ?? this.loadedPointImages,

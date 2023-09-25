@@ -123,34 +123,16 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     _notifyOrderUpdated();
   }
 
-  Future<void> deleteOrderLine(OrderLineEx orderLineEx) async {
+  Future<void> deleteOrderLine(OrderLineExResult orderLineEx) async {
     await ordersRepository.deleteOrderLine(orderLineEx.line);
     emit(state.copyWith(linesExList: state.linesExList.where((e) => e != orderLineEx).toList()));
   }
 
   Future<void> copy() async {
-    final orderEx = await ordersRepository.addOrder(
-      needProcessing: false,
-      preOrderId: null,
-      buyerId: state.orderEx.order.buyerId,
-      date: state.orderEx.order.date,
-      needDocs: state.orderEx.order.needDocs,
-      isBonus: state.orderEx.order.isBonus,
-      isPhysical: state.orderEx.order.isPhysical,
-      needInc: state.orderEx.order.needInc
+    final orderEx = await ordersRepository.copyOrder(
+      state.orderEx.order,
+      state.linesExList.map((e) => e.line).toList()
     );
-
-    for (var orderLine in state.linesExList) {
-      await ordersRepository.addOrderLine(
-        orderEx.order,
-        goodsId: orderLine.goods.id,
-        vol: orderLine.line.vol,
-        price: orderLine.line.price,
-        priceOriginal: orderLine.line.priceOriginal,
-        package: orderLine.line.package,
-        rel: orderLine.line.rel
-      );
-    }
 
     emit(state.copyWith(
       status: OrderStateStatus.orderCopied,
@@ -168,8 +150,10 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
         state.linesExList.map((e) => e.line).toList()
       );
 
+      await ordersRepository.blockOrders(true, ids: [orders.first.order.id]);
+
       emit(state.copyWith(
-        orderEx: orders.firstOrNull,
+        orderEx: orders.first,
         status: OrderStateStatus.saveSuccess,
         message: Strings.changesSaved
       ));

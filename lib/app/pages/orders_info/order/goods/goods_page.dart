@@ -52,6 +52,12 @@ class _GoodsViewState extends State<_GoodsView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
   final TextEditingController nameController = TextEditingController();
 
+  @override
+  void dispose() {
+    super.dispose();
+    progressDialog.close();
+  }
+
   Future<void> showBonusProgramSelectDialog([GoodsDetail? goodsDetail]) async {
     final vm = context.read<GoodsViewModel>();
     final result = await showDialog<FilteredBonusProgramsResult>(
@@ -253,7 +259,7 @@ class _GoodsViewState extends State<_GoodsView> {
                       IconButton(
                         onPressed: () => vm.selectBonusProgram(null),
                         icon: const Icon(Icons.delete),
-                        tooltip: 'Очистить',
+                        tooltip: 'Очистить фильтры',
                       )
                   ),
                   controller: TextEditingController(text: vm.state.selectedBonusProgram?.name),
@@ -264,7 +270,14 @@ class _GoodsViewState extends State<_GoodsView> {
           ),
           const SizedBox(height: 2),
           TextFormField(
-            decoration: const InputDecoration(labelText: 'Наименование'),
+            decoration: InputDecoration(
+              labelText: 'Наименование',
+              suffixIcon: vm.state.goodsNameSearch?.isEmpty ?? true ? null :  IconButton(
+                icon: const Icon(Icons.delete),
+                tooltip: 'Очистить',
+                onPressed: () => vm.setGoodsNameSearch(null)
+              )
+            ),
             onFieldSubmitted: vm.setGoodsNameSearch,
             autocorrect: false,
             style: Styles.formStyle,
@@ -393,12 +406,16 @@ class _CategoriesViewState extends State<_CategoriesView> {
       children.add(buildCategorySelectGroup(context, index, e.key, e.value));
     });
 
-    return CustomScrollView(
-      controller: categoriesController,
-      slivers: [
-        SliverToBoxAdapter(child: Column(children: children)),
-        const SliverFillRemaining()
-      ]
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return CustomScrollView(
+          controller: categoriesController,
+          slivers: [
+            SliverToBoxAdapter(child: Column(children: children)),
+            SliverToBoxAdapter(child: SizedBox(height: constraints.maxHeight*0.9))
+          ]
+        );
+      },
     );
   }
 
@@ -496,7 +513,7 @@ class _GoodsGroupsView extends StatefulWidget {
   final void Function(GoodsDetail) onBonusProgramTap;
   final void Function(GoodsDetail goodsDetail, double? vol) onVolChange;
   final OrderExResult orderEx;
-  final List<OrderLineEx> linesExList;
+  final List<OrderLineExResult> linesExList;
 
   _GoodsGroupsView({
     required this.groupedGoods,
@@ -619,12 +636,16 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
           Flexible(
             child: Material(
               color: Colors.transparent,
-              child: CustomScrollView(
-                controller: goodsController,
-                slivers: [
-                  SliverToBoxAdapter(child: Column(children: children)),
-                  const SliverFillRemaining()
-                ]
+              child: LayoutBuilder(
+                builder: (BuildContext context, BoxConstraints constraints) {
+                  return CustomScrollView(
+                    controller: goodsController,
+                    slivers: [
+                      SliverToBoxAdapter(child: Column(children: children)),
+                      SliverToBoxAdapter(child: SizedBox(height: constraints.maxHeight*0.9))
+                    ]
+                  );
+                },
               )
             )
           ),
@@ -639,8 +660,6 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
 
   Widget buildGoodsTileTitle(BuildContext context, GoodsDetail goodsDetail) {
     final goodsEx = goodsDetail.goodsEx;
-    final goods = goodsEx.goods;
-    final stock = goods.isFridge ? goodsEx.fridgeStock! : goodsEx.normalStock!;
     final tags = goodsDetail.bonusPrograms;
     final daysDiff = goodsDetail.hadShipment ? DateTime.now().difference(goodsEx.lastShipmentDate!) : null;
 
@@ -650,7 +669,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
         children: <InlineSpan>[
           TextSpan(
             text: goodsEx.goods.name,
-            style: TextStyle(fontSize: 14.0, color: stock.isVollow ? Colors.pink : Colors.black)
+            style: TextStyle(fontSize: 14.0, color: goodsDetail.stock?.isVollow ?? false ? Colors.pink : Colors.black)
           ),
           daysDiff == null ?
             const TextSpan() :
@@ -745,34 +764,39 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
   Widget buildGoodsTile(BuildContext context, GoodsDetail goodsDetail) {
     final vm = context.read<GoodsViewModel>();
     final orderLineEx = widget.linesExList.firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goods.id);
+    final enabled = goodsDetail.price != 0 &&
+      !goodsDetail.goodsEx.restricted &&
+      widget.orderEx.order.isEditable;
 
     if (vm.state.showWithPrice && goodsDetail.price == 0 && orderLineEx == null) return Container();
+    if (goodsDetail.stock == null && orderLineEx == null) return Container();
 
     return Column(
       children: [
         ListTile(
           contentPadding: const EdgeInsets.only(left: 8, top: 4, right: 8, bottom: 4),
           tileColor: Colors.transparent,
-          trailing: buildGoodsTileTrailing(context, goodsDetail, orderLineEx),
+          trailing: buildGoodsTileTrailing(context, goodsDetail, orderLineEx, enabled),
           subtitle: _GoodsSubtitle(goodsDetail, orderLineEx),
           title: buildGoodsTileTitle(context, goodsDetail),
-          onTap: () => widget.onTap(goodsDetail)
+          onTap: !enabled ? null : () => widget.onTap(goodsDetail)
         ),
         buildGoodsImage(context, goodsDetail)
       ]
     );
   }
 
-  Widget buildGoodsTileTrailing(BuildContext context, GoodsDetail goodsDetail, OrderLineEx? orderLineEx) {
+  Widget buildGoodsTileTrailing(
+    BuildContext context,
+    GoodsDetail goodsDetail,
+    OrderLineExResult? orderLineEx,
+    bool enabled
+  ) {
     final controller = volControllers.putIfAbsent(
       goodsDetail,
       () => TextEditingController(text: orderLineEx?.line.vol.toInt().toString())
     );
     final volStr = orderLineEx?.line.vol.toInt().toString() ?? '';
-    final enabled = goodsDetail.price != 0 &&
-      !goodsDetail.goodsEx.restricted &&
-      widget.orderEx.order.isEditable &&
-      !widget.orderEx.order.needProcessing;
 
     if (controller.text != volStr) controller.text = volStr;
 
@@ -807,7 +831,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
 
 class _GoodsSubtitle extends StatefulWidget {
   final GoodsDetail goodsDetail;
-  final OrderLineEx? orderLineEx;
+  final OrderLineExResult? orderLineEx;
 
   _GoodsSubtitle(
     this.goodsDetail,
@@ -842,6 +866,7 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
     final goodsEx = widget.goodsDetail.goodsEx;
     final goods = goodsEx.goods;
     final stock = widget.goodsDetail.stock;
+    final stockVol = stock?.vol ?? 0;
     final price = widget.goodsDetail.pricelistPrice;
     final minPrice = min(goods.handPrice ?? double.infinity, goods.minPrice);
     final bonusPrice = widget.goodsDetail.price;
@@ -898,13 +923,13 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
                 const TextSpan(text: ' руб.'),
                 TextSpan(text: widget.goodsDetail.rel == 1 ? '\n' :'\nВложение: ${widget.goodsDetail.rel} '),
                 TextSpan(text: 'Кратность: ${widget.goodsDetail.stockRel} '),
-                const TextSpan(text: 'Остаток: '),
-                TextSpan(text: stock.vol~/goods.categoryPackageRel > 0 ?
-                  '${stock.vol~/goods.categoryPackageRel} к. ' :
+                TextSpan(text: 'Остаток: ${stockVol != 0 ? '' : '0 шт.'}'),
+                TextSpan(text: stockVol~/goods.categoryPackageRel > 0 ?
+                  '${stockVol~/goods.categoryPackageRel} к. ' :
                   null
                   ),
-                TextSpan(text: stock.vol%goods.categoryPackageRel > 0 ?
-                  '${(stock.vol%goods.categoryPackageRel).toInt()} шт. ' :
+                TextSpan(text: stockVol%goods.categoryPackageRel > 0 ?
+                  '${(stockVol%goods.categoryPackageRel).toInt()} шт. ' :
                   null
                 ),
                 TextSpan(
@@ -977,13 +1002,13 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
                 ),
                 TextSpan(text: widget.goodsDetail.rel == 1 ? '\n' :'\nВложение: ${widget.goodsDetail.rel} '),
                 TextSpan(text: 'Кратность: ${widget.goodsDetail.stockRel} '),
-                const TextSpan(text: 'Остаток: '),
-                TextSpan(text: stock.vol~/goods.categoryPackageRel > 0 ?
-                  '${stock.vol~/goods.categoryPackageRel} к. ' :
+                TextSpan(text: 'Остаток: ${stockVol != 0 ? '' : '0 шт.'}'),
+                TextSpan(text: stockVol~/goods.categoryPackageRel > 0 ?
+                  '${stockVol~/goods.categoryPackageRel} к. ' :
                   null
                 ),
-                TextSpan(text: stock.vol%goods.categoryPackageRel > 0 ?
-                  '${(stock.vol%goods.categoryPackageRel).toInt()} шт. ' :
+                TextSpan(text: stockVol%goods.categoryPackageRel > 0 ?
+                  '${(stockVol%goods.categoryPackageRel).toInt()} шт. ' :
                   null
                 ),
                 TextSpan(

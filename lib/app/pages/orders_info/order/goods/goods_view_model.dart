@@ -18,7 +18,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     final categories = await ordersRepository.getCategories(buyerId: state.orderEx.order.buyerId!);
     final shopDepartments = await ordersRepository.getShopDepartments();
     final goodsFilters = await ordersRepository.getGoodsFilters();
-    final pref = await appRepository.getPref();
+    final appInfo = await appRepository.getAppInfo();
 
     emit(state.copyWith(
       status: GoodsStateStatus.dataLoaded,
@@ -27,7 +27,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       shopDepartments: shopDepartments,
       linesExList: linesExList,
       goodsFilters: goodsFilters,
-      pref: pref
+      appInfo: appInfo
     ));
   }
 
@@ -129,7 +129,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       extraLabel: state.selectedGoodsFilter?.value,
       categoryId: state.selectedCategory?.id,
       bonusProgramId: state.selectedBonusProgram?.id,
-      goodsIds: state.showOnlyOrder ? state.filteredOrderLinesExList.map((e) => e.goods.id).toList() : null
+      goodsIds: state.showOnlyOrder ? state.filteredOrderLinesExList.map((e) => e.line.goodsId).toList() : null
     );
     final categoryIds = goods.map((e) => e.categoryId).toSet();
     final visibleCategories = state.selectedCategory == null ?
@@ -151,31 +151,8 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> updateGoodsPrices() async {
-    await updateOrderLinePrices();
+    await ordersRepository.updateOrderLinePrices(state.orderEx.order);
     await searchGoods();
-  }
-
-  Future<void> updateOrderLinePrices() async {
-    final orderLinesEx = (await ordersRepository.getOrderLineExList(state.orderEx.order.id));
-    final goodsDetails = await ordersRepository.getGoodsDetails(
-      buyerId: state.orderEx.buyer!.id,
-      date: state.orderEx.order.date!,
-      goodsIds: orderLinesEx.map((e) => e.goods.id).toList()
-    );
-
-    for (var orderLine in orderLinesEx) {
-      final goodsDetail = goodsDetails.firstWhereOrNull((e) => e.goods == orderLine.goods);
-
-      if (goodsDetail == null) continue;
-      if (orderLine.line.price != orderLine.line.priceOriginal) continue;
-
-      await ordersRepository.updateOrderLine(
-        orderLine.line,
-        price: Optional.of(goodsDetail.price),
-        priceOriginal: Optional.of(goodsDetail.price),
-        needSync: Optional.of(true)
-      );
-    }
   }
 
   Future<void> updateOrderLineVol(GoodsDetail goodsDetail, double? vol) async {
@@ -213,7 +190,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     );
   }
 
-  Future<void> updateOrderLinePrice(OrderLineEx orderLineEx, double price) async {
+  Future<void> updateOrderLinePrice(OrderLineExResult orderLineEx, double price) async {
     await ordersRepository.updateOrderLine(
       orderLineEx.line,
       price: Optional.of(price),

@@ -21,13 +21,13 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> loadData() async {
     final pointEx = await pointsRepository.getPointEx(state.pointEx.point.id);
     final pointFormats = await pointsRepository.getPointFormats();
-    final pref = await appRepository.getPref();
+    final appInfo = await appRepository.getAppInfo();
 
     emit(state.copyWith(
       status: PointStateStatus.dataLoaded,
       pointEx: pointEx,
       pointFormats: pointFormats,
-      pref: pref
+      appInfo: appInfo
     ));
   }
 
@@ -72,10 +72,10 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
     _notifyPointUpdated();
   }
 
-  Future<void> updateAddress(String address, double latitude, double longitude) async {
+  Future<void> updateAddress(String? address, double latitude, double longitude) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      address: Optional.of(address),
+      address: Optional.fromNullable(address),
       latitude: Optional.of(latitude),
       longitude: Optional.of(longitude),
       needSync: Optional.of(true)
@@ -200,8 +200,10 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
         state.pointEx.images.toList()
       );
 
+      await pointsRepository.blockPoints(true, ids: [points.first.point.id]);
+
       emit(state.copyWith(
-        pointEx: points.firstOrNull,
+        pointEx: points.first,
         status: PointStateStatus.saveSuccess,
         message: Strings.changesSaved
       ));

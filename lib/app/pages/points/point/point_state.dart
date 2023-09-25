@@ -17,16 +17,16 @@ class PointState {
     required this.pointEx,
     this.pointFormats = const [],
     this.message = '',
-    this.pref
+    this.appInfo
   });
 
   final PointStateStatus status;
   final PointEx pointEx;
   final List<PointFormat> pointFormats;
   final String message;
-  final Pref? pref;
+  final AppInfoResult? appInfo;
 
-  bool get showLocalImage => pref?.showLocalImage ?? true;
+  bool get showLocalImage => appInfo?.showLocalImage ?? true;
 
   bool get needSync => pointEx.point.needSync || pointEx.images.any((e) => e.needSync);
 
@@ -35,14 +35,14 @@ class PointState {
     PointEx? pointEx,
     List<PointFormat>? pointFormats,
     String? message,
-    Pref? pref
+    AppInfoResult? appInfo
   }) {
     return PointState(
       status: status ?? this.status,
       pointEx: pointEx ?? this.pointEx,
       pointFormats: pointFormats ?? this.pointFormats,
       message: message ?? this.message,
-      pref: pref ?? this.pref
+      appInfo: appInfo ?? this.appInfo
     );
   }
 }

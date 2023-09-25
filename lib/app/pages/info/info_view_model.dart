@@ -40,12 +40,12 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
   @override
   Future<void> loadData() async {
-    final newVersionAvailable = await appRepository.newVersionAvailable;
+    final user = await usersRepository.getUser();
     final appInfo = await appRepository.getAppInfo();
 
     emit(state.copyWith(
       status: InfoStateStatus.dataLoaded,
-      newVersionAvailable: newVersionAvailable,
+      user: user,
       appInfo: appInfo
     ));
   }

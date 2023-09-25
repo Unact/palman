@@ -46,6 +46,15 @@ part of 'database.dart';
       LEFT JOIN buyers on buyers.id = orders.buyer_id
       ORDER BY orders.date DESC, buyers.name
     ''',
+    'orderLineEx': '''
+      SELECT
+        order_lines.** AS "line",
+        goods.name AS "goods_name"
+      FROM order_lines
+      JOIN goods ON goods.id = order_lines.goods_id
+      WHERE order_lines.order_id = :order_id
+      ORDER BY goods.name
+    ''',
     'preOrderEx': '''
       SELECT
         pre_orders.** AS "pre_order",
@@ -65,6 +74,15 @@ part of 'database.dart';
       JOIN buyers on buyers.id = pre_orders.buyer_id
       ORDER BY pre_orders.date DESC, buyers.name
     ''',
+    'preOrderLineEx': '''
+      SELECT
+        pre_order_lines.** AS "line",
+        goods.name AS "goods_name"
+      FROM pre_order_lines
+      JOIN goods ON goods.id = pre_order_lines.goods_id
+      WHERE pre_order_lines.pre_order_id = :pre_order_id
+      ORDER BY goods.name
+    ''',
     'goodsEx': '''
       SELECT
         goods.**,
@@ -81,7 +99,10 @@ part of 'database.dart';
           SELECT MAX(shipments.date)
           FROM shipment_lines
           JOIN shipments ON shipments.id = shipment_lines.shipment_id
-          WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id
+          WHERE
+            shipment_lines.goods_id = goods.id AND
+            shipments.buyer_id = buyers.id AND
+            shipments.date < STRFTIME('%s', 'now', 'start of day')
         ) AS "last_shipment_date",
         (
           SELECT MAX(shipment_lines.price)
@@ -94,7 +115,8 @@ part of 'database.dart';
           ) sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id
           WHERE
             shipment_lines.goods_id = goods.id AND
-            shipments.buyer_id = buyers.id
+            shipments.buyer_id = buyers.id AND
+            shipments.date < STRFTIME('%s', 'now', 'start of day')
         ) AS "last_price"
       FROM goods
       JOIN categories ON categories.id = goods.category_id
@@ -104,10 +126,6 @@ part of 'database.dart';
       LEFT JOIN goods_stocks fridge_stocks ON
         fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id
       WHERE
-        (
-          (goods.is_fridge = 1 AND fridge_stocks.goods_id IS NOT NULL) OR
-          (goods.is_fridge = 0 AND normal_stocks.goods_id IS NOT NULL)
-        ) AND
         buyers.id = :buyer_id AND
         goods.id IN :goods_ids
       ORDER BY goods.name
@@ -120,7 +138,10 @@ part of 'database.dart';
           FROM shipment_lines
           JOIN shipments ON shipments.id = shipment_lines.shipment_id
           JOIN goods ON shipment_lines.goods_id = goods.id
-          WHERE categories.id = goods.category_id AND shipments.buyer_id = :buyer_id
+          WHERE
+            categories.id = goods.category_id AND
+            shipments.buyer_id = :buyer_id AND
+            shipments.date < STRFTIME('%s', 'now', 'start of day')
         ) AS "last_shipment_date"
       FROM categories
       WHERE EXISTS(SELECT 1 FROM goods WHERE goods.category_id = categories.id)
@@ -304,45 +325,13 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     return preOrderEx().get();
   }
 
-  Future<List<OrderLineEx>> getOrderLineExList(int orderId) async {
-    final orderLinesQuery = select(orderLines)
-      .join([
-        innerJoin(allGoods, allGoods.id.equalsExp(orderLines.goodsId)),
-      ])
-      ..where(orderLines.orderId.equals(orderId))
-      ..orderBy([OrderingTerm(expression: allGoods.name)]);
-
-    return orderLinesQuery.map(
-      (lineRow) => OrderLineEx(lineRow.readTable(orderLines), lineRow.readTable(allGoods))
-    ).get();
+  Future<List<OrderLineExResult>> getOrderLineExList(int orderId) async {
+    return orderLineEx(orderId).get();
   }
 
-  Future<List<PreOrderLineEx>> getPreOrderLineExList(int preOrderId) async {
-    final preOrderLinesQuery = select(preOrderLines)
-      .join([
-        innerJoin(allGoods, allGoods.id.equalsExp(preOrderLines.goodsId)),
-      ])
-      ..where(preOrderLines.preOrderId.equals(preOrderId))
-      ..orderBy([OrderingTerm(expression: allGoods.name)]);
-
-    return preOrderLinesQuery.map(
-      (lineRow) => PreOrderLineEx(lineRow.readTable(preOrderLines), lineRow.readTable(allGoods))
-    ).get();
+  Future<List<PreOrderLineExResult>> getPreOrderLineExList(int preOrderId) async {
+    return preOrderLineEx(preOrderId).get();
   }
-}
-
-class OrderLineEx {
-  final OrderLine line;
-  final Goods goods;
-
-  OrderLineEx(this.line, this.goods);
-}
-
-class PreOrderLineEx {
-  final PreOrderLine line;
-  final Goods goods;
-
-  PreOrderLineEx(this.line, this.goods);
 }
 
 class GoodsDetail {
@@ -354,11 +343,12 @@ class GoodsDetail {
 
   bool get hadShipment => goodsEx.lastShipmentDate != null;
   Goods get goods => goodsEx.goods;
-  GoodsStock get stock => goods.isFridge ? goodsEx.fridgeStock! : goodsEx.normalStock!;
+  GoodsStock? get stock => goods.isFridge ? goodsEx.fridgeStock : goodsEx.normalStock;
+  double get factor => stock?.factor ?? 1;
   bool get conditionalDiscount => bonusPrograms.any((e) => e.conditionalDiscount);
-  int get rel => stock.factor < goods.rel ? goods.categoryUserPackageRel : goods.rel;
-  int get stockRel => stock.factor~/rel;
-  int get package => stock.factor < goods.rel ? goodsEx.categoryUserPackage : goods.package;
+  int get rel => factor < goods.rel ? goods.categoryUserPackageRel : goods.rel;
+  int get stockRel => factor~/rel;
+  int get package => factor < goods.rel ? goodsEx.categoryUserPackage : goods.package;
   double get pricelistPrice => (prices.firstWhereOrNull((e) => e.goodsId == goods.id)?.price ?? 0).roundDigits(2);
   double get price {
     final goodsBonusPrograms = bonusPrograms.where((e) => e.goodsId == goods.id).toList();

@@ -40,7 +40,7 @@ class GoodsInfoViewModel extends PageViewModel<GoodsInfoState, GoodsInfoStateSta
       partnerId: state.buyer.partnerId,
       goodsId: state.goodsEx.goods.id
     );
-    final pref = await appRepository.getPref();
+    final appInfo = await appRepository.getAppInfo();
 
     emit(state.copyWith(
       status: GoodsInfoStateStatus.dataLoaded,
@@ -48,7 +48,7 @@ class GoodsInfoViewModel extends PageViewModel<GoodsInfoState, GoodsInfoStateSta
       goodsPricelists: goodsPricelists,
       partnersPricelists: partnersPricelists,
       partnersPrices: partnersPrices,
-      pref: pref
+      appInfo: appInfo
     ));
   }
 

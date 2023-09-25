@@ -15,16 +15,12 @@ class PersonViewModel extends PageViewModel<PersonState, PersonStateStatus> {
   @override
   Future<void> loadData() async {
     final user = await usersRepository.getUser();
-    final pref = await appRepository.getPref();
-    final fullVersion = await appRepository.fullVersion;
-    final newVersionAvailable = await appRepository.newVersionAvailable;
+    final appInfo = await appRepository.getAppInfo();
 
     emit(state.copyWith(
       status: PersonStateStatus.dataLoaded,
       user: user,
-      pref: pref,
-      fullVersion: fullVersion,
-      newVersionAvailable: newVersionAvailable
+      appInfo: appInfo
     ));
   }
 

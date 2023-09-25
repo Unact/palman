@@ -43,6 +43,12 @@ class _LoginViewState extends State<_LoginView> {
   final TextEditingController urlController = TextEditingController();
 
   @override
+  void dispose() {
+    super.dispose();
+    progressDialog.close();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -67,7 +73,10 @@ class _LoginViewState extends State<_LoginView> {
               Expanded(child: Container()),
               Padding(
                 padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-                child: Text('Версия ${state.fullVersion}')
+                child: FutureBuilder(
+                  future: Misc.fullVersion,
+                  builder: (context, snapshot) => Text('Версия ${snapshot.data ?? ''}'),
+                )
               )
             ]
           );

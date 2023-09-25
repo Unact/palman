@@ -26,7 +26,7 @@ class Strings {
   static const incRequestDefaultStatus = 'Не отправлен';
 
   static const ok = 'ОК';
-  static const cancel = 'Отмена';
+  static const cancel = 'ОТМЕНА';
   static const yes = 'Да';
   static const no = 'Нет';
   static const inProcess = 'В процессе';

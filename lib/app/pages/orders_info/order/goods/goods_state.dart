@@ -26,13 +26,13 @@ class GoodsState {
     this.showGroupInfo = false,
     this.showOnlyActive = false,
     this.showOnlyOrder = false,
-    this.pref
+    this.appInfo
   });
 
   final GoodsStateStatus status;
 
   final OrderExResult orderEx;
-  final List<OrderLineEx> linesExList;
+  final List<OrderLineExResult> linesExList;
   final List<CategoriesExResult> allCategories;
   final List<ShopDepartment> shopDepartments;
   final List<GoodsFilter> goodsFilters;
@@ -43,10 +43,10 @@ class GoodsState {
     .map((e) => e.goods.manufacturer!)
     .toSet().toList();
 
-  double get total => linesExList.fold(0, (acc, e) => acc + e.line.total);
+  double get total => filteredOrderLinesExList.fold(0, (acc, e) => acc + e.line.total);
 
   List<String> get goodsFirstWords => goodsDetails.map((e) => e.goods.name.split(' ')[0]).toSet().toList();
-  List<OrderLineEx> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
+  List<OrderLineExResult> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
 
   bool get showAllGoods => selectedCategory != null ||
     selectedBonusProgram != null ||
@@ -76,15 +76,15 @@ class GoodsState {
   final bool showGroupInfo;
   final bool showOnlyActive;
   final bool showOnlyOrder;
-  final Pref? pref;
+  final AppInfoResult? appInfo;
 
-  bool get showLocalImage => pref?.showLocalImage ?? true;
-  bool get showWithPrice => pref?.showWithPrice ?? false;
+  bool get showLocalImage => appInfo?.showLocalImage ?? true;
+  bool get showWithPrice => appInfo?.showWithPrice ?? false;
 
   GoodsState copyWith({
     GoodsStateStatus? status,
     OrderExResult? orderEx,
-    List<OrderLineEx>? linesExList,
+    List<OrderLineExResult>? linesExList,
     List<CategoriesExResult>? allCategories,
     List<ShopDepartment>? shopDepartments,
     List<GoodsFilter>? goodsFilters,
@@ -99,7 +99,7 @@ class GoodsState {
     bool? showGroupInfo,
     bool? showOnlyActive,
     bool? showOnlyOrder,
-    Pref? pref
+    AppInfoResult? appInfo
   }) {
     return GoodsState(
       status: status ?? this.status,
@@ -119,7 +119,7 @@ class GoodsState {
       showGroupInfo: showGroupInfo ?? this.showGroupInfo,
       showOnlyActive: showOnlyActive ?? this.showOnlyActive,
       showOnlyOrder: showOnlyOrder ?? this.showOnlyOrder,
-      pref: pref ?? this.pref
+      appInfo: appInfo ?? this.appInfo
     );
   }
 }

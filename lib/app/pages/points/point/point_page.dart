@@ -52,11 +52,17 @@ class _PointViewState extends State<_PointView> {
   TextEditingController? nds20Controller;
   TextEditingController? plongController;
 
+  @override
+  void dispose() {
+    super.dispose();
+    progressDialog.close();
+  }
+
   Future<void> showAddressDialog() async {
     final vm = context.read<PointViewModel>();
     final point = vm.state.pointEx.point;
 
-    final result = await showDialog<(String, double, double)?>(
+    final result = await showDialog<(String?, double, double)?>(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) => AddressPage(
@@ -105,7 +111,7 @@ class _PointViewState extends State<_PointView> {
               Center(
                 child: Badge(
                   backgroundColor: Theme.of(context).colorScheme.error,
-                  label: const Text(' '),
+                  label: const Text('1'),
                   isLabelVisible: state.needSync,
                   offset: const Offset(-4, 4),
                   child: IconButton(

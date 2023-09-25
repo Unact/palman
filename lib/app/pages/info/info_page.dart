@@ -62,6 +62,12 @@ class _InfoViewState extends State<_InfoView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
   Completer<IndicatorResult> refresherCompleter = Completer();
 
+  @override
+  void dispose() {
+    super.dispose();
+    progressDialog.close();
+  }
+
   Future<void> openRefresher() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       refreshIndicatorKey.currentState!.show();
@@ -95,8 +101,8 @@ class _InfoViewState extends State<_InfoView> {
           title: const Text('Внимание'),
           content: const SingleChildScrollView(child: Text('Присутствуют не сохраненные изменения. Продолжить?')),
           actions: <Widget>[
-            TextButton(child: const Text(Strings.ok), onPressed: () => Navigator.of(context).pop(false)),
-            TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(true))
+            TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(true)),
+            TextButton(child: const Text(Strings.ok), onPressed: () => Navigator.of(context).pop(false))
           ],
         );
       }
@@ -382,14 +388,19 @@ class _InfoViewState extends State<_InfoView> {
   Widget buildInfoCard(BuildContext context) {
     final vm = context.read<InfoViewModel>();
 
-    if (!vm.state.newVersionAvailable) return Container();
+    return FutureBuilder(
+      future: vm.state.user?.newVersionAvailable,
+      builder: (context, snapshot) {
+        if (!(snapshot.data ?? false)) return Container();
 
-    return const Card(
-      child: ListTile(
-        isThreeLine: true,
-        title: Text('Информация'),
-        subtitle: Text('Доступна новая версия приложения'),
-      )
+        return const Card(
+          child: ListTile(
+            isThreeLine: true,
+            title: Text('Информация'),
+            subtitle: Text('Доступна новая версия приложения'),
+          )
+        );
+      }
     );
   }
 

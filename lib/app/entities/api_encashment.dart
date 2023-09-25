@@ -6,7 +6,7 @@ class ApiEncashment extends Equatable {
   final DateTime date;
   final bool isCheck;
   final int buyerId;
-  final int debtId;
+  final int? debtId;
   final double encSum;
   final DateTime timestamp;
 
@@ -50,7 +50,7 @@ class ApiEncashment extends Equatable {
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
     id,
     guid,
     date,

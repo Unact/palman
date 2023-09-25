@@ -51,6 +51,12 @@ class _OrderViewState extends State<_OrderView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
   TextEditingController? buyerController;
 
+  @override
+  void dispose() {
+    super.dispose();
+    progressDialog.close();
+  }
+
   Future<void> showDateDialog() async {
     final vm = context.read<OrderViewModel>();
     final firstDate = vm.state.workdates.first.date;
@@ -92,7 +98,7 @@ class _OrderViewState extends State<_OrderView> {
               Center(
                 child: Badge(
                   backgroundColor: Theme.of(context).colorScheme.error,
-                  label: const Text(' '),
+                  label: const Text('1'),
                   isLabelVisible: state.needSync,
                   offset: const Offset(-4, 4),
                   child: IconButton(
@@ -305,10 +311,10 @@ class _OrderViewState extends State<_OrderView> {
     ];
   }
 
-  Widget buildOrderLineTile(BuildContext context, OrderLineEx orderLineEx) {
+  Widget buildOrderLineTile(BuildContext context, OrderLineExResult orderLineEx) {
     final vm = context.read<OrderViewModel>();
     final tile = ListTile(
-      title: Text(orderLineEx.goods.name),
+      title: Text(orderLineEx.goodsName),
       subtitle: RichText(
         text: TextSpan(
           style: Styles.defaultTextSpan,

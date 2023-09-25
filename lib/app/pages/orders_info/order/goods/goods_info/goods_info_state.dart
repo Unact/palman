@@ -17,7 +17,7 @@ class GoodsInfoState {
     this.goodsPricelists = const [],
     this.partnersPrices = const [],
     this.partnersPricelists = const [],
-    this.pref
+    this.appInfo
   });
 
   final GoodsInfoStateStatus status;
@@ -29,9 +29,9 @@ class GoodsInfoState {
   final List<GoodsPricelistsResult> goodsPricelists;
   final List<PartnersPrice> partnersPrices;
   final List<PartnersPricelist> partnersPricelists;
-  final Pref? pref;
+  final AppInfoResult? appInfo;
 
-  bool get showLocalImage => pref?.showLocalImage ?? true;
+  bool get showLocalImage => appInfo?.showLocalImage ?? true;
 
   PartnersPricelist? get curPartnerPricelist => partnersPricelists.firstWhereOrNull(
     (e) => goodsPricelists.map((e) => e.id).contains(e.pricelistId)
@@ -52,7 +52,7 @@ class GoodsInfoState {
     List<GoodsPricelistsResult>? goodsPricelists,
     List<PartnersPrice>? partnersPrices,
     List<PartnersPricelist>? partnersPricelists,
-    Pref? pref
+    AppInfoResult? appInfo
   }) {
     return GoodsInfoState(
       status: status ?? this.status,
@@ -63,7 +63,7 @@ class GoodsInfoState {
       goodsPricelists: goodsPricelists ?? this.goodsPricelists,
       partnersPrices: partnersPrices ?? this.partnersPrices,
       partnersPricelists: partnersPricelists ?? this.partnersPricelists,
-      pref: pref ?? this.pref
+      appInfo: appInfo ?? this.appInfo
     );
   }
 }

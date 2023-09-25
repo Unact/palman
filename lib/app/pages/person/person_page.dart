@@ -45,6 +45,12 @@ class _PersonViewState extends State<_PersonView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
 
   @override
+  void dispose() {
+    super.dispose();
+    progressDialog.close();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<PersonViewModel, PersonState>(
       builder: (context, state) {
@@ -87,42 +93,55 @@ class _PersonViewState extends State<_PersonView> {
         InfoRow(
           title: const Text('Данные загружены'),
           trailing: Text(
-            state.pref?.lastSyncTime != null ?
-              Format.dateTimeStr(state.pref?.lastSyncTime!) :
+            state.appInfo?.lastSyncTime != null ?
+              Format.dateTimeStr(state.appInfo?.lastSyncTime!) :
               'Загрузка не проводилась'
           )
         ),
         InfoRow(
           title: const Text('Отображать фото локально'),
-          trailing: state.pref == null ? null : Checkbox(
-            value: state.pref!.showLocalImage,
+          trailing: state.appInfo == null ? null : Checkbox(
+            value: state.appInfo!.showLocalImage,
             onChanged: (newValue) => vm.updateShowLocalImage(newValue!)
           )
         ),
         InfoRow(
           title: const Text('Показывать нулевые цены'),
-          trailing: state.pref == null ? null : Checkbox(
-            value: !state.pref!.showWithPrice,
+          trailing: state.appInfo == null ? null : Checkbox(
+            value: !state.appInfo!.showWithPrice,
             onChanged: (newValue) => vm.updateShowWithPrice(!newValue!)
           )
         ),
-        InfoRow(title: const Text('Версия'), trailing: Text(state.fullVersion)),
-        !state.newVersionAvailable ? Container() : Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                  backgroundColor: Theme.of(context).colorScheme.primary
-                ),
-                onPressed: vm.launchAppUpdate,
-                child: const Text('Обновить приложение'),
-              )
-            ],
+        InfoRow(
+          title: const Text('Версия'),
+          trailing: FutureBuilder(
+            future: Misc.fullVersion,
+            builder: (context, snapshot) => Text(snapshot.data ?? ''),
           )
+        ),
+        FutureBuilder(
+          future: vm.state.user?.newVersionAvailable,
+          builder: (context, snapshot) {
+            if (!(snapshot.data ?? false)) return Container();
+
+            return Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+                      backgroundColor: Theme.of(context).colorScheme.primary
+                    ),
+                    onPressed: vm.launchAppUpdate,
+                    child: const Text('Обновить приложение'),
+                  )
+                ],
+              )
+            );
+          }
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
