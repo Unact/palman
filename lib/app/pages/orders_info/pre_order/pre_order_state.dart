@@ -17,13 +17,13 @@ class PreOrderState {
   final PreOrderStateStatus status;
 
   final PreOrderExResult preOrderEx;
-  final List<PreOrderLineEx> linesExList;
+  final List<PreOrderLineExResult> linesExList;
   final OrderExResult? newOrder;
 
   PreOrderState copyWith({
     PreOrderStateStatus? status,
     PreOrderExResult? preOrderEx,
-    List<PreOrderLineEx>? linesExList,
+    List<PreOrderLineExResult>? linesExList,
     OrderExResult? newOrder
   }) {
     return PreOrderState(

@@ -45,6 +45,12 @@ class _PersonViewState extends State<_PersonView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
 
   @override
+  void dispose() {
+    super.dispose();
+    progressDialog.close();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<PersonViewModel, PersonState>(
       builder: (context, state) {

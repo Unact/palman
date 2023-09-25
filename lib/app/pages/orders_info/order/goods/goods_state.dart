@@ -32,7 +32,7 @@ class GoodsState {
   final GoodsStateStatus status;
 
   final OrderExResult orderEx;
-  final List<OrderLineEx> linesExList;
+  final List<OrderLineExResult> linesExList;
   final List<CategoriesExResult> allCategories;
   final List<ShopDepartment> shopDepartments;
   final List<GoodsFilter> goodsFilters;
@@ -46,7 +46,7 @@ class GoodsState {
   double get total => filteredOrderLinesExList.fold(0, (acc, e) => acc + e.line.total);
 
   List<String> get goodsFirstWords => goodsDetails.map((e) => e.goods.name.split(' ')[0]).toSet().toList();
-  List<OrderLineEx> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
+  List<OrderLineExResult> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
 
   bool get showAllGoods => selectedCategory != null ||
     selectedBonusProgram != null ||
@@ -84,7 +84,7 @@ class GoodsState {
   GoodsState copyWith({
     GoodsStateStatus? status,
     OrderExResult? orderEx,
-    List<OrderLineEx>? linesExList,
+    List<OrderLineExResult>? linesExList,
     List<CategoriesExResult>? allCategories,
     List<ShopDepartment>? shopDepartments,
     List<GoodsFilter>? goodsFilters,

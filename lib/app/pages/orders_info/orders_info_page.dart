@@ -52,7 +52,14 @@ class _OrdersInfoView extends StatefulWidget {
 
 class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProviderStateMixin {
   final TextEditingController buyerController = TextEditingController();
+  late final ProgressDialog progressDialog = ProgressDialog(context: context);
   Completer<IndicatorResult> refresherCompleter = Completer();
+
+  @override
+  void dispose() {
+    super.dispose();
+    progressDialog.close();
+  }
 
   void setPageChangeable(bool pageChangeable) {
     final homeVm = context.read<HomeViewModel>();
@@ -231,6 +238,14 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
             break;
           case OrdersInfoStateStatus.loadSuccess:
             closeRefresher(IndicatorResult.success);
+            break;
+          case OrdersInfoStateStatus.saveInProgress:
+            progressDialog.open();
+            break;
+          case OrdersInfoStateStatus.saveFailure:
+          case OrdersInfoStateStatus.saveSuccess:
+            Misc.showMessage(context, state.message);
+            progressDialog.close();
             break;
           case OrdersInfoStateStatus.orderAdded:
             WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -52,6 +52,12 @@ class _PointViewState extends State<_PointView> {
   TextEditingController? nds20Controller;
   TextEditingController? plongController;
 
+  @override
+  void dispose() {
+    super.dispose();
+    progressDialog.close();
+  }
+
   Future<void> showAddressDialog() async {
     final vm = context.read<PointViewModel>();
     final point = vm.state.pointEx.point;

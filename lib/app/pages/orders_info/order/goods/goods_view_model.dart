@@ -129,7 +129,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       extraLabel: state.selectedGoodsFilter?.value,
       categoryId: state.selectedCategory?.id,
       bonusProgramId: state.selectedBonusProgram?.id,
-      goodsIds: state.showOnlyOrder ? state.filteredOrderLinesExList.map((e) => e.goods.id).toList() : null
+      goodsIds: state.showOnlyOrder ? state.filteredOrderLinesExList.map((e) => e.line.goodsId).toList() : null
     );
     final categoryIds = goods.map((e) => e.categoryId).toSet();
     final visibleCategories = state.selectedCategory == null ?
@@ -190,7 +190,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     );
   }
 
-  Future<void> updateOrderLinePrice(OrderLineEx orderLineEx, double price) async {
+  Future<void> updateOrderLinePrice(OrderLineExResult orderLineEx, double price) async {
     await ordersRepository.updateOrderLine(
       orderLineEx.line,
       price: Optional.of(price),

@@ -14162,6 +14162,23 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     });
   }
 
+  Selectable<OrderLineExResult> orderLineEx(int orderId) {
+    return customSelect(
+        'SELECT"order_lines"."id" AS "nested_0.id", "order_lines"."order_id" AS "nested_0.order_id", "order_lines"."goods_id" AS "nested_0.goods_id", "order_lines"."vol" AS "nested_0.vol", "order_lines"."price" AS "nested_0.price", "order_lines"."price_original" AS "nested_0.price_original", "order_lines"."package" AS "nested_0.package", "order_lines"."rel" AS "nested_0.rel", "order_lines"."guid" AS "nested_0.guid", "order_lines"."is_deleted" AS "nested_0.is_deleted", "order_lines"."timestamp" AS "nested_0.timestamp", "order_lines"."need_sync" AS "nested_0.need_sync", goods.name AS goods_name FROM order_lines JOIN goods ON goods.id = order_lines.goods_id WHERE order_lines.order_id = ?1 ORDER BY goods.name',
+        variables: [
+          Variable<int>(orderId)
+        ],
+        readsFrom: {
+          allGoods,
+          orderLines,
+        }).asyncMap((QueryRow row) async {
+      return OrderLineExResult(
+        line: await orderLines.mapFromRow(row, tablePrefix: 'nested_0'),
+        goodsName: row.read<String>('goods_name'),
+      );
+    });
+  }
+
   Selectable<PreOrderExResult> preOrderEx() {
     return customSelect(
         'SELECT"pre_orders"."id" AS "nested_0.id", "pre_orders"."date" AS "nested_0.date", "pre_orders"."buyer_id" AS "nested_0.buyer_id", "pre_orders"."need_docs" AS "nested_0.need_docs", "pre_orders"."info" AS "nested_0.info","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", COALESCE((SELECT SUM(pre_order_lines.rel * pre_order_lines.vol * pre_order_lines.price) FROM pre_order_lines WHERE pre_order_lines.pre_order_id = pre_orders.id), 0) AS lines_total, (SELECT COUNT(*) FROM pre_order_lines WHERE pre_order_id = pre_orders.id) AS lines_count, EXISTS (SELECT 1 AS _c0 FROM orders WHERE pre_order_id = pre_orders.id) AS has_order, EXISTS (SELECT 1 AS _c1 FROM seen_pre_orders WHERE id = pre_orders.id) AS was_seen FROM pre_orders JOIN buyers ON buyers.id = pre_orders.buyer_id ORDER BY pre_orders.date DESC, buyers.name',
@@ -14180,6 +14197,23 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
         linesCount: row.read<int>('lines_count'),
         hasOrder: row.read<bool>('has_order'),
         wasSeen: row.read<bool>('was_seen'),
+      );
+    });
+  }
+
+  Selectable<PreOrderLineExResult> preOrderLineEx(int preOrderId) {
+    return customSelect(
+        'SELECT"pre_order_lines"."id" AS "nested_0.id", "pre_order_lines"."pre_order_id" AS "nested_0.pre_order_id", "pre_order_lines"."goods_id" AS "nested_0.goods_id", "pre_order_lines"."vol" AS "nested_0.vol", "pre_order_lines"."price" AS "nested_0.price", "pre_order_lines"."package" AS "nested_0.package", "pre_order_lines"."rel" AS "nested_0.rel", goods.name AS goods_name FROM pre_order_lines JOIN goods ON goods.id = pre_order_lines.goods_id WHERE pre_order_lines.pre_order_id = ?1 ORDER BY goods.name',
+        variables: [
+          Variable<int>(preOrderId)
+        ],
+        readsFrom: {
+          allGoods,
+          preOrderLines,
+        }).asyncMap((QueryRow row) async {
+      return PreOrderLineExResult(
+        line: await preOrderLines.mapFromRow(row, tablePrefix: 'nested_0'),
+        goodsName: row.read<String>('goods_name'),
       );
     });
   }
@@ -14258,6 +14292,15 @@ class OrderExResult {
   });
 }
 
+class OrderLineExResult {
+  final OrderLine line;
+  final String goodsName;
+  OrderLineExResult({
+    required this.line,
+    required this.goodsName,
+  });
+}
+
 class PreOrderExResult {
   final PreOrder preOrder;
   final Buyer buyer;
@@ -14272,6 +14315,15 @@ class PreOrderExResult {
     required this.linesCount,
     required this.hasOrder,
     required this.wasSeen,
+  });
+}
+
+class PreOrderLineExResult {
+  final PreOrderLine line;
+  final String goodsName;
+  PreOrderLineExResult({
+    required this.line,
+    required this.goodsName,
   });
 }
 

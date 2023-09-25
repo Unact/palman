@@ -46,6 +46,15 @@ part of 'database.dart';
       LEFT JOIN buyers on buyers.id = orders.buyer_id
       ORDER BY orders.date DESC, buyers.name
     ''',
+    'orderLineEx': '''
+      SELECT
+        order_lines.** AS "line",
+        goods.name AS "goods_name"
+      FROM order_lines
+      JOIN goods ON goods.id = order_lines.goods_id
+      WHERE order_lines.order_id = :order_id
+      ORDER BY goods.name
+    ''',
     'preOrderEx': '''
       SELECT
         pre_orders.** AS "pre_order",
@@ -64,6 +73,15 @@ part of 'database.dart';
       FROM pre_orders
       JOIN buyers on buyers.id = pre_orders.buyer_id
       ORDER BY pre_orders.date DESC, buyers.name
+    ''',
+    'preOrderLineEx': '''
+      SELECT
+        pre_order_lines.** AS "line",
+        goods.name AS "goods_name"
+      FROM pre_order_lines
+      JOIN goods ON goods.id = pre_order_lines.goods_id
+      WHERE pre_order_lines.pre_order_id = :pre_order_id
+      ORDER BY goods.name
     ''',
     'goodsEx': '''
       SELECT
@@ -307,45 +325,13 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     return preOrderEx().get();
   }
 
-  Future<List<OrderLineEx>> getOrderLineExList(int orderId) async {
-    final orderLinesQuery = select(orderLines)
-      .join([
-        innerJoin(allGoods, allGoods.id.equalsExp(orderLines.goodsId)),
-      ])
-      ..where(orderLines.orderId.equals(orderId))
-      ..orderBy([OrderingTerm(expression: allGoods.name)]);
-
-    return orderLinesQuery.map(
-      (lineRow) => OrderLineEx(lineRow.readTable(orderLines), lineRow.readTable(allGoods))
-    ).get();
+  Future<List<OrderLineExResult>> getOrderLineExList(int orderId) async {
+    return orderLineEx(orderId).get();
   }
 
-  Future<List<PreOrderLineEx>> getPreOrderLineExList(int preOrderId) async {
-    final preOrderLinesQuery = select(preOrderLines)
-      .join([
-        innerJoin(allGoods, allGoods.id.equalsExp(preOrderLines.goodsId)),
-      ])
-      ..where(preOrderLines.preOrderId.equals(preOrderId))
-      ..orderBy([OrderingTerm(expression: allGoods.name)]);
-
-    return preOrderLinesQuery.map(
-      (lineRow) => PreOrderLineEx(lineRow.readTable(preOrderLines), lineRow.readTable(allGoods))
-    ).get();
+  Future<List<PreOrderLineExResult>> getPreOrderLineExList(int preOrderId) async {
+    return preOrderLineEx(preOrderId).get();
   }
-}
-
-class OrderLineEx {
-  final OrderLine line;
-  final Goods goods;
-
-  OrderLineEx(this.line, this.goods);
-}
-
-class PreOrderLineEx {
-  final PreOrderLine line;
-  final Goods goods;
-
-  PreOrderLineEx(this.line, this.goods);
 }
 
 class GoodsDetail {

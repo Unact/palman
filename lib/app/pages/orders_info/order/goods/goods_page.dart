@@ -52,6 +52,12 @@ class _GoodsViewState extends State<_GoodsView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
   final TextEditingController nameController = TextEditingController();
 
+  @override
+  void dispose() {
+    super.dispose();
+    progressDialog.close();
+  }
+
   Future<void> showBonusProgramSelectDialog([GoodsDetail? goodsDetail]) async {
     final vm = context.read<GoodsViewModel>();
     final result = await showDialog<FilteredBonusProgramsResult>(
@@ -507,7 +513,7 @@ class _GoodsGroupsView extends StatefulWidget {
   final void Function(GoodsDetail) onBonusProgramTap;
   final void Function(GoodsDetail goodsDetail, double? vol) onVolChange;
   final OrderExResult orderEx;
-  final List<OrderLineEx> linesExList;
+  final List<OrderLineExResult> linesExList;
 
   _GoodsGroupsView({
     required this.groupedGoods,
@@ -781,7 +787,12 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     );
   }
 
-  Widget buildGoodsTileTrailing(BuildContext context, GoodsDetail goodsDetail, OrderLineEx? orderLineEx, bool enabled) {
+  Widget buildGoodsTileTrailing(
+    BuildContext context,
+    GoodsDetail goodsDetail,
+    OrderLineExResult? orderLineEx,
+    bool enabled
+  ) {
     final controller = volControllers.putIfAbsent(
       goodsDetail,
       () => TextEditingController(text: orderLineEx?.line.vol.toInt().toString())
@@ -821,7 +832,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
 
 class _GoodsSubtitle extends StatefulWidget {
   final GoodsDetail goodsDetail;
-  final OrderLineEx? orderLineEx;
+  final OrderLineExResult? orderLineEx;
 
   _GoodsSubtitle(
     this.goodsDetail,

@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:u_app_utils/u_app_utils.dart';
@@ -81,9 +80,9 @@ class _PreOrderViewState extends State<_PreOrderView> {
     );
   }
 
-  Widget buildPreOrderLineTile(BuildContext context, PreOrderLineEx preorderLineEx) {
+  Widget buildPreOrderLineTile(BuildContext context, PreOrderLineExResult preorderLineEx) {
     return ListTile(
-      title: Text(preorderLineEx.goods.name),
+      title: Text(preorderLineEx.goodsName),
       subtitle: RichText(
         text: TextSpan(
           style: Styles.defaultTextSpan,

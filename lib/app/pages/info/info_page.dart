@@ -62,6 +62,12 @@ class _InfoViewState extends State<_InfoView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
   Completer<IndicatorResult> refresherCompleter = Completer();
 
+  @override
+  void dispose() {
+    super.dispose();
+    progressDialog.close();
+  }
+
   Future<void> openRefresher() async {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       refreshIndicatorKey.currentState!.show();

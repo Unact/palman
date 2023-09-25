@@ -49,6 +49,12 @@ class _BonusProgramsViewState extends State<_BonusProgramsView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
 
   @override
+  void dispose() {
+    super.dispose();
+    progressDialog.close();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return BlocConsumer<BonusProgramsViewModel, BonusProgramsState>(
       builder: (context, state) {

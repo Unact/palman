@@ -43,6 +43,12 @@ class _LoginViewState extends State<_LoginView> {
   final TextEditingController urlController = TextEditingController();
 
   @override
+  void dispose() {
+    super.dispose();
+    progressDialog.close();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

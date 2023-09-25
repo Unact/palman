@@ -27,7 +27,7 @@ class OrderState {
   final User? user;
   final OrderExResult orderEx;
   final String message;
-  final List<OrderLineEx> linesExList;
+  final List<OrderLineExResult> linesExList;
   final List<Workdate> workdates;
   final List<Buyer> buyers;
   final OrderExResult? newOrder;
@@ -35,7 +35,7 @@ class OrderState {
   bool get isEditable => orderEx.order.isEditable && !orderEx.order.needProcessing;
   bool get canBeProcessed => !orderEx.order.isEditable || filteredOrderLinesExList.isEmpty;
 
-  List<OrderLineEx> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
+  List<OrderLineExResult> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
 
   bool get preOrderMode => user?.preOrderMode ?? false;
 
@@ -46,7 +46,7 @@ class OrderState {
     User? user,
     String? message,
     OrderExResult? orderEx,
-    List<OrderLineEx>? linesExList,
+    List<OrderLineExResult>? linesExList,
     List<Workdate>? workdates,
     List<Buyer>? buyers,
     OrderExResult? newOrder

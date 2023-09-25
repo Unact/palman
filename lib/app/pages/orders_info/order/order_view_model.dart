@@ -123,7 +123,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     _notifyOrderUpdated();
   }
 
-  Future<void> deleteOrderLine(OrderLineEx orderLineEx) async {
+  Future<void> deleteOrderLine(OrderLineExResult orderLineEx) async {
     await ordersRepository.deleteOrderLine(orderLineEx.line);
     emit(state.copyWith(linesExList: state.linesExList.where((e) => e != orderLineEx).toList()));
   }
