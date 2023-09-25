@@ -26,7 +26,7 @@ class GoodsState {
     this.showGroupInfo = false,
     this.showOnlyActive = false,
     this.showOnlyOrder = false,
-    this.pref
+    this.appInfo
   });
 
   final GoodsStateStatus status;
@@ -76,10 +76,10 @@ class GoodsState {
   final bool showGroupInfo;
   final bool showOnlyActive;
   final bool showOnlyOrder;
-  final Pref? pref;
+  final AppInfoResult? appInfo;
 
-  bool get showLocalImage => pref?.showLocalImage ?? true;
-  bool get showWithPrice => pref?.showWithPrice ?? false;
+  bool get showLocalImage => appInfo?.showLocalImage ?? true;
+  bool get showWithPrice => appInfo?.showWithPrice ?? false;
 
   GoodsState copyWith({
     GoodsStateStatus? status,
@@ -99,7 +99,7 @@ class GoodsState {
     bool? showGroupInfo,
     bool? showOnlyActive,
     bool? showOnlyOrder,
-    Pref? pref
+    AppInfoResult? appInfo
   }) {
     return GoodsState(
       status: status ?? this.status,
@@ -119,7 +119,7 @@ class GoodsState {
       showGroupInfo: showGroupInfo ?? this.showGroupInfo,
       showOnlyActive: showOnlyActive ?? this.showOnlyActive,
       showOnlyOrder: showOnlyOrder ?? this.showOnlyOrder,
-      pref: pref ?? this.pref
+      appInfo: appInfo ?? this.appInfo
     );
   }
 }

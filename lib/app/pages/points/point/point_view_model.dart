@@ -21,13 +21,13 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> loadData() async {
     final pointEx = await pointsRepository.getPointEx(state.pointEx.point.id);
     final pointFormats = await pointsRepository.getPointFormats();
-    final pref = await appRepository.getPref();
+    final appInfo = await appRepository.getAppInfo();
 
     emit(state.copyWith(
       status: PointStateStatus.dataLoaded,
       pointEx: pointEx,
       pointFormats: pointFormats,
-      pref: pref
+      appInfo: appInfo
     ));
   }
 

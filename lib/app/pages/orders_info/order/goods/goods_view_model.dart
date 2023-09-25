@@ -18,7 +18,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     final categories = await ordersRepository.getCategories(buyerId: state.orderEx.order.buyerId!);
     final shopDepartments = await ordersRepository.getShopDepartments();
     final goodsFilters = await ordersRepository.getGoodsFilters();
-    final pref = await appRepository.getPref();
+    final appInfo = await appRepository.getAppInfo();
 
     emit(state.copyWith(
       status: GoodsStateStatus.dataLoaded,
@@ -27,7 +27,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       shopDepartments: shopDepartments,
       linesExList: linesExList,
       goodsFilters: goodsFilters,
-      pref: pref
+      appInfo: appInfo
     ));
   }
 

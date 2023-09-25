@@ -382,14 +382,19 @@ class _InfoViewState extends State<_InfoView> {
   Widget buildInfoCard(BuildContext context) {
     final vm = context.read<InfoViewModel>();
 
-    if (!vm.state.newVersionAvailable) return Container();
+    return FutureBuilder(
+      future: vm.state.user?.newVersionAvailable,
+      builder: (context, snapshot) {
+        if (!(snapshot.data ?? false)) return Container();
 
-    return const Card(
-      child: ListTile(
-        isThreeLine: true,
-        title: Text('Информация'),
-        subtitle: Text('Доступна новая версия приложения'),
-      )
+        return const Card(
+          child: ListTile(
+            isThreeLine: true,
+            title: Text('Информация'),
+            subtitle: Text('Доступна новая версия приложения'),
+          )
+        );
+      }
     );
   }
 

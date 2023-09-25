@@ -54,6 +54,80 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   final TextEditingController buyerController = TextEditingController();
   Completer<IndicatorResult> refresherCompleter = Completer();
 
+  void setPageChangeable(bool pageChangeable) {
+    final homeVm = context.read<HomeViewModel>();
+
+    homeVm.setPageChangeable(pageChangeable);
+  }
+
+  void closeRefresher(IndicatorResult result) {
+    refresherCompleter.complete(result);
+    refresherCompleter = Completer();
+  }
+
+  Future<void> showConfirmationDialog() async {
+    final vm = context.read<OrdersInfoViewModel>();
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Внимание'),
+          content: const SingleChildScrollView(child: Text('Присутствуют не сохраненные изменения. Продолжить?')),
+          actions: <Widget>[
+            TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(true)),
+            TextButton(child: const Text(Strings.ok), onPressed: () => Navigator.of(context).pop(false))
+          ],
+        );
+      }
+    ) ?? true;
+
+    await vm.getData(result);
+  }
+
+  Future<void> openIncRequestPage(IncRequestEx incRequestEx) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => IncRequestPage(incRequestEx: incRequestEx),
+        fullscreenDialog: false
+      )
+    );
+  }
+
+  Future<void> openOrderPage(OrderExResult orderEx) async {
+    if (orderEx.order.isBlocked) return;
+
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => OrderPage(orderEx: orderEx),
+        fullscreenDialog: false
+      )
+    );
+  }
+
+  Future<void> openPreOrderPage(PreOrderExResult preOrderEx) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => PreOrderPage(preOrderEx: preOrderEx),
+        fullscreenDialog: false
+      )
+    );
+  }
+
+  Future<void> openShipmentPage(ShipmentExResult shipmentEx) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => ShipmentPage(shipmentEx: shipmentEx),
+        fullscreenDialog: false
+      )
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<OrdersInfoViewModel, OrdersInfoState>(
@@ -80,7 +154,24 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
                     )
                   )
                 ]
-              )
+              ),
+              actions: <Widget>[
+                Center(
+                  child: Badge(
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                    label: Text(state.pendingChanges.toString()),
+                    isLabelVisible: state.hasPendingChanges,
+                    offset: const Offset(-4, 4),
+                    child: IconButton(
+                      color: Colors.white,
+                      icon: const Icon(Icons.save),
+                      splashRadius: 12,
+                      tooltip: 'Сохранить изменения',
+                      onPressed: state.isBusy || !state.hasPendingChanges ? null : vm.saveChanges
+                    )
+                  ),
+                )
+              ]
             ),
             body: EasyRefresh.builder(
               header: ClassicHeader(
@@ -96,6 +187,8 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
                 position: IndicatorPosition.locator,
               ),
               onRefresh: () async {
+                if (vm.state.isBusy) return IndicatorResult.noMore;
+
                 setPageChangeable(false);
                 vm.tryGetData();
                 final result = await refresherCompleter.future;
@@ -208,38 +301,6 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
     );
   }
 
-  void setPageChangeable(bool pageChangeable) {
-    final homeVm = context.read<HomeViewModel>();
-
-    homeVm.setPageChangeable(pageChangeable);
-  }
-
-  void closeRefresher(IndicatorResult result) {
-    refresherCompleter.complete(result);
-    refresherCompleter = Completer();
-  }
-
-  Future<void> showConfirmationDialog() async {
-    final vm = context.read<OrdersInfoViewModel>();
-
-    final result = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Внимание'),
-          content: const SingleChildScrollView(child: Text('Присутствуют не сохраненные изменения. Продолжить?')),
-          actions: <Widget>[
-            TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(true)),
-            TextButton(child: const Text(Strings.ok), onPressed: () => Navigator.of(context).pop(false))
-          ],
-        );
-      }
-    ) ?? true;
-
-    await vm.getData(result);
-  }
-
   Widget buildOrderTile(BuildContext context, OrderExResult orderEx) {
     final vm = context.read<OrdersInfoViewModel>();
     final tile = ListTile(
@@ -310,18 +371,6 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
     );
   }
 
-  Future<void> openOrderPage(OrderExResult orderEx) async {
-    if (orderEx.order.isBlocked) return;
-
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => OrderPage(orderEx: orderEx),
-        fullscreenDialog: false
-      )
-    );
-  }
-
   Widget buildIncRequestTile(BuildContext context, IncRequestEx incRequestEx) {
     final vm = context.read<OrdersInfoViewModel>();
     final tile = ListTile(
@@ -372,16 +421,6 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
     );
   }
 
-  Future<void> openIncRequestPage(IncRequestEx incRequestEx) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => IncRequestPage(incRequestEx: incRequestEx),
-        fullscreenDialog: false
-      )
-    );
-  }
-
   Widget buildPreOrderTile(BuildContext context, PreOrderExResult preOrderEx) {
     return ListTile(
       title: Text(Format.dateStr(preOrderEx.preOrder.date)),
@@ -421,16 +460,6 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
     );
   }
 
-  Future<void> openPreOrderPage(PreOrderExResult preOrderEx) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => PreOrderPage(preOrderEx: preOrderEx),
-        fullscreenDialog: false
-      )
-    );
-  }
-
   Widget buildShipmentsView(BuildContext context, ScrollPhysics physics) {
     return CustomScrollView(
       physics: physics,
@@ -439,14 +468,14 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
           centerTitle: true,
           pinned: true,
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          title: buildHeader(context),
+          title: buildShipmentsHeader(context),
         ),
-        SliverList(delegate: buildShipmentListView(context))
+        SliverList(delegate: buildShipmentsListView(context))
       ]
     );
   }
 
-  Widget buildHeader(BuildContext context) {
+  Widget buildShipmentsHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.only(top: 8, bottom: 16),
       child: buildBuyerSearch(context)
@@ -510,7 +539,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
     );
   }
 
-  SliverChildDelegate buildShipmentListView(BuildContext context) {
+  SliverChildDelegate buildShipmentsListView(BuildContext context) {
     final vm = context.read<OrdersInfoViewModel>();
 
     final shipmentDate = vm.state.filteredShipmentExList
@@ -576,16 +605,6 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       ),
       dense: false,
       onTap: () => openShipmentPage(shipmentEx)
-    );
-  }
-
-  Future<void> openShipmentPage(ShipmentExResult shipmentEx) async {
-    await Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => ShipmentPage(shipmentEx: shipmentEx),
-        fullscreenDialog: false
-      )
     );
   }
 

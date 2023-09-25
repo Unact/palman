@@ -4,8 +4,10 @@ import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/extensions/native.dart';
 import 'package:drift/native.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:pub_semver/pub_semver.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
@@ -111,10 +113,6 @@ class AppDataStore extends _$AppDataStore {
 
   Future<AppInfoResult> getAppInfo() async {
     return appInfo().getSingle();
-  }
-
-  Future<Pref> getPref() async {
-    return select(prefs).getSingle();
   }
 
   Future<List<Workdate>> getWorkdates() async {
@@ -315,4 +313,12 @@ extension OrderLineX on OrderLine {
 
 extension PreOrderLineX on PreOrderLine {
   double get total => vol * price * rel;
+}
+
+extension UserX on User {
+  Future<bool> get newVersionAvailable async {
+    final currentVersion = (await PackageInfo.fromPlatform()).version;
+
+    return Version.parse(version) > Version.parse(currentVersion);
+  }
 }

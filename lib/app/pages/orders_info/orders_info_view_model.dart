@@ -19,6 +19,7 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
     final shipmentExList = await shipmentsRepository.getShipmentExList();
     final buyers = await partnersRepository.getBuyers();
     final incRequestExList = await shipmentsRepository.getIncRequestExList();
+    final appInfo = await appRepository.getAppInfo();
 
     emit(state.copyWith(
       status: OrdersInfoStateStatus.dataLoaded,
@@ -26,12 +27,36 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
       orderExList: orderExList,
       buyers: buyers,
       shipmentExList: shipmentExList,
-      incRequestExList: incRequestExList
+      incRequestExList: incRequestExList,
+      appInfo: appInfo
     ));
   }
 
+  Future<void> saveChanges() async {
+    if (state.isBusy) return;
+
+    emit(state.copyWith(status: OrdersInfoStateStatus.saveInProgress, isBusy: true));
+
+    try {
+      await _syncChanges();
+
+      emit(state.copyWith(status: OrdersInfoStateStatus.saveSuccess, message: Strings.changesSaved, isBusy: false));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: OrdersInfoStateStatus.saveFailure, message: e.message, isBusy: false));
+    }
+  }
+
+  Future<void> _syncChanges() async {
+    final futures = [
+      ordersRepository.syncChanges,
+      shipmentsRepository.syncChanges
+    ];
+
+    await Future.wait(futures.map((e) => e.call()));
+  }
+
   Future<void> tryGetData() async {
-    if (state.orderExList.any((e) => e.order.needSync)) {
+    if (state.hasPendingChanges) {
       emit(state.copyWith(status: OrdersInfoStateStatus.loadConfirmation));
       return;
     }
@@ -45,9 +70,12 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
       return;
     }
 
+    if (state.isBusy) return;
+
     final futures = [
       ordersRepository.loadRemains,
-      ordersRepository.loadOrders
+      ordersRepository.loadOrders,
+      shipmentsRepository.loadShipments,
     ];
 
     emit(state.copyWith(status: OrdersInfoStateStatus.loadInProgress));

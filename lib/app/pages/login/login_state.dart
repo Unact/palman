@@ -26,8 +26,7 @@ class LoginState {
     this.password = '',
     this.url = const String.fromEnvironment('PALMAN_RENEW_URL'),
     this.optsEnabled = false,
-    this.message = '',
-    this.fullVersion = ''
+    this.message = ''
   });
 
   final String login;
@@ -36,7 +35,6 @@ class LoginState {
   final bool optsEnabled;
   final LoginStateStatus status;
   final String message;
-  final String fullVersion;
 
   LoginState copyWith({
     LoginStateStatus? status,
@@ -44,8 +42,7 @@ class LoginState {
     String? password,
     String? url,
     bool? optsEnabled,
-    String? message,
-    String? fullVersion
+    String? message
   }) {
     return LoginState(
       status: status ?? this.status,
@@ -53,8 +50,7 @@ class LoginState {
       password: password ?? this.password,
       url: url ?? this.url,
       optsEnabled: optsEnabled ?? this.optsEnabled,
-      message: message ?? this.message,
-      fullVersion: fullVersion ?? this.fullVersion
+      message: message ?? this.message
     );
   }
 }

@@ -1,6 +1,4 @@
 import 'package:drift/drift.dart';
-import 'package:package_info_plus/package_info_plus.dart';
-import 'package:pub_semver/pub_semver.dart';
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
@@ -13,25 +11,8 @@ import '/app/services/palman_api.dart';
 class AppRepository extends BaseRepository {
   AppRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-  Future<bool> get newVersionAvailable async {
-    final currentVersion = (await PackageInfo.fromPlatform()).version;
-    final remoteVersion = (await dataStore.usersDao.getUser()).version;
-
-    return Version.parse(remoteVersion) > Version.parse(currentVersion);
-  }
-
-  Future<String> get fullVersion async {
-    final info = await PackageInfo.fromPlatform();
-
-    return '${info.version}+${info.buildNumber}';
-  }
-
   Future<AppInfoResult> getAppInfo() {
     return dataStore.getAppInfo();
-  }
-
-  Future<Pref> getPref() {
-    return dataStore.getPref();
   }
 
   Future<void> updatePref({
