@@ -458,7 +458,7 @@ class OrdersRepository extends BaseRepository {
   }
 
   Future<OrderExResult> createOrderFromPreOrder(PreOrder preOrder, List<PreOrderLine> preOrderLines) async {
-    return await dataStore.transaction(() async {
+    final orderEx = await dataStore.transaction(() async {
       final id = await dataStore.ordersDao.addOrder(OrdersCompanion.insert(
         status: OrderStatus.upload.value,
         preOrderId: Value(preOrder.id),
@@ -499,13 +499,16 @@ class OrdersRepository extends BaseRepository {
           needSync: true
         ));
       }
-      notifyListeners();
+
       return (await dataStore.ordersDao.getOrderEx(id))!;
     });
+    notifyListeners();
+
+    return orderEx;
   }
 
   Future<OrderExResult> copyOrder(Order order, List<OrderLine> orderLines) async {
-    return await dataStore.transaction(() async {
+    final orderEx = await dataStore.transaction(() async {
       final id = await dataStore.ordersDao.addOrder(order.toCompanion(false).copyWith(
         id: const Value.absent(),
         guid: const Value.absent(),
@@ -523,9 +526,12 @@ class OrdersRepository extends BaseRepository {
           needSync: const Value(true)
         ));
       }
-      notifyListeners();
+
       return (await dataStore.ordersDao.getOrderEx(id))!;
     });
+    notifyListeners();
+
+    return orderEx;
   }
 
   Future<void> updateOrderLinePrices(Order order) async {
@@ -543,15 +549,17 @@ class OrdersRepository extends BaseRepository {
         if (goodsDetail == null) continue;
         if (orderLine.line.price != orderLine.line.priceOriginal) continue;
 
-        await updateOrderLine(
-          orderLine.line,
-          price: Optional.of(goodsDetail.price),
-          priceOriginal: Optional.of(goodsDetail.price),
-          needSync: Optional.of(true)
+        await dataStore.ordersDao.updateOrderLine(
+          orderLine.line.id,
+          OrderLinesCompanion(
+            price: Value(goodsDetail.price),
+            priceOriginal: Value(goodsDetail.price),
+            needSync: const Value(true)
+          )
         );
       }
-      notifyListeners();
     });
+    notifyListeners();
   }
 
   Future<void> clearFiles([Set<String> newKeys = const <String>{}]) async {

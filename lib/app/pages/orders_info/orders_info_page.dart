@@ -18,6 +18,7 @@ import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/partners_repository.dart';
 import '/app/repositories/shipments_repository.dart';
+import '/app/repositories/users_repository.dart';
 import 'inc_request/inc_request_page.dart';
 import 'order/order_page.dart';
 import 'pre_order/pre_order_page.dart';
@@ -38,7 +39,8 @@ class OrdersInfoPage extends StatelessWidget {
         RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<OrdersRepository>(context),
         RepositoryProvider.of<PartnersRepository>(context),
-        RepositoryProvider.of<ShipmentsRepository>(context)
+        RepositoryProvider.of<ShipmentsRepository>(context),
+        RepositoryProvider.of<UsersRepository>(context)
       ),
       child: _OrdersInfoView(),
     );

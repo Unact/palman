@@ -107,9 +107,10 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   }
 
   Future<void> _syncChanges() async {
-    await locationsRepository.syncChanges();
+    await usersRepository.refresh();
 
     final futures = [
+      locationsRepository.syncChanges,
       pointsRepository.syncChanges,
       debtsRepository.syncChanges,
       ordersRepository.syncChanges,
@@ -170,6 +171,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     if (state.isBusy) return;
 
     final futures = [
+      usersRepository.loadUserData,
       appRepository.loadData,
       pointsRepository.loadPoints,
       debtsRepository.loadDebts,
@@ -188,7 +190,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     ));
 
     try {
-      await loadData(usersRepository.loadUserData);
+      await usersRepository.refresh();
       await Future.wait(futures.map((e) => loadData(e)));
       await appRepository.updatePref(lastSyncTime: Optional.of(DateTime.now()));
 

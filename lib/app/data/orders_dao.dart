@@ -25,16 +25,6 @@ part of 'database.dart';
         buyers.** AS "buyer",
         COALESCE(
           (
-            SELECT SUM(order_lines.rel * order_lines.vol * (order_lines.price - goods.cost))
-            FROM order_lines
-            JOIN goods ON goods.id = order_lines.goods_id
-            JOIN categories ON categories.id = goods.category_id
-            where order_lines.order_id = orders.id AND order_lines.is_deleted = 0
-          ),
-          0
-        ) AS "lines_profit_total",
-        COALESCE(
-          (
             SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price)
             FROM order_lines
             where order_lines.order_id = orders.id AND order_lines.is_deleted = 0
