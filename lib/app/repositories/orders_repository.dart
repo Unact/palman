@@ -52,7 +52,6 @@ class OrdersRepository extends BaseRepository {
         await dataStore.bonusProgramsDao.loadGoodsBonusPrograms(goodsBonusPrograms);
         await dataStore.bonusProgramsDao.loadGoodsBonusProgramPrices(goodsBonusProgramPrices);
       });
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -74,7 +73,6 @@ class OrdersRepository extends BaseRepository {
         await dataStore.ordersDao.loadGoodsStocks(goodsStocks);
         await dataStore.ordersDao.loadGoodsRestrictions(goodsRestrictions);
       });
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -99,7 +97,6 @@ class OrdersRepository extends BaseRepository {
         await dataStore.ordersDao.loadPreOrders(preOrders);
         await dataStore.ordersDao.loadPreOrderLines(preOrderLines);
       });
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -128,7 +125,6 @@ class OrdersRepository extends BaseRepository {
 
   Future<void> blockOrders(bool block, {List<int>? ids}) async {
     await dataStore.ordersDao.blockOrders(block, ids: ids);
-    notifyListeners();
   }
 
   Future<List<OrderExResult>> syncOrders(List<Order> orders, List<OrderLine> orderLines) async {
@@ -160,7 +156,7 @@ class OrdersRepository extends BaseRepository {
       }).toList();
 
       final data = await api.saveOrders(ordersData);
-      final ids = [];
+      final List<int> ids = [];
       await dataStore.transaction(() async {
         for (var order in orders) {
           await dataStore.ordersDao.deleteOrder(order.id);
@@ -183,9 +179,8 @@ class OrdersRepository extends BaseRepository {
           ids.add(id);
         }
       });
-      notifyListeners();
 
-      return (await dataStore.ordersDao.getOrderExList()).where((e) => ids.contains(e.order.id)).toList();
+      return dataStore.ordersDao.getOrderExListByIds(ids);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -224,35 +219,35 @@ class OrdersRepository extends BaseRepository {
     );
   }
 
-  Future<List<GoodsFilter>> getGoodsFilters() async {
-    return dataStore.ordersDao.getGoodsFilters();
+  Stream<List<GoodsFilter>> watchGoodsFilters() {
+    return dataStore.ordersDao.watchGoodsFilters();
   }
 
-  Future<List<ShopDepartment>> getShopDepartments() async {
-    return dataStore.ordersDao.getShopDepartments();
+  Stream<List<ShopDepartment>> watchShopDepartments() {
+    return dataStore.ordersDao.watchShopDepartments();
   }
 
-  Future<List<CategoriesExResult>> getCategories({required int buyerId}) async {
-    return dataStore.ordersDao.getCategories(buyerId: buyerId);
+  Stream<List<CategoriesExResult>> watchCategories({required int buyerId}) {
+    return dataStore.ordersDao.watchCategories(buyerId: buyerId);
   }
 
   Future<List<Goods>> getAllGoodsWithImage() async {
     return dataStore.ordersDao.getAllGoodsWithImage();
   }
 
-  Future<List<BonusProgramGroup>> getBonusProgramGroups({
+  Stream<List<BonusProgramGroup>> watchBonusProgramGroups({
     required int buyerId
-  }) async {
-    return dataStore.bonusProgramsDao.getBonusProgramGroups(
+  }) {
+    return dataStore.bonusProgramsDao.watchBonusProgramGroups(
       buyerId: buyerId
     );
   }
 
-  Future<List<GoodsShipmentsResult>> getGoodsShipments({
+  Stream<List<GoodsShipmentsResult>> watchGoodsShipments({
     required int buyerId,
     required int goodsId
-  }) async {
-    return dataStore.shipmentsDao.getGoodsShipments(
+  }) {
+    return dataStore.shipmentsDao.watchGoodsShipments(
       buyerId: buyerId,
       goodsId: goodsId
     );
@@ -290,28 +285,30 @@ class OrdersRepository extends BaseRepository {
     return dataStore.ordersDao.getOrderEx(orderId);
   }
 
-  Future<List<OrderExResult>> getOrderExList() async {
-    return dataStore.ordersDao.getOrderExList();
-  }
-
   Future<List<OrderLineExResult>> getOrderLineExList(int orderId) async {
     return dataStore.ordersDao.getOrderLineExList(orderId);
   }
 
-  Future<List<PreOrderExResult>> getPreOrderExList() async {
-    return dataStore.ordersDao.getPreOrderExList();
+  Stream<List<OrderExResult>> watchOrderExList() {
+    return dataStore.ordersDao.watchOrderExList();
   }
 
-  Future<List<PreOrderLineExResult>> getPreOrderLineExList(int preOrderId) async {
-    return dataStore.ordersDao.getPreOrderLineExList(preOrderId);
+  Stream<List<OrderLineExResult>> watchOrderLineExList(int orderId) {
+    return dataStore.ordersDao.watchOrderLineExList(orderId);
+  }
+
+  Stream<List<PreOrderExResult>> watchPreOrderExList() {
+    return dataStore.ordersDao.watchPreOrderExList();
+  }
+
+  Stream<List<PreOrderLineExResult>> watchPreOrderLineExList(int preOrderId) {
+    return dataStore.ordersDao.watchPreOrderLineExList(preOrderId);
   }
 
   Future<void> addSeenPreOrder({
     required int id
   }) async {
     await dataStore.ordersDao.addSeenPreOrder(SeenPreOrdersCompanion(id: Value(id)));
-
-    notifyListeners();
   }
 
   Future<OrderExResult> addOrder({
@@ -345,8 +342,6 @@ class OrdersRepository extends BaseRepository {
     );
     final orderEx = await dataStore.ordersDao.getOrderEx(id);
 
-    notifyListeners();
-
     return orderEx!;
   }
 
@@ -376,7 +371,6 @@ class OrdersRepository extends BaseRepository {
     );
 
     await dataStore.ordersDao.updateOrder(order.id, updatedOrder);
-    notifyListeners();
   }
 
   Future<void> deleteOrder(Order order) async {
@@ -389,7 +383,6 @@ class OrdersRepository extends BaseRepository {
       );
     }
 
-    notifyListeners();
     return;
   }
 
@@ -415,7 +408,6 @@ class OrdersRepository extends BaseRepository {
         needSync: true
       )
     );
-    notifyListeners();
   }
 
   Future<void> updateOrderLine(OrderLine orderLine, {
@@ -440,7 +432,6 @@ class OrdersRepository extends BaseRepository {
     );
 
     await dataStore.ordersDao.updateOrderLine(orderLine.id, updatedOrderLine);
-    notifyListeners();
   }
 
   Future<void> deleteOrderLine(OrderLine orderLine) async {
@@ -453,7 +444,6 @@ class OrdersRepository extends BaseRepository {
       );
     }
 
-    notifyListeners();
     return;
   }
 
@@ -502,7 +492,6 @@ class OrdersRepository extends BaseRepository {
 
       return (await dataStore.ordersDao.getOrderEx(id))!;
     });
-    notifyListeners();
 
     return orderEx;
   }
@@ -529,7 +518,6 @@ class OrdersRepository extends BaseRepository {
 
       return (await dataStore.ordersDao.getOrderEx(id))!;
     });
-    notifyListeners();
 
     return orderEx;
   }
@@ -559,7 +547,6 @@ class OrdersRepository extends BaseRepository {
         );
       }
     });
-    notifyListeners();
   }
 
   Future<void> clearFiles([Set<String> newKeys = const <String>{}]) async {

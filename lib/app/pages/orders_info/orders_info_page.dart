@@ -59,8 +59,8 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
 
   @override
   void dispose() {
-    super.dispose();
     progressDialog.close();
+    super.dispose();
   }
 
   void setPageChangeable(bool pageChangeable) {

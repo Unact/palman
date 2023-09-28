@@ -28,7 +28,6 @@ class PricesRepository extends BaseRepository {
         await dataStore.pricesDao.loadPartnersPricelists(partnersPricelists);
         await dataStore.pricesDao.loadGoodsPartnersPricelists(goodsPartnersPricelists);
       });
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -39,12 +38,10 @@ class PricesRepository extends BaseRepository {
 
   Future<void> blockPartnersPrices(bool block, {List<int>? ids}) async {
     await dataStore.pricesDao.blockPartnersPrices(block, ids: ids);
-    notifyListeners();
   }
 
   Future<void> blockPartnersPricelists(bool block, {List<int>? ids}) async {
     await dataStore.pricesDao.blockPartnersPricelists(block, ids: ids);
-    notifyListeners();
   }
 
   Future<void> syncPrices(List<PartnersPrice> prices, List<PartnersPricelist> pricelists) async {
@@ -86,7 +83,6 @@ class PricesRepository extends BaseRepository {
           await dataStore.pricesDao.addPartnersPricelist(companion);
         }
       });
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -111,45 +107,33 @@ class PricesRepository extends BaseRepository {
     }
   }
 
-  Future<List<GoodsPricelistsResult>> getGoodsPricelists({
+  Stream<List<GoodsPricelistsResult>> watchGoodsPricelists({
     required int goodsId,
     required DateTime date
-  }) async {
-    return dataStore.pricesDao.getGoodsPricelists(
+  }) {
+    return dataStore.pricesDao.watchGoodsPricelists(
       goodsId: goodsId,
       date: date
     );
   }
 
-  Future<List<PartnersPricelist>> getPartnersPricelists({
+  Stream<List<PartnersPricelist>> watchPartnersPricelists({
     required int goodsId,
     required int partnerId
-  }) async {
-    return dataStore.pricesDao.getPartnersPricelists(
+  }) {
+    return dataStore.pricesDao.watchPartnersPricelists(
       goodsId: goodsId,
       partnerId: partnerId
     );
   }
 
-  Future<List<PartnersPrice>> getPartnersPrices({
+  Stream<List<PartnersPrice>> watchPartnersPrices({
     required int goodsId,
     required int partnerId
-  }) async {
-    return dataStore.pricesDao.getPartnersPrices(
+  }) {
+    return dataStore.pricesDao.watchPartnersPrices(
       goodsId: goodsId,
       partnerId: partnerId
-    );
-  }
-
-  Future<List<GoodsPricesResult>> getGoodsPrices({
-    required int buyerId,
-    required DateTime date,
-    required List<int> goodsIds
-  }) async {
-    return dataStore.pricesDao.getGoodsPrices(
-      buyerId: buyerId,
-      date: date,
-      goodsIds: goodsIds
     );
   }
 
@@ -170,7 +154,6 @@ class PricesRepository extends BaseRepository {
     );
 
     await dataStore.pricesDao.updatePartnersPricelist(partnersPricelist.id, updatedPartnersPricelist);
-    notifyListeners();
   }
 
   Future<void> addPartnersPrice({
@@ -192,7 +175,6 @@ class PricesRepository extends BaseRepository {
         isBlocked: false
       )
     );
-    notifyListeners();
   }
 
   Future<void> updatePartnersPrice(PartnersPrice partnersPrice, {
@@ -214,6 +196,5 @@ class PricesRepository extends BaseRepository {
     );
 
     await dataStore.pricesDao.updatePartnersPrice(partnersPrice.id, updatedPartnersPrice);
-    notifyListeners();
   }
 }

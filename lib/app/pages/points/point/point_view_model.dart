@@ -3,9 +3,12 @@ part of 'point_page.dart';
 class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   final AppRepository appRepository;
   final PointsRepository pointsRepository;
+  StreamSubscription<List<PointEx>>? pointExListSubscription;
+  StreamSubscription<List<PointFormat>>? pointFormatsSubscription;
+  StreamSubscription<AppInfoResult>? appInfoSubscription;
 
   PointViewModel(this.appRepository, this.pointsRepository, { required PointEx pointEx }) :
-    super(PointState(pointEx: pointEx), [appRepository, pointsRepository]);
+    super(PointState(pointEx: pointEx));
 
   @override
   PointStateStatus get status => state.status;
@@ -15,20 +18,19 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
     await pointsRepository.blockPoints(true, ids: [state.pointEx.point.id]);
 
     await super.initViewModel();
-  }
 
-  @override
-  Future<void> loadData() async {
-    final pointEx = await pointsRepository.getPointEx(state.pointEx.point.id);
-    final pointFormats = await pointsRepository.getPointFormats();
-    final appInfo = await appRepository.getAppInfo();
-
-    emit(state.copyWith(
-      status: PointStateStatus.dataLoaded,
-      pointEx: pointEx,
-      pointFormats: pointFormats,
-      appInfo: appInfo
-    ));
+    appInfoSubscription = appRepository.watchAppInfo().listen((event) {
+      emit(state.copyWith(status: PointStateStatus.dataLoaded, appInfo: event));
+    });
+    pointExListSubscription = pointsRepository.watchPointExList().listen((event) {
+      emit(state.copyWith(
+        status: PointStateStatus.dataLoaded,
+        pointEx: event.firstWhereOrNull((e) => e.point.id == state.pointEx.point.id)
+      ));
+    });
+    pointFormatsSubscription = pointsRepository.watchPointFormats().listen((event) {
+      emit(state.copyWith(status: PointStateStatus.dataLoaded, pointFormats: event));
+    });
   }
 
   @override
@@ -36,6 +38,9 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
     await super.close();
 
     await pointsRepository.blockPoints(false, ids: [state.pointEx.point.id]);
+    await pointExListSubscription?.cancel();
+    await pointFormatsSubscription?.cancel();
+    await appInfoSubscription?.cancel();
   }
 
   Future<void> tryTakePicture() async {

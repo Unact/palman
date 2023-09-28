@@ -1,23 +1,32 @@
 part of 'encashment_page.dart';
 
 class EncashmentViewModel extends PageViewModel<EncashmentState, EncashmentStateStatus> {
-  final AppRepository appRepository;
   final DebtsRepository debtsRepository;
+  StreamSubscription<List<EncashmentEx>>? encashmentExListSubscription;
 
-  EncashmentViewModel(this.appRepository, this.debtsRepository, { required EncashmentEx encashmentEx }) :
-    super(EncashmentState(encashmentEx: encashmentEx), [appRepository, debtsRepository]);
+  EncashmentViewModel(this.debtsRepository, { required EncashmentEx encashmentEx }) :
+    super(EncashmentState(encashmentEx: encashmentEx));
 
   @override
   EncashmentStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    final encashmentEx = await debtsRepository.getEncashmentEx(state.encashmentEx.encashment.id);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
 
-    emit(state.copyWith(
-      status: EncashmentStateStatus.dataLoaded,
-      encashmentEx: encashmentEx
-    ));
+    encashmentExListSubscription = debtsRepository.watchEncashmentExList().listen((event) {
+      emit(state.copyWith(
+        status: EncashmentStateStatus.dataLoaded,
+        encashmentEx: event.firstWhereOrNull((e) => e.encashment.id == state.encashmentEx.encashment.id)
+      ));
+    });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await encashmentExListSubscription?.cancel();
   }
 
   Future<void> updateEncSum(double? encSum) async {

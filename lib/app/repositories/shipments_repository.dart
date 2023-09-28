@@ -25,7 +25,6 @@ class ShipmentsRepository extends BaseRepository {
         await dataStore.shipmentsDao.loadShipments(shipments);
         await dataStore.shipmentsDao.loadShipmentLines(shipmentLines);
       });
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -36,7 +35,6 @@ class ShipmentsRepository extends BaseRepository {
 
   Future<void> blockIncRequests(bool block, {List<int>? ids}) async {
     await dataStore.shipmentsDao.blockIncRequests(block, ids: ids);
-    notifyListeners();
   }
 
   Future<void> syncIncRequests(List<IncRequest> incRequests) async {
@@ -60,7 +58,6 @@ class ShipmentsRepository extends BaseRepository {
           await dataStore.shipmentsDao.addIncRequest(companion);
         }
       });
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -82,20 +79,16 @@ class ShipmentsRepository extends BaseRepository {
     }
   }
 
-  Future<List<IncRequestEx>> getIncRequestExList() async {
-    return dataStore.shipmentsDao.getIncRequestExList();
+  Stream<List<IncRequestEx>> watchIncRequestExList() {
+    return dataStore.shipmentsDao.watchIncRequestExList();
   }
 
-  Future<List<ShipmentExResult>> getShipmentExList() async {
-    return dataStore.shipmentsDao.getShipmentExList();
+  Stream<List<ShipmentExResult>> watchShipmentExList() {
+    return dataStore.shipmentsDao.watchShipmentExList();
   }
 
-  Future<List<ShipmentLineEx>> getShipmentLineExList(int shipmentId) async {
-    return dataStore.shipmentsDao.getShipmentLineExList(shipmentId);
-  }
-
-  Future<IncRequestEx> getIncRequestEx(int id) async {
-    return dataStore.shipmentsDao.getIncRequestEx(id);
+  Stream<List<ShipmentLineEx>> watchShipmentLineExList(int shipmentId) {
+    return dataStore.shipmentsDao.watchShipmentLineExList(shipmentId);
   }
 
   Future<IncRequestEx> addIncRequest() async {
@@ -108,8 +101,6 @@ class ShipmentsRepository extends BaseRepository {
       )
     );
     final incRequestEx = await dataStore.shipmentsDao.getIncRequestEx(id);
-
-    notifyListeners();
 
     return incRequestEx;
   }
@@ -131,11 +122,9 @@ class ShipmentsRepository extends BaseRepository {
     );
 
     await dataStore.shipmentsDao.updateIncRequest(incRequest.id, updatedIncRequest);
-    notifyListeners();
   }
 
   Future<void> deleteIncRequest(IncRequest incRequest) async {
     await dataStore.shipmentsDao.deleteIncRequest(incRequest.id);
-    notifyListeners();
   }
 }

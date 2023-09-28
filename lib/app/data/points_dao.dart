@@ -28,8 +28,8 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     await db._loadData(pointFormats, list);
   }
 
-  Future<List<PointFormat>> getPointFormats() async {
-    return select(pointFormats).get();
+  Stream<List<PointFormat>> watchPointFormats() {
+    return select(pointFormats).watch();
   }
 
   Future<void> updatePoint(int id, PointsCompanion updatedPoint) async {
@@ -85,8 +85,29 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     return await select(pointImages).get();
   }
 
-  Future<List<PointEx>> getPointExList() async {
-    final pointsRes = await (select(points)..orderBy([(tbl) => OrderingTerm(expression: tbl.buyerName)])).get();
+  Future<PointImage> getPointImage(int id) async {
+    return (select(pointImages)..where((tbl) => tbl.id.equals(id))).getSingle();
+  }
+
+  Stream<List<PointEx>> watchPointExList() {
+    final pointsRes = (select(points)..orderBy([(tbl) => OrderingTerm(expression: tbl.buyerName)])).watch();
+    final pointImagesRes = select(pointImages).watch();
+
+    return Rx.combineLatest2(
+      pointsRes,
+      pointImagesRes,
+      (points, pointImages) {
+        return points.map((row) => PointEx(row, pointImages.where((e) => e.pointId == row.id).toList())).toList();
+      }
+    );
+  }
+
+  Future<List<PointEx>> getPointExListByIds(List<int> ids) async {
+    final pointsRes = await (
+      select(points)
+        ..where((tbl) => tbl.id.isIn(ids))
+        ..orderBy([(tbl) => OrderingTerm(expression: tbl.buyerName)])
+    ).get();
     final pointImagesRes = await select(pointImages).get();
 
     return pointsRes.map((row) => PointEx(row, pointImagesRes.where((e) => e.pointId == row.id).toList())).toList();

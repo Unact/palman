@@ -14,15 +14,11 @@ class PriceChangeViewModel extends PageViewModel<PriceChangeState, PriceChangeSt
       price: price,
       dateFrom: dateFrom,
       dateTo: dateTo
-    ),
-    []
+    )
   );
 
   @override
   PriceChangeStateStatus get status => state.status;
-
-  @override
-  Future<void> loadData() async {}
 
   @override
   Future<void> initViewModel() async {

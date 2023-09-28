@@ -11,6 +11,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   final ShipmentsRepository shipmentsRepository;
   final UsersRepository usersRepository;
   StreamSubscription<Position>? positionSubscription;
+  StreamSubscription<User>? userSubscription;
+  StreamSubscription<AppInfoResult>? appInfoSubscription;
   Timer? syncTimer;
 
   InfoViewModel(
@@ -23,32 +25,10 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     this.pricesRepository,
     this.shipmentsRepository,
     this.usersRepository
-  ) : super(
-    InfoState(),
-    [
-      appRepository,
-      debtsRepository,
-      ordersRepository,
-      pointsRepository,
-      pricesRepository,
-      shipmentsRepository,
-    ]
-  );
+  ) : super(InfoState());
 
   @override
   InfoStateStatus get status => state.status;
-
-  @override
-  Future<void> loadData() async {
-    final user = await usersRepository.getUser();
-    final appInfo = await appRepository.getAppInfo();
-
-    emit(state.copyWith(
-      status: InfoStateStatus.dataLoaded,
-      user: user,
-      appInfo: appInfo
-    ));
-  }
 
   @override
   Future<void> initViewModel() async {
@@ -59,6 +39,13 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     await saveChangesBackground();
 
     syncTimer = Timer.periodic(const Duration(minutes: 10), saveChangesBackground);
+
+    userSubscription = usersRepository.watchUser().listen((event) {
+      emit(state.copyWith(status: InfoStateStatus.dataLoaded, user: event));
+    });
+    appInfoSubscription = appRepository.watchAppInfo().listen((event) {
+      emit(state.copyWith(status: InfoStateStatus.dataLoaded, appInfo: event));
+    });
   }
 
   @override
@@ -68,6 +55,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     await super.close();
 
     await positionSubscription?.cancel();
+    await userSubscription?.cancel();
+    await appInfoSubscription?.cancel();
     syncTimer?.cancel();
   }
 

@@ -6,6 +6,12 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
   final ShipmentsRepository shipmentsRepository;
   final PartnersRepository partnersRepository;
   final UsersRepository usersRepository;
+  StreamSubscription<List<PreOrderExResult>>? preOrderExListSubscription;
+  StreamSubscription<List<ShipmentExResult>>? shipmentExListSubscription;
+  StreamSubscription<List<Buyer>>? buyersSubscription;
+  StreamSubscription<List<OrderExResult>>? orderExListSubscription;
+  StreamSubscription<AppInfoResult>? appInfoSubscription;
+  StreamSubscription<List<IncRequestEx>>? incRequestExListSubscription;
 
   OrdersInfoViewModel(
     this.appRepository,
@@ -13,33 +19,45 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
     this.partnersRepository,
     this.shipmentsRepository,
     this.usersRepository
-  ) :
-    super(
-      OrdersInfoState(),
-      [appRepository, ordersRepository, shipmentsRepository, partnersRepository, usersRepository]
-    );
+  ) : super(OrdersInfoState());
 
   @override
   OrdersInfoStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    final preOrderExList = await ordersRepository.getPreOrderExList();
-    final orderExList = await ordersRepository.getOrderExList();
-    final shipmentExList = await shipmentsRepository.getShipmentExList();
-    final buyers = await partnersRepository.getBuyers();
-    final incRequestExList = await shipmentsRepository.getIncRequestExList();
-    final appInfo = await appRepository.getAppInfo();
+  Future<void> initViewModel() async {
+    await super.initViewModel();
 
-    emit(state.copyWith(
-      status: OrdersInfoStateStatus.dataLoaded,
-      preOrderExList: preOrderExList,
-      orderExList: orderExList,
-      buyers: buyers,
-      shipmentExList: shipmentExList,
-      incRequestExList: incRequestExList,
-      appInfo: appInfo
-    ));
+    preOrderExListSubscription = ordersRepository.watchPreOrderExList().listen((event) {
+      emit(state.copyWith(status: OrdersInfoStateStatus.dataLoaded, preOrderExList: event));
+    });
+    shipmentExListSubscription = shipmentsRepository.watchShipmentExList().listen((event) {
+      emit(state.copyWith(status: OrdersInfoStateStatus.dataLoaded, shipmentExList: event));
+    });
+    buyersSubscription = partnersRepository.watchBuyers().listen((event) {
+      emit(state.copyWith(status: OrdersInfoStateStatus.dataLoaded, buyers: event));
+    });
+    orderExListSubscription = ordersRepository.watchOrderExList().listen((event) {
+      emit(state.copyWith(status: OrdersInfoStateStatus.dataLoaded, orderExList: event));
+    });
+    appInfoSubscription = appRepository.watchAppInfo().listen((event) {
+      emit(state.copyWith(status: OrdersInfoStateStatus.dataLoaded, appInfo: event));
+    });
+    incRequestExListSubscription = shipmentsRepository.watchIncRequestExList().listen((event) {
+      emit(state.copyWith(status: OrdersInfoStateStatus.dataLoaded, incRequestExList: event));
+    });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await preOrderExListSubscription?.cancel();
+    await shipmentExListSubscription?.cancel();
+    await buyersSubscription?.cancel();
+    await orderExListSubscription?.cancel();
+    await appInfoSubscription?.cancel();
+    await incRequestExListSubscription?.cancel();
   }
 
   Future<void> saveChanges() async {

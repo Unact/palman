@@ -83,7 +83,7 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     ).get();
   }
 
-  Future<List<DebtEx>> getDebtExList() async {
+  Stream<List<DebtEx>> watchDebtExList() {
     final res = select(debts)
       .join([
         innerJoin(buyers, buyers.id.equalsExp(debts.buyerId)),
@@ -91,10 +91,10 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
       ])
       ..orderBy([OrderingTerm(expression: partners.name), OrderingTerm(expression: debts.dateUntil)]);
 
-    return res.map((row) => DebtEx(row.readTable(debts), row.readTable(buyers), row.readTable(partners))).get();
+    return res.map((row) => DebtEx(row.readTable(debts), row.readTable(buyers), row.readTable(partners))).watch();
   }
 
-  Future<List<EncashmentEx>> getEncashmentExList() async {
+  Stream<List<EncashmentEx>> watchEncashmentExList() {
     final res = select(encashments)
       .join([
         leftOuterJoin(deposits, deposits.id.equalsExp(encashments.depositId)),
@@ -113,7 +113,7 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
         row.readTableOrNull(debts),
         row.readTableOrNull(deposits)
       )
-    ).get();
+    ).watch();
   }
 
   Future<EncashmentEx> getEncashmentEx(int id) async {
@@ -139,8 +139,16 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     return await (select(deposits)..where((tbl) => tbl.id.equals(id))).getSingle();
   }
 
-  Future<List<Deposit>> getDeposits() async {
-    return (select(deposits)..orderBy([(tbl) => OrderingTerm(expression: tbl.date, mode: OrderingMode.desc)])).get();
+  Selectable<Deposit> _deposits() {
+    return (select(deposits)..orderBy([(tbl) => OrderingTerm(expression: tbl.date, mode: OrderingMode.desc)]));
+  }
+
+  Stream<List<Deposit>> watchDeposits() {
+    return _deposits().watch();
+  }
+
+  Future<List<Deposit>> getDeposits() {
+    return _deposits().get();
   }
 }
 

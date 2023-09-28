@@ -11,8 +11,8 @@ import '/app/services/palman_api.dart';
 class AppRepository extends BaseRepository {
   AppRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-  Future<AppInfoResult> getAppInfo() {
-    return dataStore.getAppInfo();
+  Stream<AppInfoResult> watchAppInfo() {
+    return dataStore.watchAppInfo();
   }
 
   Future<void> updatePref({
@@ -27,11 +27,10 @@ class AppRepository extends BaseRepository {
     );
 
     await dataStore.updatePref(newPref);
-    notifyListeners();
   }
 
-  Future<List<Workdate>> getWorkdates() {
-    return dataStore.getWorkdates();
+  Stream<List<Workdate>> watchWorkdates() {
+    return dataStore.watchWorkdates();
   }
 
   Future<void> loadData() async {
@@ -59,7 +58,6 @@ class AppRepository extends BaseRepository {
         await dataStore.pricesDao.loadPricelists(pricelists);
         await dataStore.pricesDao.loadPricelistSetCategories(pricelistSetCategories);
       });
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
@@ -50,8 +52,8 @@ class _BonusProgramsViewState extends State<_BonusProgramsView> {
 
   @override
   void dispose() {
-    super.dispose();
     progressDialog.close();
+    super.dispose();
   }
 
   @override

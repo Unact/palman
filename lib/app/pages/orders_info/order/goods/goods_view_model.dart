@@ -3,39 +3,60 @@ part of 'goods_page.dart';
 class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   final AppRepository appRepository;
   final OrdersRepository ordersRepository;
-  final PricesRepository pricesRepository;
+  StreamSubscription<List<OrderExResult>>? orderExListSubscription;
+  StreamSubscription<List<OrderLineExResult>>? orderLineExListSubscription;
+  StreamSubscription<List<CategoriesExResult>>? categoriesSubscription;
+  StreamSubscription<List<ShopDepartment>>? shopDepartmentsSubscription;
+  StreamSubscription<List<GoodsFilter>>? goodsFiltersSubscription;
+  StreamSubscription<AppInfoResult>? appInfoSubscription;
 
-  GoodsViewModel(this.appRepository, this.ordersRepository, this.pricesRepository, {required OrderExResult orderEx}) :
-    super(GoodsState(orderEx: orderEx), [appRepository, ordersRepository, pricesRepository]);
+  GoodsViewModel(this.appRepository, this.ordersRepository, {required OrderExResult orderEx}) :
+    super(GoodsState(orderEx: orderEx));
 
   @override
   GoodsStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    final orderEx = await ordersRepository.getOrderEx(state.orderEx.order.id);
-    final linesExList = await ordersRepository.getOrderLineExList(state.orderEx.order.id);
-    final categories = await ordersRepository.getCategories(buyerId: state.orderEx.order.buyerId!);
-    final shopDepartments = await ordersRepository.getShopDepartments();
-    final goodsFilters = await ordersRepository.getGoodsFilters();
-    final appInfo = await appRepository.getAppInfo();
-
-    emit(state.copyWith(
-      status: GoodsStateStatus.dataLoaded,
-      orderEx: orderEx,
-      allCategories: categories,
-      shopDepartments: shopDepartments,
-      linesExList: linesExList,
-      goodsFilters: goodsFilters,
-      appInfo: appInfo
-    ));
-  }
-
-  @override
   Future<void> initViewModel() async {
     await super.initViewModel();
 
-    emit(state.copyWith(visibleCategories: state.allCategories));
+    orderExListSubscription = ordersRepository.watchOrderExList().listen((event) {
+      emit(state.copyWith(
+        status: GoodsStateStatus.dataLoaded,
+        orderEx: event.firstWhereOrNull((e) => e.order.id == state.orderEx.order.id)
+      ));
+    });
+    orderLineExListSubscription = ordersRepository.watchOrderLineExList(state.orderEx.order.id).listen((event) {
+      emit(state.copyWith(status: GoodsStateStatus.dataLoaded, linesExList: event));
+    });
+    categoriesSubscription = ordersRepository.watchCategories(buyerId: state.orderEx.order.buyerId!).listen((event) {
+      emit(state.copyWith(
+        status: GoodsStateStatus.dataLoaded,
+        allCategories: event,
+        visibleCategories: state.allCategories.isEmpty ? event : null
+      ));
+    });
+    shopDepartmentsSubscription = ordersRepository.watchShopDepartments().listen((event) {
+      emit(state.copyWith(status: GoodsStateStatus.dataLoaded, shopDepartments: event));
+    });
+    goodsFiltersSubscription = ordersRepository.watchGoodsFilters().listen((event) {
+      emit(state.copyWith(status: GoodsStateStatus.dataLoaded, goodsFilters: event));
+    });
+    appInfoSubscription = appRepository.watchAppInfo().listen((event) {
+      emit(state.copyWith(status: GoodsStateStatus.dataLoaded, appInfo: event));
+    });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await orderExListSubscription?.cancel();
+    await orderLineExListSubscription?.cancel();
+    await categoriesSubscription?.cancel();
+    await shopDepartmentsSubscription?.cancel();
+    await goodsFiltersSubscription?.cancel();
+    await appInfoSubscription?.cancel();
   }
 
   Future<void> clearFilters() async {

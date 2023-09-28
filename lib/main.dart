@@ -46,7 +46,7 @@ void main() async {
       dsn: const String.fromEnvironment('PALMAN_SENTRY_DSN'),
       isDebug: isDebug,
       userGenerator: () async {
-        User user = await usersRepository.getUser();
+        User user = await usersRepository.getCurrentUser();
 
         return SentryUser(id: user.id.toString(), username: user.username, email: user.email);
       }

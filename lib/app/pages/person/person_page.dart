@@ -46,8 +46,8 @@ class _PersonViewState extends State<_PersonView> {
 
   @override
   void dispose() {
-    super.dispose();
     progressDialog.close();
+    super.dispose();
   }
 
   @override

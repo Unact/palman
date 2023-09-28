@@ -5,23 +5,33 @@ class PersonViewModel extends PageViewModel<PersonState, PersonStateStatus> {
   final OrdersRepository ordersRepository;
   final PointsRepository pointsRepository;
   final UsersRepository usersRepository;
+  StreamSubscription<User>? userSubscription;
+  StreamSubscription<AppInfoResult>? appInfoSubscription;
 
   PersonViewModel(this.appRepository, this.ordersRepository, this.pointsRepository, this.usersRepository) :
-    super(PersonState(), [appRepository, ordersRepository, pointsRepository, usersRepository]);
+    super(PersonState());
 
   @override
   PersonStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    final user = await usersRepository.getUser();
-    final appInfo = await appRepository.getAppInfo();
+  Future<void> initViewModel() async {
+    await super.initViewModel();
 
-    emit(state.copyWith(
-      status: PersonStateStatus.dataLoaded,
-      user: user,
-      appInfo: appInfo
-    ));
+    userSubscription = usersRepository.watchUser().listen((event) {
+      emit(state.copyWith(status: PersonStateStatus.dataLoaded, user: event));
+    });
+    appInfoSubscription = appRepository.watchAppInfo().listen((event) {
+      emit(state.copyWith(status: PersonStateStatus.dataLoaded, appInfo: event));
+    });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await userSubscription?.cancel();
+    await appInfoSubscription?.cancel();
   }
 
   Future<void> updateShowLocalImage(bool newValue) async {

@@ -17,11 +17,7 @@ class PartnersDao extends DatabaseAccessor<AppDataStore> with _$PartnersDaoMixin
     await db._loadData(partners, list);
   }
 
-  Future<List<Partner>> getPartners() async {
-    return (select(partners)..orderBy([(tbl) => OrderingTerm(expression: tbl.name)])).get();
-  }
-
-  Future<List<Buyer>> getBuyers() async {
-    return (select(buyers)..orderBy([(tbl) => OrderingTerm(expression: tbl.name)])).get();
+  Stream<List<Buyer>> watchBuyers() {
+    return (select(buyers)..orderBy([(tbl) => OrderingTerm(expression: tbl.name)])).watch();
   }
 }

@@ -64,8 +64,8 @@ class _InfoViewState extends State<_InfoView> {
 
   @override
   void dispose() {
-    super.dispose();
     progressDialog.close();
+    super.dispose();
   }
 
   Future<void> openRefresher() async {

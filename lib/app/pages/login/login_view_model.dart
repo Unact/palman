@@ -1,16 +1,12 @@
 part of 'login_page.dart';
 
 class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
-  final AppRepository appRepository;
   final UsersRepository usersRepository;
 
-  LoginViewModel(this.appRepository, this.usersRepository) : super(LoginState(), [appRepository, usersRepository]);
+  LoginViewModel(this.usersRepository) : super(LoginState());
 
   @override
   LoginStateStatus get status => state.status;
-
-  @override
-  Future<void> loadData() async {}
 
   Future<void> apiLogin(String url, String login, String password) async {
     if (!state.optsEnabled) login = _formatLogin(login);

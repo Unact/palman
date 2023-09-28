@@ -6,6 +6,12 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   final OrdersRepository ordersRepository;
   final UsersRepository usersRepository;
 
+  StreamSubscription<User>? userSubscription;
+  StreamSubscription<List<OrderExResult>>? orderExListSubscription;
+  StreamSubscription<List<OrderLineExResult>>? orderLineExListSubscription;
+  StreamSubscription<List<Buyer>>? buyersSubscription;
+  StreamSubscription<List<Workdate>>? workdatesSubscription;
+
   OrderViewModel(
     this.appRepository,
     this.ordersRepository,
@@ -14,7 +20,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     {
       required OrderExResult orderEx
     }
-  ) : super(OrderState(orderEx: orderEx), [appRepository, ordersRepository, partnersRepository, usersRepository]);
+  ) : super(OrderState(orderEx: orderEx));
 
   @override
   OrderStateStatus get status => state.status;
@@ -24,24 +30,28 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     await ordersRepository.blockOrders(true, ids: [state.orderEx.order.id]);
 
     await super.initViewModel();
-  }
 
-  @override
-  Future<void> loadData() async {
-    final user = await usersRepository.getUser();
-    final orderEx = await ordersRepository.getOrderEx(state.orderEx.order.id);
-    final linesExList = await ordersRepository.getOrderLineExList(state.orderEx.order.id);
-    final workdates = await appRepository.getWorkdates();
-    final buyers = await partnersRepository.getBuyers();
-
-    emit(state.copyWith(
-      status: OrderStateStatus.dataLoaded,
-      user: user,
-      orderEx: orderEx,
-      linesExList: linesExList,
-      buyers: buyers,
-      workdates: workdates
-    ));
+    userSubscription = usersRepository.watchUser().listen((event) {
+      emit(state.copyWith(status: OrderStateStatus.dataLoaded, user: event));
+    });
+    orderExListSubscription = ordersRepository.watchOrderExList().listen((event) {
+      emit(state.copyWith(
+        status: OrderStateStatus.dataLoaded,
+        orderEx: event.firstWhereOrNull((e) => e.order.id == state.orderEx.order.id)
+      ));
+    });
+    orderLineExListSubscription = ordersRepository.watchOrderLineExList(state.orderEx.order.id).listen((event) {
+      emit(state.copyWith(
+        status: OrderStateStatus.dataLoaded,
+        linesExList: event
+      ));
+    });
+    buyersSubscription = partnersRepository.watchBuyers().listen((event) {
+      emit(state.copyWith(status: OrderStateStatus.dataLoaded, buyers: event));
+    });
+    workdatesSubscription = appRepository.watchWorkdates().listen((event) {
+      emit(state.copyWith(status: OrderStateStatus.dataLoaded, workdates: event));
+    });
   }
 
   @override
@@ -49,6 +59,11 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     await super.close();
 
     await ordersRepository.blockOrders(false, ids: [state.orderEx.order.id]);
+    await userSubscription?.cancel();
+    await orderExListSubscription?.cancel();
+    await orderLineExListSubscription?.cancel();
+    await buyersSubscription?.cancel();
+    await workdatesSubscription?.cancel();
   }
 
   Future<void> updateNeedProcessing() async {
@@ -151,6 +166,13 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
       );
 
       await ordersRepository.blockOrders(true, ids: [orders.first.order.id]);
+      await orderLineExListSubscription?.cancel();
+      orderLineExListSubscription = ordersRepository.watchOrderLineExList(orders.first.order.id).listen((event) {
+        emit(state.copyWith(
+          status: OrderStateStatus.dataLoaded,
+          linesExList: event
+        ));
+      });
 
       emit(state.copyWith(
         orderEx: orders.first,

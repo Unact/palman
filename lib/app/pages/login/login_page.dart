@@ -8,7 +8,6 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/constants/strings.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/repositories/app_repository.dart';
 import '/app/repositories/users_repository.dart';
 
 part 'login_state.dart';
@@ -23,7 +22,6 @@ class LoginPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<LoginViewModel>(
       create: (context) => LoginViewModel(
-        RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<UsersRepository>(context),
       ),
       child: _LoginView(),
@@ -44,8 +42,8 @@ class _LoginViewState extends State<_LoginView> {
 
   @override
   void dispose() {
-    super.dispose();
     progressDialog.close();
+    super.dispose();
   }
 
   @override

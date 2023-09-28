@@ -4,6 +4,11 @@ class GoodsInfoViewModel extends PageViewModel<GoodsInfoState, GoodsInfoStateSta
   final AppRepository appRepository;
   final OrdersRepository ordersRepository;
   final PricesRepository pricesRepository;
+  StreamSubscription<List<GoodsShipmentsResult>>? goodsShipmentsSubscription;
+  StreamSubscription<List<GoodsPricelistsResult>>? goodsPricelistsSubscription;
+  StreamSubscription<List<PartnersPricelist>>? partnersPricelistsSubscription;
+  StreamSubscription<List<PartnersPrice>>? partnersPricesSubscription;
+  StreamSubscription<AppInfoResult>? appInfoSubscription;
 
   GoodsInfoViewModel(
     this.appRepository,
@@ -14,42 +19,53 @@ class GoodsInfoViewModel extends PageViewModel<GoodsInfoState, GoodsInfoStateSta
       required Buyer buyer,
       required GoodsExResult goodsEx,
     }
-  ) : super(
-    GoodsInfoState(date: date, buyer: buyer, goodsEx: goodsEx),
-    [appRepository, ordersRepository, pricesRepository]
-  );
+  ) : super(GoodsInfoState(date: date, buyer: buyer, goodsEx: goodsEx));
 
   @override
   GoodsInfoStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    final goodsShipments = await ordersRepository.getGoodsShipments(
+  Future<void> initViewModel() async {
+    await super.initViewModel();
+
+    goodsShipmentsSubscription = ordersRepository.watchGoodsShipments(
       buyerId: state.buyer.id,
       goodsId: state.goodsEx.goods.id
-    );
-    final goodsPricelists = await pricesRepository.getGoodsPricelists(
+    ).listen((event) {
+      emit(state.copyWith(status: GoodsInfoStateStatus.dataLoaded, goodsShipments: event));
+    });
+    goodsPricelistsSubscription = pricesRepository.watchGoodsPricelists(
       date: state.date,
       goodsId: state.goodsEx.goods.id
-    );
-    final partnersPricelists = await pricesRepository.getPartnersPricelists(
+    ).listen((event) {
+      emit(state.copyWith(status: GoodsInfoStateStatus.dataLoaded, goodsPricelists: event));
+    });
+    partnersPricelistsSubscription = pricesRepository.watchPartnersPricelists(
       partnerId: state.buyer.partnerId,
       goodsId: state.goodsEx.goods.id
-    );
-    final partnersPrices = await pricesRepository.getPartnersPrices(
+    ).listen((event) {
+      emit(state.copyWith(status: GoodsInfoStateStatus.dataLoaded, partnersPricelists: event));
+    });
+    partnersPricesSubscription = pricesRepository.watchPartnersPrices(
       partnerId: state.buyer.partnerId,
       goodsId: state.goodsEx.goods.id
-    );
-    final appInfo = await appRepository.getAppInfo();
+    ).listen((event) {
+      emit(state.copyWith(status: GoodsInfoStateStatus.dataLoaded, partnersPrices: event));
+    });
+    appInfoSubscription = appRepository.watchAppInfo().listen((event) {
+      emit(state.copyWith(status: GoodsInfoStateStatus.dataLoaded, appInfo: event));
+    });
+  }
 
-    emit(state.copyWith(
-      status: GoodsInfoStateStatus.dataLoaded,
-      goodsShipments: goodsShipments,
-      goodsPricelists: goodsPricelists,
-      partnersPricelists: partnersPricelists,
-      partnersPrices: partnersPrices,
-      appInfo: appInfo
-    ));
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await goodsShipmentsSubscription?.cancel();
+    await goodsPricelistsSubscription?.cancel();
+    await partnersPricelistsSubscription?.cancel();
+    await partnersPricesSubscription?.cancel();
+    await appInfoSubscription?.cancel();
   }
 
   Future<void> updatePricelist(GoodsPricelistsResult goodsPricelist) async {

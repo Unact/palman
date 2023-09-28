@@ -33,20 +33,16 @@ class PointsRepository extends BaseRepository {
 
   PointsRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-  Future<PointEx?> getPointEx(int id) {
-    return dataStore.pointsDao.getPointEx(id);
-  }
-
-  Future<List<PointEx>> getPointExList() {
-    return dataStore.pointsDao.getPointExList();
+  Stream<List<PointEx>> watchPointExList() {
+    return dataStore.pointsDao.watchPointExList();
   }
 
   Future<List<PointImage>> getPointImages() {
     return dataStore.pointsDao.getPointImages();
   }
 
-  Future<List<PointFormat>> getPointFormats() {
-    return dataStore.pointsDao.getPointFormats();
+  Stream<List<PointFormat>> watchPointFormats() {
+    return dataStore.pointsDao.watchPointFormats();
   }
 
   Future<void> loadPoints() async {
@@ -62,7 +58,6 @@ class PointsRepository extends BaseRepository {
         await dataStore.pointsDao.loadPoints(points);
         await dataStore.pointsDao.loadPointImages(pointImages);
       });
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -101,8 +96,6 @@ class PointsRepository extends BaseRepository {
     );
     final point = await dataStore.pointsDao.getPointEx(id);
 
-    notifyListeners();
-
     return point!;
   }
 
@@ -126,10 +119,8 @@ class PointsRepository extends BaseRepository {
         needSync: true
       )
     );
-    final pointImage = (await dataStore.pointsDao.getPointImages()).firstWhere((e) => e.id == id);
+    final pointImage = await dataStore.pointsDao.getPointImage(id);
     await pointImagesCacheManager.putFile('', await file.readAsBytes(), key: pointImage.imageKey);
-
-    notifyListeners();
   }
 
   Future<void> updatePoint(Point point, {
@@ -175,16 +166,12 @@ class PointsRepository extends BaseRepository {
     );
 
     await dataStore.pointsDao.updatePoint(point.id, newPoint);
-    notifyListeners();
   }
 
   Future<void> deletePoint(Point point) async {
     if (point.guid != null) return;
 
     await dataStore.pointsDao.deletePoint(point.id);
-
-    notifyListeners();
-    return;
   }
 
   Future<void> deletePointImage(PointImage pointImage) async {
@@ -192,14 +179,10 @@ class PointsRepository extends BaseRepository {
 
     await dataStore.pointsDao.deletePointImage(pointImage.id);
     await pointImagesCacheManager.removeFile(pointImage.imageKey);
-
-    notifyListeners();
-    return;
   }
 
   Future<void> blockPoints(bool block, {List<int>? ids}) async {
     await dataStore.pointsDao.blockPoints(block, ids: ids);
-    notifyListeners();
   }
 
   Future<List<PointEx>> syncPoints(List<Point> points, List<PointImage> pointImages) async {
@@ -241,7 +224,7 @@ class PointsRepository extends BaseRepository {
       }).toList();
 
       final data = await api.savePoints(pointsData);
-      final ids = [];
+      final List<int> ids = [];
       await dataStore.transaction(() async {
         for (var point in points) {
           await dataStore.pointsDao.deletePoint(point.id);
@@ -264,9 +247,8 @@ class PointsRepository extends BaseRepository {
           ids.add(id);
         }
       });
-      notifyListeners();
 
-      return (await dataStore.pointsDao.getPointExList()).where((e) => ids.contains(e.point.id)).toList();
+      return dataStore.pointsDao.getPointExListByIds(ids);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

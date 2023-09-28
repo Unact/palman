@@ -12,20 +12,16 @@ import '/app/services/palman_api.dart';
 class DebtsRepository extends BaseRepository {
   DebtsRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-  Future<EncashmentEx> getEncashmentEx(int id) {
-    return dataStore.debtsDao.getEncashmentEx(id);
+  Stream<List<DebtEx>> watchDebtExList() {
+    return dataStore.debtsDao.watchDebtExList();
   }
 
-  Future<List<DebtEx>> getDebtExList() {
-    return dataStore.debtsDao.getDebtExList();
+  Stream<List<EncashmentEx>> watchEncashmentExList() {
+    return dataStore.debtsDao.watchEncashmentExList();
   }
 
-  Future<List<EncashmentEx>> getEncashmentExList() {
-    return dataStore.debtsDao.getEncashmentExList();
-  }
-
-  Future<List<Deposit>> getDeposits() {
-    return dataStore.debtsDao.getDeposits();
+  Stream<List<Deposit>> watchDeposits() {
+    return dataStore.debtsDao.watchDeposits();
   }
 
   Future<void> loadDebts() async {
@@ -42,7 +38,6 @@ class DebtsRepository extends BaseRepository {
         await dataStore.debtsDao.loadEncashments(encashments);
         await dataStore.debtsDao.loadDeposits(deposits);
       });
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -53,7 +48,6 @@ class DebtsRepository extends BaseRepository {
 
   Future<void> blockDeposits(bool block, {List<int>? ids}) async {
     await dataStore.debtsDao.blockDeposits(block, ids: ids);
-    notifyListeners();
   }
 
   Future<void> syncEncashments(List<Deposit> deposits, List<Encashment> encashments) async {
@@ -94,7 +88,6 @@ class DebtsRepository extends BaseRepository {
           }
         }
       });
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -157,8 +150,6 @@ class DebtsRepository extends BaseRepository {
       await dataStore.debtsDao.deleteEncashment(e.encashment.id);
     }
 
-    notifyListeners();
-
     return deposit;
   }
 
@@ -175,8 +166,6 @@ class DebtsRepository extends BaseRepository {
     );
     final encashment = await dataStore.debtsDao.getEncashmentEx(id);
 
-    notifyListeners();
-
     return encashment;
   }
 
@@ -190,7 +179,6 @@ class DebtsRepository extends BaseRepository {
     );
 
     await dataStore.debtsDao.updateEncashment(encashment.id, newEncashment);
-    notifyListeners();
   }
 
   Future<void> updateDebt(Debt debt, {
@@ -201,11 +189,9 @@ class DebtsRepository extends BaseRepository {
     );
 
     await dataStore.debtsDao.updateDebt(debt.id, newDebt);
-    notifyListeners();
   }
 
   Future<void> deleteEncashment(Encashment encashment) async {
     await dataStore.debtsDao.deleteEncashment(encashment.id);
-    notifyListeners();
   }
 }

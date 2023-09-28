@@ -72,7 +72,7 @@ class ShipmentsDao extends DatabaseAccessor<AppDataStore> with _$ShipmentsDaoMix
     ).get();
   }
 
-  Future<List<IncRequestEx>> getIncRequestExList() async {
+  Stream<List<IncRequestEx>> watchIncRequestExList() {
     final res = select(incRequests)
       .join([
         leftOuterJoin(buyers, buyers.id.equalsExp(incRequests.buyerId)),
@@ -87,7 +87,7 @@ class ShipmentsDao extends DatabaseAccessor<AppDataStore> with _$ShipmentsDaoMix
         row.readTable(incRequests),
         row.readTableOrNull(buyers)
       )
-    ).get();
+    ).watch();
   }
 
   Future<IncRequestEx> getIncRequestEx(int id) async {
@@ -105,15 +105,15 @@ class ShipmentsDao extends DatabaseAccessor<AppDataStore> with _$ShipmentsDaoMix
     ).getSingle();
   }
 
-  Future<List<ShipmentExResult>> getShipmentExList() async {
-    return shipmentEx().get();
+  Stream<List<ShipmentExResult>> watchShipmentExList() {
+    return shipmentEx().watch();
   }
 
-  Future<List<GoodsShipmentsResult>> getGoodsShipments({required int buyerId, required int goodsId}) async {
-    return goodsShipments(buyerId, goodsId).get();
+  Stream<List<GoodsShipmentsResult>> watchGoodsShipments({required int buyerId, required int goodsId}) {
+    return goodsShipments(buyerId, goodsId).watch();
   }
 
-  Future<List<ShipmentLineEx>> getShipmentLineExList(int shipmentId) async {
+  Stream<List<ShipmentLineEx>> watchShipmentLineExList(int shipmentId) {
     final shipmentLinesQuery = select(shipmentLines)
       .join([
         innerJoin(allGoods, allGoods.id.equalsExp(shipmentLines.goodsId)),
@@ -123,7 +123,7 @@ class ShipmentsDao extends DatabaseAccessor<AppDataStore> with _$ShipmentsDaoMix
 
     return shipmentLinesQuery.map(
       (lineRow) => ShipmentLineEx(lineRow.readTable(shipmentLines), lineRow.readTable(allGoods))
-    ).get();
+    ).watch();
   }
 }
 

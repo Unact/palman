@@ -8,6 +8,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:pub_semver/pub_semver.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
@@ -111,12 +112,12 @@ class AppDataStore extends _$AppDataStore {
     required bool logStatements
   }) : super(_openConnection(logStatements));
 
-  Future<AppInfoResult> getAppInfo() async {
-    return appInfo().getSingle();
+  Stream<AppInfoResult> watchAppInfo() {
+    return appInfo().watchSingle();
   }
 
-  Future<List<Workdate>> getWorkdates() async {
-    return (select(workdates)..orderBy([(tbl) => OrderingTerm(expression: tbl.date)])).get();
+  Stream<List<Workdate>> watchWorkdates() {
+    return (select(workdates)..orderBy([(tbl) => OrderingTerm(expression: tbl.date)])).watch();
   }
 
   Future<int> updatePref(PrefsCompanion pref) {

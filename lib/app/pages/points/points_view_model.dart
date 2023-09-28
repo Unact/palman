@@ -3,21 +3,28 @@ part of 'points_page.dart';
 class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   final AppRepository appRepository;
   final PointsRepository pointsRepository;
+  StreamSubscription<List<PointEx>>? pointExListSubscription;
 
   PointsViewModel(this.appRepository, this.pointsRepository) :
-    super(PointsState(selectedReason: PointsState.kReasonFilter.first), [appRepository, pointsRepository]);
+    super(PointsState(selectedReason: PointsState.kReasonFilter.first));
 
   @override
   PointsStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    final pointExList = await pointsRepository.getPointExList();
+  Future<void> initViewModel() async {
+    await super.initViewModel();
 
-    emit(state.copyWith(
-      status: PointsStateStatus.dataLoaded,
-      pointExList: pointExList
-    ));
+    pointExListSubscription = pointsRepository.watchPointExList().listen((event) {
+      emit(state.copyWith(status: PointsStateStatus.dataLoaded, pointExList: event));
+    });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await pointExListSubscription?.cancel();
   }
 
   void changeSelectedReason((String code, String value) selectedReason) {

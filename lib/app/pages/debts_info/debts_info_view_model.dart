@@ -1,27 +1,47 @@
 part of 'debts_info_page.dart';
 
 class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateStatus> {
-  final AppRepository appRepository;
   final DebtsRepository debtsRepository;
+  StreamSubscription<List<EncashmentEx>>? encashmentExListSubscription;
+  StreamSubscription<List<DebtEx>>? debtExListSubscription;
+  StreamSubscription<List<Deposit>>? depositsSubscription;
 
-  DebtsInfoViewModel(this.appRepository, this.debtsRepository) :
-    super(DebtsInfoState(), [appRepository, debtsRepository]);
+  DebtsInfoViewModel(this.debtsRepository) : super(DebtsInfoState());
 
   @override
   DebtsInfoStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    final debtExList = await debtsRepository.getDebtExList();
-    final encashmentExList = await debtsRepository.getEncashmentExList();
-    final deposits = await debtsRepository.getDeposits();
+  Future<void> initViewModel() async {
+    await super.initViewModel();
 
-    emit(state.copyWith(
-      status: DebtsInfoStateStatus.dataLoaded,
-      debtExList: debtExList,
-      encashmentExList: encashmentExList,
-      deposits: deposits
-    ));
+    encashmentExListSubscription = debtsRepository.watchEncashmentExList().listen((event) {
+      emit(state.copyWith(
+        status: DebtsInfoStateStatus.dataLoaded,
+        encashmentExList: event
+      ));
+    });
+    debtExListSubscription = debtsRepository.watchDebtExList().listen((event) {
+      emit(state.copyWith(
+        status: DebtsInfoStateStatus.dataLoaded,
+        debtExList: event
+      ));
+    });
+    depositsSubscription = debtsRepository.watchDeposits().listen((event) {
+      emit(state.copyWith(
+        status: DebtsInfoStateStatus.dataLoaded,
+        deposits: event
+      ));
+    });
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await encashmentExListSubscription?.cancel();
+    await debtExListSubscription?.cancel();
+    await depositsSubscription?.cancel();
   }
 
   Future<void> createDeposit() async {

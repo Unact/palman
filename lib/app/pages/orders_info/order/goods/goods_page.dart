@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:collection/collection.dart';
@@ -13,7 +14,6 @@ import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
-import '/app/repositories/prices_repository.dart';
 import 'bonus_programs/bonus_programs_page.dart';
 import 'goods_info/goods_info_page.dart';
 import 'hand_price_change/hand_price_change_page.dart';
@@ -35,8 +35,7 @@ class GoodsPage extends StatelessWidget {
       create: (context) => GoodsViewModel(
         orderEx: orderEx,
         RepositoryProvider.of<AppRepository>(context),
-        RepositoryProvider.of<OrdersRepository>(context),
-        RepositoryProvider.of<PricesRepository>(context)
+        RepositoryProvider.of<OrdersRepository>(context)
       ),
       child: _GoodsView(),
     );
@@ -54,8 +53,8 @@ class _GoodsViewState extends State<_GoodsView> {
 
   @override
   void dispose() {
-    super.dispose();
     progressDialog.close();
+    super.dispose();
   }
 
   Future<void> showBonusProgramSelectDialog([GoodsDetail? goodsDetail]) async {
@@ -259,7 +258,7 @@ class _GoodsViewState extends State<_GoodsView> {
                       IconButton(
                         onPressed: () => vm.selectBonusProgram(null),
                         icon: const Icon(Icons.delete),
-                        tooltip: 'Очистить',
+                        tooltip: 'Очистить фильтры',
                       )
                   ),
                   controller: TextEditingController(text: vm.state.selectedBonusProgram?.name),

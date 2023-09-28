@@ -272,19 +272,19 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     return query.get();
   }
 
-  Future<List<CategoriesExResult>> getCategories({required int buyerId}) async {
-    return categoriesEx(buyerId).get();
+  Stream<List<CategoriesExResult>> watchCategories({required int buyerId}) {
+    return categoriesEx(buyerId).watch();
   }
 
-  Future<List<GoodsFilter>> getGoodsFilters() async {
-    return (select(goodsFilters)..orderBy([(tbl) => OrderingTerm(expression: tbl.name)])).get();
+  Stream<List<GoodsFilter>> watchGoodsFilters() {
+    return (select(goodsFilters)..orderBy([(tbl) => OrderingTerm(expression: tbl.name)])).watch();
   }
 
-  Future<List<ShopDepartment>> getShopDepartments() async {
+  Stream<List<ShopDepartment>> watchShopDepartments() {
     return (
       select(shopDepartments)
         ..orderBy([(tbl) => OrderingTerm(expression: tbl.ord), (tbl) => OrderingTerm(expression: tbl.name)])
-    ).get();
+    ).watch();
   }
 
   Future<List<GoodsDetail>> getGoodsDetails({
@@ -307,20 +307,28 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     return (await orderEx().get()).firstWhereOrNull((e) => e.order.id == orderId);
   }
 
-  Future<List<OrderExResult>> getOrderExList() async {
-    return orderEx().get();
+  Stream<List<OrderExResult>> watchOrderExList() {
+    return orderEx().watch();
   }
 
-  Future<List<PreOrderExResult>> getPreOrderExList() async {
-    return preOrderEx().get();
+  Future<List<OrderExResult>> getOrderExListByIds(List<int> ids) async {
+    return (await orderEx().get()).where((e) => ids.contains(e.order.id)).toList();
   }
 
   Future<List<OrderLineExResult>> getOrderLineExList(int orderId) async {
     return orderLineEx(orderId).get();
   }
 
-  Future<List<PreOrderLineExResult>> getPreOrderLineExList(int preOrderId) async {
-    return preOrderLineEx(preOrderId).get();
+  Stream<List<OrderLineExResult>> watchOrderLineExList(int orderId) {
+    return orderLineEx(orderId).watch();
+  }
+
+  Stream<List<PreOrderExResult>> watchPreOrderExList() {
+    return preOrderEx().watch();
+  }
+
+  Stream<List<PreOrderLineExResult>> watchPreOrderLineExList(int preOrderId) {
+    return preOrderLineEx(preOrderId).watch();
   }
 }
 
