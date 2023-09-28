@@ -226,13 +226,13 @@ class PointsRepository extends BaseRepository {
         for (var point in points) {
           await dataStore.pointsDao.updatePoint(
             point.id,
-            point.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+            const PointsCompanion(isNew: Value(false), needSync: Value(false))
           );
         }
         for (var pointImage in pointImages) {
           await dataStore.pointsDao.updatePointImage(
             pointImage.id,
-            pointImage.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+            const PointImagesCompanion(isNew: Value(false), needSync: Value(false))
           );
         }
       });

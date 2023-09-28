@@ -159,13 +159,13 @@ class OrdersRepository extends BaseRepository {
         for (var order in orders) {
           await dataStore.ordersDao.updateOrder(
             order.id,
-            order.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+            const OrdersCompanion(isNew: Value(false), needSync: Value(false))
           );
         }
         for (var orderLine in orderLines) {
           await dataStore.ordersDao.updateOrderLine(
             orderLine.id,
-            orderLine.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+            const OrderLinesCompanion(isNew: Value(false), needSync: Value(false))
           );
         }
       });

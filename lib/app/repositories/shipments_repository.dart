@@ -52,7 +52,7 @@ class ShipmentsRepository extends BaseRepository {
         for (var incRequest in incRequests) {
           await dataStore.shipmentsDao.updateIncRequest(
             incRequest.id,
-            incRequest.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+            const IncRequestsCompanion(isNew: Value(false), needSync: Value(false))
           );
         }
       });

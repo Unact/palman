@@ -73,13 +73,13 @@ class DebtsRepository extends BaseRepository {
         for (var deposit in deposits) {
           await dataStore.debtsDao.updateDeposit(
             deposit.id,
-            deposit.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+            const DepositsCompanion(isNew: Value(false), needSync: Value(false))
           );
         }
         for (var encashment in encashments) {
           await dataStore.debtsDao.updateEncashment(
             encashment.id,
-            encashment.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+            const EncashmentsCompanion(isNew: Value(false), needSync: Value(false))
           );
         }
       });

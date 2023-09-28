@@ -69,13 +69,13 @@ class PricesRepository extends BaseRepository {
         for (var price in prices) {
           await dataStore.pricesDao.updatePartnersPrice(
             price.id,
-            price.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+            const PartnersPricesCompanion(isNew: Value(false), needSync: Value(false))
           );
         }
         for (var pricelist in pricelists) {
           await dataStore.pricesDao.updatePartnersPricelist(
             pricelist.id,
-            pricelist.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+            const PartnersPricelistsCompanion(isNew: Value(false), needSync: Value(false))
           );
         }
       });
