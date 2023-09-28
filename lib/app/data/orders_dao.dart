@@ -232,13 +232,13 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
   }
 
   Future<List<OrderLine>> getOrderLinesForSync() async {
-    final hasUnblockedOrder = existsQuery(
+    final hasOrderToSync = existsQuery(
       select(orders)
         ..where((tbl) => tbl.id.equalsExp(orderLines.orderId))
         ..where((tbl) => tbl.needSync.equals(true) | orderLines.needSync.equals(true))
     );
 
-    return (select(orderLines)..where((tbl) => hasUnblockedOrder)).get();
+    return (select(orderLines)..where((tbl) => hasOrderToSync)).get();
   }
 
   Future<List<Goods>> getAllGoodsWithImage() async {

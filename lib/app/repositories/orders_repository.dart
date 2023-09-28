@@ -139,7 +139,7 @@ class OrdersRepository extends BaseRepository {
         'buyerId': e.buyerId,
         'info': e.info,
         'needProcessing': e.needProcessing,
-        'lines': orderLines.where((i) => i.orderId == e.id && i.needSync).map((i) => {
+        'lines': orderLines.where((i) => i.orderId == e.id).map((i) => {
           'guid': i.guid,
           'isNew': i.isNew,
           'isDeleted': i.isDeleted,

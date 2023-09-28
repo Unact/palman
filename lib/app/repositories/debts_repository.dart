@@ -55,7 +55,7 @@ class DebtsRepository extends BaseRepository {
         'currentTimestamp': e.currentTimestamp.toIso8601String(),
         'timestamp': e.timestamp.toIso8601String(),
         'date': e.date.toIso8601String(),
-        'encashments': encashments.where((i) => i.depositId == e.id && i.needSync).map((i) => {
+        'encashments': encashments.where((i) => i.depositId == e.id).map((i) => {
           'guid': i.guid,
           'isNew': i.isNew,
           'isDeleted': i.isDeleted,

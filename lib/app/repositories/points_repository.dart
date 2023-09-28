@@ -208,7 +208,7 @@ class PointsRepository extends BaseRepository {
         'maxdebt': e.maxdebt,
         'nds10': e.nds10,
         'nds20': e.nds20,
-        'images': pointImages.where((i) => i.pointId == e.id && i.needSync).map((i) => {
+        'images': pointImages.where((i) => i.pointId == e.id).map((i) => {
           'guid': i.guid,
           'isNew': i.isNew,
           'isDeleted': i.isDeleted,

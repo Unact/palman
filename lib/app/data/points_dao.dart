@@ -72,13 +72,13 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
   }
 
   Future<List<PointImage>> getPointImagesForSync() async {
-    final hasUnblockedPoint = existsQuery(
+    final hasPointToSync = existsQuery(
       select(points)
         ..where((tbl) => tbl.id.equalsExp(pointImages.pointId))
         ..where((tbl) => tbl.needSync.equals(true) | pointImages.needSync.equals(true))
     );
 
-    return (select(pointImages)..where((tbl) => hasUnblockedPoint)).get();
+    return (select(pointImages)..where((tbl) => hasPointToSync)).get();
   }
 
   Future<List<PointImage>> getPointImages() async {
