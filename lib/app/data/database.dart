@@ -10,6 +10,7 @@ import 'package:path/path.dart' as p;
 import 'package:pub_semver/pub_semver.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:u_app_utils/u_app_utils.dart';
+import 'package:uuid/uuid.dart';
 
 import '/app/constants/strings.dart';
 
@@ -108,6 +109,8 @@ part 'users_dao.dart';
   },
 )
 class AppDataStore extends _$AppDataStore {
+  static const Uuid _kUuid = Uuid();
+
   AppDataStore({
     required bool logStatements
   }) : super(_openConnection(logStatements));
@@ -144,31 +147,19 @@ class AppDataStore extends _$AppDataStore {
   }
 
   Future<void> loadWorkdates(List<Workdate> list) async {
-    await batch((batch) {
-      batch.deleteWhere(workdates, (row) => const Constant(true));
-      batch.insertAll(workdates, list, mode: InsertMode.insertOrReplace);
-    });
+    await _loadData(workdates, list);
   }
 
   Future<void> loadCategories(List<Category> list) async {
-    await batch((batch) {
-      batch.deleteWhere(categories, (row) => const Constant(true));
-      batch.insertAll(categories, list, mode: InsertMode.insertOrReplace);
-    });
+    await _loadData(categories, list);
   }
 
   Future<void> loadShopDepartments(List<ShopDepartment> list) async {
-    await batch((batch) {
-      batch.deleteWhere(shopDepartments, (row) => const Constant(true));
-      batch.insertAll(shopDepartments, list, mode: InsertMode.insertOrReplace);
-    });
+    await _loadData(shopDepartments, list);
   }
 
   Future<void> loadGoodsFilters(List<GoodsFilter> list) async {
-    await batch((batch) {
-      batch.deleteWhere(goodsFilters, (row) => const Constant(true));
-      batch.insertAll(goodsFilters, list, mode: InsertMode.insertOrReplace);
-    });
+    await _loadData(goodsFilters, list);
   }
 
   Future<void> _clearData() async {
@@ -200,8 +191,22 @@ class AppDataStore extends _$AppDataStore {
     });
   }
 
+  Future<void> _regenerateGuid(TableInfo table) async {
+    final toUpdate = await (select(table)..where((tbl) => (table as Syncable).isNew)).get();
+
+    await batch((batch) {
+      for (var e in toUpdate) {
+        batch.customStatement(
+          'UPDATE ${table.actualTableName} SET guid = ?1 WHERE id = ?2',
+          [AppDataStore._kUuid.v4(), e.id],
+          [TableUpdate.onTable(table, kind: UpdateKind.update)]
+        );
+      }
+    });
+  }
+
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -209,6 +214,22 @@ class AppDataStore extends _$AppDataStore {
       for (final table in allTables) {
         await m.deleteTable(table.actualTableName);
         await m.createTable(table);
+
+        if (table is Syncable) {
+          final name = table.entityName;
+          final triggerName = 'syncable_$name';
+
+          m.createTrigger(Trigger(
+            '''
+              CREATE TRIGGER $triggerName
+              AFTER UPDATE ON $name
+              BEGIN
+                UPDATE $name SET timestamp = CAST(STRFTIME('%s', CURRENT_TIMESTAMP) AS INTEGER);
+              END;
+            ''',
+            triggerName
+          ));
+        }
       }
 
       await m.createIndex(Index(

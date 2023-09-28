@@ -74,7 +74,8 @@ void main() async {
               inputDecoratorBorderType: FlexInputBorderType.underline,
               inputDecoratorFocusedBorderWidth: 0,
               inputDecoratorBackgroundAlpha: 0,
-              inputDecoratorFillColor: Colors.transparent
+              inputDecoratorFillColor: Colors.transparent,
+              bottomSheetRadius: 0
             ),
             platform: TargetPlatform.android,
             visualDensity: VisualDensity.adaptivePlatformDensity

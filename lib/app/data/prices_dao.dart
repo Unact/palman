@@ -89,20 +89,12 @@ part of 'database.dart';
 class PricesDao extends DatabaseAccessor<AppDataStore> with _$PricesDaoMixin {
   PricesDao(AppDataStore db) : super(db);
 
-  Future<void> blockPartnersPrices(bool block, {List<int>? ids}) async {
-    final companion = PartnersPricesCompanion(isBlocked: Value(block));
-
-    await (
-      update(partnersPrices)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))
-    ).write(companion);
+  Future<void> regeneratePartnersPricesGuid() async {
+    await db._regenerateGuid(partnersPrices);
   }
 
-  Future<void> blockPartnersPricelists(bool block, {List<int>? ids}) async {
-    final companion = PartnersPricelistsCompanion(isBlocked: Value(block));
-
-    await (
-      update(partnersPricelists)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))
-    ).write(companion);
+  Future<void> regeneratePartnersPricelistsGuid() async {
+    await db._regenerateGuid(partnersPricelists);
   }
 
   Future<void> loadPricelists(List<Pricelist> list) async {
@@ -154,19 +146,11 @@ class PricesDao extends DatabaseAccessor<AppDataStore> with _$PricesDaoMixin {
   }
 
   Future<List<PartnersPricelist>> getPartnersPricelistsForSync() async {
-    return (
-      select(partnersPricelists)
-        ..where((tbl) => tbl.needSync.equals(true))
-        ..where((tbl) => tbl.isBlocked.equals(false))
-    ).get();
+    return (select(partnersPricelists)..where((tbl) => tbl.needSync.equals(true))).get();
   }
 
   Future<List<PartnersPrice>> getPartnersPricesForSync() async {
-    return (
-      select(partnersPrices)
-        ..where((tbl) => tbl.needSync.equals(true))
-        ..where((tbl) => tbl.isBlocked.equals(false))
-    ).get();
+    return (select(partnersPrices)..where((tbl) => tbl.needSync.equals(true))).get();
   }
 
   Stream<List<PartnersPricelist>> watchPartnersPricelists({

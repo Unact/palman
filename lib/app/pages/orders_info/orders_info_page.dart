@@ -106,8 +106,6 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   }
 
   Future<void> openOrderPage(OrderExResult orderEx) async {
-    if (orderEx.order.isBlocked) return;
-
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -424,7 +422,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       onTap: () => openIncRequestPage(incRequestEx),
     );
 
-    if (incRequestEx.incRequest.guid != null) return tile;
+    if (!incRequestEx.incRequest.isNew) return tile;
 
     return Dismissible(
       key: Key(incRequestEx.hashCode.toString()),

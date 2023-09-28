@@ -36,19 +36,14 @@ class PricesRepository extends BaseRepository {
     }
   }
 
-  Future<void> blockPartnersPrices(bool block, {List<int>? ids}) async {
-    await dataStore.pricesDao.blockPartnersPrices(block, ids: ids);
-  }
-
-  Future<void> blockPartnersPricelists(bool block, {List<int>? ids}) async {
-    await dataStore.pricesDao.blockPartnersPricelists(block, ids: ids);
-  }
-
   Future<void> syncPrices(List<PartnersPrice> prices, List<PartnersPricelist> pricelists) async {
     try {
       Map<String, dynamic> pricesData = {
         'prices': prices.map((e) => {
           'guid': e.guid,
+          'isNew': e.isNew,
+          'isDeleted': e.isDeleted,
+          'currentTimestamp': e.currentTimestamp.toIso8601String(),
           'timestamp': e.timestamp.toIso8601String(),
           'goodsId': e.goodsId,
           'partnerId': e.partnerId,
@@ -58,6 +53,9 @@ class PricesRepository extends BaseRepository {
         }).toList(),
         'pricelists': pricelists.map((e) => {
           'guid': e.guid,
+          'isNew': e.isNew,
+          'isDeleted': e.isDeleted,
+          'currentTimestamp': e.currentTimestamp.toIso8601String(),
           'timestamp': e.timestamp.toIso8601String(),
           'partnerId': e.partnerId,
           'pricelistId': e.pricelistId,
@@ -66,21 +64,19 @@ class PricesRepository extends BaseRepository {
         }).toList(),
       };
 
-      final data = await api.savePrices(pricesData);
+      await api.savePrices(pricesData);
       await dataStore.transaction(() async {
         for (var price in prices) {
-          await dataStore.pricesDao.deletePartnersPrice(price.id);
+          await dataStore.pricesDao.updatePartnersPrice(
+            price.id,
+            price.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+          );
         }
         for (var pricelist in pricelists) {
-          await dataStore.pricesDao.deletePartnersPricelist(pricelist.id);
-        }
-        for (var apiPartnersPrice in data.partnersPrices) {
-          final companion = apiPartnersPrice.toDatabaseEnt().toCompanion(false).copyWith(id: const Value.absent());
-          await dataStore.pricesDao.addPartnersPrice(companion);
-        }
-        for (var apiPartnersPricelist in data.partnersPricelists) {
-          final companion = apiPartnersPricelist.toDatabaseEnt().toCompanion(false).copyWith(id: const Value.absent());
-          await dataStore.pricesDao.addPartnersPricelist(companion);
+          await dataStore.pricesDao.updatePartnersPricelist(
+            pricelist.id,
+            pricelist.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+          );
         }
       });
     } on ApiException catch(e) {
@@ -97,14 +93,7 @@ class PricesRepository extends BaseRepository {
 
     if (prices.isEmpty && pricelists.isEmpty) return;
 
-    try {
-      await blockPartnersPrices(true);
-      await blockPartnersPricelists(true);
-      await syncPrices(prices, pricelists);
-    } finally {
-      await blockPartnersPrices(false);
-      await blockPartnersPricelists(false);
-    }
+    await syncPrices(prices, pricelists);
   }
 
   Stream<List<GoodsPricelistsResult>> watchGoodsPricelists({
@@ -141,16 +130,15 @@ class PricesRepository extends BaseRepository {
     Optional<int>? partnerId,
     Optional<int>? pricelistId,
     Optional<int>? pricelistSetId,
-    Optional<double>? discount,
-    Optional<bool>? needSync
+    Optional<double>? discount
   }) async {
     final updatedPartnersPricelist = PartnersPricelistsCompanion(
       partnerId: partnerId == null ? const Value.absent() : Value(partnerId.value),
       pricelistId: pricelistId == null ? const Value.absent() : Value(pricelistId.value),
       pricelistSetId: pricelistSetId == null ? const Value.absent() : Value(pricelistSetId.value),
       discount: discount == null ? const Value.absent() : Value(discount.value),
-      timestamp: Value(DateTime.now()),
-      needSync: needSync == null ? const Value.absent() : Value(needSync.value)
+      isDeleted: const Value(false),
+      needSync: const Value(true)
     );
 
     await dataStore.pricesDao.updatePartnersPricelist(partnersPricelist.id, updatedPartnersPricelist);
@@ -169,10 +157,7 @@ class PricesRepository extends BaseRepository {
         partnerId: partnerId,
         price: price,
         dateFrom: dateFrom,
-        dateTo: dateTo,
-        timestamp: DateTime.now(),
-        needSync: true,
-        isBlocked: false
+        dateTo: dateTo
       )
     );
   }
@@ -182,8 +167,7 @@ class PricesRepository extends BaseRepository {
     Optional<int>? partnerId,
     Optional<double>? price,
     Optional<DateTime>? dateFrom,
-    Optional<DateTime>? dateTo,
-    Optional<bool>? needSync
+    Optional<DateTime>? dateTo
   }) async {
     final updatedPartnersPrice = PartnersPricesCompanion(
       goodsId: goodsId == null ? const Value.absent() : Value(goodsId.value),
@@ -191,10 +175,15 @@ class PricesRepository extends BaseRepository {
       price: price == null ? const Value.absent() : Value(price.value),
       dateFrom: dateFrom == null ? const Value.absent() : Value(dateFrom.value),
       dateTo: dateTo == null ? const Value.absent() : Value(dateTo.value),
-      timestamp: Value(DateTime.now()),
-      needSync: needSync == null ? const Value.absent() : Value(needSync.value),
+      isDeleted: const Value(false),
+      needSync: const Value(true)
     );
 
     await dataStore.pricesDao.updatePartnersPrice(partnersPrice.id, updatedPartnersPrice);
+  }
+
+  Future<void> regenerateGuid() async {
+    await dataStore.pricesDao.regeneratePartnersPricesGuid();
+    await dataStore.pricesDao.regeneratePartnersPricelistsGuid();
   }
 }

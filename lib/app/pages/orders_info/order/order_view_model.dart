@@ -27,8 +27,6 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
 
   @override
   Future<void> initViewModel() async {
-    await ordersRepository.blockOrders(true, ids: [state.orderEx.order.id]);
-
     await super.initViewModel();
 
     userSubscription = usersRepository.watchUser().listen((event) {
@@ -58,7 +56,6 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> close() async {
     await super.close();
 
-    await ordersRepository.blockOrders(false, ids: [state.orderEx.order.id]);
     await userSubscription?.cancel();
     await orderExListSubscription?.cancel();
     await orderLineExListSubscription?.cancel();
@@ -69,8 +66,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> updateNeedProcessing() async {
     await ordersRepository.updateOrder(
       state.orderEx.order,
-      needProcessing: Optional.of(!state.orderEx.order.needProcessing),
-      needSync: Optional.of(true),
+      needProcessing: Optional.of(!state.orderEx.order.needProcessing)
     );
     _notifyOrderUpdated();
   }
@@ -78,8 +74,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> updateBuyer(Buyer? buyer) async {
     await ordersRepository.updateOrder(
       state.orderEx.order,
-      buyerId: Optional.fromNullable(buyer?.id),
-      needSync: Optional.of(true),
+      buyerId: Optional.fromNullable(buyer?.id)
     );
     _notifyOrderUpdated();
   }
@@ -87,8 +82,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> updateDate(DateTime? date) async {
     await ordersRepository.updateOrder(
       state.orderEx.order,
-      date: Optional.fromNullable(date),
-      needSync: Optional.of(true)
+      date: Optional.fromNullable(date)
     );
     _notifyOrderUpdated();
   }
@@ -96,8 +90,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> updateIsBonus(bool isBonus) async {
     await ordersRepository.updateOrder(
       state.orderEx.order,
-      isBonus: Optional.of(isBonus),
-      needSync: Optional.of(true)
+      isBonus: Optional.of(isBonus)
     );
     _notifyOrderUpdated();
   }
@@ -105,8 +98,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> updateNeedInc(bool needInc) async {
     await ordersRepository.updateOrder(
       state.orderEx.order,
-      needInc: Optional.of(needInc),
-      needSync: Optional.of(true),
+      needInc: Optional.of(needInc)
     );
     _notifyOrderUpdated();
   }
@@ -114,8 +106,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> updateNeedDocs(bool needDocs) async {
     await ordersRepository.updateOrder(
       state.orderEx.order,
-      needDocs: Optional.of(needDocs),
-      needSync: Optional.of(true),
+      needDocs: Optional.of(needDocs)
     );
     _notifyOrderUpdated();
   }
@@ -123,8 +114,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> updateIsPhysical(bool isPhysical) async {
     await ordersRepository.updateOrder(
       state.orderEx.order,
-      isPhysical: Optional.of(isPhysical),
-      needSync: Optional.of(true),
+      isPhysical: Optional.of(isPhysical)
     );
     _notifyOrderUpdated();
   }
@@ -132,15 +122,17 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> updateInfo(String info) async {
     await ordersRepository.updateOrder(
       state.orderEx.order,
-      info: Optional.of(info),
-      needSync: Optional.of(true),
+      info: Optional.of(info)
     );
     _notifyOrderUpdated();
   }
 
   Future<void> deleteOrderLine(OrderLineExResult orderLineEx) async {
     await ordersRepository.deleteOrderLine(orderLineEx.line);
-    emit(state.copyWith(linesExList: state.linesExList.where((e) => e != orderLineEx).toList()));
+    emit(state.copyWith(
+      status: OrderStateStatus.orderLineDeleted,
+      linesExList: state.linesExList.where((e) => e != orderLineEx).toList()
+    ));
   }
 
   Future<void> copy() async {
@@ -160,25 +152,9 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     emit(state.copyWith(status: OrderStateStatus.saveInProgress));
 
     try {
-      final orders = await ordersRepository.syncOrders(
-        [state.orderEx.order],
-        state.linesExList.map((e) => e.line).toList()
-      );
+      await ordersRepository.syncOrders([state.orderEx.order], state.linesExList.map((e) => e.line).toList());
 
-      await ordersRepository.blockOrders(true, ids: [orders.first.order.id]);
-      await orderLineExListSubscription?.cancel();
-      orderLineExListSubscription = ordersRepository.watchOrderLineExList(orders.first.order.id).listen((event) {
-        emit(state.copyWith(
-          status: OrderStateStatus.dataLoaded,
-          linesExList: event
-        ));
-      });
-
-      emit(state.copyWith(
-        orderEx: orders.first,
-        status: OrderStateStatus.saveSuccess,
-        message: Strings.changesSaved
-      ));
+      emit(state.copyWith(status: OrderStateStatus.saveSuccess, message: Strings.changesSaved));
     } on AppError catch(e) {
       emit(state.copyWith(status: OrderStateStatus.saveFailure, message: e.message));
     }

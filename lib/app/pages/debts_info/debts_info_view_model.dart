@@ -58,11 +58,15 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
   }
 
   Future<void> deleteEncashment(EncashmentEx encashmentEx) async {
+    await debtsRepository.deleteEncashment(encashmentEx.encashment);
+    emit(state.copyWith(
+      status: DebtsInfoStateStatus.encashmentDeleted,
+      encashmentExList: state.encashmentExList.where((e) => e != encashmentEx).toList()
+    ));
+
     await debtsRepository.updateDebt(
       encashmentEx.debt!,
       debtSum: Optional.of(encashmentEx.debt!.debtSum + (encashmentEx.encashment.encSum ?? 0)),
     );
-    await debtsRepository.deleteEncashment(encashmentEx.encashment);
-    emit(state.copyWith(encashmentExList: state.encashmentExList.where((e) => e != encashmentEx).toList()));
   }
 }

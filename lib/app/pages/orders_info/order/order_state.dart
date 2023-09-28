@@ -5,6 +5,7 @@ enum OrderStateStatus {
   dataLoaded,
   orderUpdated,
   orderCopied,
+  orderLineDeleted,
   saveInProgress,
   saveFailure,
   saveSuccess

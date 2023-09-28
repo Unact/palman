@@ -32,13 +32,12 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
   @override
   Future<void> initViewModel() async {
-    await _unblockEntities();
-    await _startLocationListen();
     await super.initViewModel();
 
+    await _startLocationListen();
     await saveChangesBackground();
 
-    syncTimer = Timer.periodic(const Duration(minutes: 10), saveChangesBackground);
+    syncTimer = Timer.periodic(const Duration(minutes: 1), saveChangesBackground);
 
     userSubscription = usersRepository.watchUser().listen((event) {
       emit(state.copyWith(status: InfoStateStatus.dataLoaded, user: event));
@@ -80,19 +79,6 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     positionSubscription = Geolocator.getPositionStream(
       locationSettings: _getLocationSettings()
     ).listen(_saveLocation);
-  }
-
-  Future<void> _unblockEntities() async {
-    final futures = [
-      pointsRepository.blockPoints,
-      debtsRepository.blockDeposits,
-      ordersRepository.blockOrders,
-      pricesRepository.blockPartnersPrices,
-      pricesRepository.blockPartnersPricelists,
-      shipmentsRepository.blockIncRequests
-    ];
-
-    await Future.wait(futures.map((e) => e.call(false)));
   }
 
   Future<void> _syncChanges() async {
@@ -171,12 +157,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       shipmentsRepository.loadShipments,
     ];
 
-    emit(state.copyWith(
-      status: InfoStateStatus.loadInProgress,
-      syncMessage: '',
-      isBusy: true,
-      toLoad: futures.length + 1
-    ));
+    emit(state.copyWith(status: InfoStateStatus.loadInProgress, syncMessage: '', isBusy: true, toLoad: futures.length));
 
     try {
       await usersRepository.refresh();
@@ -330,6 +311,31 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       message: lastErrorMsg == null ?
         'Фотографии успешно загружены' :
         'Не удалось загрузить все фотографии. $lastErrorMsg'
+    ));
+  }
+
+  Future<void> regenerateGuids() async {
+    if (state.isBusy) {
+      emit(state.copyWith(
+        status: InfoStateStatus.guidRegenerateFailure,
+        message: 'Нельзя менять идентификаторы! Идет синхронизация данных'
+      ));
+      return;
+    }
+
+    final futures = [
+      shipmentsRepository.regenerateGuid,
+      pricesRepository.regenerateGuid,
+      pointsRepository.regenerateGuid,
+      ordersRepository.regenerateGuid,
+      debtsRepository.regenerateGuid
+    ];
+
+    await Future.wait(futures.map((e) => e.call()));
+
+    emit(state.copyWith(
+      status: InfoStateStatus.guidRegenerateSuccess,
+      message: 'Идентификаторы пересозданы'
     ));
   }
 }

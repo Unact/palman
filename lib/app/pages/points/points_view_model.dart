@@ -50,11 +50,10 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   }
 
   Future<void> deletePoint(PointEx pointEx) async {
-    for (var pointImage in pointEx.images) {
-      await pointsRepository.deletePointImage(pointImage);
-    }
-
     await pointsRepository.deletePoint(pointEx.point);
-    emit(state.copyWith(pointExList: state.pointExList.where((e) => e != pointEx).toList()));
+    emit(state.copyWith(
+      status: PointsStateStatus.pointDeleted,
+      pointExList: state.pointExList.where((e) => e != pointEx).toList()
+    ));
   }
 }

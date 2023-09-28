@@ -142,10 +142,12 @@ part of 'database.dart';
 class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
   OrdersDao(AppDataStore db) : super(db);
 
-  Future<void> blockOrders(bool block, {List<int>? ids}) async {
-    final companion = OrdersCompanion(isBlocked: Value(block));
+  Future<void> regenerateOrdersGuid() async {
+    await db._regenerateGuid(orders);
+  }
 
-    await (update(orders)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))).write(companion);
+  Future<void> regenerateOrderLinesGuid() async {
+    await db._regenerateGuid(orderLines);
   }
 
   Future<void> loadGoods(List<Goods> list) async {
@@ -226,7 +228,6 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     return (
       select(orders)
         ..where((tbl) => tbl.needSync.equals(true) | hasOrderLineToSync)
-        ..where((tbl) => tbl.isBlocked.equals(false))
     ).get();
   }
 
@@ -234,7 +235,6 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     final hasUnblockedOrder = existsQuery(
       select(orders)
         ..where((tbl) => tbl.id.equalsExp(orderLines.orderId))
-        ..where((tbl) => tbl.isBlocked.equals(false))
         ..where((tbl) => tbl.needSync.equals(true) | orderLines.needSync.equals(true))
     );
 

@@ -1,5 +1,14 @@
 part of 'database.dart';
 
+mixin Syncable on Table {
+  TextColumn get guid => text().clientDefault(() => AppDataStore._kUuid.v4())();
+  BoolColumn get isNew => boolean().withDefault(const Constant(true))();
+  BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get currentTimestamp => dateTime().withDefault(currentDateAndTime)();
+  BoolColumn get needSync => boolean().withDefault(const Constant(true))();
+}
+
 class Prefs extends Table {
   BoolColumn get showLocalImage => boolean()();
   BoolColumn get showWithPrice => boolean()();
@@ -46,7 +55,7 @@ class Locations extends Table {
   DateTimeColumn get timestamp => dateTime()();
 }
 
-class Points extends Table {
+class Points extends Table with Syncable {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
   TextColumn get address => text().nullable()();
@@ -65,14 +74,9 @@ class Points extends Table {
   IntColumn get maxdebt => integer().nullable()();
   IntColumn get nds10 => integer().nullable()();
   IntColumn get nds20 => integer().nullable()();
-
-  BoolColumn get isBlocked => boolean()();
-  TextColumn get guid => text().nullable()();
-  DateTimeColumn get timestamp => dateTime()();
-  BoolColumn get needSync => boolean()();
 }
 
-class PointImages extends Table {
+class PointImages extends Table with Syncable {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get pointId => integer()();
   RealColumn get latitude => real()();
@@ -80,13 +84,9 @@ class PointImages extends Table {
   RealColumn get accuracy => real()();
   TextColumn get imageUrl => text()();
   TextColumn get imageKey => text()();
-
-  TextColumn get guid => text().nullable()();
-  DateTimeColumn get timestamp => dateTime()();
-  BoolColumn get needSync => boolean()();
 }
 
-class Encashments extends Table {
+class Encashments extends Table with Syncable {
   IntColumn get id => integer().autoIncrement()();
   DateTimeColumn get date => dateTime()();
   BoolColumn get isCheck => boolean()();
@@ -94,10 +94,6 @@ class Encashments extends Table {
   IntColumn get debtId => integer().nullable()();
   IntColumn get depositId => integer().nullable()();
   RealColumn get encSum => real().nullable()();
-
-  TextColumn get guid => text().nullable()();
-  DateTimeColumn get timestamp => dateTime()();
-  BoolColumn get needSync => boolean()();
 }
 
 class Debts extends Table {
@@ -112,16 +108,11 @@ class Debts extends Table {
   BoolColumn get overdue => boolean()();
 }
 
-class Deposits extends Table {
+class Deposits extends Table with Syncable {
   IntColumn get id => integer().autoIncrement()();
   DateTimeColumn get date => dateTime()();
   RealColumn get totalSum => real()();
   RealColumn get checkTotalSum => real()();
-
-  BoolColumn get isBlocked => boolean()();
-  TextColumn get guid => text().nullable()();
-  DateTimeColumn get timestamp => dateTime()();
-  BoolColumn get needSync => boolean()();
 }
 
 class Shipments extends Table {
@@ -143,18 +134,13 @@ class ShipmentLines extends Table {
   RealColumn get price => real()();
 }
 
-class IncRequests extends Table {
+class IncRequests extends Table with Syncable {
   IntColumn get id => integer().autoIncrement()();
   DateTimeColumn get date => dateTime().nullable()();
   IntColumn get buyerId => integer().nullable()();
   RealColumn get incSum => real().nullable()();
   TextColumn get info => text().nullable()();
   TextColumn get status => text()();
-
-  BoolColumn get isBlocked => boolean()();
-  TextColumn get guid => text().nullable()();
-  DateTimeColumn get timestamp => dateTime()();
-  BoolColumn get needSync => boolean()();
 }
 
 @DataClassName('Goods')
@@ -289,18 +275,13 @@ class PricelistSetCategories extends Table {
   Set<Column> get primaryKey => {pricelistSetId, categoryId};
 }
 
-class PartnersPrices extends Table {
+class PartnersPrices extends Table with Syncable {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get goodsId => integer()();
   IntColumn get partnerId => integer()();
   RealColumn get price => real()();
   DateTimeColumn get dateFrom => dateTime()();
   DateTimeColumn get dateTo => dateTime()();
-
-  BoolColumn get isBlocked => boolean()();
-  TextColumn get guid => text().nullable()();
-  DateTimeColumn get timestamp => dateTime()();
-  BoolColumn get needSync => boolean()();
 }
 
 class PricelistPrices extends Table {
@@ -311,17 +292,12 @@ class PricelistPrices extends Table {
   DateTimeColumn get dateTo => dateTime()();
 }
 
-class PartnersPricelists extends Table {
+class PartnersPricelists extends Table with Syncable {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get partnerId => integer()();
   IntColumn get pricelistId => integer()();
   IntColumn get pricelistSetId => integer()();
   RealColumn get discount => real()();
-
-  BoolColumn get isBlocked => boolean()();
-  TextColumn get guid => text().nullable()();
-  DateTimeColumn get timestamp => dateTime()();
-  BoolColumn get needSync => boolean()();
 }
 
 class GoodsRestrictions extends Table {
@@ -353,7 +329,7 @@ class GoodsPartnersPricelists extends Table {
   Set<Column> get primaryKey => {goodsId, partnerPricelistId, pricelistId};
 }
 
-class Orders extends Table {
+class Orders extends Table with Syncable {
   IntColumn get id => integer().autoIncrement()();
 
   DateTimeColumn get date => dateTime().nullable()();
@@ -366,16 +342,10 @@ class Orders extends Table {
   IntColumn get buyerId => integer().nullable()();
   TextColumn get info => text().nullable()();
   BoolColumn get needProcessing => boolean()();
-
-  BoolColumn get isBlocked => boolean()();
   BoolColumn get isEditable => boolean()();
-  BoolColumn get isDeleted => boolean()();
-  TextColumn get guid => text().nullable()();
-  DateTimeColumn get timestamp => dateTime()();
-  BoolColumn get needSync => boolean()();
 }
 
-class OrderLines extends Table {
+class OrderLines extends Table with Syncable {
   IntColumn get id => integer().autoIncrement()();
 
   IntColumn get orderId => integer()();
@@ -385,11 +355,6 @@ class OrderLines extends Table {
   RealColumn get priceOriginal => real()();
   IntColumn get package => integer()();
   IntColumn get rel => integer()();
-
-  TextColumn get guid => text().nullable()();
-  BoolColumn get isDeleted => boolean()();
-  DateTimeColumn get timestamp => dateTime()();
-  BoolColumn get needSync => boolean()();
 }
 
 class PreOrders extends Table {

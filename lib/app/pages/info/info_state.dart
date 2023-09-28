@@ -18,7 +18,9 @@ enum InfoStateStatus {
   imageLoadInProgress,
   imageLoadFailure,
   imageLoadSuccess,
-  imageLoadCanceled
+  imageLoadCanceled,
+  guidRegenerateSuccess,
+  guidRegenerateFailure
 }
 
 class InfoState {

@@ -73,8 +73,7 @@ class GoodsInfoViewModel extends PageViewModel<GoodsInfoState, GoodsInfoStateSta
 
     await pricesRepository.updatePartnersPricelist(
       state.curPartnerPricelist!,
-      pricelistId: Optional.of(goodsPricelist.id),
-      needSync: Optional.of(true)
+      pricelistId: Optional.of(goodsPricelist.id)
     );
 
     emit(state.copyWith(status: GoodsInfoStateStatus.pricelistUpdated));
@@ -86,8 +85,7 @@ class GoodsInfoViewModel extends PageViewModel<GoodsInfoState, GoodsInfoStateSta
         state.curPartnersPrice!,
         price: Optional.of(price),
         dateFrom: Optional.of(dateFrom),
-        dateTo: Optional.of(dateTo),
-        needSync: Optional.of(true)
+        dateTo: Optional.of(dateTo)
       );
     } else {
       await pricesRepository.addPartnersPrice(

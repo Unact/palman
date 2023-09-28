@@ -10,10 +10,12 @@ part of 'database.dart';
 class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
   PointsDao(AppDataStore db) : super(db);
 
-  Future<void> blockPoints(bool block, {List<int>? ids}) async {
-    final companion = PointsCompanion(isBlocked: Value(block));
+  Future<void> regeneratePointsGuid() async {
+    await db._regenerateGuid(points);
+  }
 
-    await (update(points)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))).write(companion);
+  Future<void> regeneratePointImagesGuid() async {
+    await db._regenerateGuid(pointImages);
   }
 
   Future<void> loadPoints(List<Point> list) async {
@@ -66,7 +68,6 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     return (
       select(points)
         ..where((tbl) => tbl.needSync.equals(true) | hasPointImageToSync)
-        ..where((tbl) => tbl.isBlocked.equals(false))
     ).get();
   }
 
@@ -74,7 +75,6 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     final hasUnblockedPoint = existsQuery(
       select(points)
         ..where((tbl) => tbl.id.equalsExp(pointImages.pointId))
-        ..where((tbl) => tbl.isBlocked.equals(false))
         ..where((tbl) => tbl.needSync.equals(true) | pointImages.needSync.equals(true))
     );
 

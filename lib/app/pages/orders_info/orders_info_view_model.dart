@@ -110,14 +110,22 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
       shipmentsRepository.loadShipments,
     ];
 
-    emit(state.copyWith(status: OrdersInfoStateStatus.loadInProgress));
+    emit(state.copyWith(status: OrdersInfoStateStatus.loadInProgress, isBusy: true));
 
     try {
       await Future.wait(futures.map((e) => e.call()));
 
-      emit(state.copyWith(status: OrdersInfoStateStatus.loadSuccess, message: 'Данные успешно обновлены',));
+      emit(state.copyWith(
+        status: OrdersInfoStateStatus.loadSuccess,
+        message: 'Данные успешно обновлены',
+        isBusy: false
+      ));
     } on AppError catch(e) {
-      emit(state.copyWith(status: OrdersInfoStateStatus.loadFailure, message: e.message));
+      emit(state.copyWith(
+        status: OrdersInfoStateStatus.loadFailure,
+        message: e.message,
+        isBusy: false
+      ));
     }
   }
 
@@ -132,7 +140,10 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
 
   Future<void> deleteOrder(OrderExResult orderEx) async {
     await ordersRepository.deleteOrder(orderEx.order);
-    emit(state.copyWith(orderExList: state.orderExList.where((e) => e != orderEx).toList()));
+    emit(state.copyWith(
+      status: OrdersInfoStateStatus.orderDeleted,
+      orderExList: state.orderExList.where((e) => e != orderEx).toList()
+    ));
   }
 
   Future<void> addNewIncRequest() async {
@@ -146,7 +157,10 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
 
   Future<void> deleteIncRequest(IncRequestEx newIncRequestEx) async {
     await shipmentsRepository.deleteIncRequest(newIncRequestEx.incRequest);
-    emit(state.copyWith(incRequestExList: state.incRequestExList.where((e) => e != newIncRequestEx).toList()));
+    emit(state.copyWith(
+      status: OrdersInfoStateStatus.incRequestDeleted,
+      incRequestExList: state.incRequestExList.where((e) => e != newIncRequestEx).toList()
+    ));
   }
 
   void selectBuyer(Buyer? buyer) {

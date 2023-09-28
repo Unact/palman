@@ -33,14 +33,13 @@ class ShipmentsRepository extends BaseRepository {
     }
   }
 
-  Future<void> blockIncRequests(bool block, {List<int>? ids}) async {
-    await dataStore.shipmentsDao.blockIncRequests(block, ids: ids);
-  }
-
   Future<void> syncIncRequests(List<IncRequest> incRequests) async {
     try {
       List<Map<String, dynamic>> incRequestsData = incRequests.map((e) => {
         'guid': e.guid,
+        'isNew': e.isNew,
+        'isDeleted': e.isDeleted,
+        'currentTimestamp': e.currentTimestamp.toIso8601String(),
         'timestamp': e.timestamp.toIso8601String(),
         'info': e.info,
         'buyerId': e.buyerId,
@@ -48,14 +47,13 @@ class ShipmentsRepository extends BaseRepository {
         'incSum': e.incSum
       }).toList();
 
-      final data = await api.saveShipments(incRequestsData);
+      await api.saveShipments(incRequestsData);
       await dataStore.transaction(() async {
         for (var incRequest in incRequests) {
-          await dataStore.shipmentsDao.deleteIncRequest(incRequest.id);
-        }
-        for (var apiIncRequest in data.incRequests) {
-          final companion = apiIncRequest.toDatabaseEnt().toCompanion(false).copyWith(id: const Value.absent());
-          await dataStore.shipmentsDao.addIncRequest(companion);
+          await dataStore.shipmentsDao.updateIncRequest(
+            incRequest.id,
+            incRequest.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+          );
         }
       });
     } on ApiException catch(e) {
@@ -71,12 +69,7 @@ class ShipmentsRepository extends BaseRepository {
 
     if (incRequests.isEmpty) return;
 
-    try {
-      await blockIncRequests(true);
-      await syncIncRequests(incRequests);
-    } finally {
-      await blockIncRequests(false);
-    }
+    await syncIncRequests(incRequests);
   }
 
   Stream<List<IncRequestEx>> watchIncRequestExList() {
@@ -93,12 +86,7 @@ class ShipmentsRepository extends BaseRepository {
 
   Future<IncRequestEx> addIncRequest() async {
     final id = await dataStore.shipmentsDao.addIncRequest(
-      IncRequestsCompanion.insert(
-        status: Strings.incRequestDefaultStatus,
-        timestamp: DateTime.now(),
-        isBlocked: false,
-        needSync: false
-      )
+      IncRequestsCompanion.insert(status: Strings.incRequestDefaultStatus)
     );
     final incRequestEx = await dataStore.shipmentsDao.getIncRequestEx(id);
 
@@ -109,22 +97,27 @@ class ShipmentsRepository extends BaseRepository {
     Optional<int?>? buyerId,
     Optional<DateTime?>? date,
     Optional<String?>? info,
-    Optional<double?>? incSum,
-    Optional<bool>? needSync
+    Optional<double?>? incSum
   }) async {
     final updatedIncRequest = IncRequestsCompanion(
       buyerId: buyerId == null ? const Value.absent() : Value(buyerId.orNull),
       date: date == null ? const Value.absent() : Value(date.orNull),
       info: info == null ? const Value.absent() : Value(info.orNull),
       incSum: incSum == null ? const Value.absent() : Value(incSum.orNull),
-      timestamp: Value(DateTime.now()),
-      needSync: needSync == null ? const Value.absent() : Value(needSync.value),
+      isDeleted: const Value(false),
+      needSync: const Value(true)
     );
 
     await dataStore.shipmentsDao.updateIncRequest(incRequest.id, updatedIncRequest);
   }
 
   Future<void> deleteIncRequest(IncRequest incRequest) async {
+    if (!incRequest.isNew) return;
+
     await dataStore.shipmentsDao.deleteIncRequest(incRequest.id);
+  }
+
+  Future<void> regenerateGuid() async {
+    await dataStore.shipmentsDao.regenerateIncRequestsGuid();
   }
 }

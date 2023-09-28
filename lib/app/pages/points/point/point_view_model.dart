@@ -15,8 +15,6 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
 
   @override
   Future<void> initViewModel() async {
-    await pointsRepository.blockPoints(true, ids: [state.pointEx.point.id]);
-
     await super.initViewModel();
 
     appInfoSubscription = appRepository.watchAppInfo().listen((event) {
@@ -37,7 +35,6 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> close() async {
     await super.close();
 
-    await pointsRepository.blockPoints(false, ids: [state.pointEx.point.id]);
     await pointExListSubscription?.cancel();
     await pointFormatsSubscription?.cancel();
     await appInfoSubscription?.cancel();
@@ -82,8 +79,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
       state.pointEx.point,
       address: Optional.fromNullable(address),
       latitude: Optional.of(latitude),
-      longitude: Optional.of(longitude),
-      needSync: Optional.of(true)
+      longitude: Optional.of(longitude)
     );
     _notifyPointUpdated();
   }
@@ -91,8 +87,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updatePointFormat(int pointFormat) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      pointFormat: Optional.of(pointFormat),
-      needSync: Optional.of(true)
+      pointFormat: Optional.of(pointFormat)
     );
     _notifyPointUpdated();
   }
@@ -100,8 +95,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updateName(String name) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      name: Optional.of(name),
-      needSync: Optional.of(true)
+      name: Optional.of(name)
     );
     _notifyPointUpdated();
   }
@@ -109,8 +103,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updateNumberOfCdesk(String numberOfCdesk) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      numberOfCdesks: Optional.fromNullable(int.tryParse(numberOfCdesk)),
-      needSync: Optional.of(true)
+      numberOfCdesks: Optional.fromNullable(int.tryParse(numberOfCdesk))
     );
     _notifyPointUpdated();
   }
@@ -118,8 +111,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updateEmailOnlineCheck(String emailOnlineCheck) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      emailOnlineCheck: Optional.of(emailOnlineCheck),
-      needSync: Optional.of(true)
+      emailOnlineCheck: Optional.of(emailOnlineCheck)
     );
     _notifyPointUpdated();
   }
@@ -127,8 +119,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updateEmail(String email) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      email: Optional.of(email),
-      needSync: Optional.of(true)
+      email: Optional.of(email)
     );
     _notifyPointUpdated();
   }
@@ -136,8 +127,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updateInn(String inn) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      inn: Optional.of(inn),
-      needSync: Optional.of(true)
+      inn: Optional.of(inn)
     );
     _notifyPointUpdated();
   }
@@ -145,8 +135,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updateMaxdebt(String maxdebt) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      maxdebt: Optional.fromNullable(int.tryParse(maxdebt)),
-      needSync: Optional.of(true)
+      maxdebt: Optional.fromNullable(int.tryParse(maxdebt))
     );
     _notifyPointUpdated();
   }
@@ -154,8 +143,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updateNds10(String nds10) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      nds10: Optional.fromNullable(int.tryParse(nds10)),
-      needSync: Optional.of(true)
+      nds10: Optional.fromNullable(int.tryParse(nds10))
     );
     _notifyPointUpdated();
   }
@@ -163,8 +151,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updateNds20(String nds20) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      nds20: Optional.fromNullable(int.tryParse(nds20)),
-      needSync: Optional.of(true)
+      nds20: Optional.fromNullable(int.tryParse(nds20))
     );
     _notifyPointUpdated();
   }
@@ -172,8 +159,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updatePlong(String plong) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      plong: Optional.fromNullable(int.tryParse(plong)),
-      needSync: Optional.of(true)
+      plong: Optional.fromNullable(int.tryParse(plong))
     );
     _notifyPointUpdated();
   }
@@ -181,8 +167,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updatePhoneOnlineCheck(String phoneOnlineCheck) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      phoneOnlineCheck: Optional.of(phoneOnlineCheck),
-      needSync: Optional.of(true)
+      phoneOnlineCheck: Optional.of(phoneOnlineCheck)
     );
     _notifyPointUpdated();
   }
@@ -190,8 +175,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   Future<void> updateJur(String jur) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
-      inn: Optional.of(jur),
-      needSync: Optional.of(true)
+      inn: Optional.of(jur)
     );
     _notifyPointUpdated();
   }
@@ -200,18 +184,9 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
     emit(state.copyWith(status: PointStateStatus.saveInProgress));
 
     try {
-      final points = await pointsRepository.syncPoints(
-        [state.pointEx.point],
-        state.pointEx.images.toList()
-      );
+      await pointsRepository.syncPoints([state.pointEx.point], state.pointEx.images.toList());
 
-      await pointsRepository.blockPoints(true, ids: [points.first.point.id]);
-
-      emit(state.copyWith(
-        pointEx: points.first,
-        status: PointStateStatus.saveSuccess,
-        message: Strings.changesSaved
-      ));
+      emit(state.copyWith(status: PointStateStatus.saveSuccess, message: Strings.changesSaved));
     } on AppError catch(e) {
       emit(state.copyWith(status: PointStateStatus.saveFailure, message: e.message));
     }

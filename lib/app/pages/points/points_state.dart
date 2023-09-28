@@ -5,7 +5,8 @@ enum PointsStateStatus {
   dataLoaded,
   selectedReasonChanged,
   listViewChanged,
-  pointAdded
+  pointAdded,
+  pointDeleted
 }
 
 class PointsState {

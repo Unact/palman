@@ -34,13 +34,15 @@ class ApiDeposit extends Equatable {
   Deposit toDatabaseEnt() {
     return Deposit(
       id: id,
-      guid: guid,
-      timestamp: timestamp,
       date: date,
       totalSum: totalSum,
       checkTotalSum: checkTotalSum,
-      needSync: false,
-      isBlocked: false
+      guid: guid,
+      isNew: false,
+      isDeleted: false,
+      timestamp: timestamp,
+      currentTimestamp: timestamp,
+      needSync: false
     );
   }
 

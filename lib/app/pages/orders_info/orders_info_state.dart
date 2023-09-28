@@ -4,6 +4,7 @@ enum OrdersInfoStateStatus {
   initial,
   dataLoaded,
   orderAdded,
+  orderDeleted,
   loadInProgress,
   loadConfirmation,
   loadDeclined,
@@ -13,7 +14,8 @@ enum OrdersInfoStateStatus {
   saveSuccess,
   saveFailure,
   buyerChanged,
-  incRequestAdded
+  incRequestAdded,
+  incRequestDeleted
 }
 
 class OrdersInfoState {

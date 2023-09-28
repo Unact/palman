@@ -12,10 +12,12 @@ part of 'database.dart';
 class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
   DebtsDao(AppDataStore db) : super(db);
 
-  Future<void> blockDeposits(bool block, {List<int>? ids}) async {
-    final companion = DepositsCompanion(isBlocked: Value(block));
+  Future<void> regenerateDepositsGuid() async {
+    await db._regenerateGuid(deposits);
+  }
 
-    await (update(deposits)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))).write(companion);
+  Future<void> regenerateEncashmentsGuid() async {
+    await db._regenerateGuid(encashments);
   }
 
   Future<void> loadDebts(List<Debt> list) async {
@@ -62,7 +64,6 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     final hasUnblockedDeposit = existsQuery(
       select(deposits)
         ..where((tbl) => tbl.id.equalsExp(encashments.depositId))
-        ..where((tbl) => tbl.isBlocked.equals(false))
         ..where((tbl) => tbl.needSync.equals(true) | encashments.needSync.equals(true))
     );
 
@@ -79,7 +80,6 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     return (
       select(deposits)
         ..where((tbl) => tbl.needSync.equals(true) | hasEncashmentToSync)
-        ..where((tbl) => tbl.isBlocked.equals(false))
     ).get();
   }
 

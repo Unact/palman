@@ -3,7 +3,8 @@ part of 'debts_info_page.dart';
 enum DebtsInfoStateStatus {
   initial,
   dataLoaded,
-  encashmentAdded
+  encashmentAdded,
+  encashmentDeleted
 }
 
 class DebtsInfoState {

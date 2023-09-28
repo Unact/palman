@@ -193,8 +193,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
         rel: Optional.of(goodsDetail.rel),
         price: Optional.of(goodsDetail.price),
         priceOriginal: Optional.of(goodsDetail.pricelistPrice),
-        package: Optional.of(goodsDetail.package),
-        needSync: Optional.of(true)
+        package: Optional.of(goodsDetail.package)
       );
 
       return;
@@ -212,10 +211,6 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> updateOrderLinePrice(OrderLineExResult orderLineEx, double price) async {
-    await ordersRepository.updateOrderLine(
-      orderLineEx.line,
-      price: Optional.of(price),
-      needSync: Optional.of(true)
-    );
+    await ordersRepository.updateOrderLine(orderLineEx.line, price: Optional.of(price));
   }
 }

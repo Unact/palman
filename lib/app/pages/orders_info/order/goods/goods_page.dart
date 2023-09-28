@@ -166,7 +166,12 @@ class _GoodsViewState extends State<_GoodsView> {
                   padding: const EdgeInsets.only(right: 2),
                   child: SizedBox(width: 260, child: buildCategoryView(context, vm.selectCategory))
                 ),
-              buildGoodsView(context, compactMode)
+              Theme(
+                data: Theme.of(context).copyWith(
+                  inputDecorationTheme: const InputDecorationTheme(disabledBorder: InputBorder.none)
+                ),
+                child: buildGoodsView(context, compactMode)
+              )
             ]
           ),
           bottomSheet: buildViewOptionsRow(context)
@@ -282,7 +287,10 @@ class _GoodsViewState extends State<_GoodsView> {
             style: Styles.formStyle,
             controller: nameController,
           ),
-          buildGoodsFiltersRow(context),
+          SizedBox(
+            height: 48,
+            child: buildGoodsFiltersRow(context),
+          )
         ],
       )
     );

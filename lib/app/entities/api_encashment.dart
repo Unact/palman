@@ -37,14 +37,17 @@ class ApiEncashment extends Equatable {
   Encashment toDatabaseEnt(int depositId) {
     return Encashment(
       id: id,
-      guid: guid,
       date: date,
       buyerId: buyerId,
       debtId: debtId,
       depositId: depositId,
       encSum: encSum,
       isCheck: isCheck,
+      guid: guid,
+      isNew: false,
+      isDeleted: false,
       timestamp: timestamp,
+      currentTimestamp: timestamp,
       needSync: false
     );
   }

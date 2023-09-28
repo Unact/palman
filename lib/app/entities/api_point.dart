@@ -76,7 +76,6 @@ class ApiPoint extends Equatable {
   Point toDatabaseEnt() {
     return Point(
       id: id,
-      guid: guid,
       name: name,
       address: address,
       buyerName: buyerName,
@@ -94,8 +93,11 @@ class ApiPoint extends Equatable {
       maxdebt: maxdebt,
       nds10: nds10,
       nds20: nds20,
+      guid: guid,
+      isNew: false,
+      isDeleted: false,
       timestamp: timestamp,
-      isBlocked: false,
+      currentTimestamp: timestamp,
       needSync: false
     );
   }

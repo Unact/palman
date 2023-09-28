@@ -20,8 +20,6 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
 
   @override
   Future<void> initViewModel() async {
-    await shipmentsRepository.blockIncRequests(true, ids: [state.incRequestEx.incRequest.id]);
-
     await super.initViewModel();
 
     incRequestExListSubscription = shipmentsRepository.watchIncRequestExList().listen((event) {
@@ -42,7 +40,6 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
   Future<void> close() async {
     await super.close();
 
-    await shipmentsRepository.blockIncRequests(false, ids: [state.incRequestEx.incRequest.id]);
     await incRequestExListSubscription?.cancel();
     await buyersSubscription?.cancel();
     await workdatesSubscription?.cancel();
@@ -51,8 +48,7 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
   Future<void> updateIncSum(double? incSum) async {
     await shipmentsRepository.updateIncRequest(
       state.incRequestEx.incRequest,
-      incSum: Optional.fromNullable(incSum),
-      needSync: Optional.of(true)
+      incSum: Optional.fromNullable(incSum)
     );
 
     _notifyIncRequestUpdated();
@@ -61,8 +57,7 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
   Future<void> updateBuyer(Buyer? buyer) async {
     await shipmentsRepository.updateIncRequest(
       state.incRequestEx.incRequest,
-      buyerId: Optional.fromNullable(buyer?.id),
-      needSync: Optional.of(true)
+      buyerId: Optional.fromNullable(buyer?.id)
     );
 
     _notifyIncRequestUpdated();
@@ -71,8 +66,7 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
   Future<void> updateInfo(String? info) async {
     await shipmentsRepository.updateIncRequest(
       state.incRequestEx.incRequest,
-      info: Optional.fromNullable(info),
-      needSync: Optional.of(true)
+      info: Optional.fromNullable(info)
     );
 
     _notifyIncRequestUpdated();
@@ -81,8 +75,7 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
   Future<void> updateDate(DateTime? date) async {
     await shipmentsRepository.updateIncRequest(
       state.incRequestEx.incRequest,
-      date: Optional.fromNullable(date),
-      needSync: Optional.of(true)
+      date: Optional.fromNullable(date)
     );
 
     _notifyIncRequestUpdated();

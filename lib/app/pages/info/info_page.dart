@@ -122,7 +122,7 @@ class _InfoViewState extends State<_InfoView> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text(Strings.ruAppName),
+            title: GestureDetector(onLongPress: vm.regenerateGuids, child: const Text(Strings.ruAppName)),
             actions: <Widget>[
               IconButton(
                 color: Colors.white,
@@ -214,6 +214,8 @@ class _InfoViewState extends State<_InfoView> {
           case InfoStateStatus.imageLoadSuccess:
           case InfoStateStatus.imageLoadCanceled:
           case InfoStateStatus.imageLoadFailure:
+          case InfoStateStatus.guidRegenerateSuccess:
+          case InfoStateStatus.guidRegenerateFailure:
             Misc.showMessage(context, state.message);
             break;
           case InfoStateStatus.loadConfirmation:
@@ -407,7 +409,7 @@ class _InfoViewState extends State<_InfoView> {
   Widget buildErrorCard(BuildContext context) {
     final vm = context.read<InfoViewModel>();
 
-    if (vm.state.syncMessage.isEmpty) return Container();
+    if (vm.state.syncMessage.isEmpty || !vm.state.hasPendingChanges) return Container();
 
     return Card(
       child: ListTile(

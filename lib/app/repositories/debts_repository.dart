@@ -46,18 +46,20 @@ class DebtsRepository extends BaseRepository {
     }
   }
 
-  Future<void> blockDeposits(bool block, {List<int>? ids}) async {
-    await dataStore.debtsDao.blockDeposits(block, ids: ids);
-  }
-
   Future<void> syncEncashments(List<Deposit> deposits, List<Encashment> encashments) async {
     try {
       List<Map<String, dynamic>> encashmentsData = deposits.map((e) => {
         'guid': e.guid,
+        'isNew': e.isNew,
+        'isDeleted': e.isDeleted,
+        'currentTimestamp': e.currentTimestamp.toIso8601String(),
         'timestamp': e.timestamp.toIso8601String(),
         'date': e.date.toIso8601String(),
         'encashments': encashments.where((i) => i.depositId == e.id && i.needSync).map((i) => {
           'guid': i.guid,
+          'isNew': i.isNew,
+          'isDeleted': i.isDeleted,
+          'currentTimestamp': i.currentTimestamp.toIso8601String(),
           'timestamp': i.timestamp.toIso8601String(),
           'debtId': i.debtId,
           'buyerId': i.buyerId,
@@ -66,26 +68,19 @@ class DebtsRepository extends BaseRepository {
         }).toList()
       }).toList();
 
-      final data = await api.saveDebts(encashmentsData);
+      await api.saveDebts(encashmentsData);
       await dataStore.transaction(() async {
-        for (var encashment in encashments) {
-          await dataStore.debtsDao.deleteEncashment(encashment.id);
-        }
         for (var deposit in deposits) {
-          await dataStore.debtsDao.deleteDeposit(deposit.id);
+          await dataStore.debtsDao.updateDeposit(
+            deposit.id,
+            deposit.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+          );
         }
-        for (var apiDeposit in data.deposits) {
-          final depositsCompanion = apiDeposit.toDatabaseEnt().toCompanion(false).copyWith(id: const Value.absent());
-          final id = await dataStore.debtsDao.addDeposit(depositsCompanion);
-          final apiEncashments = apiDeposit.encashments.map((i) => i.toDatabaseEnt(id)).toList();
-
-          for (var apiEncashment in apiEncashments) {
-            final encashmentsCompanion = apiEncashment.toCompanion(false).copyWith(
-              id: const Value.absent(),
-              depositId: Value(id)
-            );
-            await dataStore.debtsDao.addEncashment(encashmentsCompanion);
-          }
+        for (var encashment in encashments) {
+          await dataStore.debtsDao.updateEncashment(
+            encashment.id,
+            encashment.toCompanion(false).copyWith(isNew: const Value(false), needSync: const Value(false))
+          );
         }
       });
     } on ApiException catch(e) {
@@ -102,12 +97,7 @@ class DebtsRepository extends BaseRepository {
 
     if (deposits.isEmpty) return;
 
-    try {
-      await blockDeposits(true);
-      await syncEncashments(deposits, encashments);
-    } finally {
-      await blockDeposits(false);
-    }
+    await syncEncashments(deposits, encashments);
   }
 
   Future<Deposit> depositEncashments(DateTime date, List<EncashmentEx> encashmentExList) async {
@@ -125,7 +115,7 @@ class DebtsRepository extends BaseRepository {
         DepositsCompanion(
           totalSum: Value(deposit.totalSum + totalSum),
           checkTotalSum: Value(deposit.checkTotalSum + checkTotalSum),
-          timestamp: Value(DateTime.now()),
+          isDeleted: const Value(false),
           needSync: const Value(true)
         )
       );
@@ -134,10 +124,7 @@ class DebtsRepository extends BaseRepository {
         DepositsCompanion.insert(
           date: date,
           totalSum: totalSum,
-          checkTotalSum: checkTotalSum,
-          timestamp: DateTime.now(),
-          isBlocked: false,
-          needSync: true
+          checkTotalSum: checkTotalSum
         )
       );
       deposit = await dataStore.debtsDao.getDeposit(id);
@@ -159,9 +146,7 @@ class DebtsRepository extends BaseRepository {
         date: DateTime.now(),
         isCheck: debt.isCheck,
         buyerId: buyer.id,
-        debtId: Value(debt.id),
-        timestamp: DateTime.now(),
-        needSync: true
+        debtId: Value(debt.id)
       )
     );
     final encashment = await dataStore.debtsDao.getEncashmentEx(id);
@@ -170,12 +155,12 @@ class DebtsRepository extends BaseRepository {
   }
 
   Future<void> updateEncashment(Encashment encashment, {
-    Optional<double?>? encSum,
-    Optional<bool>? needSync
+    Optional<double?>? encSum
   }) async {
     final newEncashment = EncashmentsCompanion(
       encSum: encSum == null ? const Value.absent() : Value(encSum.orNull),
-      needSync: needSync == null ? const Value.absent() : Value(needSync.value),
+      isDeleted: const Value(false),
+      needSync: const Value(true)
     );
 
     await dataStore.debtsDao.updateEncashment(encashment.id, newEncashment);
@@ -192,6 +177,13 @@ class DebtsRepository extends BaseRepository {
   }
 
   Future<void> deleteEncashment(Encashment encashment) async {
+    if (!encashment.isNew) return;
+
     await dataStore.debtsDao.deleteEncashment(encashment.id);
+  }
+
+  Future<void> regenerateGuid() async {
+    await dataStore.debtsDao.regenerateDepositsGuid();
+    await dataStore.debtsDao.regenerateEncashmentsGuid();
   }
 }
