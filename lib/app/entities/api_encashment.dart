@@ -44,10 +44,12 @@ class ApiEncashment extends Equatable {
       encSum: encSum,
       isCheck: isCheck,
       guid: guid,
+      isNew: false,
       isDeleted: false,
       timestamp: timestamp,
       currentTimestamp: timestamp,
-      lastSyncTime: timestamp
+      lastSyncTime: timestamp,
+      needSync: false
     );
   }
 

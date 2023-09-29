@@ -64,10 +64,7 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     final hasDepositToSync = existsQuery(
       select(deposits)
         ..where((tbl) => tbl.id.equalsExp(encashments.depositId))
-        ..where((tbl) =>
-          tbl.lastSyncTime.isNull() | tbl.lastSyncTime.isSmallerThan(tbl.timestamp) |
-          encashments.lastSyncTime.isNull() | encashments.lastSyncTime.isSmallerThan(encashments.timestamp)
-        )
+        ..where((tbl) => tbl.needSync.equals(true) | encashments.needSync.equals(true))
     );
 
     return (select(encashments)..where((tbl) => hasDepositToSync)).get();
@@ -77,15 +74,12 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     final hasEncashmentToSync = existsQuery(
       select(encashments)
         ..where((tbl) => tbl.depositId.equalsExp(deposits.id))
-        ..where((tbl) => tbl.lastSyncTime.isNull() | tbl.lastSyncTime.isSmallerThan(tbl.timestamp))
+        ..where((tbl) => tbl.needSync.equals(true))
     );
 
     return (
       select(deposits)
-        ..where((tbl) =>
-          tbl.lastSyncTime.isNull() | tbl.lastSyncTime.isSmallerThan(tbl.timestamp) |
-          hasEncashmentToSync
-        )
+        ..where((tbl) => tbl.needSync.equals(true) | hasEncashmentToSync)
     ).get();
   }
 

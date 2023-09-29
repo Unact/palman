@@ -43,10 +43,12 @@ class ApiIncRequest extends Equatable {
       info: info,
       status: status,
       guid: guid,
+      isNew: false,
       isDeleted: false,
       timestamp: timestamp,
       currentTimestamp: timestamp,
-      lastSyncTime: timestamp
+      lastSyncTime: timestamp,
+      needSync: false
     );
   }
 

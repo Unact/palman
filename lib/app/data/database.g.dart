@@ -1731,6 +1731,32 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
   late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
       'last_sync_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
+        SqlDialect.mysql: '',
+        SqlDialect.postgres: '',
+      }));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew =
+      GeneratedColumn<bool>('is_new', aliasedName, false,
+          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -1841,6 +1867,8 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
         timestamp,
         currentTimestamp,
         lastSyncTime,
+        needSync,
+        isNew,
         id,
         name,
         address,
@@ -1892,6 +1920,14 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
           _lastSyncTimeMeta,
           lastSyncTime.isAcceptableOrUnknown(
               data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
     }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
@@ -1997,6 +2033,10 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
           DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
       lastSyncTime: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
@@ -2048,6 +2088,8 @@ class Point extends DataClass implements Insertable<Point> {
   final DateTime timestamp;
   final DateTime currentTimestamp;
   final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
   final int id;
   final String name;
   final String? address;
@@ -2072,6 +2114,8 @@ class Point extends DataClass implements Insertable<Point> {
       required this.timestamp,
       required this.currentTimestamp,
       this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
       required this.id,
       required this.name,
       this.address,
@@ -2208,6 +2252,8 @@ class Point extends DataClass implements Insertable<Point> {
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       address: serializer.fromJson<String?>(json['address']),
@@ -2237,6 +2283,8 @@ class Point extends DataClass implements Insertable<Point> {
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
       'address': serializer.toJson<String?>(address),
@@ -2264,6 +2312,8 @@ class Point extends DataClass implements Insertable<Point> {
           DateTime? timestamp,
           DateTime? currentTimestamp,
           Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
           int? id,
           String? name,
           Value<String?> address = const Value.absent(),
@@ -2289,6 +2339,8 @@ class Point extends DataClass implements Insertable<Point> {
         currentTimestamp: currentTimestamp ?? this.currentTimestamp,
         lastSyncTime:
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
         id: id ?? this.id,
         name: name ?? this.name,
         address: address.present ? address.value : this.address,
@@ -2321,6 +2373,8 @@ class Point extends DataClass implements Insertable<Point> {
           ..write('timestamp: $timestamp, ')
           ..write('currentTimestamp: $currentTimestamp, ')
           ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('address: $address, ')
@@ -2350,6 +2404,8 @@ class Point extends DataClass implements Insertable<Point> {
         timestamp,
         currentTimestamp,
         lastSyncTime,
+        needSync,
+        isNew,
         id,
         name,
         address,
@@ -2378,6 +2434,8 @@ class Point extends DataClass implements Insertable<Point> {
           other.timestamp == this.timestamp &&
           other.currentTimestamp == this.currentTimestamp &&
           other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
           other.id == this.id &&
           other.name == this.name &&
           other.address == this.address &&
@@ -2731,6 +2789,32 @@ class $PointImagesTable extends PointImages
   late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
       'last_sync_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
+        SqlDialect.mysql: '',
+        SqlDialect.postgres: '',
+      }));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew =
+      GeneratedColumn<bool>('is_new', aliasedName, false,
+          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -2783,6 +2867,8 @@ class $PointImagesTable extends PointImages
         timestamp,
         currentTimestamp,
         lastSyncTime,
+        needSync,
+        isNew,
         id,
         pointId,
         latitude,
@@ -2823,6 +2909,14 @@ class $PointImagesTable extends PointImages
           _lastSyncTimeMeta,
           lastSyncTime.isAcceptableOrUnknown(
               data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
     }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
@@ -2882,6 +2976,10 @@ class $PointImagesTable extends PointImages
           DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
       lastSyncTime: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       pointId: attachedDatabase.typeMapping
@@ -2911,6 +3009,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
   final DateTime timestamp;
   final DateTime currentTimestamp;
   final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
   final int id;
   final int pointId;
   final double latitude;
@@ -2924,6 +3024,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
       required this.timestamp,
       required this.currentTimestamp,
       this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
       required this.id,
       required this.pointId,
       required this.latitude,
@@ -2979,6 +3081,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
       id: serializer.fromJson<int>(json['id']),
       pointId: serializer.fromJson<int>(json['pointId']),
       latitude: serializer.fromJson<double>(json['latitude']),
@@ -2997,6 +3101,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
       'id': serializer.toJson<int>(id),
       'pointId': serializer.toJson<int>(pointId),
       'latitude': serializer.toJson<double>(latitude),
@@ -3013,6 +3119,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
           DateTime? timestamp,
           DateTime? currentTimestamp,
           Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
           int? id,
           int? pointId,
           double? latitude,
@@ -3027,6 +3135,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
         currentTimestamp: currentTimestamp ?? this.currentTimestamp,
         lastSyncTime:
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
         id: id ?? this.id,
         pointId: pointId ?? this.pointId,
         latitude: latitude ?? this.latitude,
@@ -3043,6 +3153,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
           ..write('timestamp: $timestamp, ')
           ..write('currentTimestamp: $currentTimestamp, ')
           ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
           ..write('id: $id, ')
           ..write('pointId: $pointId, ')
           ..write('latitude: $latitude, ')
@@ -3061,6 +3173,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
       timestamp,
       currentTimestamp,
       lastSyncTime,
+      needSync,
+      isNew,
       id,
       pointId,
       latitude,
@@ -3077,6 +3191,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
           other.timestamp == this.timestamp &&
           other.currentTimestamp == this.currentTimestamp &&
           other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
           other.id == this.id &&
           other.pointId == this.pointId &&
           other.latitude == this.latitude &&
@@ -3301,6 +3417,32 @@ class $EncashmentsTable extends Encashments
   late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
       'last_sync_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
+        SqlDialect.mysql: '',
+        SqlDialect.postgres: '',
+      }));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew =
+      GeneratedColumn<bool>('is_new', aliasedName, false,
+          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -3356,6 +3498,8 @@ class $EncashmentsTable extends Encashments
         timestamp,
         currentTimestamp,
         lastSyncTime,
+        needSync,
+        isNew,
         id,
         date,
         isCheck,
@@ -3396,6 +3540,14 @@ class $EncashmentsTable extends Encashments
           _lastSyncTimeMeta,
           lastSyncTime.isAcceptableOrUnknown(
               data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
     }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
@@ -3449,6 +3601,10 @@ class $EncashmentsTable extends Encashments
           DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
       lastSyncTime: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       date: attachedDatabase.typeMapping
@@ -3478,6 +3634,8 @@ class Encashment extends DataClass implements Insertable<Encashment> {
   final DateTime timestamp;
   final DateTime currentTimestamp;
   final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
   final int id;
   final DateTime date;
   final bool isCheck;
@@ -3491,6 +3649,8 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       required this.timestamp,
       required this.currentTimestamp,
       this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
       required this.id,
       required this.date,
       required this.isCheck,
@@ -3556,6 +3716,8 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
       id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<DateTime>(json['date']),
       isCheck: serializer.fromJson<bool>(json['isCheck']),
@@ -3574,6 +3736,8 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
       'id': serializer.toJson<int>(id),
       'date': serializer.toJson<DateTime>(date),
       'isCheck': serializer.toJson<bool>(isCheck),
@@ -3590,6 +3754,8 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           DateTime? timestamp,
           DateTime? currentTimestamp,
           Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
           int? id,
           DateTime? date,
           bool? isCheck,
@@ -3604,6 +3770,8 @@ class Encashment extends DataClass implements Insertable<Encashment> {
         currentTimestamp: currentTimestamp ?? this.currentTimestamp,
         lastSyncTime:
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
         id: id ?? this.id,
         date: date ?? this.date,
         isCheck: isCheck ?? this.isCheck,
@@ -3620,6 +3788,8 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           ..write('timestamp: $timestamp, ')
           ..write('currentTimestamp: $currentTimestamp, ')
           ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
           ..write('id: $id, ')
           ..write('date: $date, ')
           ..write('isCheck: $isCheck, ')
@@ -3632,8 +3802,21 @@ class Encashment extends DataClass implements Insertable<Encashment> {
   }
 
   @override
-  int get hashCode => Object.hash(guid, isDeleted, timestamp, currentTimestamp,
-      lastSyncTime, id, date, isCheck, buyerId, debtId, depositId, encSum);
+  int get hashCode => Object.hash(
+      guid,
+      isDeleted,
+      timestamp,
+      currentTimestamp,
+      lastSyncTime,
+      needSync,
+      isNew,
+      id,
+      date,
+      isCheck,
+      buyerId,
+      debtId,
+      depositId,
+      encSum);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3643,6 +3826,8 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           other.timestamp == this.timestamp &&
           other.currentTimestamp == this.currentTimestamp &&
           other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
           other.id == this.id &&
           other.date == this.date &&
           other.isCheck == this.isCheck &&
@@ -4304,6 +4489,32 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
   late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
       'last_sync_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
+        SqlDialect.mysql: '',
+        SqlDialect.postgres: '',
+      }));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew =
+      GeneratedColumn<bool>('is_new', aliasedName, false,
+          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -4337,6 +4548,8 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
         timestamp,
         currentTimestamp,
         lastSyncTime,
+        needSync,
+        isNew,
         id,
         date,
         totalSum,
@@ -4374,6 +4587,14 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
           _lastSyncTimeMeta,
           lastSyncTime.isAcceptableOrUnknown(
               data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
     }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
@@ -4417,6 +4638,10 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
           DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
       lastSyncTime: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       date: attachedDatabase.typeMapping
@@ -4440,6 +4665,8 @@ class Deposit extends DataClass implements Insertable<Deposit> {
   final DateTime timestamp;
   final DateTime currentTimestamp;
   final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
   final int id;
   final DateTime date;
   final double totalSum;
@@ -4450,6 +4677,8 @@ class Deposit extends DataClass implements Insertable<Deposit> {
       required this.timestamp,
       required this.currentTimestamp,
       this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
       required this.id,
       required this.date,
       required this.totalSum,
@@ -4496,6 +4725,8 @@ class Deposit extends DataClass implements Insertable<Deposit> {
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
       id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<DateTime>(json['date']),
       totalSum: serializer.fromJson<double>(json['totalSum']),
@@ -4511,6 +4742,8 @@ class Deposit extends DataClass implements Insertable<Deposit> {
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
       'id': serializer.toJson<int>(id),
       'date': serializer.toJson<DateTime>(date),
       'totalSum': serializer.toJson<double>(totalSum),
@@ -4524,6 +4757,8 @@ class Deposit extends DataClass implements Insertable<Deposit> {
           DateTime? timestamp,
           DateTime? currentTimestamp,
           Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
           int? id,
           DateTime? date,
           double? totalSum,
@@ -4535,6 +4770,8 @@ class Deposit extends DataClass implements Insertable<Deposit> {
         currentTimestamp: currentTimestamp ?? this.currentTimestamp,
         lastSyncTime:
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
         id: id ?? this.id,
         date: date ?? this.date,
         totalSum: totalSum ?? this.totalSum,
@@ -4548,6 +4785,8 @@ class Deposit extends DataClass implements Insertable<Deposit> {
           ..write('timestamp: $timestamp, ')
           ..write('currentTimestamp: $currentTimestamp, ')
           ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
           ..write('id: $id, ')
           ..write('date: $date, ')
           ..write('totalSum: $totalSum, ')
@@ -4558,7 +4797,7 @@ class Deposit extends DataClass implements Insertable<Deposit> {
 
   @override
   int get hashCode => Object.hash(guid, isDeleted, timestamp, currentTimestamp,
-      lastSyncTime, id, date, totalSum, checkTotalSum);
+      lastSyncTime, needSync, isNew, id, date, totalSum, checkTotalSum);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4568,6 +4807,8 @@ class Deposit extends DataClass implements Insertable<Deposit> {
           other.timestamp == this.timestamp &&
           other.currentTimestamp == this.currentTimestamp &&
           other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
           other.id == this.id &&
           other.date == this.date &&
           other.totalSum == this.totalSum &&
@@ -5436,6 +5677,32 @@ class $IncRequestsTable extends IncRequests
   late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
       'last_sync_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
+        SqlDialect.mysql: '',
+        SqlDialect.postgres: '',
+      }));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew =
+      GeneratedColumn<bool>('is_new', aliasedName, false,
+          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -5478,6 +5745,8 @@ class $IncRequestsTable extends IncRequests
         timestamp,
         currentTimestamp,
         lastSyncTime,
+        needSync,
+        isNew,
         id,
         date,
         buyerId,
@@ -5517,6 +5786,14 @@ class $IncRequestsTable extends IncRequests
           _lastSyncTimeMeta,
           lastSyncTime.isAcceptableOrUnknown(
               data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
     }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
@@ -5562,6 +5839,10 @@ class $IncRequestsTable extends IncRequests
           DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
       lastSyncTime: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       date: attachedDatabase.typeMapping
@@ -5589,6 +5870,8 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
   final DateTime timestamp;
   final DateTime currentTimestamp;
   final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
   final int id;
   final DateTime? date;
   final int? buyerId;
@@ -5601,6 +5884,8 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
       required this.timestamp,
       required this.currentTimestamp,
       this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
       required this.id,
       this.date,
       this.buyerId,
@@ -5664,6 +5949,8 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
       id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<DateTime?>(json['date']),
       buyerId: serializer.fromJson<int?>(json['buyerId']),
@@ -5681,6 +5968,8 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
       'id': serializer.toJson<int>(id),
       'date': serializer.toJson<DateTime?>(date),
       'buyerId': serializer.toJson<int?>(buyerId),
@@ -5696,6 +5985,8 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
           DateTime? timestamp,
           DateTime? currentTimestamp,
           Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
           int? id,
           Value<DateTime?> date = const Value.absent(),
           Value<int?> buyerId = const Value.absent(),
@@ -5709,6 +6000,8 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
         currentTimestamp: currentTimestamp ?? this.currentTimestamp,
         lastSyncTime:
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
         id: id ?? this.id,
         date: date.present ? date.value : this.date,
         buyerId: buyerId.present ? buyerId.value : this.buyerId,
@@ -5724,6 +6017,8 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
           ..write('timestamp: $timestamp, ')
           ..write('currentTimestamp: $currentTimestamp, ')
           ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
           ..write('id: $id, ')
           ..write('date: $date, ')
           ..write('buyerId: $buyerId, ')
@@ -5736,7 +6031,7 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
 
   @override
   int get hashCode => Object.hash(guid, isDeleted, timestamp, currentTimestamp,
-      lastSyncTime, id, date, buyerId, incSum, info, status);
+      lastSyncTime, needSync, isNew, id, date, buyerId, incSum, info, status);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -5746,6 +6041,8 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
           other.timestamp == this.timestamp &&
           other.currentTimestamp == this.currentTimestamp &&
           other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
           other.id == this.id &&
           other.date == this.date &&
           other.buyerId == this.buyerId &&
@@ -7855,6 +8152,32 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
   late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
       'last_sync_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
+        SqlDialect.mysql: '',
+        SqlDialect.postgres: '',
+      }));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew =
+      GeneratedColumn<bool>('is_new', aliasedName, false,
+          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -7970,6 +8293,8 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
         timestamp,
         currentTimestamp,
         lastSyncTime,
+        needSync,
+        isNew,
         id,
         date,
         status,
@@ -8015,6 +8340,14 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
           _lastSyncTimeMeta,
           lastSyncTime.isAcceptableOrUnknown(
               data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
     }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
@@ -8104,6 +8437,10 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
           DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
       lastSyncTime: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       date: attachedDatabase.typeMapping
@@ -8143,6 +8480,8 @@ class Order extends DataClass implements Insertable<Order> {
   final DateTime timestamp;
   final DateTime currentTimestamp;
   final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
   final int id;
   final DateTime? date;
   final String status;
@@ -8161,6 +8500,8 @@ class Order extends DataClass implements Insertable<Order> {
       required this.timestamp,
       required this.currentTimestamp,
       this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
       required this.id,
       this.date,
       required this.status,
@@ -8243,6 +8584,8 @@ class Order extends DataClass implements Insertable<Order> {
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
       id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<DateTime?>(json['date']),
       status: serializer.fromJson<String>(json['status']),
@@ -8266,6 +8609,8 @@ class Order extends DataClass implements Insertable<Order> {
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
       'id': serializer.toJson<int>(id),
       'date': serializer.toJson<DateTime?>(date),
       'status': serializer.toJson<String>(status),
@@ -8287,6 +8632,8 @@ class Order extends DataClass implements Insertable<Order> {
           DateTime? timestamp,
           DateTime? currentTimestamp,
           Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
           int? id,
           Value<DateTime?> date = const Value.absent(),
           String? status,
@@ -8306,6 +8653,8 @@ class Order extends DataClass implements Insertable<Order> {
         currentTimestamp: currentTimestamp ?? this.currentTimestamp,
         lastSyncTime:
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
         id: id ?? this.id,
         date: date.present ? date.value : this.date,
         status: status ?? this.status,
@@ -8327,6 +8676,8 @@ class Order extends DataClass implements Insertable<Order> {
           ..write('timestamp: $timestamp, ')
           ..write('currentTimestamp: $currentTimestamp, ')
           ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
           ..write('id: $id, ')
           ..write('date: $date, ')
           ..write('status: $status, ')
@@ -8350,6 +8701,8 @@ class Order extends DataClass implements Insertable<Order> {
       timestamp,
       currentTimestamp,
       lastSyncTime,
+      needSync,
+      isNew,
       id,
       date,
       status,
@@ -8371,6 +8724,8 @@ class Order extends DataClass implements Insertable<Order> {
           other.timestamp == this.timestamp &&
           other.currentTimestamp == this.currentTimestamp &&
           other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
           other.id == this.id &&
           other.date == this.date &&
           other.status == this.status &&
@@ -8656,6 +9011,32 @@ class $OrderLinesTable extends OrderLines
   late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
       'last_sync_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
+        SqlDialect.mysql: '',
+        SqlDialect.postgres: '',
+      }));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew =
+      GeneratedColumn<bool>('is_new', aliasedName, false,
+          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -8711,6 +9092,8 @@ class $OrderLinesTable extends OrderLines
         timestamp,
         currentTimestamp,
         lastSyncTime,
+        needSync,
+        isNew,
         id,
         orderId,
         goodsId,
@@ -8752,6 +9135,14 @@ class $OrderLinesTable extends OrderLines
           _lastSyncTimeMeta,
           lastSyncTime.isAcceptableOrUnknown(
               data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
     }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
@@ -8819,6 +9210,10 @@ class $OrderLinesTable extends OrderLines
           DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
       lastSyncTime: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       orderId: attachedDatabase.typeMapping
@@ -8850,6 +9245,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
   final DateTime timestamp;
   final DateTime currentTimestamp;
   final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
   final int id;
   final int orderId;
   final int goodsId;
@@ -8864,6 +9261,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       required this.timestamp,
       required this.currentTimestamp,
       this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
       required this.id,
       required this.orderId,
       required this.goodsId,
@@ -8922,6 +9321,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
       id: serializer.fromJson<int>(json['id']),
       orderId: serializer.fromJson<int>(json['orderId']),
       goodsId: serializer.fromJson<int>(json['goodsId']),
@@ -8941,6 +9342,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
       'id': serializer.toJson<int>(id),
       'orderId': serializer.toJson<int>(orderId),
       'goodsId': serializer.toJson<int>(goodsId),
@@ -8958,6 +9361,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           DateTime? timestamp,
           DateTime? currentTimestamp,
           Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
           int? id,
           int? orderId,
           int? goodsId,
@@ -8973,6 +9378,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
         currentTimestamp: currentTimestamp ?? this.currentTimestamp,
         lastSyncTime:
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
         id: id ?? this.id,
         orderId: orderId ?? this.orderId,
         goodsId: goodsId ?? this.goodsId,
@@ -8990,6 +9397,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           ..write('timestamp: $timestamp, ')
           ..write('currentTimestamp: $currentTimestamp, ')
           ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
           ..write('id: $id, ')
           ..write('orderId: $orderId, ')
           ..write('goodsId: $goodsId, ')
@@ -9009,6 +9418,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       timestamp,
       currentTimestamp,
       lastSyncTime,
+      needSync,
+      isNew,
       id,
       orderId,
       goodsId,
@@ -9026,6 +9437,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           other.timestamp == this.timestamp &&
           other.currentTimestamp == this.currentTimestamp &&
           other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
           other.id == this.id &&
           other.orderId == this.orderId &&
           other.goodsId == this.goodsId &&
@@ -12173,6 +12586,32 @@ class $PartnersPricesTable extends PartnersPrices
   late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
       'last_sync_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
+        SqlDialect.mysql: '',
+        SqlDialect.postgres: '',
+      }));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew =
+      GeneratedColumn<bool>('is_new', aliasedName, false,
+          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -12217,6 +12656,8 @@ class $PartnersPricesTable extends PartnersPrices
         timestamp,
         currentTimestamp,
         lastSyncTime,
+        needSync,
+        isNew,
         id,
         goodsId,
         partnerId,
@@ -12256,6 +12697,14 @@ class $PartnersPricesTable extends PartnersPrices
           _lastSyncTimeMeta,
           lastSyncTime.isAcceptableOrUnknown(
               data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
     }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
@@ -12309,6 +12758,10 @@ class $PartnersPricesTable extends PartnersPrices
           DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
       lastSyncTime: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       goodsId: attachedDatabase.typeMapping
@@ -12336,6 +12789,8 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
   final DateTime timestamp;
   final DateTime currentTimestamp;
   final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
   final int id;
   final int goodsId;
   final int partnerId;
@@ -12348,6 +12803,8 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
       required this.timestamp,
       required this.currentTimestamp,
       this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
       required this.id,
       required this.goodsId,
       required this.partnerId,
@@ -12400,6 +12857,8 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
       id: serializer.fromJson<int>(json['id']),
       goodsId: serializer.fromJson<int>(json['goodsId']),
       partnerId: serializer.fromJson<int>(json['partnerId']),
@@ -12417,6 +12876,8 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
       'id': serializer.toJson<int>(id),
       'goodsId': serializer.toJson<int>(goodsId),
       'partnerId': serializer.toJson<int>(partnerId),
@@ -12432,6 +12893,8 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
           DateTime? timestamp,
           DateTime? currentTimestamp,
           Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
           int? id,
           int? goodsId,
           int? partnerId,
@@ -12445,6 +12908,8 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
         currentTimestamp: currentTimestamp ?? this.currentTimestamp,
         lastSyncTime:
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
         id: id ?? this.id,
         goodsId: goodsId ?? this.goodsId,
         partnerId: partnerId ?? this.partnerId,
@@ -12460,6 +12925,8 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
           ..write('timestamp: $timestamp, ')
           ..write('currentTimestamp: $currentTimestamp, ')
           ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
           ..write('id: $id, ')
           ..write('goodsId: $goodsId, ')
           ..write('partnerId: $partnerId, ')
@@ -12471,8 +12938,20 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
   }
 
   @override
-  int get hashCode => Object.hash(guid, isDeleted, timestamp, currentTimestamp,
-      lastSyncTime, id, goodsId, partnerId, price, dateFrom, dateTo);
+  int get hashCode => Object.hash(
+      guid,
+      isDeleted,
+      timestamp,
+      currentTimestamp,
+      lastSyncTime,
+      needSync,
+      isNew,
+      id,
+      goodsId,
+      partnerId,
+      price,
+      dateFrom,
+      dateTo);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -12482,6 +12961,8 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
           other.timestamp == this.timestamp &&
           other.currentTimestamp == this.currentTimestamp &&
           other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
           other.id == this.id &&
           other.goodsId == this.goodsId &&
           other.partnerId == this.partnerId &&
@@ -12994,6 +13475,32 @@ class $PartnersPricelistsTable extends PartnersPricelists
   late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
       'last_sync_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
+        SqlDialect.mysql: '',
+        SqlDialect.postgres: '',
+      }));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew =
+      GeneratedColumn<bool>('is_new', aliasedName, false,
+          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -13034,6 +13541,8 @@ class $PartnersPricelistsTable extends PartnersPricelists
         timestamp,
         currentTimestamp,
         lastSyncTime,
+        needSync,
+        isNew,
         id,
         partnerId,
         pricelistId,
@@ -13072,6 +13581,14 @@ class $PartnersPricelistsTable extends PartnersPricelists
           _lastSyncTimeMeta,
           lastSyncTime.isAcceptableOrUnknown(
               data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
     }
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
@@ -13123,6 +13640,10 @@ class $PartnersPricelistsTable extends PartnersPricelists
           DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
       lastSyncTime: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       partnerId: attachedDatabase.typeMapping
@@ -13149,6 +13670,8 @@ class PartnersPricelist extends DataClass
   final DateTime timestamp;
   final DateTime currentTimestamp;
   final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
   final int id;
   final int partnerId;
   final int pricelistId;
@@ -13160,6 +13683,8 @@ class PartnersPricelist extends DataClass
       required this.timestamp,
       required this.currentTimestamp,
       this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
       required this.id,
       required this.partnerId,
       required this.pricelistId,
@@ -13209,6 +13734,8 @@ class PartnersPricelist extends DataClass
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
       currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
       id: serializer.fromJson<int>(json['id']),
       partnerId: serializer.fromJson<int>(json['partnerId']),
       pricelistId: serializer.fromJson<int>(json['pricelistId']),
@@ -13225,6 +13752,8 @@ class PartnersPricelist extends DataClass
       'timestamp': serializer.toJson<DateTime>(timestamp),
       'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
       'id': serializer.toJson<int>(id),
       'partnerId': serializer.toJson<int>(partnerId),
       'pricelistId': serializer.toJson<int>(pricelistId),
@@ -13239,6 +13768,8 @@ class PartnersPricelist extends DataClass
           DateTime? timestamp,
           DateTime? currentTimestamp,
           Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
           int? id,
           int? partnerId,
           int? pricelistId,
@@ -13251,6 +13782,8 @@ class PartnersPricelist extends DataClass
         currentTimestamp: currentTimestamp ?? this.currentTimestamp,
         lastSyncTime:
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
         id: id ?? this.id,
         partnerId: partnerId ?? this.partnerId,
         pricelistId: pricelistId ?? this.pricelistId,
@@ -13265,6 +13798,8 @@ class PartnersPricelist extends DataClass
           ..write('timestamp: $timestamp, ')
           ..write('currentTimestamp: $currentTimestamp, ')
           ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
           ..write('id: $id, ')
           ..write('partnerId: $partnerId, ')
           ..write('pricelistId: $pricelistId, ')
@@ -13275,8 +13810,19 @@ class PartnersPricelist extends DataClass
   }
 
   @override
-  int get hashCode => Object.hash(guid, isDeleted, timestamp, currentTimestamp,
-      lastSyncTime, id, partnerId, pricelistId, pricelistSetId, discount);
+  int get hashCode => Object.hash(
+      guid,
+      isDeleted,
+      timestamp,
+      currentTimestamp,
+      lastSyncTime,
+      needSync,
+      isNew,
+      id,
+      partnerId,
+      pricelistId,
+      pricelistSetId,
+      discount);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -13286,6 +13832,8 @@ class PartnersPricelist extends DataClass
           other.timestamp == this.timestamp &&
           other.currentTimestamp == this.currentTimestamp &&
           other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
           other.id == this.id &&
           other.partnerId == this.partnerId &&
           other.pricelistId == this.pricelistId &&
@@ -14515,7 +15063,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
   $SeenPreOrdersTable get seenPreOrders => attachedDatabase.seenPreOrders;
   Selectable<OrderExResult> orderEx() {
     return customSelect(
-        'SELECT"orders"."guid" AS "nested_0.guid", "orders"."is_deleted" AS "nested_0.is_deleted", "orders"."timestamp" AS "nested_0.timestamp", "orders"."current_timestamp" AS "nested_0.current_timestamp", "orders"."last_sync_time" AS "nested_0.last_sync_time", "orders"."id" AS "nested_0.id", "orders"."date" AS "nested_0.date", "orders"."status" AS "nested_0.status", "orders"."pre_order_id" AS "nested_0.pre_order_id", "orders"."need_docs" AS "nested_0.need_docs", "orders"."need_inc" AS "nested_0.need_inc", "orders"."is_bonus" AS "nested_0.is_bonus", "orders"."is_physical" AS "nested_0.is_physical", "orders"."buyer_id" AS "nested_0.buyer_id", "orders"."info" AS "nested_0.info", "orders"."need_processing" AS "nested_0.need_processing", "orders"."is_editable" AS "nested_0.is_editable","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", COALESCE((SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price) FROM order_lines WHERE order_lines.order_id = orders.id AND order_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM order_lines WHERE order_id = orders.id) AS lines_count FROM orders LEFT JOIN buyers ON buyers.id = orders.buyer_id ORDER BY orders.date DESC, buyers.name',
+        'SELECT"orders"."guid" AS "nested_0.guid", "orders"."is_deleted" AS "nested_0.is_deleted", "orders"."timestamp" AS "nested_0.timestamp", "orders"."current_timestamp" AS "nested_0.current_timestamp", "orders"."last_sync_time" AS "nested_0.last_sync_time", "orders"."need_sync" AS "nested_0.need_sync", "orders"."is_new" AS "nested_0.is_new", "orders"."id" AS "nested_0.id", "orders"."date" AS "nested_0.date", "orders"."status" AS "nested_0.status", "orders"."pre_order_id" AS "nested_0.pre_order_id", "orders"."need_docs" AS "nested_0.need_docs", "orders"."need_inc" AS "nested_0.need_inc", "orders"."is_bonus" AS "nested_0.is_bonus", "orders"."is_physical" AS "nested_0.is_physical", "orders"."buyer_id" AS "nested_0.buyer_id", "orders"."info" AS "nested_0.info", "orders"."need_processing" AS "nested_0.need_processing", "orders"."is_editable" AS "nested_0.is_editable","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", COALESCE((SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price) FROM order_lines WHERE order_lines.order_id = orders.id AND order_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM order_lines WHERE order_id = orders.id) AS lines_count FROM orders LEFT JOIN buyers ON buyers.id = orders.buyer_id ORDER BY orders.date DESC, buyers.name',
         variables: [],
         readsFrom: {
           orderLines,
@@ -14533,7 +15081,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
 
   Selectable<OrderLineExResult> orderLineEx(int orderId) {
     return customSelect(
-        'SELECT"order_lines"."guid" AS "nested_0.guid", "order_lines"."is_deleted" AS "nested_0.is_deleted", "order_lines"."timestamp" AS "nested_0.timestamp", "order_lines"."current_timestamp" AS "nested_0.current_timestamp", "order_lines"."last_sync_time" AS "nested_0.last_sync_time", "order_lines"."id" AS "nested_0.id", "order_lines"."order_id" AS "nested_0.order_id", "order_lines"."goods_id" AS "nested_0.goods_id", "order_lines"."vol" AS "nested_0.vol", "order_lines"."price" AS "nested_0.price", "order_lines"."price_original" AS "nested_0.price_original", "order_lines"."package" AS "nested_0.package", "order_lines"."rel" AS "nested_0.rel", goods.name AS goods_name FROM order_lines JOIN goods ON goods.id = order_lines.goods_id WHERE order_lines.order_id = ?1 ORDER BY goods.name',
+        'SELECT"order_lines"."guid" AS "nested_0.guid", "order_lines"."is_deleted" AS "nested_0.is_deleted", "order_lines"."timestamp" AS "nested_0.timestamp", "order_lines"."current_timestamp" AS "nested_0.current_timestamp", "order_lines"."last_sync_time" AS "nested_0.last_sync_time", "order_lines"."need_sync" AS "nested_0.need_sync", "order_lines"."is_new" AS "nested_0.is_new", "order_lines"."id" AS "nested_0.id", "order_lines"."order_id" AS "nested_0.order_id", "order_lines"."goods_id" AS "nested_0.goods_id", "order_lines"."vol" AS "nested_0.vol", "order_lines"."price" AS "nested_0.price", "order_lines"."price_original" AS "nested_0.price_original", "order_lines"."package" AS "nested_0.package", "order_lines"."rel" AS "nested_0.rel", goods.name AS goods_name FROM order_lines JOIN goods ON goods.id = order_lines.goods_id WHERE order_lines.order_id = ?1 ORDER BY goods.name',
         variables: [
           Variable<int>(orderId)
         ],

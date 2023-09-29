@@ -94,10 +94,12 @@ class ApiPoint extends Equatable {
       nds10: nds10,
       nds20: nds20,
       guid: guid,
+      isNew: false,
       isDeleted: false,
       timestamp: timestamp,
       currentTimestamp: timestamp,
-      lastSyncTime: timestamp
+      lastSyncTime: timestamp,
+      needSync: false
     );
   }
 

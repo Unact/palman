@@ -62,15 +62,12 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     final hasPointImageToSync = existsQuery(
       select(pointImages)
         ..where((tbl) => tbl.pointId.equalsExp(points.id))
-        ..where((tbl) => tbl.lastSyncTime.isNull() | tbl.lastSyncTime.isSmallerThan(tbl.timestamp))
+        ..where((tbl) => tbl.needSync.equals(true))
     );
 
     return (
       select(points)
-        ..where((tbl) =>
-          tbl.lastSyncTime.isNull() | tbl.lastSyncTime.isSmallerThan(tbl.timestamp) |
-          hasPointImageToSync
-        )
+        ..where((tbl) => tbl.needSync.equals(true) | hasPointImageToSync)
     ).get();
   }
 
@@ -78,10 +75,7 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     final hasPointToSync = existsQuery(
       select(points)
         ..where((tbl) => tbl.id.equalsExp(pointImages.pointId))
-        ..where((tbl) =>
-          tbl.lastSyncTime.isNull() | tbl.lastSyncTime.isSmallerThan(tbl.timestamp) |
-          pointImages.lastSyncTime.isNull() | pointImages.lastSyncTime.isSmallerThan(pointImages.timestamp)
-        )
+        ..where((tbl) => tbl.needSync.equals(true) | pointImages.needSync.equals(true))
     );
 
     return (select(pointImages)..where((tbl) => hasPointToSync)).get();

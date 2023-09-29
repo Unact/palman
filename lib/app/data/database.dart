@@ -84,54 +84,21 @@ part 'users_dao.dart';
         (
           SELECT COUNT(*)
           FROM points
-          WHERE
-            last_sync_time IS NULL OR
-            timestamp > last_sync_time OR
-            EXISTS(
-              SELECT 1
-              FROM point_images
-              WHERE point_id = points.id AND (last_sync_time IS NULL OR timestamp > last_sync_time)
-            )
+          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM point_images WHERE point_id = points.id AND need_sync = 1)
         ) AS "points_to_sync",
         (
           SELECT COUNT(*)
           FROM deposits
-          WHERE
-            last_sync_time IS NULL OR
-            timestamp > last_sync_time OR
-            EXISTS(
-              SELECT 1
-              FROM encashments
-              WHERE deposit_id = deposits.id AND (last_sync_time IS NULL OR timestamp > last_sync_time)
-            )
+          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND need_sync = 1)
         ) AS "deposits_to_sync",
         (
           SELECT COUNT(*)
           FROM orders
-          WHERE
-            last_sync_time IS NULL OR
-            timestamp > last_sync_time OR
-            EXISTS(
-              SELECT 1
-              FROM order_lines
-              WHERE order_id = orders.id AND (last_sync_time IS NULL OR timestamp > last_sync_time)
-            )
+          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM order_lines WHERE order_id = orders.id AND need_sync = 1)
         ) AS "orders_to_sync",
-        (
-          SELECT COUNT(*)
-          FROM inc_requests
-          WHERE last_sync_time IS NULL OR timestamp > last_sync_time
-        ) AS "inc_requests_to_sync",
-        (
-          SELECT COUNT(*)
-          FROM partners_prices
-          WHERE last_sync_time IS NULL OR timestamp > last_sync_time
-        ) AS "partner_prices_to_sync",
-        (
-          SELECT COUNT(*)
-          FROM partners_pricelists
-          WHERE last_sync_time IS NULL OR timestamp > last_sync_time
-        ) AS "partners_pricelists_to_sync",
+        (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS "inc_requests_to_sync",
+        (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS "partner_prices_to_sync",
+        (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS "partners_pricelists_to_sync",
         (SELECT COUNT(*) FROM points) AS "points_total",
         (SELECT COUNT(*) FROM encashments) AS "encashments_total",
         (SELECT COUNT(*) FROM shipments) AS "shipments_total",
@@ -239,7 +206,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -346,51 +313,6 @@ extension GoodsX on Goods {
 extension OrderX on Order {
   OrderStatus get detailedStatus => OrderStatus.values
     .firstWhere((e) => e.value == status, orElse: () => OrderStatus.unknown);
-}
-
-extension PointSyncable on Point {
-  bool get isNew => lastSyncTime == null;
-  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
-}
-
-extension PointImageSyncable on PointImage {
-  bool get isNew => lastSyncTime == null;
-  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
-}
-
-extension EncashmentSyncable on Encashment {
-  bool get isNew => lastSyncTime == null;
-  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
-}
-
-extension DepositSyncable on Deposit {
-  bool get isNew => lastSyncTime == null;
-  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
-}
-
-extension IncRequestSyncable on IncRequest {
-  bool get isNew => lastSyncTime == null;
-  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
-}
-
-extension PartnersPriceSyncable on PartnersPrice {
-  bool get isNew => lastSyncTime == null;
-  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
-}
-
-extension PartnersPricelistSyncable on PartnersPricelist {
-  bool get isNew => lastSyncTime == null;
-  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
-}
-
-extension OrderSyncable on Order {
-  bool get isNew => lastSyncTime == null;
-  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
-}
-
-extension OrderLineSyncable on OrderLine {
-  bool get isNew => lastSyncTime == null;
-  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
 }
 
 extension OrderLineX on OrderLine {

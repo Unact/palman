@@ -39,10 +39,12 @@ class ApiPartnersPricelist extends Equatable {
       pricelistId: pricelistId,
       discount: discount,
       guid: guid,
+      isNew: false,
       isDeleted: false,
       timestamp: timestamp,
       currentTimestamp: timestamp,
-      lastSyncTime: timestamp
+      lastSyncTime: timestamp,
+      needSync: false
     );
   }
 
