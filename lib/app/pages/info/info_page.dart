@@ -168,6 +168,7 @@ class _InfoViewState extends State<_InfoView> {
             ]
           ),
           body: EasyRefresh(
+            canRefreshAfterNoMore: true,
             header: ClassicHeader(
               dragText: 'Потяните чтобы обновить',
               armedText: 'Отпустите чтобы обновить',
