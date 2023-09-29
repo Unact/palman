@@ -8,7 +8,9 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import 'package:pub_semver/pub_semver.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:u_app_utils/u_app_utils.dart';
+import 'package:uuid/uuid.dart';
 
 import '/app/constants/strings.dart';
 
@@ -107,16 +109,18 @@ part 'users_dao.dart';
   },
 )
 class AppDataStore extends _$AppDataStore {
+  static const Uuid _kUuid = Uuid();
+
   AppDataStore({
     required bool logStatements
   }) : super(_openConnection(logStatements));
 
-  Future<AppInfoResult> getAppInfo() async {
-    return appInfo().getSingle();
+  Stream<AppInfoResult> watchAppInfo() {
+    return appInfo().watchSingle();
   }
 
-  Future<List<Workdate>> getWorkdates() async {
-    return (select(workdates)..orderBy([(tbl) => OrderingTerm(expression: tbl.date)])).get();
+  Stream<List<Workdate>> watchWorkdates() {
+    return (select(workdates)..orderBy([(tbl) => OrderingTerm(expression: tbl.date)])).watch();
   }
 
   Future<int> updatePref(PrefsCompanion pref) {
@@ -143,31 +147,19 @@ class AppDataStore extends _$AppDataStore {
   }
 
   Future<void> loadWorkdates(List<Workdate> list) async {
-    await batch((batch) {
-      batch.deleteWhere(workdates, (row) => const Constant(true));
-      batch.insertAll(workdates, list, mode: InsertMode.insertOrReplace);
-    });
+    await _loadData(workdates, list);
   }
 
   Future<void> loadCategories(List<Category> list) async {
-    await batch((batch) {
-      batch.deleteWhere(categories, (row) => const Constant(true));
-      batch.insertAll(categories, list, mode: InsertMode.insertOrReplace);
-    });
+    await _loadData(categories, list);
   }
 
   Future<void> loadShopDepartments(List<ShopDepartment> list) async {
-    await batch((batch) {
-      batch.deleteWhere(shopDepartments, (row) => const Constant(true));
-      batch.insertAll(shopDepartments, list, mode: InsertMode.insertOrReplace);
-    });
+    await _loadData(shopDepartments, list);
   }
 
   Future<void> loadGoodsFilters(List<GoodsFilter> list) async {
-    await batch((batch) {
-      batch.deleteWhere(goodsFilters, (row) => const Constant(true));
-      batch.insertAll(goodsFilters, list, mode: InsertMode.insertOrReplace);
-    });
+    await _loadData(goodsFilters, list);
   }
 
   Future<void> _clearData() async {
@@ -199,8 +191,22 @@ class AppDataStore extends _$AppDataStore {
     });
   }
 
+  Future<void> _regenerateGuid(TableInfo table) async {
+    final toUpdate = await (select(table)..where((tbl) => (table as Syncable).lastSyncTime.isNull())).get();
+
+    await batch((batch) {
+      for (var e in toUpdate) {
+        batch.customStatement(
+          'UPDATE ${table.actualTableName} SET guid = ?1 WHERE id = ?2',
+          [AppDataStore._kUuid.v4(), e.id],
+          [TableUpdate.onTable(table, kind: UpdateKind.update)]
+        );
+      }
+    });
+  }
+
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -208,6 +214,24 @@ class AppDataStore extends _$AppDataStore {
       for (final table in allTables) {
         await m.deleteTable(table.actualTableName);
         await m.createTable(table);
+
+        if (table is Syncable) {
+          final name = table.entityName;
+          final triggerName = 'syncable_$name';
+          final systemColumns = ['last_sync_time', 'timestamp', 'current_timestamp'];
+          final updateableColumns = table.columnsByName.keys.whereNot((e) => systemColumns.contains(e));
+
+          m.createTrigger(Trigger(
+            '''
+              CREATE TRIGGER $triggerName
+              AFTER UPDATE OF ${updateableColumns.join(',')} ON $name
+              BEGIN
+                UPDATE $name SET timestamp = CAST(STRFTIME('%s', CURRENT_TIMESTAMP) AS INTEGER) WHERE id = OLD.id;
+              END;
+            ''',
+            triggerName
+          ));
+        }
       }
 
       await m.createIndex(Index(
@@ -284,27 +308,11 @@ extension BuyerX on Buyer {
 
 extension GoodsX on Goods {
   String get preName => name.split(' ')[0];
-
 }
 
 extension OrderX on Order {
   OrderStatus get detailedStatus => OrderStatus.values
     .firstWhere((e) => e.value == status, orElse: () => OrderStatus.unknown);
-}
-
-enum OrderStatus {
-  draft('draft', 'Черновик'),
-  upload('upload', 'В работе'),
-  deleted('deleted', 'Удален'),
-  onhold('onhold', 'Задержан'),
-  processing('processing', 'Передача'),
-  done('done', 'Передан'),
-  unknown('unknown', 'Статус не определен');
-
-  const OrderStatus(this.value, this.name);
-
-  final String value;
-  final String name;
 }
 
 extension OrderLineX on OrderLine {
@@ -321,4 +329,19 @@ extension UserX on User {
 
     return Version.parse(version) > Version.parse(currentVersion);
   }
+}
+
+enum OrderStatus {
+  draft('draft', 'Черновик'),
+  upload('upload', 'В работе'),
+  deleted('deleted', 'Удален'),
+  onhold('onhold', 'Задержан'),
+  processing('processing', 'Передача'),
+  done('done', 'Передан'),
+  unknown('unknown', 'Статус не определен');
+
+  const OrderStatus(this.value, this.name);
+
+  final String value;
+  final String name;
 }

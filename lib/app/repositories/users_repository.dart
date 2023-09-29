@@ -1,3 +1,4 @@
+import 'package:rxdart/rxdart.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
@@ -9,10 +10,16 @@ import '/app/services/palman_api.dart';
 class UsersRepository extends BaseRepository {
   UsersRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-  bool get isLoggedIn => api.isLoggedIn;
+  late final _loggedInController = BehaviorSubject<bool>.seeded(api.isLoggedIn);
 
-  Future<User> getUser() {
-    return dataStore.usersDao.getUser();
+  Stream<bool> get isLoggedIn => _loggedInController.stream;
+
+  Stream<User> watchUser() {
+    return dataStore.usersDao.watchUser();
+  }
+
+  Future<User> getCurrentUser() {
+    return dataStore.usersDao.getCurrentUser();
   }
 
   Future<void> loadUserData() async {
@@ -20,7 +27,6 @@ class UsersRepository extends BaseRepository {
       final userData = await api.getUserData();
 
       await dataStore.usersDao.loadUser(userData.toDatabaseEnt());
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -32,6 +38,7 @@ class UsersRepository extends BaseRepository {
   Future<void> login(String url, String login, String password) async {
     try {
       await api.login(url: url, login: login, password: password);
+      _loggedInController.add(api.isLoggedIn);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -45,7 +52,7 @@ class UsersRepository extends BaseRepository {
   Future<void> logout() async {
     try {
       await api.logout();
-      notifyListeners();
+      _loggedInController.add(api.isLoggedIn);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -57,7 +64,7 @@ class UsersRepository extends BaseRepository {
   Future<void> resetPassword(String url, String login) async {
     try {
       await api.resetPassword(url: url, login: login);
-      notifyListeners();
+      _loggedInController.add(api.isLoggedIn);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

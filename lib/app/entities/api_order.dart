@@ -65,11 +65,13 @@ class ApiOrder extends Equatable {
       buyerId: buyerId,
       info: info,
       isEditable: isEditable,
-      guid: guid,
-      timestamp: timestamp,
       needProcessing: false,
+      guid: guid,
+      isNew: false,
       isDeleted: false,
-      isBlocked: false,
+      timestamp: timestamp,
+      currentTimestamp: timestamp,
+      lastSyncTime: timestamp,
       needSync: false
     );
   }

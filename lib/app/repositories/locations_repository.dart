@@ -32,8 +32,6 @@ class LocationsRepository extends BaseRepository {
         timestamp: Value(timestamp)
       )
     );
-
-    notifyListeners();
   }
 
   Future<void> syncLocationChanges(List<Location> locations) async {
@@ -52,7 +50,6 @@ class LocationsRepository extends BaseRepository {
       for (var e in locations) {
         await dataStore.deleteLocation(e.id);
       }
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {

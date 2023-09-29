@@ -33,20 +33,16 @@ class PointsRepository extends BaseRepository {
 
   PointsRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-  Future<PointEx?> getPointEx(int id) {
-    return dataStore.pointsDao.getPointEx(id);
-  }
-
-  Future<List<PointEx>> getPointExList() {
-    return dataStore.pointsDao.getPointExList();
+  Stream<List<PointEx>> watchPointExList() {
+    return dataStore.pointsDao.watchPointExList();
   }
 
   Future<List<PointImage>> getPointImages() {
     return dataStore.pointsDao.getPointImages();
   }
 
-  Future<List<PointFormat>> getPointFormats() {
-    return dataStore.pointsDao.getPointFormats();
+  Stream<List<PointFormat>> watchPointFormats() {
+    return dataStore.pointsDao.watchPointFormats();
   }
 
   Future<void> loadPoints() async {
@@ -62,7 +58,6 @@ class PointsRepository extends BaseRepository {
         await dataStore.pointsDao.loadPoints(points);
         await dataStore.pointsDao.loadPointImages(pointImages);
       });
-      notifyListeners();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -93,17 +88,12 @@ class PointsRepository extends BaseRepository {
       PointsCompanion.insert(
         name: Strings.newPointName,
         buyerName: Strings.newPointName,
-        reason: Strings.pointReasonZone,
-        timestamp: DateTime.now(),
-        isBlocked: false,
-        needSync: false
+        reason: Strings.pointReasonZone
       )
     );
     final point = await dataStore.pointsDao.getPointEx(id);
 
-    notifyListeners();
-
-    return point!;
+    return point;
   }
 
   Future<void> addPointImage(Point point, {
@@ -114,22 +104,17 @@ class PointsRepository extends BaseRepository {
     required DateTime timestamp
   }) async {
     final imageKey = md5.convert(await file.readAsBytes());
-    final id = await dataStore.pointsDao.addPointImage(
+    await dataStore.pointsDao.addPointImage(
       PointImagesCompanion.insert(
         pointId: point.id,
         latitude: latitude,
         longitude: longitude,
         accuracy: accuracy,
         imageUrl: '',
-        imageKey: imageKey.toString(),
-        timestamp: timestamp,
-        needSync: true
+        imageKey: imageKey.toString()
       )
     );
-    final pointImage = (await dataStore.pointsDao.getPointImages()).firstWhere((e) => e.id == id);
-    await pointImagesCacheManager.putFile('', await file.readAsBytes(), key: pointImage.imageKey);
-
-    notifyListeners();
+    await pointImagesCacheManager.putFile('', await file.readAsBytes(), key: imageKey.toString());
   }
 
   Future<void> updatePoint(Point point, {
@@ -149,8 +134,7 @@ class PointsRepository extends BaseRepository {
     Optional<int?>? plong,
     Optional<int?>? maxdebt,
     Optional<int?>? nds10,
-    Optional<int?>? nds20,
-    Optional<bool>? needSync
+    Optional<int?>? nds20
   }) async {
     final newPoint = PointsCompanion(
       name: name == null ? const Value.absent() : Value(name.value),
@@ -170,48 +154,36 @@ class PointsRepository extends BaseRepository {
       maxdebt: maxdebt == null ? const Value.absent() : Value(maxdebt.orNull),
       nds10: nds10 == null ? const Value.absent() : Value(nds10.orNull),
       nds20: nds20 == null ? const Value.absent() : Value(nds20.orNull),
-      timestamp: Value(DateTime.now()),
-      needSync: needSync == null ? const Value.absent() : Value(needSync.value),
+      isDeleted: const Value(false)
     );
 
     await dataStore.pointsDao.updatePoint(point.id, newPoint);
-    notifyListeners();
   }
 
   Future<void> deletePoint(Point point) async {
-    if (point.guid != null) return;
-
-    await dataStore.pointsDao.deletePoint(point.id);
-
-    notifyListeners();
-    return;
+    await dataStore.pointsDao.updatePoint(point.id, const PointsCompanion(isDeleted: Value(true)));
   }
 
   Future<void> deletePointImage(PointImage pointImage) async {
-    if (pointImage.guid != null) return;
-
-    await dataStore.pointsDao.deletePointImage(pointImage.id);
-    await pointImagesCacheManager.removeFile(pointImage.imageKey);
-
-    notifyListeners();
-    return;
+    await dataStore.pointsDao.updatePointImage(pointImage.id, const PointImagesCompanion(isDeleted: Value(true)));
   }
 
-  Future<void> blockPoints(bool block, {List<int>? ids}) async {
-    await dataStore.pointsDao.blockPoints(block, ids: ids);
-    notifyListeners();
-  }
-
-  Future<List<PointEx>> syncPoints(List<Point> points, List<PointImage> pointImages) async {
+  Future<void> syncPoints(List<Point> points, List<PointImage> pointImages) async {
     try {
-      final Map<PointImage, FileInfo?> images = {};
+      final Map<PointImage, String?> images = {};
       for (var pointImage in pointImages) {
         final file = await pointImagesCacheManager.getFileFromCache(pointImage.imageKey);
-        images.putIfAbsent(pointImage, () => file);
+        if (file == null) continue;
+
+        images.putIfAbsent(pointImage, () => base64Encode(file.file.readAsBytesSync()));
       }
 
+      DateTime lastSyncTime = DateTime.now();
       List<Map<String, dynamic>> pointsData = points.map((e) => {
         'guid': e.guid,
+        'isNew': e.isNew,
+        'isDeleted': e.isDeleted,
+        'currentTimestamp': e.currentTimestamp.toIso8601String(),
         'timestamp': e.timestamp.toIso8601String(),
         'name': e.name,
         'address': e.address,
@@ -230,43 +202,34 @@ class PointsRepository extends BaseRepository {
         'maxdebt': e.maxdebt,
         'nds10': e.nds10,
         'nds20': e.nds20,
-        'images': pointImages.where((i) => i.pointId == e.id && i.needSync).map((i) => {
+        'images': pointImages.where((i) => i.pointId == e.id).map((i) => {
           'guid': i.guid,
+          'isNew': i.isNew,
+          'isDeleted': i.isDeleted,
+          'currentTimestamp': i.currentTimestamp.toIso8601String(),
           'timestamp': i.timestamp.toIso8601String(),
           'latitude': i.latitude,
           'longitude': i.longitude,
           'accuracy': i.accuracy,
-          'imageData': images[i] != null ? base64Encode(images[i]!.file.readAsBytesSync()) : null
+          'imageData': images[i]
         }).toList()
       }).toList();
 
-      final data = await api.savePoints(pointsData);
-      final ids = [];
+      await api.savePoints(pointsData);
       await dataStore.transaction(() async {
         for (var point in points) {
-          await dataStore.pointsDao.deletePoint(point.id);
+          await dataStore.pointsDao.updatePoint(
+            point.id,
+            PointsCompanion(lastSyncTime: Value(lastSyncTime))
+          );
         }
         for (var pointImage in pointImages) {
-          await dataStore.pointsDao.deletePointImage(pointImage.id);
-        }
-        for (var apiPoint in data.points) {
-          final pointsCompanion = apiPoint.toDatabaseEnt().toCompanion(false).copyWith(id: const Value.absent());
-          final id = await dataStore.pointsDao.addPoint(pointsCompanion);
-          final apiPointImages = apiPoint.images.map((i) => i.toDatabaseEnt(id)).toList();
-
-          for (var apiPointImage in apiPointImages) {
-            final pointImagesCompanion = apiPointImage.toCompanion(false).copyWith(
-              id: const Value.absent(),
-              pointId: Value(id)
-            );
-            await dataStore.pointsDao.addPointImage(pointImagesCompanion);
-          }
-          ids.add(id);
+          await dataStore.pointsDao.updatePointImage(
+            pointImage.id,
+            PointImagesCompanion(lastSyncTime: Value(lastSyncTime))
+          );
         }
       });
-      notifyListeners();
-
-      return (await dataStore.pointsDao.getPointExList()).where((e) => ids.contains(e.point.id)).toList();
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -281,12 +244,7 @@ class PointsRepository extends BaseRepository {
 
     if (points.isEmpty) return;
 
-    try {
-      await blockPoints(true);
-      await syncPoints(points, pointImages);
-    } finally {
-      await blockPoints(false);
-    }
+    await syncPoints(points, pointImages);
   }
 
   Future<void> clearFiles([Set<String> newKeys = const <String>{}]) async {
@@ -296,5 +254,10 @@ class PointsRepository extends BaseRepository {
     for (var oldCacheObject in oldCacheObjects) {
       await pointImagesCacheManager.removeFile(oldCacheObject.key);
     }
+  }
+
+  Future<void> regenerateGuid() async {
+    await dataStore.pointsDao.regeneratePointsGuid();
+    await dataStore.pointsDao.regeneratePointImagesGuid();
   }
 }

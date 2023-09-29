@@ -7,8 +7,12 @@ class UsersDao extends DatabaseAccessor<AppDataStore> with _$UsersDaoMixin {
 
   UsersDao(AppDataStore db) : super(db);
 
-  Future<User> getUser() async {
-    return await (select(users).getSingle());
+  Stream<User> watchUser() {
+    return select(users).watchSingle();
+  }
+
+  Future<User> getCurrentUser() {
+    return select(users).getSingle();
   }
 
   Future<int> loadUser(User user) async {

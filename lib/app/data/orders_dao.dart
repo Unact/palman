@@ -142,10 +142,12 @@ part of 'database.dart';
 class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
   OrdersDao(AppDataStore db) : super(db);
 
-  Future<void> blockOrders(bool block, {List<int>? ids}) async {
-    final companion = OrdersCompanion(isBlocked: Value(block));
+  Future<void> regenerateOrdersGuid() async {
+    await db._regenerateGuid(orders);
+  }
 
-    await (update(orders)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))).write(companion);
+  Future<void> regenerateOrderLinesGuid() async {
+    await db._regenerateGuid(orderLines);
   }
 
   Future<void> loadGoods(List<Goods> list) async {
@@ -196,20 +198,12 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     return await into(orders).insert(newOrder);
   }
 
-  Future<void> deleteOrder(int orderId) async {
-    await (delete(orders)..where((tbl) => tbl.id.equals(orderId))).go();
-  }
-
   Future<void> updateOrderLine(int id, OrderLinesCompanion updatedOrderLine) async {
     await (update(orderLines)..where((tbl) => tbl.id.equals(id))).write(updatedOrderLine);
   }
 
   Future<int> addOrderLine(OrderLinesCompanion newOrderLine) async {
     return await into(orderLines).insert(newOrderLine);
-  }
-
-  Future<void> deleteOrderLine(int orderLineId) async {
-    await (delete(orderLines)..where((tbl) => tbl.id.equals(orderLineId))).go();
   }
 
   Future<int> addSeenPreOrder(SeenPreOrdersCompanion newSeenPreOrder) async {
@@ -226,19 +220,17 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     return (
       select(orders)
         ..where((tbl) => tbl.needSync.equals(true) | hasOrderLineToSync)
-        ..where((tbl) => tbl.isBlocked.equals(false))
     ).get();
   }
 
   Future<List<OrderLine>> getOrderLinesForSync() async {
-    final hasUnblockedOrder = existsQuery(
+    final hasOrderToSync = existsQuery(
       select(orders)
         ..where((tbl) => tbl.id.equalsExp(orderLines.orderId))
-        ..where((tbl) => tbl.isBlocked.equals(false))
         ..where((tbl) => tbl.needSync.equals(true) | orderLines.needSync.equals(true))
     );
 
-    return (select(orderLines)..where((tbl) => hasUnblockedOrder)).get();
+    return (select(orderLines)..where((tbl) => hasOrderToSync)).get();
   }
 
   Future<List<Goods>> getAllGoodsWithImage() async {
@@ -272,19 +264,19 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     return query.get();
   }
 
-  Future<List<CategoriesExResult>> getCategories({required int buyerId}) async {
-    return categoriesEx(buyerId).get();
+  Stream<List<CategoriesExResult>> watchCategories({required int buyerId}) {
+    return categoriesEx(buyerId).watch();
   }
 
-  Future<List<GoodsFilter>> getGoodsFilters() async {
-    return (select(goodsFilters)..orderBy([(tbl) => OrderingTerm(expression: tbl.name)])).get();
+  Stream<List<GoodsFilter>> watchGoodsFilters() {
+    return (select(goodsFilters)..orderBy([(tbl) => OrderingTerm(expression: tbl.name)])).watch();
   }
 
-  Future<List<ShopDepartment>> getShopDepartments() async {
+  Stream<List<ShopDepartment>> watchShopDepartments() {
     return (
       select(shopDepartments)
         ..orderBy([(tbl) => OrderingTerm(expression: tbl.ord), (tbl) => OrderingTerm(expression: tbl.name)])
-    ).get();
+    ).watch();
   }
 
   Future<List<GoodsDetail>> getGoodsDetails({
@@ -303,24 +295,28 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     )).toList();
   }
 
-  Future<OrderExResult?> getOrderEx(int orderId) async {
-    return (await orderEx().get()).firstWhereOrNull((e) => e.order.id == orderId);
+  Future<OrderExResult> getOrderEx(int id) async {
+    return (await orderEx().get()).firstWhere((e) => e.order.id == id);
   }
 
-  Future<List<OrderExResult>> getOrderExList() async {
-    return orderEx().get();
-  }
-
-  Future<List<PreOrderExResult>> getPreOrderExList() async {
-    return preOrderEx().get();
+  Stream<List<OrderExResult>> watchOrderExList() {
+    return orderEx().watch();
   }
 
   Future<List<OrderLineExResult>> getOrderLineExList(int orderId) async {
     return orderLineEx(orderId).get();
   }
 
-  Future<List<PreOrderLineExResult>> getPreOrderLineExList(int preOrderId) async {
-    return preOrderLineEx(preOrderId).get();
+  Stream<List<OrderLineExResult>> watchOrderLineExList(int orderId) {
+    return orderLineEx(orderId).watch();
+  }
+
+  Stream<List<PreOrderExResult>> watchPreOrderExList() {
+    return preOrderEx().watch();
+  }
+
+  Stream<List<PreOrderLineExResult>> watchPreOrderLineExList(int preOrderId) {
+    return preOrderLineEx(preOrderId).watch();
   }
 }
 

@@ -89,20 +89,12 @@ part of 'database.dart';
 class PricesDao extends DatabaseAccessor<AppDataStore> with _$PricesDaoMixin {
   PricesDao(AppDataStore db) : super(db);
 
-  Future<void> blockPartnersPrices(bool block, {List<int>? ids}) async {
-    final companion = PartnersPricesCompanion(isBlocked: Value(block));
-
-    await (
-      update(partnersPrices)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))
-    ).write(companion);
+  Future<void> regeneratePartnersPricesGuid() async {
+    await db._regenerateGuid(partnersPrices);
   }
 
-  Future<void> blockPartnersPricelists(bool block, {List<int>? ids}) async {
-    final companion = PartnersPricelistsCompanion(isBlocked: Value(block));
-
-    await (
-      update(partnersPricelists)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))
-    ).write(companion);
+  Future<void> regeneratePartnersPricelistsGuid() async {
+    await db._regenerateGuid(partnersPricelists);
   }
 
   Future<void> loadPricelists(List<Pricelist> list) async {
@@ -129,14 +121,6 @@ class PricesDao extends DatabaseAccessor<AppDataStore> with _$PricesDaoMixin {
     await db._loadData(goodsPartnersPricelists, list);
   }
 
-  Future<void> deletePartnersPrice(int partnersPriceId) async {
-    await (delete(partnersPrices)..where((tbl) => tbl.id.equals(partnersPriceId))).go();
-  }
-
-  Future<void> deletePartnersPricelist(int partnersPricelistId) async {
-    await (delete(partnersPricelists)..where((tbl) => tbl.id.equals(partnersPricelistId))).go();
-  }
-
   Future<void> updatePartnersPricelist(int id, PartnersPricelistsCompanion updatedPartnersPricelist) async {
     await (update(partnersPricelists)..where((tbl) => tbl.id.equals(id))).write(updatedPartnersPricelist);
   }
@@ -154,25 +138,17 @@ class PricesDao extends DatabaseAccessor<AppDataStore> with _$PricesDaoMixin {
   }
 
   Future<List<PartnersPricelist>> getPartnersPricelistsForSync() async {
-    return (
-      select(partnersPricelists)
-        ..where((tbl) => tbl.needSync.equals(true))
-        ..where((tbl) => tbl.isBlocked.equals(false))
-    ).get();
+    return (select(partnersPricelists)..where((tbl) => tbl.needSync.equals(true))).get();
   }
 
   Future<List<PartnersPrice>> getPartnersPricesForSync() async {
-    return (
-      select(partnersPrices)
-        ..where((tbl) => tbl.needSync.equals(true))
-        ..where((tbl) => tbl.isBlocked.equals(false))
-    ).get();
+    return (select(partnersPrices)..where((tbl) => tbl.needSync.equals(true))).get();
   }
 
-  Future<List<PartnersPricelist>> getPartnersPricelists({
+  Stream<List<PartnersPricelist>> watchPartnersPricelists({
     required int partnerId,
     required int goodsId
-  }) async {
+  }) {
     final query = select(partnersPricelists)
       .join([
         innerJoin(allGoods, allGoods.pricelistSetId.equalsExp(partnersPricelists.pricelistSetId)),
@@ -180,33 +156,25 @@ class PricesDao extends DatabaseAccessor<AppDataStore> with _$PricesDaoMixin {
       ..where(partnersPricelists.partnerId.equals(partnerId))
       ..where(allGoods.id.equals(goodsId));
 
-    return query.map((lineRow) => lineRow.readTable(partnersPricelists)).get();
+    return query.map((lineRow) => lineRow.readTable(partnersPricelists)).watch();
   }
 
-  Future<List<PartnersPrice>> getPartnersPrices({
+  Stream<List<PartnersPrice>> watchPartnersPrices({
     required int partnerId,
     required int goodsId
-  }) async {
+  }) {
     return (
       select(partnersPrices)
         ..where((tbl) => tbl.partnerId.equals(partnerId))
         ..where((tbl) => tbl.goodsId.equals(goodsId))
         ..orderBy([(tbl) => OrderingTerm(expression: tbl.dateTo, mode: OrderingMode.desc)])
-    ).get();
+    ).watch();
   }
 
-  Future<List<GoodsPricesResult>> getGoodsPrices({
-    required int buyerId,
-    required DateTime date,
-    required List<int> goodsIds
-  }) async {
-    return goodsPrices(buyerId, goodsIds, date).get();
-  }
-
-  Future<List<GoodsPricelistsResult>> getGoodsPricelists({
+  Stream<List<GoodsPricelistsResult>> watchGoodsPricelists({
     required int goodsId,
     required DateTime date
-  }) async {
-    return goodsPricelists(date, goodsId).get();
+  }) {
+    return goodsPricelists(date, goodsId).watch();
   }
 }

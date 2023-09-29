@@ -5,7 +5,8 @@ enum PointsStateStatus {
   dataLoaded,
   selectedReasonChanged,
   listViewChanged,
-  pointAdded
+  pointAdded,
+  pointDeleted
 }
 
 class PointsState {
@@ -29,7 +30,9 @@ class PointsState {
   final PointEx? newPoint;
   final bool listView;
 
-  List<PointEx> get filteredPointExList => pointExList.where((e) => e.point.reason == selectedReason.$1).toList();
+  List<PointEx> get filteredPointExList => pointExList
+    .where((e) => !e.point.isDeleted)
+    .where((e) => e.point.reason == selectedReason.$1).toList();
 
   PointsState copyWith({
     PointsStateStatus? status,

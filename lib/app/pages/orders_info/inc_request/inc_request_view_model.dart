@@ -4,50 +4,51 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
   final AppRepository appRepository;
   final PartnersRepository partnersRepository;
   final ShipmentsRepository shipmentsRepository;
+  StreamSubscription<List<Buyer>>? buyersSubscription;
+  StreamSubscription<List<IncRequestEx>>? incRequestExListSubscription;
+  StreamSubscription<List<Workdate>>? workdatesSubscription;
 
   IncRequestViewModel(
     this.appRepository,
     this.partnersRepository,
     this.shipmentsRepository,
     { required IncRequestEx incRequestEx }
-  ) : super(IncRequestState(incRequestEx: incRequestEx), [appRepository, shipmentsRepository]);
+  ) : super(IncRequestState(incRequestEx: incRequestEx));
 
   @override
   IncRequestStateStatus get status => state.status;
 
   @override
   Future<void> initViewModel() async {
-    await shipmentsRepository.blockIncRequests(true, ids: [state.incRequestEx.incRequest.id]);
-
     await super.initViewModel();
-  }
 
-  @override
-  Future<void> loadData() async {
-    final incRequestEx = await shipmentsRepository.getIncRequestEx(state.incRequestEx.incRequest.id);
-    final workdates = await appRepository.getWorkdates();
-    final buyers = await partnersRepository.getBuyers();
-
-    emit(state.copyWith(
-      status: IncRequestStateStatus.dataLoaded,
-      incRequestEx: incRequestEx,
-      workdates: workdates,
-      buyers: buyers
-    ));
+    incRequestExListSubscription = shipmentsRepository.watchIncRequestExList().listen((event) {
+      emit(state.copyWith(
+        status: IncRequestStateStatus.dataLoaded,
+        incRequestEx: event.firstWhereOrNull((e) => e.incRequest.id == state.incRequestEx.incRequest.id)
+      ));
+    });
+    buyersSubscription = partnersRepository.watchBuyers().listen((event) {
+      emit(state.copyWith(status: IncRequestStateStatus.dataLoaded, buyers: event));
+    });
+    workdatesSubscription = appRepository.watchWorkdates().listen((event) {
+      emit(state.copyWith(status: IncRequestStateStatus.dataLoaded, workdates: event));
+    });
   }
 
   @override
   Future<void> close() async {
     await super.close();
 
-    await shipmentsRepository.blockIncRequests(false, ids: [state.incRequestEx.incRequest.id]);
+    await incRequestExListSubscription?.cancel();
+    await buyersSubscription?.cancel();
+    await workdatesSubscription?.cancel();
   }
 
   Future<void> updateIncSum(double? incSum) async {
     await shipmentsRepository.updateIncRequest(
       state.incRequestEx.incRequest,
-      incSum: Optional.fromNullable(incSum),
-      needSync: Optional.of(true)
+      incSum: Optional.fromNullable(incSum)
     );
 
     _notifyIncRequestUpdated();
@@ -56,8 +57,7 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
   Future<void> updateBuyer(Buyer? buyer) async {
     await shipmentsRepository.updateIncRequest(
       state.incRequestEx.incRequest,
-      buyerId: Optional.fromNullable(buyer?.id),
-      needSync: Optional.of(true)
+      buyerId: Optional.fromNullable(buyer?.id)
     );
 
     _notifyIncRequestUpdated();
@@ -66,8 +66,7 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
   Future<void> updateInfo(String? info) async {
     await shipmentsRepository.updateIncRequest(
       state.incRequestEx.incRequest,
-      info: Optional.fromNullable(info),
-      needSync: Optional.of(true)
+      info: Optional.fromNullable(info)
     );
 
     _notifyIncRequestUpdated();
@@ -76,8 +75,7 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
   Future<void> updateDate(DateTime? date) async {
     await shipmentsRepository.updateIncRequest(
       state.incRequestEx.incRequest,
-      date: Optional.fromNullable(date),
-      needSync: Optional.of(true)
+      date: Optional.fromNullable(date)
     );
 
     _notifyIncRequestUpdated();

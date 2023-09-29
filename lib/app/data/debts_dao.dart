@@ -12,10 +12,12 @@ part of 'database.dart';
 class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
   DebtsDao(AppDataStore db) : super(db);
 
-  Future<void> blockDeposits(bool block, {List<int>? ids}) async {
-    final companion = DepositsCompanion(isBlocked: Value(block));
+  Future<void> regenerateDepositsGuid() async {
+    await db._regenerateGuid(deposits);
+  }
 
-    await (update(deposits)..where((tbl) => ids != null ? tbl.id.isIn(ids) : const Constant(true))).write(companion);
+  Future<void> regenerateEncashmentsGuid() async {
+    await db._regenerateGuid(encashments);
   }
 
   Future<void> loadDebts(List<Debt> list) async {
@@ -46,27 +48,18 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     await (update(encashments)..where((tbl) => tbl.id.equals(id))).write(updatedEncashment);
   }
 
-  Future<void> deleteEncashment(int encashmentId) async {
-    await (delete(encashments)..where((tbl) => tbl.id.equals(encashmentId))).go();
-  }
-
-  Future<void> deleteDeposit(int depositId) async {
-    await (delete(deposits)..where((tbl) => tbl.id.equals(depositId))).go();
-  }
-
   Future<void> updateDebt(int id, DebtsCompanion updatedDebt) async {
     await (update(debts)..where((tbl) => tbl.id.equals(id))).write(updatedDebt);
   }
 
   Future<List<Encashment>> getEncashmentsForSync() async {
-    final hasUnblockedDeposit = existsQuery(
+    final hasDepositToSync = existsQuery(
       select(deposits)
         ..where((tbl) => tbl.id.equalsExp(encashments.depositId))
-        ..where((tbl) => tbl.isBlocked.equals(false))
         ..where((tbl) => tbl.needSync.equals(true) | encashments.needSync.equals(true))
     );
 
-    return (select(encashments)..where((tbl) => hasUnblockedDeposit)).get();
+    return (select(encashments)..where((tbl) => hasDepositToSync)).get();
   }
 
   Future<List<Deposit>> getDepositsForSync() async {
@@ -79,11 +72,10 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     return (
       select(deposits)
         ..where((tbl) => tbl.needSync.equals(true) | hasEncashmentToSync)
-        ..where((tbl) => tbl.isBlocked.equals(false))
     ).get();
   }
 
-  Future<List<DebtEx>> getDebtExList() async {
+  Stream<List<DebtEx>> watchDebtExList() {
     final res = select(debts)
       .join([
         innerJoin(buyers, buyers.id.equalsExp(debts.buyerId)),
@@ -91,10 +83,10 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
       ])
       ..orderBy([OrderingTerm(expression: partners.name), OrderingTerm(expression: debts.dateUntil)]);
 
-    return res.map((row) => DebtEx(row.readTable(debts), row.readTable(buyers), row.readTable(partners))).get();
+    return res.map((row) => DebtEx(row.readTable(debts), row.readTable(buyers), row.readTable(partners))).watch();
   }
 
-  Future<List<EncashmentEx>> getEncashmentExList() async {
+  Stream<List<EncashmentEx>> watchEncashmentExList() {
     final res = select(encashments)
       .join([
         leftOuterJoin(deposits, deposits.id.equalsExp(encashments.depositId)),
@@ -113,7 +105,7 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
         row.readTableOrNull(debts),
         row.readTableOrNull(deposits)
       )
-    ).get();
+    ).watch();
   }
 
   Future<EncashmentEx> getEncashmentEx(int id) async {
@@ -139,8 +131,16 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     return await (select(deposits)..where((tbl) => tbl.id.equals(id))).getSingle();
   }
 
-  Future<List<Deposit>> getDeposits() async {
-    return (select(deposits)..orderBy([(tbl) => OrderingTerm(expression: tbl.date, mode: OrderingMode.desc)])).get();
+  Selectable<Deposit> _deposits() {
+    return (select(deposits)..orderBy([(tbl) => OrderingTerm(expression: tbl.date, mode: OrderingMode.desc)]));
+  }
+
+  Stream<List<Deposit>> watchDeposits() {
+    return _deposits().watch();
+  }
+
+  Future<List<Deposit>> getDeposits() {
+    return _deposits().get();
   }
 }
 

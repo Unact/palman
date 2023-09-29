@@ -12,7 +12,6 @@ import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
-import '/app/pages/home/home_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
@@ -59,14 +58,8 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
 
   @override
   void dispose() {
-    super.dispose();
     progressDialog.close();
-  }
-
-  void setPageChangeable(bool pageChangeable) {
-    final homeVm = context.read<HomeViewModel>();
-
-    homeVm.setPageChangeable(pageChangeable);
+    super.dispose();
   }
 
   void closeRefresher(IndicatorResult result) {
@@ -106,8 +99,6 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   }
 
   Future<void> openOrderPage(OrderExResult orderEx) async {
-    if (orderEx.order.isBlocked) return;
-
     await Navigator.push(
       context,
       MaterialPageRoute(
@@ -198,10 +189,8 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
               onRefresh: () async {
                 if (vm.state.isBusy) return IndicatorResult.noMore;
 
-                setPageChangeable(false);
                 vm.tryGetData();
                 final result = await refresherCompleter.future;
-                setPageChangeable(true);
 
                 return result;
               },
@@ -301,7 +290,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       body: ListView(
         physics: physics,
         padding: const EdgeInsets.only(top: 16),
-        children: vm.state.incRequestExList.map((e) => buildIncRequestTile(context, e)).toList()
+        children: vm.state.filteredIncRequestExList.map((e) => buildIncRequestTile(context, e)).toList()
       )
     );
   }
@@ -424,7 +413,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       onTap: () => openIncRequestPage(incRequestEx),
     );
 
-    if (incRequestEx.incRequest.guid != null) return tile;
+    if (!incRequestEx.incRequest.isNew) return tile;
 
     return Dismissible(
       key: Key(incRequestEx.hashCode.toString()),

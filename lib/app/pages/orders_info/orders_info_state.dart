@@ -4,6 +4,7 @@ enum OrdersInfoStateStatus {
   initial,
   dataLoaded,
   orderAdded,
+  orderDeleted,
   loadInProgress,
   loadConfirmation,
   loadDeclined,
@@ -13,7 +14,8 @@ enum OrdersInfoStateStatus {
   saveSuccess,
   saveFailure,
   buyerChanged,
-  incRequestAdded
+  incRequestAdded,
+  incRequestDeleted
 }
 
 class OrdersInfoState {
@@ -56,6 +58,10 @@ class OrdersInfoState {
 
   List<OrderExResult> get filteredOrderExList => orderExList
     .where((e) => !e.order.isDeleted && e.order.detailedStatus != OrderStatus.deleted)
+    .toList();
+
+  List<IncRequestEx> get filteredIncRequestExList => incRequestExList
+    .where((e) => !e.incRequest.isDeleted)
     .toList();
 
   List<ShipmentExResult> get filteredShipmentExList => shipmentExList

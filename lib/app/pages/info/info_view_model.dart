@@ -11,6 +11,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   final ShipmentsRepository shipmentsRepository;
   final UsersRepository usersRepository;
   StreamSubscription<Position>? positionSubscription;
+  StreamSubscription<User>? userSubscription;
+  StreamSubscription<AppInfoResult>? appInfoSubscription;
   Timer? syncTimer;
 
   InfoViewModel(
@@ -23,42 +25,26 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     this.pricesRepository,
     this.shipmentsRepository,
     this.usersRepository
-  ) : super(
-    InfoState(),
-    [
-      appRepository,
-      debtsRepository,
-      ordersRepository,
-      pointsRepository,
-      pricesRepository,
-      shipmentsRepository,
-    ]
-  );
+  ) : super(InfoState());
 
   @override
   InfoStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    final user = await usersRepository.getUser();
-    final appInfo = await appRepository.getAppInfo();
-
-    emit(state.copyWith(
-      status: InfoStateStatus.dataLoaded,
-      user: user,
-      appInfo: appInfo
-    ));
-  }
-
-  @override
   Future<void> initViewModel() async {
-    await _unblockEntities();
-    await _startLocationListen();
     await super.initViewModel();
 
+    await _startLocationListen();
     await saveChangesBackground();
 
     syncTimer = Timer.periodic(const Duration(minutes: 10), saveChangesBackground);
+
+    userSubscription = usersRepository.watchUser().listen((event) {
+      emit(state.copyWith(status: InfoStateStatus.dataLoaded, user: event));
+    });
+    appInfoSubscription = appRepository.watchAppInfo().listen((event) {
+      emit(state.copyWith(status: InfoStateStatus.dataLoaded, appInfo: event));
+    });
   }
 
   @override
@@ -68,6 +54,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     await super.close();
 
     await positionSubscription?.cancel();
+    await userSubscription?.cancel();
+    await appInfoSubscription?.cancel();
     syncTimer?.cancel();
   }
 
@@ -91,19 +79,6 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     positionSubscription = Geolocator.getPositionStream(
       locationSettings: _getLocationSettings()
     ).listen(_saveLocation);
-  }
-
-  Future<void> _unblockEntities() async {
-    final futures = [
-      pointsRepository.blockPoints,
-      debtsRepository.blockDeposits,
-      ordersRepository.blockOrders,
-      pricesRepository.blockPartnersPrices,
-      pricesRepository.blockPartnersPricelists,
-      shipmentsRepository.blockIncRequests
-    ];
-
-    await Future.wait(futures.map((e) => e.call(false)));
   }
 
   Future<void> _syncChanges() async {
@@ -182,12 +157,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       shipmentsRepository.loadShipments,
     ];
 
-    emit(state.copyWith(
-      status: InfoStateStatus.loadInProgress,
-      syncMessage: '',
-      isBusy: true,
-      toLoad: futures.length + 1
-    ));
+    emit(state.copyWith(status: InfoStateStatus.loadInProgress, syncMessage: '', isBusy: true, toLoad: futures.length));
 
     try {
       await usersRepository.refresh();
@@ -341,6 +311,31 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       message: lastErrorMsg == null ?
         'Фотографии успешно загружены' :
         'Не удалось загрузить все фотографии. $lastErrorMsg'
+    ));
+  }
+
+  Future<void> regenerateGuids() async {
+    if (state.isBusy) {
+      emit(state.copyWith(
+        status: InfoStateStatus.guidRegenerateFailure,
+        message: 'Нельзя менять идентификаторы! Идет синхронизация данных'
+      ));
+      return;
+    }
+
+    final futures = [
+      shipmentsRepository.regenerateGuid,
+      pricesRepository.regenerateGuid,
+      pointsRepository.regenerateGuid,
+      ordersRepository.regenerateGuid,
+      debtsRepository.regenerateGuid
+    ];
+
+    await Future.wait(futures.map((e) => e.call()));
+
+    emit(state.copyWith(
+      status: InfoStateStatus.guidRegenerateSuccess,
+      message: 'Идентификаторы пересозданы'
     ));
   }
 }

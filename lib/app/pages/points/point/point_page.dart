@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
@@ -54,8 +56,8 @@ class _PointViewState extends State<_PointView> {
 
   @override
   void dispose() {
-    super.dispose();
     progressDialog.close();
+    super.dispose();
   }
 
   Future<void> showAddressDialog() async {

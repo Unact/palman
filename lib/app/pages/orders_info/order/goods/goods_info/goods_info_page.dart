@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -52,8 +54,6 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
   Future<void> showPriceChangeDialog() async {
     final vm = context.read<GoodsInfoViewModel>();
 
-    if (vm.state.curPartnersPrice?.isBlocked ?? false) return;
-
     final result = await showDialog<(DateTime dateFrom, DateTime dateTo, double price)>(
       context: context,
       barrierDismissible: true,
@@ -75,127 +75,132 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
       builder: (context, state) {
         final goods = state.goodsEx.goods;
 
-        return Scaffold(
-          appBar: AppBar(
-            title: const Text('Товар'),
-            centerTitle: true,
-            actions: [
-              IconButton(
-                color: Colors.white,
-                icon: const Icon(Icons.price_change),
-                tooltip: 'Показать актив',
-                onPressed: state.curGoodsPricelist != null ? showPriceChangeDialog : null
-              ),
-            ]
+        return Theme(
+          data: Theme.of(context).copyWith(
+            inputDecorationTheme: const InputDecorationTheme(border: InputBorder.none)
           ),
-          body: ListView(
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 4),
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(goods.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold))
-              ),
-              Padding(padding: const EdgeInsets.only(top: 16), child: buildGoodsImage(context)),
-              TextFormField(
-                canRequestFocus: false,
-                enableInteractiveSelection: false,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  labelText: 'Преднаименование',
-                  border: InputBorder.none
+          child: Scaffold(
+            appBar: AppBar(
+              title: const Text('Товар'),
+              centerTitle: true,
+              actions: [
+                IconButton(
+                  color: Colors.white,
+                  icon: const Icon(Icons.price_change),
+                  tooltip: 'Показать актив',
+                  onPressed: state.curGoodsPricelist != null ? showPriceChangeDialog : null
                 ),
-                initialValue: goods.preName
-              ),
-              TextFormField(
-                canRequestFocus: false,
-                enableInteractiveSelection: false,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  labelText: 'Штук в коробе',
-                  border: InputBorder.none
+              ]
+            ),
+            body: ListView(
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 4),
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(goods.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold))
                 ),
-                initialValue: goods.categoryPackageRel.toString()
-              ),
-              TextFormField(
-                canRequestFocus: false,
-                enableInteractiveSelection: false,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  labelText: 'Штук в блоке',
-                  border: InputBorder.none
+                Padding(padding: const EdgeInsets.only(top: 16), child: buildGoodsImage(context)),
+                TextFormField(
+                  canRequestFocus: false,
+                  enableInteractiveSelection: false,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    labelText: 'Преднаименование',
+                    border: InputBorder.none
+                  ),
+                  initialValue: goods.preName
                 ),
-                initialValue: goods.categoryBlockRel.toString()
-              ),
-              TextFormField(
-                canRequestFocus: false,
-                enableInteractiveSelection: false,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  labelText: 'Вес короба',
-                  border: InputBorder.none
+                TextFormField(
+                  canRequestFocus: false,
+                  enableInteractiveSelection: false,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    labelText: 'Штук в коробе',
+                    border: InputBorder.none
+                  ),
+                  initialValue: goods.categoryPackageRel.toString()
                 ),
-                initialValue: Format.numberStr(goods.weight)
-              ),
-              TextFormField(
-                canRequestFocus: false,
-                enableInteractiveSelection: false,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  labelText: 'Объем короба',
-                  border: InputBorder.none
+                TextFormField(
+                  canRequestFocus: false,
+                  enableInteractiveSelection: false,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    labelText: 'Штук в блоке',
+                    border: InputBorder.none
+                  ),
+                  initialValue: goods.categoryBlockRel.toString()
                 ),
-                initialValue: Format.numberStr(goods.mcVol)
-              ),
-              TextFormField(
-                canRequestFocus: false,
-                enableInteractiveSelection: false,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  labelText: 'Себестоимость',
-                  border: InputBorder.none
+                TextFormField(
+                  canRequestFocus: false,
+                  enableInteractiveSelection: false,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    labelText: 'Вес короба',
+                    border: InputBorder.none
+                  ),
+                  initialValue: Format.numberStr(goods.weight)
                 ),
-                initialValue: Format.numberStr(goods.cost)
-              ),
-              TextFormField(
-                canRequestFocus: false,
-                enableInteractiveSelection: false,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  labelText: 'Производитель',
-                  border: InputBorder.none
+                TextFormField(
+                  canRequestFocus: false,
+                  enableInteractiveSelection: false,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    labelText: 'Объем короба',
+                    border: InputBorder.none
+                  ),
+                  initialValue: Format.numberStr(goods.mcVol)
                 ),
-                initialValue: goods.manufacturer
-              ),
-              TextFormField(
-                canRequestFocus: false,
-                enableInteractiveSelection: false,
-                readOnly: true,
-                decoration: const InputDecoration(
-                  contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                  labelText: 'Срок годности',
-                  border: InputBorder.none
+                TextFormField(
+                  canRequestFocus: false,
+                  enableInteractiveSelection: false,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    labelText: 'Себестоимость',
+                    border: InputBorder.none
+                  ),
+                  initialValue: Format.numberStr(goods.cost)
                 ),
-                initialValue: '${goods.shelfLife} ${goods.shelfLifeTypeName.toLowerCase()}'
-              ),
-              ExpansionTile(
-                tilePadding: const EdgeInsets.symmetric(horizontal: 8),
-                title: const Text('Продажи'),
-                children: state.goodsShipments.map((e) => buildGoodsShipmentTile(context, e)).toList()
-              ),
-              ExpansionTile(
-                tilePadding: const EdgeInsets.symmetric(horizontal: 8),
-                title: const Text('Прайс-листы'),
-                trailing: state.needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
-                children: state.goodsPricelists.map((e) => buildGoodsPricelistTile(context, e)).toList()
-              )
-            ],
+                TextFormField(
+                  canRequestFocus: false,
+                  enableInteractiveSelection: false,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    labelText: 'Производитель',
+                    border: InputBorder.none
+                  ),
+                  initialValue: goods.manufacturer
+                ),
+                TextFormField(
+                  canRequestFocus: false,
+                  enableInteractiveSelection: false,
+                  readOnly: true,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    labelText: 'Срок годности',
+                    border: InputBorder.none
+                  ),
+                  initialValue: '${goods.shelfLife} ${goods.shelfLifeTypeName.toLowerCase()}'
+                ),
+                ExpansionTile(
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+                  title: const Text('Продажи'),
+                  children: state.goodsShipments.map((e) => buildGoodsShipmentTile(context, e)).toList()
+                ),
+                ExpansionTile(
+                  tilePadding: const EdgeInsets.symmetric(horizontal: 8),
+                  title: const Text('Прайс-листы'),
+                  trailing: state.needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
+                  children: state.goodsPricelists.map((e) => buildGoodsPricelistTile(context, e)).toList()
+                )
+              ],
+            )
           )
         );
       },
@@ -216,7 +221,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
   Widget buildGoodsPricelistTile(BuildContext context, GoodsPricelistsResult goodsPricelist) {
     final vm = context.read<GoodsInfoViewModel>();
     final active = vm.state.partnersPricelists.any((e) => e.pricelistId == goodsPricelist.id);
-    final permitted = goodsPricelist.permit && !(vm.state.curPartnerPricelist?.isBlocked ?? true);
+    final permitted = goodsPricelist.permit;
 
     return ListTile(
       trailing: active ? const Icon(Icons.check) : null,

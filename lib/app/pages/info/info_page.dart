@@ -64,8 +64,8 @@ class _InfoViewState extends State<_InfoView> {
 
   @override
   void dispose() {
-    super.dispose();
     progressDialog.close();
+    super.dispose();
   }
 
   Future<void> openRefresher() async {
@@ -83,12 +83,6 @@ class _InfoViewState extends State<_InfoView> {
     final homeVm = context.read<HomeViewModel>();
 
     homeVm.setCurrentIndex(index);
-  }
-
-  void setPageChangeable(bool pageChangeable) {
-    final homeVm = context.read<HomeViewModel>();
-
-    homeVm.setPageChangeable(pageChangeable);
   }
 
   Future<void> showConfirmationDialog() async {
@@ -122,7 +116,7 @@ class _InfoViewState extends State<_InfoView> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text(Strings.ruAppName),
+            title: GestureDetector(onLongPress: vm.regenerateGuids, child: const Text(Strings.ruAppName)),
             actions: <Widget>[
               IconButton(
                 color: Colors.white,
@@ -187,10 +181,8 @@ class _InfoViewState extends State<_InfoView> {
             onRefresh: () async {
               if (vm.state.isBusy) return IndicatorResult.noMore;
 
-              setPageChangeable(false);
               vm.tryGetData();
               final result = await refresherCompleter.future;
-              setPageChangeable(true);
 
               return result;
             },
@@ -214,6 +206,8 @@ class _InfoViewState extends State<_InfoView> {
           case InfoStateStatus.imageLoadSuccess:
           case InfoStateStatus.imageLoadCanceled:
           case InfoStateStatus.imageLoadFailure:
+          case InfoStateStatus.guidRegenerateSuccess:
+          case InfoStateStatus.guidRegenerateFailure:
             Misc.showMessage(context, state.message);
             break;
           case InfoStateStatus.loadConfirmation:
@@ -235,13 +229,6 @@ class _InfoViewState extends State<_InfoView> {
           case InfoStateStatus.saveSuccess:
             Misc.showMessage(context, state.message);
             progressDialog.close();
-            break;
-          case InfoStateStatus.syncInProgress:
-            setPageChangeable(false);
-            break;
-          case InfoStateStatus.syncSuccess:
-          case InfoStateStatus.syncFailure:
-            setPageChangeable(true);
             break;
           default:
             break;
@@ -407,7 +394,7 @@ class _InfoViewState extends State<_InfoView> {
   Widget buildErrorCard(BuildContext context) {
     final vm = context.read<InfoViewModel>();
 
-    if (vm.state.syncMessage.isEmpty) return Container();
+    if (vm.state.syncMessage.isEmpty || !vm.state.hasPendingChanges) return Container();
 
     return Card(
       child: ListTile(

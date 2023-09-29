@@ -2,20 +2,29 @@ part of 'shipment_page.dart';
 
 class ShipmentViewModel extends PageViewModel<ShipmentState, ShipmentStateStatus> {
   final ShipmentsRepository shipmentsRepository;
+  StreamSubscription<List<ShipmentLineEx>>? shipmentLineExListSubscription;
 
   ShipmentViewModel(this.shipmentsRepository, {required ShipmentExResult shipmentEx}) :
-    super(ShipmentState(shipmentEx: shipmentEx), [shipmentsRepository]);
+    super(ShipmentState(shipmentEx: shipmentEx));
 
   @override
   ShipmentStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {
-    final linesExList = await shipmentsRepository.getShipmentLineExList(state.shipmentEx.shipment.id);
+  Future<void> initViewModel() async {
+    await super.initViewModel();
 
-    emit(state.copyWith(
-      status: ShipmentStateStatus.dataLoaded,
-      linesExList: linesExList
-    ));
+    shipmentLineExListSubscription = shipmentsRepository.watchShipmentLineExList(state.shipmentEx.shipment.id).listen(
+      (event) {
+        emit(state.copyWith(status: ShipmentStateStatus.dataLoaded, linesExList: event));
+      }
+    );
+  }
+
+  @override
+  Future<void> close() async {
+    await super.close();
+
+    await shipmentLineExListSubscription?.cancel();
   }
 }

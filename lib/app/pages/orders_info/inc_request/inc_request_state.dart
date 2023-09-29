@@ -21,7 +21,7 @@ class IncRequestState {
   final List<Buyer> buyers;
   final String message;
 
-  bool get isEditable => incRequestEx.incRequest.guid == null;
+  bool get isEditable => incRequestEx.incRequest.isNew;
 
   IncRequestState copyWith({
     IncRequestStateStatus? status,

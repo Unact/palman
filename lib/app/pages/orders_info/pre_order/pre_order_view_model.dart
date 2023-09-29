@@ -2,10 +2,10 @@ part of 'pre_order_page.dart';
 
 class PreOrderViewModel extends PageViewModel<PreOrderState, PreOrderStateStatus> {
   final OrdersRepository ordersRepository;
-  final PricesRepository pricesRepository;
+  StreamSubscription<List<PreOrderLineExResult>>? preOrderLineExListSubscription;
 
-  PreOrderViewModel(this.ordersRepository, this.pricesRepository, {required PreOrderExResult preOrderEx}) :
-    super(PreOrderState(preOrderEx: preOrderEx), [ordersRepository, pricesRepository]);
+  PreOrderViewModel(this.ordersRepository, {required PreOrderExResult preOrderEx}) :
+    super(PreOrderState(preOrderEx: preOrderEx));
 
   @override
   PreOrderStateStatus get status => state.status;
@@ -15,16 +15,18 @@ class PreOrderViewModel extends PageViewModel<PreOrderState, PreOrderStateStatus
     await _saveSeen();
 
     await super.initViewModel();
+    preOrderLineExListSubscription = ordersRepository.watchPreOrderLineExList(state.preOrderEx.preOrder.id).listen(
+      (event) {
+      emit(state.copyWith(status: PreOrderStateStatus.dataLoaded, linesExList: event));
+      }
+    );
   }
 
   @override
-  Future<void> loadData() async {
-    final linesExList = await ordersRepository.getPreOrderLineExList(state.preOrderEx.preOrder.id);
+  Future<void> close() async {
+    await super.close();
 
-    emit(state.copyWith(
-      status: PreOrderStateStatus.dataLoaded,
-      linesExList: linesExList
-    ));
+    await preOrderLineExListSubscription?.cancel();
   }
 
   Future<void> _saveSeen() async {

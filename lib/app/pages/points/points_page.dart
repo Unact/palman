@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
@@ -216,7 +217,7 @@ class _PointsViewState extends State<_PointsView> {
       onTap: () => openPointPage(pointEx)
     );
 
-    if (pointEx.point.guid != null) return tile;
+    if (!pointEx.point.isNew) return tile;
 
     return Dismissible(
       key: Key(pointEx.hashCode.toString()),
@@ -231,8 +232,6 @@ class _PointsViewState extends State<_PointsView> {
   }
 
   Future<void> openPointPage(PointEx pointEx) async {
-    if (pointEx.point.isBlocked) return;
-
     await Navigator.push(
       context,
       MaterialPageRoute(

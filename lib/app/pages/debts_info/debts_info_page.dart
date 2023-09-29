@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -8,7 +10,6 @@ import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
-import '/app/repositories/app_repository.dart';
 import '/app/repositories/debts_repository.dart';
 import 'encashment/encashment_page.dart';
 
@@ -24,8 +25,7 @@ class DebtsInfoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<DebtsInfoViewModel>(
       create: (context) => DebtsInfoViewModel(
-        RepositoryProvider.of<AppRepository>(context),
-        RepositoryProvider.of<DebtsRepository>(context),
+        RepositoryProvider.of<DebtsRepository>(context)
       ),
       child: _DebtsInfoView(),
     );

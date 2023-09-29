@@ -8,9 +8,6 @@ class AddressViewModel extends PageViewModel<AddressState, AddressStateStatus> {
   AddressStateStatus get status => state.status;
 
   @override
-  Future<void> loadData() async {}
-
-  @override
   Future<void> initViewModel() async {
     await super.initViewModel();
 
