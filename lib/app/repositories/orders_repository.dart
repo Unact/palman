@@ -351,10 +351,7 @@ class OrdersRepository extends BaseRepository {
   }
 
   Future<void> deleteOrder(Order order) async {
-    await dataStore.ordersDao.updateOrder(
-      order.id,
-      OrdersCompanion(isDeleted: const Value(true))
-    );
+    await dataStore.ordersDao.updateOrder(order.id, const OrdersCompanion(isDeleted: Value(true)));
   }
 
   Future<void> addOrderLine(Order order, {
@@ -400,10 +397,7 @@ class OrdersRepository extends BaseRepository {
   }
 
   Future<void> deleteOrderLine(OrderLine orderLine) async {
-    await dataStore.ordersDao.updateOrderLine(
-      orderLine.id,
-      OrderLinesCompanion(isDeleted: const Value(true))
-    );
+    await dataStore.ordersDao.updateOrderLine(orderLine.id, const OrderLinesCompanion(isDeleted: Value(true)));
   }
 
   Future<OrderExResult> createOrderFromPreOrder(PreOrder preOrder, List<PreOrderLine> preOrderLines) async {

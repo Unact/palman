@@ -299,7 +299,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       body: ListView(
         physics: physics,
         padding: const EdgeInsets.only(top: 16),
-        children: vm.state.incRequestExList.map((e) => buildIncRequestTile(context, e)).toList()
+        children: vm.state.filteredIncRequestExList.map((e) => buildIncRequestTile(context, e)).toList()
       )
     );
   }

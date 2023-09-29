@@ -60,6 +60,10 @@ class OrdersInfoState {
     .where((e) => !e.order.isDeleted && e.order.detailedStatus != OrderStatus.deleted)
     .toList();
 
+  List<IncRequestEx> get filteredIncRequestExList => incRequestExList
+    .where((e) => !e.incRequest.isDeleted)
+    .toList();
+
   List<ShipmentExResult> get filteredShipmentExList => shipmentExList
     .where((e) => selectedBuyer == null || e.buyer == selectedBuyer).toList();
 

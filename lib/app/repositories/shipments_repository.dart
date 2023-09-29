@@ -112,10 +112,7 @@ class ShipmentsRepository extends BaseRepository {
   }
 
   Future<void> deleteIncRequest(IncRequest incRequest) async {
-    await dataStore.shipmentsDao.updateIncRequest(
-      incRequest.id,
-      IncRequestsCompanion(isDeleted: const Value(true))
-    );
+    await dataStore.shipmentsDao.updateIncRequest(incRequest.id, const IncRequestsCompanion(isDeleted: Value(true)));
   }
 
   Future<void> regenerateGuid() async {

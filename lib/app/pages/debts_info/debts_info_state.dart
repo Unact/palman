@@ -23,8 +23,12 @@ class DebtsInfoState {
   final List<Deposit> deposits;
   final EncashmentEx? newEncashment;
 
-  List<EncashmentEx> get encWithoutDeposit => encashmentExList.where((e) => e.deposit == null).toList();
-  List<EncashmentEx> get encWithDeposit => encashmentExList.where((e) => e.deposit != null).toList();
+  List<EncashmentEx> get encWithoutDeposit => encashmentExList
+    .where((e) => !e.encashment.isDeleted)
+    .where((e) => e.deposit == null).toList();
+  List<EncashmentEx> get encWithDeposit => encashmentExList
+    .where((e) => !e.encashment.isDeleted)
+    .where((e) => e.deposit != null).toList();
 
   bool get canDeposit => encWithoutDeposit.isNotEmpty;
 

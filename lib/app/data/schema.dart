@@ -7,7 +7,7 @@ mixin Syncable on Table {
   DateTimeColumn get currentTimestamp => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get lastSyncTime => dateTime().nullable()();
   BoolColumn get needSync => boolean()
-    .generatedAs(lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), stored: true)();
+    .generatedAs((isNew & isDeleted.not()) | (isNew.not() & lastSyncTime.isSmallerThan(timestamp)), stored: true)();
   BoolColumn get isNew => boolean().generatedAs(lastSyncTime.isNull())();
 }
 

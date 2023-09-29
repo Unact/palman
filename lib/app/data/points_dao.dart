@@ -85,10 +85,6 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     return await select(pointImages).get();
   }
 
-  Future<PointImage> getPointImage(int id) async {
-    return (select(pointImages)..where((tbl) => tbl.id.equals(id))).getSingle();
-  }
-
   Stream<List<PointEx>> watchPointExList() {
     final pointsRes = (select(points)..orderBy([(tbl) => OrderingTerm(expression: tbl.buyerName)])).watch();
     final pointImagesRes = select(pointImages).watch();

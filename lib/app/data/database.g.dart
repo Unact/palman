@@ -1737,7 +1737,9 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
   late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
       'need_sync', aliasedName, false,
       generatedAs: GeneratedAs(
-          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+          (isNew & isDeleted.not()) |
+              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
+          true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
@@ -2795,7 +2797,9 @@ class $PointImagesTable extends PointImages
   late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
       'need_sync', aliasedName, false,
       generatedAs: GeneratedAs(
-          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+          (isNew & isDeleted.not()) |
+              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
+          true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
@@ -3423,7 +3427,9 @@ class $EncashmentsTable extends Encashments
   late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
       'need_sync', aliasedName, false,
       generatedAs: GeneratedAs(
-          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+          (isNew & isDeleted.not()) |
+              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
+          true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
@@ -4495,7 +4501,9 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
   late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
       'need_sync', aliasedName, false,
       generatedAs: GeneratedAs(
-          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+          (isNew & isDeleted.not()) |
+              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
+          true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
@@ -5683,7 +5691,9 @@ class $IncRequestsTable extends IncRequests
   late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
       'need_sync', aliasedName, false,
       generatedAs: GeneratedAs(
-          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+          (isNew & isDeleted.not()) |
+              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
+          true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
@@ -8158,7 +8168,9 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
   late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
       'need_sync', aliasedName, false,
       generatedAs: GeneratedAs(
-          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+          (isNew & isDeleted.not()) |
+              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
+          true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
@@ -9017,7 +9029,9 @@ class $OrderLinesTable extends OrderLines
   late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
       'need_sync', aliasedName, false,
       generatedAs: GeneratedAs(
-          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+          (isNew & isDeleted.not()) |
+              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
+          true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
@@ -12592,7 +12606,9 @@ class $PartnersPricesTable extends PartnersPrices
   late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
       'need_sync', aliasedName, false,
       generatedAs: GeneratedAs(
-          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+          (isNew & isDeleted.not()) |
+              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
+          true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
@@ -13481,7 +13497,9 @@ class $PartnersPricelistsTable extends PartnersPricelists
   late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
       'need_sync', aliasedName, false,
       generatedAs: GeneratedAs(
-          lastSyncTime.isNull() | lastSyncTime.isSmallerThan(timestamp), true),
+          (isNew & isDeleted.not()) |
+              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
+          true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
@@ -14809,7 +14827,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final UsersDao usersDao = UsersDao(this as AppDataStore);
   Selectable<AppInfoResult> appInfo() {
     return customSelect(
-        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE last_sync_time IS NULL OR timestamp > last_sync_time OR EXISTS (SELECT 1 FROM point_images WHERE point_id = points.id AND(last_sync_time IS NULL OR timestamp > last_sync_time))) AS points_to_sync, (SELECT COUNT(*) FROM deposits WHERE last_sync_time IS NULL OR timestamp > last_sync_time OR EXISTS (SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND(last_sync_time IS NULL OR timestamp > last_sync_time))) AS deposits_to_sync, (SELECT COUNT(*) FROM orders WHERE last_sync_time IS NULL OR timestamp > last_sync_time OR EXISTS (SELECT 1 FROM order_lines WHERE order_id = orders.id AND(last_sync_time IS NULL OR timestamp > last_sync_time))) AS orders_to_sync, (SELECT COUNT(*) FROM inc_requests WHERE last_sync_time IS NULL OR timestamp > last_sync_time) AS inc_requests_to_sync, (SELECT COUNT(*) FROM partners_prices WHERE last_sync_time IS NULL OR timestamp > last_sync_time) AS partner_prices_to_sync, (SELECT COUNT(*) FROM partners_pricelists WHERE last_sync_time IS NULL OR timestamp > last_sync_time) AS partners_pricelists_to_sync, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM encashments) AS encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total FROM prefs',
+        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_id = points.id AND need_sync = 1)) AS points_to_sync, (SELECT COUNT(*) FROM deposits WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND need_sync = 1)) AS deposits_to_sync, (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_id = orders.id AND need_sync = 1)) AS orders_to_sync, (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS inc_requests_to_sync, (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS partner_prices_to_sync, (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS partners_pricelists_to_sync, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM encashments) AS encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total FROM prefs',
         variables: [],
         readsFrom: {
           points,
