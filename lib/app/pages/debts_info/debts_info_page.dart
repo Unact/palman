@@ -81,9 +81,9 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
               ],
               bottom: const TabBar(
                 tabs: [
-                  Tab(text: 'Долги'),
-                  Tab(text: 'Инкассации'),
-                  Tab(text: 'Передачи'),
+                  Tab(child: Text('Долги', style: Styles.tabStyle, softWrap: false)),
+                  Tab(child: Text('Инкассации', style: Styles.tabStyle, softWrap: false)),
+                  Tab(child: Text('Передачи', style: Styles.tabStyle, softWrap: false)),
                 ],
               ),
             ),
@@ -155,11 +155,10 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
 
   Widget buildDepositTile(BuildContext context, Deposit deposit) {
     return ListTile(
-      title: Text(Format.dateStr(deposit.date)),
+      title: Text(Format.dateStr(deposit.date), style: Styles.tileTitleText),
       trailing: deposit.needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: 'Выручка всего: ${Format.numberStr(deposit.totalSum)}\n',
@@ -184,10 +183,9 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
 
   Widget buildEncashmentWithDepositTile(BuildContext context, EncashmentEx encashmentEx) {
     return ListTile(
-      title: Text(encashmentEx.buyer.name),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text(encashmentEx.buyer.name, style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: 'Дата: ${Format.dateStr(encashmentEx.encashment.date)}\n',
@@ -220,10 +218,9 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
         confirmationText: 'Вы точно хотите удалить инкассацию?'
       ).open(),
       child: ListTile(
-        title: Text(encashmentEx.buyer.name),
-        subtitle: RichText(
-          text: TextSpan(
-            style: Styles.defaultTextSpan,
+        title: Text(encashmentEx.buyer.name, style: Styles.tileTitleText),
+        subtitle: Text.rich(
+          TextSpan(
             children: <TextSpan>[
               TextSpan(
                 text: 'Дата: ${Format.dateStr(encashmentEx.encashment.date)}\n',
@@ -246,10 +243,9 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
     final vm = context.read<DebtsInfoViewModel>();
 
     return ListTile(
-      title: Text(Format.dateStr(debtEx.debt.date), style: Styles.tileText),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text(Format.dateStr(debtEx.debt.date), style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: 'Документ: ${debtEx.debt.info}\n',

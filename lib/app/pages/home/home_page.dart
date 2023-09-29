@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '/app/constants/strings.dart';
+import '/app/constants/styles.dart';
 
 import '/app/pages/debts_info/debts_info_page.dart';
 import '/app/pages/info/info_page.dart';
@@ -54,6 +55,8 @@ class _HomeView extends StatelessWidget {
       currentIndex: vm.state.currentIndex,
       onTap: vm.setCurrentIndex,
       type: BottomNavigationBarType.fixed,
+      selectedLabelStyle: Styles.selectedLabelStyle,
+      unselectedLabelStyle: Styles.unselectedLabelStyle,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: Strings.infoPageName),
         BottomNavigationBarItem(icon: Icon(Icons.point_of_sale), label: Strings.pointsPageName),

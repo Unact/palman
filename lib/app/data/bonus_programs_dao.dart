@@ -95,7 +95,10 @@ class BonusProgramsDao extends DatabaseAccessor<AppDataStore> with _$BonusProgra
     await db._loadData(goodsBonusProgramPrices, list);
   }
 
-  Stream<List<BonusProgramGroup>> watchBonusProgramGroups({required int buyerId}) {
+  Stream<List<BonusProgramGroup>> watchBonusProgramGroups({
+    required int buyerId,
+    required DateTime date
+  }) {
     final hasBonusProgram = existsQuery(
       select(bonusPrograms)
         .join([
@@ -105,6 +108,8 @@ class BonusProgramsDao extends DatabaseAccessor<AppDataStore> with _$BonusProgra
         ])
         ..where(bonusPrograms.bonusProgramGroupId.equalsExp(bonusProgramGroups.id))
         ..where(buyersSetsBuyers.buyerId.equals(buyerId))
+        ..where(bonusPrograms.dateFrom.isSmallerOrEqualValue(date))
+        ..where(bonusPrograms.dateTo.isBiggerOrEqualValue(date))
     );
 
     return (

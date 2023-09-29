@@ -141,16 +141,16 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
               title: const Text(Strings.ordersInfoPageName),
               bottom: TabBar(
                 tabs: [
-                  const Tab(text: 'Заказы'),
-                  const Tab(text: 'Заявки'),
-                  const Tab(text: 'Отгрузки'),
+                  const Tab(child: Text('Заказы', style: Styles.tabStyle, softWrap: false)),
+                  const Tab(child: Text('Заявки', style: Styles.tabStyle, softWrap: false)),
+                  const Tab(child: Text('Отгрузки', style: Styles.tabStyle, softWrap: false)),
                   Tab(
                     child: Badge(
                       backgroundColor: Theme.of(context).colorScheme.error,
                       label: Text(state.notSeenCnt.toString()),
                       isLabelVisible: state.notSeenCnt != 0,
                       offset: const Offset(12, -12),
-                      child: const Text('Предзаказы других ТП', overflow: TextOverflow.fade, softWrap: false),
+                      child: const Text('Предзаказы других ТП', style: Styles.tabStyle, softWrap: false),
                     )
                   )
                 ]
@@ -311,11 +311,13 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   Widget buildOrderTile(BuildContext context, OrderExResult orderEx) {
     final vm = context.read<OrdersInfoViewModel>();
     final tile = ListTile(
-      title: Text(orderEx.buyer != null ? '${orderEx.buyer!.fullname}\n' : 'Клиент не указан\n'),
+      title: Text(
+        orderEx.buyer != null ? '${orderEx.buyer!.fullname}\n' : 'Клиент не указан\n',
+        style: Styles.tileTitleText
+      ),
       trailing: orderEx.order.needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: 'Сумма: ${Format.numberStr(orderEx.linesTotal)}\n',
@@ -381,13 +383,12 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   Widget buildIncRequestTile(BuildContext context, IncRequestEx incRequestEx) {
     final vm = context.read<OrdersInfoViewModel>();
     final tile = ListTile(
-      title: Text(Format.dateStr(incRequestEx.incRequest.date)),
+      title: Text(Format.dateStr(incRequestEx.incRequest.date), style: Styles.tileTitleText),
       trailing: incRequestEx.incRequest.needSync ?
         Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) :
         null,
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: incRequestEx.buyer != null ?
@@ -405,7 +406,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
             ),
             TextSpan(
               text: 'Статус: ${incRequestEx.incRequest.status}\n',
-              style: Styles.tileText.copyWith(color: Colors.blue)
+              style: Styles.tileText.copyWith(color: Styles.blueColor)
             )
           ]
         )
@@ -430,10 +431,9 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
 
   Widget buildPreOrderTile(BuildContext context, PreOrderExResult preOrderEx) {
     return ListTile(
-      title: Text(Format.dateStr(preOrderEx.preOrder.date)),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text(Format.dateStr(preOrderEx.preOrder.date), style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: preOrderEx.wasSeen ? '' : 'Новый!\n',
@@ -457,7 +457,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
             ),
             TextSpan(
               text: preOrderEx.hasOrder ? 'Создан заказ' : 'Заказ не создан',
-              style: Styles.tileText.copyWith(color: Colors.blue)
+              style: Styles.tileText.copyWith(color: Styles.blueColor)
             )
           ]
         )
@@ -499,6 +499,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
         cursorColor: theme.textSelectionTheme.selectionColor,
         autocorrect: false,
         controller: buyerController,
+        style: Styles.formStyle,
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           labelText: 'Клиент',
@@ -516,7 +517,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       errorBuilder: (BuildContext ctx, error) {
         return Padding(
           padding: const EdgeInsets.all(8),
-          child: Text('Произошла ошибка', style: TextStyle(color: theme.colorScheme.error)),
+          child: Text('Произошла ошибка', style: Styles.formStyle.copyWith(color: theme.colorScheme.error))
         );
       },
       noItemsFoundBuilder: (BuildContext ctx) {
@@ -525,7 +526,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
           child: Text(
             'Ничего не найдено',
             textAlign: TextAlign.center,
-            style: TextStyle(color: theme.disabledColor, fontSize: 14.0),
+            style: Styles.formStyle.copyWith(color: theme.disabledColor),
           ),
         );
       },
@@ -536,7 +537,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       itemBuilder: (BuildContext ctx, Buyer suggestion) {
         return ListTile(
           isThreeLine: false,
-          title: Text(suggestion.fullname)
+          title: Text(suggestion.fullname, style: Styles.formStyle)
         );
       },
       onSuggestionSelected: (Buyer suggestion) async {
@@ -571,10 +572,9 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
 
   Widget buildShipmentTile(BuildContext context, ShipmentExResult shipmentEx) {
      return ListTile(
-      title: Text(shipmentEx.buyer.fullname),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text('${shipmentEx.buyer.fullname}\n', style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <InlineSpan>[
             TextSpan(
               text: 'Номер: ${shipmentEx.shipment.ndoc}\n',
@@ -601,7 +601,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
                   width: 200,
                   child: Text(
                     'Сумма: ${Format.numberStr(shipmentEx.shipment.shipmentSum)}',
-                    style: Styles.tileText.copyWith(fontWeight: FontWeight.bold, color: Colors.grey)
+                    style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
                   ),
                 ),
                 Text('Позиций: ${shipmentEx.linesCount}\n', style: Styles.tileText)
@@ -617,13 +617,13 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
 
   Color _statusColor(OrderExResult orderEx) {
     switch (orderEx.order.detailedStatus) {
-      case OrderStatus.deleted: return Colors.red;
-      case OrderStatus.draft: return Colors.blue;
-      case OrderStatus.upload: return Colors.grey[700]!;
-      case OrderStatus.processing: return Colors.brown;
-      case OrderStatus.done: return Colors.green;
-      case OrderStatus.onhold: return Colors.red;
-      case OrderStatus.unknown: return Colors.black;
+      case OrderStatus.deleted: return Styles.redColor;
+      case OrderStatus.draft: return Styles.blueColor;
+      case OrderStatus.upload: return Styles.greyColor;
+      case OrderStatus.processing: return Styles.brownColor;
+      case OrderStatus.done: return Styles.greenColor;
+      case OrderStatus.onhold: return Styles.redColor;
+      case OrderStatus.unknown: return Styles.blackColor;
     }
   }
 }

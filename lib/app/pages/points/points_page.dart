@@ -89,6 +89,7 @@ class _PointsViewState extends State<_PointsView> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           DropdownButton(
+            style: Theme.of(context).textTheme.titleMedium!.merge(Styles.formStyle),
             value: vm.state.selectedReason,
             items: PointsState.kReasonFilter.map<DropdownMenuItem<(String, String)>>(((String, String) v) {
               return DropdownMenuItem<(String, String)>(
@@ -102,11 +103,11 @@ class _PointsViewState extends State<_PointsView> {
             segments: const <ButtonSegment<bool>>[
               ButtonSegment<bool>(
                 value: true,
-                label: Text('Список')
+                label: Text('Список', style: Styles.formStyle)
               ),
               ButtonSegment<bool>(
                 value: false,
-                label: Text('Карта')
+                label: Text('Карта', style: Styles.formStyle)
               )
             ],
             showSelectedIcon: false,
@@ -196,10 +197,9 @@ class _PointsViewState extends State<_PointsView> {
           const Icon(Icons.check, color: Colors.green) :
           const Icon(Icons.hourglass_empty, color: Colors.yellow)
       ),
-      title: Text(pointEx.point.buyerName),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text(pointEx.point.buyerName, style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: 'Адрес: ${pointEx.point.address ?? Strings.nullSubstitute}\n',

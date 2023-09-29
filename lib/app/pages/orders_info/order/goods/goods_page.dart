@@ -466,7 +466,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
                 tooltip: 'Показать актив',
                 onPressed: () => setState(() => groupedCategoriesActive[name] = !showOnlyActive)
               ),
-            title: Text(name, style: const TextStyle(color: Colors.white)),
+            title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             children: children
           ),
         )
@@ -593,7 +593,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
                 tooltip: 'Показать актив',
                 onPressed: () => setState(() => groupedGoodsActive[name] = !showOnlyActive)
               ),
-            title: Text(name, style: const TextStyle(color: Colors.white)),
+            title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             children: children
           ),
         )
@@ -670,13 +670,15 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     final tags = goodsDetail.bonusPrograms;
     final daysDiff = goodsDetail.hadShipment ? DateTime.now().difference(goodsEx.lastShipmentDate!) : null;
 
-    return RichText(
-      text: TextSpan(
-        style: const TextStyle(color: Colors.black),
+    return Text.rich(
+      TextSpan(
+        style: Styles.tileTitleText,
         children: <InlineSpan>[
           TextSpan(
             text: goodsEx.goods.name,
-            style: TextStyle(fontSize: 14.0, color: goodsDetail.stock?.isVollow ?? false ? Colors.pink : Colors.black)
+            style: Styles.tileTitleText.copyWith(
+              color: goodsDetail.stock?.isVollow ?? false ? Colors.pink : Colors.black
+            )
           ),
           daysDiff == null ?
             const TextSpan() :
@@ -888,13 +890,9 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
           onPressed: () => setState(() => expanded = true)
         ),
         Expanded(
-          child: RichText(
-            text: TextSpan(
-              style: Styles.defaultTextSpan.copyWith(
-                fontSize: 12,
-                color: Colors.grey[700],
-                fontWeight: FontWeight.w500
-              ),
+          child: Text.rich(
+            TextSpan(
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.w500),
               children: <InlineSpan>[
                 const TextSpan(text: 'Цена: '),
                 (goods.handPrice ?? 0) > 0 ?
@@ -956,13 +954,9 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
           onPressed: () => setState(() => expanded = false)
         ),
         Expanded(
-          child: RichText(
-            text: TextSpan(
-              style: Styles.defaultTextSpan.copyWith(
-                fontSize: 12,
-                color: Colors.grey[700],
-                fontWeight: FontWeight.w500
-              ),
+          child: Text.rich(
+            TextSpan(
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.w500),
               children: <InlineSpan>[
                 TextSpan(
                   text: (goodsEx.lastPrice ?? 0) > 0 && (goods.handPrice ?? 0) > 0 ?

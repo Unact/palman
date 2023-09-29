@@ -205,7 +205,7 @@ class _OrderViewState extends State<_OrderView> {
       errorBuilder: (BuildContext ctx, error) {
         return Padding(
           padding: const EdgeInsets.all(8),
-          child: Text('Произошла ошибка', style: Styles.formStyle.apply(color: theme.colorScheme.error)),
+          child: Text('Произошла ошибка', style: Styles.formStyle.copyWith(color: theme.colorScheme.error)),
         );
       },
       noItemsFoundBuilder: (BuildContext ctx) {
@@ -238,42 +238,42 @@ class _OrderViewState extends State<_OrderView> {
     return [
       InfoRow(
         trailingFlex: 2,
-        title: const Text('Статус'),
-        trailing: Text(order.detailedStatus.name)
+        title: const Text('Статус', style: Styles.formStyle),
+        trailing: Text(order.detailedStatus.name, style: Styles.formStyle)
       ),
       !vm.state.orderEx.order.isEditable ? Container() : InfoRow(
         trailingFlex: 2,
-        title: const Text('Передан в работу'),
-        trailing: Text(order.needProcessing ? 'Да' : 'Нет')
+        title: const Text('Передан в работу', style: Styles.formStyle),
+        trailing: Text(order.needProcessing ? 'Да' : 'Нет', style: Styles.formStyle)
       ),
       InfoRow(
         trailingFlex: 2,
-        title: const Text('Клиент'),
+        title: const Text('Клиент', style: Styles.formStyle),
         trailing: buildBuyerSearch(context)
       ),
       vm.state.preOrderMode ? Container() : InfoRow(
-        title: const Text('Бонусный'),
+        title: const Text('Бонусный', style: Styles.formStyle),
         trailing: Checkbox(
           value: order.isBonus,
           onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateIsBonus(value!)
         )
       ),
       vm.state.preOrderMode ? Container() : InfoRow(
-        title: const Text('Требуется инкассация'),
+        title: const Text('Требуется инкассация', style: Styles.formStyle),
         trailing: Checkbox(
           value: order.needInc,
           onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateNeedInc(value!)
         )
       ),
       InfoRow(
-        title: const Text('Нужна счет-фактура'),
+        title: const Text('Нужна счет-фактура', style: Styles.formStyle),
         trailing: Checkbox(
           value: order.needDocs,
           onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateNeedDocs(value!)
         )
       ),
       vm.state.preOrderMode ? Container() : InfoRow(
-        title: const Text('Физ. лицо'),
+        title: const Text('Физ. лицо', style: Styles.formStyle),
         trailing: Checkbox(
           value: order.isPhysical,
           onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateIsPhysical(value!)
@@ -281,7 +281,7 @@ class _OrderViewState extends State<_OrderView> {
       ),
       InfoRow(
         trailingFlex: 2,
-        title: const Text('Дата доставки'),
+        title: const Text('Дата доставки', style: Styles.formStyle),
         trailing: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -297,7 +297,7 @@ class _OrderViewState extends State<_OrderView> {
         )
       ),
       InfoRow(
-        title: const Text('Комментарий'),
+        title: const Text('Комментарий', style: Styles.formStyle),
         trailing: TextFormField(
           enabled: vm.state.isEditable,
           initialValue: order.info,
@@ -306,8 +306,8 @@ class _OrderViewState extends State<_OrderView> {
         )
       ),
       InfoRow(
-        title: const Text('Стоимость'),
-        trailing: Text(Format.numberStr(vm.state.orderEx.linesTotal))
+        title: const Text('Стоимость', style: Styles.formStyle),
+        trailing: Text(Format.numberStr(vm.state.orderEx.linesTotal), style: Styles.formStyle)
       ),
       buildOrderListView(context)
     ];
@@ -316,10 +316,9 @@ class _OrderViewState extends State<_OrderView> {
   Widget buildOrderLineTile(BuildContext context, OrderLineExResult orderLineEx) {
     final vm = context.read<OrderViewModel>();
     final tile = ListTile(
-      title: Text(orderLineEx.goodsName),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text(orderLineEx.goodsName, style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: 'Кол-во: ${orderLineEx.line.vol.toInt()}\n',

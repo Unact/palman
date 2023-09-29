@@ -82,10 +82,9 @@ class _PreOrderViewState extends State<_PreOrderView> {
 
   Widget buildPreOrderLineTile(BuildContext context, PreOrderLineExResult preorderLineEx) {
     return ListTile(
-      title: Text(preorderLineEx.goodsName),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text(preorderLineEx.goodsName, style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: 'Кол-во: ${preorderLineEx.line.vol.toInt()}\n',

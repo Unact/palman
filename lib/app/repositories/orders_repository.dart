@@ -220,10 +220,12 @@ class OrdersRepository extends BaseRepository {
   }
 
   Stream<List<BonusProgramGroup>> watchBonusProgramGroups({
-    required int buyerId
+    required int buyerId,
+    required DateTime date
   }) {
     return dataStore.bonusProgramsDao.watchBonusProgramGroups(
-      buyerId: buyerId
+      buyerId: buyerId,
+      date: date
     );
   }
 
@@ -299,7 +301,6 @@ class OrdersRepository extends BaseRepository {
     int? preOrderId,
     int? buyerId,
     DateTime? date,
-    String? status,
     bool needProcessing = false,
     bool needDocs = false,
     bool isBonus = false,
@@ -308,7 +309,7 @@ class OrdersRepository extends BaseRepository {
   }) async {
     final id = await dataStore.ordersDao.addOrder(
       OrdersCompanion.insert(
-        status: status ?? OrderStatus.draft.value,
+        status: OrderStatus.draft.value,
         needDocs: needDocs,
         isBonus: isBonus,
         isPhysical: isPhysical,
@@ -326,6 +327,7 @@ class OrdersRepository extends BaseRepository {
   }
 
   Future<void> updateOrder(Order order, {
+    Optional<String>? status,
     Optional<int?>? buyerId,
     Optional<DateTime?>? date,
     Optional<String?>? info,
@@ -336,6 +338,7 @@ class OrdersRepository extends BaseRepository {
     Optional<bool>? needProcessing
   }) async {
     final updatedOrder = OrdersCompanion(
+      status: status == null ? const Value.absent() : Value(status.value),
       buyerId: buyerId == null ? const Value.absent() : Value(buyerId.orNull),
       date: date == null ? const Value.absent() : Value(date.orNull),
       info: info == null ? const Value.absent() : Value(info.orNull),
@@ -403,7 +406,7 @@ class OrdersRepository extends BaseRepository {
   Future<OrderExResult> createOrderFromPreOrder(PreOrder preOrder, List<PreOrderLine> preOrderLines) async {
     final orderEx = await dataStore.transaction(() async {
       final id = await dataStore.ordersDao.addOrder(OrdersCompanion.insert(
-        status: OrderStatus.upload.value,
+        status: OrderStatus.draft.value,
         preOrderId: Value(preOrder.id),
         buyerId: Value(preOrder.buyerId),
         date: Value(preOrder.date),

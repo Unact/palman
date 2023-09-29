@@ -97,7 +97,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
               children: [
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text(goods.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold))
+                  child: Text(goods.name, style: Styles.tileTitleText.copyWith(fontWeight: FontWeight.bold))
                 ),
                 Padding(padding: const EdgeInsets.only(top: 16), child: buildGoodsImage(context)),
                 TextFormField(
@@ -225,10 +225,9 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
 
     return ListTile(
       trailing: active ? const Icon(Icons.check) : null,
-      title: Text(goodsPricelist.name),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text(goodsPricelist.name, style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: 'Цена: ${Format.numberStr(goodsPricelist.price)}\n',
@@ -247,10 +246,9 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
 
   Widget buildGoodsShipmentTile(BuildContext context, GoodsShipmentsResult goodsShipment) {
     return ListTile(
-      title: Text(Format.dateStr(goodsShipment.date)),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text(Format.dateStr(goodsShipment.date), style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: 'Кол-во: ${goodsShipment.vol.toInt()}\n',

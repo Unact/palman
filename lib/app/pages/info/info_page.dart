@@ -257,7 +257,7 @@ class _InfoViewState extends State<_InfoView> {
       child: ListTile(
         isThreeLine: true,
         onTap: () => changePage(1),
-        title: const Text(Strings.pointsPageName),
+        title: const Text(Strings.pointsPageName, style: Styles.tileTitleText),
         subtitle: Text('Загружено: ${vm.state.pointsTotal}', style: Styles.tileText)
       )
     );
@@ -276,10 +276,9 @@ class _InfoViewState extends State<_InfoView> {
           onPressed: vm.cancelPreloadPointImages
         ),
         isThreeLine: true,
-        title: const Text('Загрузка фотографий точек'),
-        subtitle: RichText(
-          text: TextSpan(
-            style: Styles.defaultTextSpan,
+        title: const Text('Загрузка фотографий точек', style: Styles.tileTitleText),
+        subtitle: Text.rich(
+          TextSpan(
             children: <TextSpan>[
               TextSpan(
                 text: 'Загружено: ${vm.state.loadedPointImages}\n',
@@ -309,10 +308,9 @@ class _InfoViewState extends State<_InfoView> {
           onPressed: vm.cancelPreloadGoodsImages
         ),
         isThreeLine: true,
-        title: const Text('Загрузка фотографий товаров'),
-        subtitle: RichText(
-          text: TextSpan(
-            style: Styles.defaultTextSpan,
+        title: const Text('Загрузка фотографий товаров', style: Styles.tileTitleText),
+        subtitle: Text.rich(
+          TextSpan(
             children: <TextSpan>[
               TextSpan(
                 text: 'Загружено: ${vm.state.loadedGoodsImages}\n',
@@ -336,7 +334,7 @@ class _InfoViewState extends State<_InfoView> {
       child: ListTile(
         isThreeLine: true,
         onTap: () => changePage(2),
-        title: const Text(Strings.debtsInfoPageName),
+        title: const Text(Strings.debtsInfoPageName, style: Styles.tileTitleText),
         subtitle: Text('Инкассаций: ${vm.state.encashmentsTotal}', style: Styles.tileText)
       )
     );
@@ -349,10 +347,9 @@ class _InfoViewState extends State<_InfoView> {
       child: ListTile(
         isThreeLine: true,
         onTap: () => changePage(3),
-        title: const Text(Strings.ordersInfoPageName),
-        subtitle: RichText(
-          text: TextSpan(
-            style: Styles.defaultTextSpan,
+        title: const Text(Strings.ordersInfoPageName, style: Styles.tileTitleText),
+        subtitle: Text.rich(
+          TextSpan(
             children: <TextSpan>[
               TextSpan(
                 text: 'Заказов: ${vm.state.ordersTotal}\n',
@@ -384,8 +381,8 @@ class _InfoViewState extends State<_InfoView> {
         return const Card(
           child: ListTile(
             isThreeLine: true,
-            title: Text('Информация'),
-            subtitle: Text('Доступна новая версия приложения'),
+            title: Text('Информация', style: Styles.tileTitleText),
+            subtitle: Text('Доступна новая версия приложения', style: Styles.tileText),
           )
         );
       }
@@ -400,8 +397,8 @@ class _InfoViewState extends State<_InfoView> {
     return Card(
       child: ListTile(
         isThreeLine: true,
-        title: const Text('Синхронизация'),
-        subtitle: Text(vm.state.syncMessage, style: const TextStyle(color: Colors.red)),
+        title: const Text('Синхронизация', style: Styles.tileTitleText),
+        subtitle: Text(vm.state.syncMessage, style: Styles.tileText.copyWith(color: Colors.red)),
       )
     );
   }

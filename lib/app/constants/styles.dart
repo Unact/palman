@@ -1,8 +1,18 @@
 import 'package:flutter/material.dart';
 
 class Styles {
-  static const TextStyle tileText = TextStyle(fontSize: 12.0);
-  static const TextStyle defaultTextSpan = TextStyle(color: Colors.grey);
-  static const TextStyle formStyle = TextStyle(fontSize: 14, color: Colors.black);
-  static const TextStyle chipStyle = TextStyle(fontSize: 12, color: Colors.white);
+  static const TextStyle tileText = TextStyle(fontSize: 14);
+  static const TextStyle tileTitleText = TextStyle(fontSize: 16);
+  static const TextStyle formStyle = TextStyle(fontSize: 16);
+  static const TextStyle chipStyle = TextStyle(fontSize: 14, color: Colors.white);
+  static const TextStyle tabStyle = TextStyle(fontSize: 16, overflow: TextOverflow.fade);
+  static const TextStyle selectedLabelStyle = TextStyle(fontSize: 16);
+  static const TextStyle unselectedLabelStyle = TextStyle(fontSize: 14);
+
+  static const Color redColor = Color.fromRGBO(255, 0, 0, 1);
+  static const Color blueColor = Color.fromRGBO(0, 0, 255, 1);
+  static const Color greyColor = Color.fromRGBO(0, 0, 0, 0.5);
+  static const Color brownColor = Color.fromRGBO(152, 102, 52, 1);
+  static const Color greenColor = Color.fromRGBO(0, 127, 0, 1);
+  static const Color blackColor = Colors.black;
 }

@@ -6,6 +6,7 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
+import '/app/constants/styles.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/users_repository.dart';
@@ -73,7 +74,7 @@ class _LoginViewState extends State<_LoginView> {
                 padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
                 child: FutureBuilder(
                   future: Misc.fullVersion,
-                  builder: (context, snapshot) => Text('Версия ${snapshot.data ?? ''}'),
+                  builder: (context, snapshot) => Text('Версия ${snapshot.data ?? ''}', style: Styles.formStyle),
                 )
               )
             ]
@@ -106,7 +107,8 @@ class _LoginViewState extends State<_LoginView> {
       return TextField(
         controller: loginController,
         keyboardType: TextInputType.url,
-        decoration: const InputDecoration(labelText: 'Телефон или e-mail или login')
+        decoration: const InputDecoration(labelText: 'Телефон или e-mail или login'),
+        style: Styles.formStyle,
       );
     }
 
@@ -123,7 +125,8 @@ class _LoginViewState extends State<_LoginView> {
           filter: { "#": RegExp(r'[0-9]') },
           type: MaskAutoCompletionType.lazy
         )
-      ]
+      ],
+      style: Styles.formStyle,
     );
   }
 
@@ -132,6 +135,7 @@ class _LoginViewState extends State<_LoginView> {
       controller: passwordController,
       keyboardType: TextInputType.number,
       obscureText: true,
+      style: Styles.formStyle,
       decoration: const InputDecoration(labelText: 'Пароль')
     );
   }
@@ -143,6 +147,7 @@ class _LoginViewState extends State<_LoginView> {
       return TextField(
         controller: urlController,
         keyboardType: TextInputType.url,
+        style: Styles.formStyle,
         decoration: const InputDecoration(labelText: 'Url')
       );
     }
@@ -177,7 +182,7 @@ class _LoginViewState extends State<_LoginView> {
                       Misc.unfocus(context);
                       vm.apiLogin(urlController.text, loginController.text, passwordController.text);
                     },
-                    child: const Text('Войти'),
+                    child: const Text('Войти', style: Styles.formStyle),
                   ),
                 )
               ),
@@ -194,7 +199,7 @@ class _LoginViewState extends State<_LoginView> {
                       Misc.unfocus(context);
                       vm.getNewPassword(urlController.text, loginController.text);
                     },
-                    child: const Text('Получить пароль', textAlign: TextAlign.center,),
+                    child: const Text('Получить пароль', textAlign: TextAlign.center, style: Styles.formStyle),
                   ),
                 )
               ),

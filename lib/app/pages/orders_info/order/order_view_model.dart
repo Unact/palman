@@ -66,6 +66,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> updateNeedProcessing() async {
     await ordersRepository.updateOrder(
       state.orderEx.order,
+      status: Optional.of(state.orderEx.order.needProcessing ? OrderStatus.draft.value : OrderStatus.upload.value),
       needProcessing: Optional.of(!state.orderEx.order.needProcessing)
     );
     _notifyOrderUpdated();
