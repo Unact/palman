@@ -52,7 +52,7 @@ class _HomeView extends StatelessWidget {
 
     return BottomNavigationBar(
       currentIndex: vm.state.currentIndex,
-      onTap: vm.state.pageChangeable ? vm.setCurrentIndex : null,
+      onTap: vm.setCurrentIndex,
       type: BottomNavigationBarType.fixed,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: Strings.infoPageName),

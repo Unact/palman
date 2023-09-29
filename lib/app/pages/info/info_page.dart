@@ -85,12 +85,6 @@ class _InfoViewState extends State<_InfoView> {
     homeVm.setCurrentIndex(index);
   }
 
-  void setPageChangeable(bool pageChangeable) {
-    final homeVm = context.read<HomeViewModel>();
-
-    homeVm.setPageChangeable(pageChangeable);
-  }
-
   Future<void> showConfirmationDialog() async {
     final vm = context.read<InfoViewModel>();
     final result = await showDialog<bool>(
@@ -187,10 +181,8 @@ class _InfoViewState extends State<_InfoView> {
             onRefresh: () async {
               if (vm.state.isBusy) return IndicatorResult.noMore;
 
-              setPageChangeable(false);
               vm.tryGetData();
               final result = await refresherCompleter.future;
-              setPageChangeable(true);
 
               return result;
             },
@@ -237,13 +229,6 @@ class _InfoViewState extends State<_InfoView> {
           case InfoStateStatus.saveSuccess:
             Misc.showMessage(context, state.message);
             progressDialog.close();
-            break;
-          case InfoStateStatus.syncInProgress:
-            setPageChangeable(false);
-            break;
-          case InfoStateStatus.syncSuccess:
-          case InfoStateStatus.syncFailure:
-            setPageChangeable(true);
             break;
           default:
             break;

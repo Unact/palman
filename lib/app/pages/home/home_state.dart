@@ -7,23 +7,19 @@ enum HomeStateStatus {
 class HomeState {
   HomeState({
     this.status = HomeStateStatus.initial,
-    this.currentIndex = 0,
-    this.pageChangeable = true
+    this.currentIndex = 0
   });
 
   final HomeStateStatus status;
   final int currentIndex;
-  final bool pageChangeable;
 
   HomeState copyWith({
     HomeStateStatus? status,
-    int? currentIndex,
-    bool? pageChangeable
+    int? currentIndex
   }) {
     return HomeState(
       status: status ?? this.status,
-      currentIndex: currentIndex ?? this.currentIndex,
-      pageChangeable: pageChangeable ?? this.pageChangeable
+      currentIndex: currentIndex ?? this.currentIndex
     );
   }
 }

@@ -37,7 +37,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     await _startLocationListen();
     await saveChangesBackground();
 
-    syncTimer = Timer.periodic(const Duration(minutes: 1), saveChangesBackground);
+    syncTimer = Timer.periodic(const Duration(minutes: 10), saveChangesBackground);
 
     userSubscription = usersRepository.watchUser().listen((event) {
       emit(state.copyWith(status: InfoStateStatus.dataLoaded, user: event));

@@ -12,7 +12,6 @@ import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
-import '/app/pages/home/home_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
@@ -61,12 +60,6 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   void dispose() {
     progressDialog.close();
     super.dispose();
-  }
-
-  void setPageChangeable(bool pageChangeable) {
-    final homeVm = context.read<HomeViewModel>();
-
-    homeVm.setPageChangeable(pageChangeable);
   }
 
   void closeRefresher(IndicatorResult result) {
@@ -196,10 +189,8 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
               onRefresh: () async {
                 if (vm.state.isBusy) return IndicatorResult.noMore;
 
-                setPageChangeable(false);
                 vm.tryGetData();
                 final result = await refresherCompleter.future;
-                setPageChangeable(true);
 
                 return result;
               },
