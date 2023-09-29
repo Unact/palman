@@ -174,6 +174,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
               ]
             ),
             body: EasyRefresh.builder(
+              canRefreshAfterNoMore: true,
               header: ClassicHeader(
                 dragText: 'Потяните чтобы обновить',
                 armedText: 'Отпустите чтобы обновить',
