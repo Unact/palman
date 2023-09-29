@@ -50,14 +50,6 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     return await into(pointImages).insert(newPointImage);
   }
 
-  Future<void> deletePoint(int pointId) async {
-    await (delete(points)..where((tbl) => tbl.id.equals(pointId))).go();
-  }
-
-  Future<void> deletePointImage(int pointImageId) async {
-    await (delete(pointImages)..where((tbl) => tbl.id.equals(pointImageId))).go();
-  }
-
   Future<List<Point>> getPointsForSync() async {
     final hasPointImageToSync = existsQuery(
       select(pointImages)
@@ -98,22 +90,11 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     );
   }
 
-  Future<List<PointEx>> getPointExListByIds(List<int> ids) async {
-    final pointsRes = await (
-      select(points)
-        ..where((tbl) => tbl.id.isIn(ids))
-        ..orderBy([(tbl) => OrderingTerm(expression: tbl.buyerName)])
-    ).get();
-    final pointImagesRes = await select(pointImages).get();
-
-    return pointsRes.map((row) => PointEx(row, pointImagesRes.where((e) => e.pointId == row.id).toList())).toList();
-  }
-
-  Future<PointEx?> getPointEx(int id) async {
-    final pointsRes = await (select(points)..where((tbl) => tbl.id.equals(id))).getSingleOrNull();
+  Future<PointEx> getPointEx(int id) async {
+    final pointsRes = await (select(points)..where((tbl) => tbl.id.equals(id))).getSingle();
     final pointImagesRes = await (select(pointImages)..where((tbl) => tbl.pointId.equals(id))).get();
 
-    return pointsRes != null ? PointEx(pointsRes, pointImagesRes) : null;
+    return PointEx(pointsRes, pointImagesRes);
   }
 }
 

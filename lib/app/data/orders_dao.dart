@@ -198,20 +198,12 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     return await into(orders).insert(newOrder);
   }
 
-  Future<void> deleteOrder(int orderId) async {
-    await (delete(orders)..where((tbl) => tbl.id.equals(orderId))).go();
-  }
-
   Future<void> updateOrderLine(int id, OrderLinesCompanion updatedOrderLine) async {
     await (update(orderLines)..where((tbl) => tbl.id.equals(id))).write(updatedOrderLine);
   }
 
   Future<int> addOrderLine(OrderLinesCompanion newOrderLine) async {
     return await into(orderLines).insert(newOrderLine);
-  }
-
-  Future<void> deleteOrderLine(int orderLineId) async {
-    await (delete(orderLines)..where((tbl) => tbl.id.equals(orderLineId))).go();
   }
 
   Future<int> addSeenPreOrder(SeenPreOrdersCompanion newSeenPreOrder) async {
@@ -303,16 +295,12 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     )).toList();
   }
 
-  Future<OrderExResult?> getOrderEx(int orderId) async {
-    return (await orderEx().get()).firstWhereOrNull((e) => e.order.id == orderId);
+  Future<OrderExResult> getOrderEx(int id) async {
+    return (await orderEx().get()).firstWhere((e) => e.order.id == id);
   }
 
   Stream<List<OrderExResult>> watchOrderExList() {
     return orderEx().watch();
-  }
-
-  Future<List<OrderExResult>> getOrderExListByIds(List<int> ids) async {
-    return (await orderEx().get()).where((e) => ids.contains(e.order.id)).toList();
   }
 
   Future<List<OrderLineExResult>> getOrderLineExList(int orderId) async {

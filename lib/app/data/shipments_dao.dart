@@ -58,10 +58,6 @@ class ShipmentsDao extends DatabaseAccessor<AppDataStore> with _$ShipmentsDaoMix
     return await into(incRequests).insert(newIncRequest);
   }
 
-  Future<void> deleteIncRequest(int incRequestId) async {
-    await (delete(incRequests)..where((tbl) => tbl.id.equals(incRequestId))).go();
-  }
-
   Future<List<IncRequest>> getIncRequestsForSync() async {
     return (select(incRequests)..where((tbl) => tbl.needSync.equals(true))).get();
   }

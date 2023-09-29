@@ -134,7 +134,7 @@ class DebtsRepository extends BaseRepository {
       await dataStore.debtsDao.updateEncashment(e.encashment.id, EncashmentsCompanion(depositId: Value(deposit.id)));
     }
     for (var e in encWithoutSum) {
-      await dataStore.debtsDao.deleteEncashment(e.encashment.id);
+      await dataStore.debtsDao.updateEncashment(e.encashment.id, const EncashmentsCompanion(isDeleted: Value(true)));
     }
 
     return deposit;

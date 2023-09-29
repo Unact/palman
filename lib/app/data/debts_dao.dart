@@ -48,14 +48,6 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     await (update(encashments)..where((tbl) => tbl.id.equals(id))).write(updatedEncashment);
   }
 
-  Future<void> deleteEncashment(int encashmentId) async {
-    await (delete(encashments)..where((tbl) => tbl.id.equals(encashmentId))).go();
-  }
-
-  Future<void> deleteDeposit(int depositId) async {
-    await (delete(deposits)..where((tbl) => tbl.id.equals(depositId))).go();
-  }
-
   Future<void> updateDebt(int id, DebtsCompanion updatedDebt) async {
     await (update(debts)..where((tbl) => tbl.id.equals(id))).write(updatedDebt);
   }

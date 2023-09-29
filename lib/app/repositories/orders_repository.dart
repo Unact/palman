@@ -322,7 +322,7 @@ class OrdersRepository extends BaseRepository {
     );
     final orderEx = await dataStore.ordersDao.getOrderEx(id);
 
-    return orderEx!;
+    return orderEx;
   }
 
   Future<void> updateOrder(Order order, {
@@ -436,7 +436,7 @@ class OrdersRepository extends BaseRepository {
         ));
       }
 
-      return (await dataStore.ordersDao.getOrderEx(id))!;
+      return await dataStore.ordersDao.getOrderEx(id);
     });
 
     return orderEx;
@@ -462,7 +462,7 @@ class OrdersRepository extends BaseRepository {
         ));
       }
 
-      return (await dataStore.ordersDao.getOrderEx(id))!;
+      return await dataStore.ordersDao.getOrderEx(id);
     });
 
     return orderEx;

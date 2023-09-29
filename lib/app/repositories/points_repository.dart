@@ -93,7 +93,7 @@ class PointsRepository extends BaseRepository {
     );
     final point = await dataStore.pointsDao.getPointEx(id);
 
-    return point!;
+    return point;
   }
 
   Future<void> addPointImage(Point point, {
