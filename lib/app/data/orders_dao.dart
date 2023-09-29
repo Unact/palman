@@ -222,12 +222,15 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     final hasOrderLineToSync = existsQuery(
       select(orderLines)
         ..where((tbl) => tbl.orderId.equalsExp(orders.id))
-        ..where((tbl) => tbl.needSync.equals(true))
+        ..where((tbl) => tbl.lastSyncTime.isNull() | tbl.lastSyncTime.isSmallerThan(tbl.timestamp))
     );
 
     return (
       select(orders)
-        ..where((tbl) => tbl.needSync.equals(true) | hasOrderLineToSync)
+       ..where((tbl) =>
+          tbl.lastSyncTime.isNull() | tbl.lastSyncTime.isSmallerThan(tbl.timestamp) |
+          hasOrderLineToSync
+        )
     ).get();
   }
 
@@ -235,7 +238,10 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     final hasOrderToSync = existsQuery(
       select(orders)
         ..where((tbl) => tbl.id.equalsExp(orderLines.orderId))
-        ..where((tbl) => tbl.needSync.equals(true) | orderLines.needSync.equals(true))
+        ..where((tbl) =>
+          tbl.lastSyncTime.isNull() | tbl.lastSyncTime.isSmallerThan(tbl.timestamp) |
+          orderLines.lastSyncTime.isNull() | orderLines.lastSyncTime.isSmallerThan(orderLines.timestamp)
+        )
     );
 
     return (select(orderLines)..where((tbl) => hasOrderToSync)).get();

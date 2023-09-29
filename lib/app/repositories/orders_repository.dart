@@ -124,6 +124,7 @@ class OrdersRepository extends BaseRepository {
 
   Future<void> syncOrders(List<Order> orders, List<OrderLine> orderLines) async {
     try {
+      DateTime lastSyncTime = DateTime.now();
       List<Map<String, dynamic>> ordersData = orders.map((e) => {
         'guid': e.guid,
         'isNew': e.isNew,
@@ -159,13 +160,13 @@ class OrdersRepository extends BaseRepository {
         for (var order in orders) {
           await dataStore.ordersDao.updateOrder(
             order.id,
-            const OrdersCompanion(isNew: Value(false), needSync: Value(false))
+            OrdersCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
         for (var orderLine in orderLines) {
           await dataStore.ordersDao.updateOrderLine(
             orderLine.id,
-            const OrderLinesCompanion(isNew: Value(false), needSync: Value(false))
+            OrderLinesCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
       });
@@ -343,24 +344,17 @@ class OrdersRepository extends BaseRepository {
       isBonus: isBonus == null ? const Value.absent() : Value(isBonus.value),
       isPhysical: isPhysical == null ? const Value.absent() : Value(isPhysical.value),
       needProcessing: needProcessing == null ? const Value.absent() : Value(needProcessing.value),
-      isDeleted: const Value(false),
-      needSync: const Value(true)
+      isDeleted: const Value(false)
     );
 
     await dataStore.ordersDao.updateOrder(order.id, updatedOrder);
   }
 
   Future<void> deleteOrder(Order order) async {
-    if (order.isNew) {
-      await dataStore.ordersDao.deleteOrder(order.id);
-    } else {
-      await dataStore.ordersDao.updateOrder(
-        order.id,
-        const OrdersCompanion(isDeleted: Value(true), needSync: Value(true))
-      );
-    }
-
-    return;
+    await dataStore.ordersDao.updateOrder(
+      order.id,
+      OrdersCompanion(isDeleted: const Value(true))
+    );
   }
 
   Future<void> addOrderLine(Order order, {
@@ -399,24 +393,17 @@ class OrdersRepository extends BaseRepository {
       priceOriginal: priceOriginal == null ? const Value.absent() : Value(priceOriginal.value),
       package: package == null ? const Value.absent() : Value(package.value),
       rel: rel == null ? const Value.absent() : Value(rel.value),
-      isDeleted: const Value(false),
-      needSync: const Value(true)
+      isDeleted: const Value(false)
     );
 
     await dataStore.ordersDao.updateOrderLine(orderLine.id, updatedOrderLine);
   }
 
   Future<void> deleteOrderLine(OrderLine orderLine) async {
-    if (orderLine.isNew) {
-      await dataStore.ordersDao.deleteOrderLine(orderLine.id);
-    } else {
-      await dataStore.ordersDao.updateOrderLine(
-        orderLine.id,
-        const OrderLinesCompanion(isDeleted: Value(true), needSync: Value(true))
-      );
-    }
-
-    return;
+    await dataStore.ordersDao.updateOrderLine(
+      orderLine.id,
+      OrderLinesCompanion(isDeleted: const Value(true))
+    );
   }
 
   Future<OrderExResult> createOrderFromPreOrder(PreOrder preOrder, List<PreOrderLine> preOrderLines) async {
@@ -466,20 +453,18 @@ class OrdersRepository extends BaseRepository {
       final id = await dataStore.ordersDao.addOrder(order.toCompanion(false).copyWith(
         id: const Value.absent(),
         guid: const Value.absent(),
-        isNew: const Value.absent(),
         timestamp: const Value.absent(),
         currentTimestamp: const Value.absent(),
-        needSync: const Value.absent()
+        lastSyncTime: const Value.absent()
       ));
       for (var orderLine in orderLines) {
         await dataStore.ordersDao.addOrderLine(orderLine.toCompanion(false).copyWith(
           orderId: Value(id),
           id: const Value.absent(),
           guid: const Value.absent(),
-          isNew: const Value.absent(),
           timestamp: const Value.absent(),
           currentTimestamp: const Value.absent(),
-          needSync: const Value.absent()
+          lastSyncTime: const Value.absent()
         ));
       }
 
@@ -508,8 +493,7 @@ class OrdersRepository extends BaseRepository {
           orderLine.line.id,
           OrderLinesCompanion(
             price: Value(goodsDetail.price),
-            priceOriginal: Value(goodsDetail.price),
-            needSync: const Value(true)
+            priceOriginal: Value(goodsDetail.price)
           )
         );
       }

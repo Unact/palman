@@ -48,6 +48,7 @@ class DebtsRepository extends BaseRepository {
 
   Future<void> syncEncashments(List<Deposit> deposits, List<Encashment> encashments) async {
     try {
+      DateTime lastSyncTime = DateTime.now();
       List<Map<String, dynamic>> encashmentsData = deposits.map((e) => {
         'guid': e.guid,
         'isNew': e.isNew,
@@ -73,13 +74,13 @@ class DebtsRepository extends BaseRepository {
         for (var deposit in deposits) {
           await dataStore.debtsDao.updateDeposit(
             deposit.id,
-            const DepositsCompanion(isNew: Value(false), needSync: Value(false))
+            DepositsCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
         for (var encashment in encashments) {
           await dataStore.debtsDao.updateEncashment(
             encashment.id,
-            const EncashmentsCompanion(isNew: Value(false), needSync: Value(false))
+            EncashmentsCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
       });
@@ -115,8 +116,7 @@ class DebtsRepository extends BaseRepository {
         DepositsCompanion(
           totalSum: Value(deposit.totalSum + totalSum),
           checkTotalSum: Value(deposit.checkTotalSum + checkTotalSum),
-          isDeleted: const Value(false),
-          needSync: const Value(true)
+          isDeleted: const Value(false)
         )
       );
     } else {
@@ -159,8 +159,7 @@ class DebtsRepository extends BaseRepository {
   }) async {
     final newEncashment = EncashmentsCompanion(
       encSum: encSum == null ? const Value.absent() : Value(encSum.orNull),
-      isDeleted: const Value(false),
-      needSync: const Value(true)
+      isDeleted: const Value(false)
     );
 
     await dataStore.debtsDao.updateEncashment(encashment.id, newEncashment);
@@ -177,9 +176,10 @@ class DebtsRepository extends BaseRepository {
   }
 
   Future<void> deleteEncashment(Encashment encashment) async {
-    if (!encashment.isNew) return;
-
-    await dataStore.debtsDao.deleteEncashment(encashment.id);
+    await dataStore.debtsDao.updateEncashment(
+      encashment.id,
+      EncashmentsCompanion(isDeleted: const Value(true))
+    );
   }
 
   Future<void> regenerateGuid() async {
@@ -187,3 +187,4 @@ class DebtsRepository extends BaseRepository {
     await dataStore.debtsDao.regenerateEncashmentsGuid();
   }
 }
+//needSync во время, сравнивать с ts

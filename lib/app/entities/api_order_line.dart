@@ -48,11 +48,10 @@ class ApiOrderLine extends Equatable {
       package: package,
       rel: rel,
       guid: guid,
-      isNew: false,
       isDeleted: false,
       timestamp: timestamp,
       currentTimestamp: timestamp,
-      needSync: false
+      lastSyncTime: timestamp
     );
   }
 

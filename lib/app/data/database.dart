@@ -84,21 +84,54 @@ part 'users_dao.dart';
         (
           SELECT COUNT(*)
           FROM points
-          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM point_images WHERE point_id = points.id AND need_sync = 1)
+          WHERE
+            last_sync_time IS NULL OR
+            timestamp > last_sync_time OR
+            EXISTS(
+              SELECT 1
+              FROM point_images
+              WHERE point_id = points.id AND (last_sync_time IS NULL OR timestamp > last_sync_time)
+            )
         ) AS "points_to_sync",
         (
           SELECT COUNT(*)
           FROM deposits
-          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND need_sync = 1)
+          WHERE
+            last_sync_time IS NULL OR
+            timestamp > last_sync_time OR
+            EXISTS(
+              SELECT 1
+              FROM encashments
+              WHERE deposit_id = deposits.id AND (last_sync_time IS NULL OR timestamp > last_sync_time)
+            )
         ) AS "deposits_to_sync",
         (
           SELECT COUNT(*)
           FROM orders
-          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM order_lines WHERE order_id = orders.id AND need_sync = 1)
+          WHERE
+            last_sync_time IS NULL OR
+            timestamp > last_sync_time OR
+            EXISTS(
+              SELECT 1
+              FROM order_lines
+              WHERE order_id = orders.id AND (last_sync_time IS NULL OR timestamp > last_sync_time)
+            )
         ) AS "orders_to_sync",
-        (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS "inc_requests_to_sync",
-        (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS "partner_prices_to_sync",
-        (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS "partners_pricelists_to_sync",
+        (
+          SELECT COUNT(*)
+          FROM inc_requests
+          WHERE last_sync_time IS NULL OR timestamp > last_sync_time
+        ) AS "inc_requests_to_sync",
+        (
+          SELECT COUNT(*)
+          FROM partners_prices
+          WHERE last_sync_time IS NULL OR timestamp > last_sync_time
+        ) AS "partner_prices_to_sync",
+        (
+          SELECT COUNT(*)
+          FROM partners_pricelists
+          WHERE last_sync_time IS NULL OR timestamp > last_sync_time
+        ) AS "partners_pricelists_to_sync",
         (SELECT COUNT(*) FROM points) AS "points_total",
         (SELECT COUNT(*) FROM encashments) AS "encashments_total",
         (SELECT COUNT(*) FROM shipments) AS "shipments_total",
@@ -192,7 +225,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   Future<void> _regenerateGuid(TableInfo table) async {
-    final toUpdate = await (select(table)..where((tbl) => (table as Syncable).isNew)).get();
+    final toUpdate = await (select(table)..where((tbl) => (table as Syncable).lastSyncTime.isNull())).get();
 
     await batch((batch) {
       for (var e in toUpdate) {
@@ -206,7 +239,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -218,13 +251,15 @@ class AppDataStore extends _$AppDataStore {
         if (table is Syncable) {
           final name = table.entityName;
           final triggerName = 'syncable_$name';
+          final systemColumns = ['last_sync_time', 'timestamp', 'current_timestamp'];
+          final updateableColumns = table.columnsByName.keys.whereNot((e) => systemColumns.contains(e));
 
           m.createTrigger(Trigger(
             '''
               CREATE TRIGGER $triggerName
-              AFTER UPDATE ON $name
+              AFTER UPDATE OF ${updateableColumns.join(',')} ON $name
               BEGIN
-                UPDATE $name SET timestamp = CAST(STRFTIME('%s', CURRENT_TIMESTAMP) AS INTEGER);
+                UPDATE $name SET timestamp = CAST(STRFTIME('%s', CURRENT_TIMESTAMP) AS INTEGER) WHERE id = OLD.id;
               END;
             ''',
             triggerName
@@ -306,7 +341,6 @@ extension BuyerX on Buyer {
 
 extension GoodsX on Goods {
   String get preName => name.split(' ')[0];
-
 }
 
 extension OrderX on Order {
@@ -314,19 +348,49 @@ extension OrderX on Order {
     .firstWhere((e) => e.value == status, orElse: () => OrderStatus.unknown);
 }
 
-enum OrderStatus {
-  draft('draft', 'Черновик'),
-  upload('upload', 'В работе'),
-  deleted('deleted', 'Удален'),
-  onhold('onhold', 'Задержан'),
-  processing('processing', 'Передача'),
-  done('done', 'Передан'),
-  unknown('unknown', 'Статус не определен');
+extension PointSyncable on Point {
+  bool get isNew => lastSyncTime == null;
+  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
+}
 
-  const OrderStatus(this.value, this.name);
+extension PointImageSyncable on PointImage {
+  bool get isNew => lastSyncTime == null;
+  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
+}
 
-  final String value;
-  final String name;
+extension EncashmentSyncable on Encashment {
+  bool get isNew => lastSyncTime == null;
+  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
+}
+
+extension DepositSyncable on Deposit {
+  bool get isNew => lastSyncTime == null;
+  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
+}
+
+extension IncRequestSyncable on IncRequest {
+  bool get isNew => lastSyncTime == null;
+  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
+}
+
+extension PartnersPriceSyncable on PartnersPrice {
+  bool get isNew => lastSyncTime == null;
+  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
+}
+
+extension PartnersPricelistSyncable on PartnersPricelist {
+  bool get isNew => lastSyncTime == null;
+  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
+}
+
+extension OrderSyncable on Order {
+  bool get isNew => lastSyncTime == null;
+  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
+}
+
+extension OrderLineSyncable on OrderLine {
+  bool get isNew => lastSyncTime == null;
+  bool get needSync => isNew || lastSyncTime!.difference(timestamp).isNegative;
 }
 
 extension OrderLineX on OrderLine {
@@ -343,4 +407,19 @@ extension UserX on User {
 
     return Version.parse(version) > Version.parse(currentVersion);
   }
+}
+
+enum OrderStatus {
+  draft('draft', 'Черновик'),
+  upload('upload', 'В работе'),
+  deleted('deleted', 'Удален'),
+  onhold('onhold', 'Задержан'),
+  processing('processing', 'Передача'),
+  done('done', 'Передан'),
+  unknown('unknown', 'Статус не определен');
+
+  const OrderStatus(this.value, this.name);
+
+  final String value;
+  final String name;
 }

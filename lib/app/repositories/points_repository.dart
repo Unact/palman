@@ -155,24 +155,24 @@ class PointsRepository extends BaseRepository {
       maxdebt: maxdebt == null ? const Value.absent() : Value(maxdebt.orNull),
       nds10: nds10 == null ? const Value.absent() : Value(nds10.orNull),
       nds20: nds20 == null ? const Value.absent() : Value(nds20.orNull),
-      isDeleted: const Value(false),
-      needSync: const Value(true)
+      isDeleted: const Value(false)
     );
 
     await dataStore.pointsDao.updatePoint(point.id, newPoint);
   }
 
   Future<void> deletePoint(Point point) async {
-    if (!point.isNew) return;
-
-    await dataStore.pointsDao.deletePoint(point.id);
+    await dataStore.pointsDao.updatePoint(
+      point.id,
+      PointsCompanion(isDeleted: const Value(true))
+    );
   }
 
   Future<void> deletePointImage(PointImage pointImage) async {
-    if (!pointImage.isNew) return;
-
-    await dataStore.pointsDao.deletePointImage(pointImage.id);
-    await pointImagesCacheManager.removeFile(pointImage.imageKey);
+    await dataStore.pointsDao.updatePointImage(
+      pointImage.id,
+      PointImagesCompanion(isDeleted: const Value(true))
+    );
   }
 
   Future<void> syncPoints(List<Point> points, List<PointImage> pointImages) async {
@@ -185,6 +185,7 @@ class PointsRepository extends BaseRepository {
         images.putIfAbsent(pointImage, () => base64Encode(file.file.readAsBytesSync()));
       }
 
+      DateTime lastSyncTime = DateTime.now();
       List<Map<String, dynamic>> pointsData = points.map((e) => {
         'guid': e.guid,
         'isNew': e.isNew,
@@ -226,13 +227,13 @@ class PointsRepository extends BaseRepository {
         for (var point in points) {
           await dataStore.pointsDao.updatePoint(
             point.id,
-            const PointsCompanion(isNew: Value(false), needSync: Value(false))
+            PointsCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
         for (var pointImage in pointImages) {
           await dataStore.pointsDao.updatePointImage(
             pointImage.id,
-            const PointImagesCompanion(isNew: Value(false), needSync: Value(false))
+            PointImagesCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
       });

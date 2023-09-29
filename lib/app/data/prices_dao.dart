@@ -146,11 +146,17 @@ class PricesDao extends DatabaseAccessor<AppDataStore> with _$PricesDaoMixin {
   }
 
   Future<List<PartnersPricelist>> getPartnersPricelistsForSync() async {
-    return (select(partnersPricelists)..where((tbl) => tbl.needSync.equals(true))).get();
+    return (
+      select(partnersPricelists)
+        ..where((tbl) => tbl.lastSyncTime.isNull() | tbl.lastSyncTime.isSmallerThan(tbl.timestamp))
+    ).get();
   }
 
   Future<List<PartnersPrice>> getPartnersPricesForSync() async {
-    return (select(partnersPrices)..where((tbl) => tbl.needSync.equals(true))).get();
+    return (
+      select(partnersPrices)
+        ..where((tbl) => tbl.lastSyncTime.isNull() | tbl.lastSyncTime.isSmallerThan(tbl.timestamp))
+    ).get();
   }
 
   Stream<List<PartnersPricelist>> watchPartnersPricelists({

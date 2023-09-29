@@ -2,11 +2,10 @@ part of 'database.dart';
 
 mixin Syncable on Table {
   TextColumn get guid => text().clientDefault(() => AppDataStore._kUuid.v4())();
-  BoolColumn get isNew => boolean().withDefault(const Constant(true))();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get currentTimestamp => dateTime().withDefault(currentDateAndTime)();
-  BoolColumn get needSync => boolean().withDefault(const Constant(true))();
+  DateTimeColumn get lastSyncTime => dateTime().nullable()();
 }
 
 class Prefs extends Table {

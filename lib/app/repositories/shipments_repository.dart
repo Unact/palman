@@ -35,6 +35,7 @@ class ShipmentsRepository extends BaseRepository {
 
   Future<void> syncIncRequests(List<IncRequest> incRequests) async {
     try {
+      DateTime lastSyncTime = DateTime.now();
       List<Map<String, dynamic>> incRequestsData = incRequests.map((e) => {
         'guid': e.guid,
         'isNew': e.isNew,
@@ -52,7 +53,7 @@ class ShipmentsRepository extends BaseRepository {
         for (var incRequest in incRequests) {
           await dataStore.shipmentsDao.updateIncRequest(
             incRequest.id,
-            const IncRequestsCompanion(isNew: Value(false), needSync: Value(false))
+            IncRequestsCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
       });
@@ -104,17 +105,17 @@ class ShipmentsRepository extends BaseRepository {
       date: date == null ? const Value.absent() : Value(date.orNull),
       info: info == null ? const Value.absent() : Value(info.orNull),
       incSum: incSum == null ? const Value.absent() : Value(incSum.orNull),
-      isDeleted: const Value(false),
-      needSync: const Value(true)
+      isDeleted: const Value(false)
     );
 
     await dataStore.shipmentsDao.updateIncRequest(incRequest.id, updatedIncRequest);
   }
 
   Future<void> deleteIncRequest(IncRequest incRequest) async {
-    if (!incRequest.isNew) return;
-
-    await dataStore.shipmentsDao.deleteIncRequest(incRequest.id);
+    await dataStore.shipmentsDao.updateIncRequest(
+      incRequest.id,
+      IncRequestsCompanion(isDeleted: const Value(true))
+    );
   }
 
   Future<void> regenerateGuid() async {

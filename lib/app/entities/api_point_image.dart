@@ -44,11 +44,10 @@ class ApiPointImage extends Equatable {
       imageUrl: imageUrl,
       imageKey: imageKey,
       guid: guid,
-      isNew: false,
       isDeleted: false,
       timestamp: timestamp,
       currentTimestamp: timestamp,
-      needSync: false
+      lastSyncTime: timestamp
     );
   }
 

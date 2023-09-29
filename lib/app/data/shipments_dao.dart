@@ -63,7 +63,10 @@ class ShipmentsDao extends DatabaseAccessor<AppDataStore> with _$ShipmentsDaoMix
   }
 
   Future<List<IncRequest>> getIncRequestsForSync() async {
-    return (select(incRequests)..where((tbl) => tbl.needSync.equals(true))).get();
+    return (
+      select(incRequests)
+        ..where((tbl) => tbl.lastSyncTime.isNull() | tbl.lastSyncTime.isSmallerThan(tbl.timestamp))
+    ).get();
   }
 
   Stream<List<IncRequestEx>> watchIncRequestExList() {

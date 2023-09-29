@@ -67,11 +67,10 @@ class ApiOrder extends Equatable {
       isEditable: isEditable,
       needProcessing: false,
       guid: guid,
-      isNew: false,
       isDeleted: false,
       timestamp: timestamp,
       currentTimestamp: timestamp,
-      needSync: false
+      lastSyncTime: timestamp
     );
   }
 

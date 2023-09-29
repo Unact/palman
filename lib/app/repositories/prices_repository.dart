@@ -38,6 +38,7 @@ class PricesRepository extends BaseRepository {
 
   Future<void> syncPrices(List<PartnersPrice> prices, List<PartnersPricelist> pricelists) async {
     try {
+      DateTime lastSyncTime = DateTime.now();
       Map<String, dynamic> pricesData = {
         'prices': prices.map((e) => {
           'guid': e.guid,
@@ -69,13 +70,13 @@ class PricesRepository extends BaseRepository {
         for (var price in prices) {
           await dataStore.pricesDao.updatePartnersPrice(
             price.id,
-            const PartnersPricesCompanion(isNew: Value(false), needSync: Value(false))
+            PartnersPricesCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
         for (var pricelist in pricelists) {
           await dataStore.pricesDao.updatePartnersPricelist(
             pricelist.id,
-            const PartnersPricelistsCompanion(isNew: Value(false), needSync: Value(false))
+            PartnersPricelistsCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
       });
@@ -137,8 +138,7 @@ class PricesRepository extends BaseRepository {
       pricelistId: pricelistId == null ? const Value.absent() : Value(pricelistId.value),
       pricelistSetId: pricelistSetId == null ? const Value.absent() : Value(pricelistSetId.value),
       discount: discount == null ? const Value.absent() : Value(discount.value),
-      isDeleted: const Value(false),
-      needSync: const Value(true)
+      isDeleted: const Value(false)
     );
 
     await dataStore.pricesDao.updatePartnersPricelist(partnersPricelist.id, updatedPartnersPricelist);
@@ -175,8 +175,7 @@ class PricesRepository extends BaseRepository {
       price: price == null ? const Value.absent() : Value(price.value),
       dateFrom: dateFrom == null ? const Value.absent() : Value(dateFrom.value),
       dateTo: dateTo == null ? const Value.absent() : Value(dateTo.value),
-      isDeleted: const Value(false),
-      needSync: const Value(true)
+      isDeleted: const Value(false)
     );
 
     await dataStore.pricesDao.updatePartnersPrice(partnersPrice.id, updatedPartnersPrice);

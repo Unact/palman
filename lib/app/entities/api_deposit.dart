@@ -38,11 +38,10 @@ class ApiDeposit extends Equatable {
       totalSum: totalSum,
       checkTotalSum: checkTotalSum,
       guid: guid,
-      isNew: false,
       isDeleted: false,
       timestamp: timestamp,
       currentTimestamp: timestamp,
-      needSync: false
+      lastSyncTime: timestamp
     );
   }
 

@@ -43,11 +43,10 @@ class ApiPartnersPrice extends Equatable {
       dateFrom: dateFrom,
       dateTo: dateTo,
       guid: guid,
-      isNew: false,
       isDeleted: false,
       timestamp: timestamp,
       currentTimestamp: timestamp,
-      needSync: false
+      lastSyncTime: timestamp
     );
   }
 
