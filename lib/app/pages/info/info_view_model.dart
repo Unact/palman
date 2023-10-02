@@ -129,7 +129,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       emit(state.copyWith(isLoading: true, loaded: 0, toLoad: futures.length));
       await usersRepository.refresh();
       await Future.wait(futures.map((e) => loadData(e)));
-      await appRepository.updatePref(lastSyncTime: Optional.of(DateTime.now()));
+      await appRepository.updatePref(lastLoadTime: Optional.of(DateTime.now()));
     } finally {
       emit(state.copyWith(isLoading: false, loaded: 0, toLoad: 0));
     }

@@ -302,12 +302,20 @@ class _GoodsViewState extends State<_GoodsView> {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: vm.state.goodsFilters.map((e) => ChoiceChip(
-        label: Text(e.name),
-        labelStyle: Styles.formStyle,
-        selected: e == vm.state.selectedGoodsFilter,
-        onSelected: (bool selected) => vm.selectGoodsFilter(selected ? e : null)
-      )).toList()
+      children: [
+        ...vm.state.goodsFilters.map((e) => ChoiceChip(
+          label: Text(e.name),
+          labelStyle: Styles.formStyle,
+          selected: e == vm.state.selectedGoodsFilter,
+          onSelected: (bool selected) => vm.selectGoodsFilter(selected ? e : null)
+        )).toList(),
+        ChoiceChip(
+          label: const Text('Н'),
+          labelStyle: Styles.formStyle,
+          selected: vm.state.showOnlyLatest,
+          onSelected: (bool selected) => vm.toggleShowOnlyLatest()
+        )
+      ]
     );
   }
 
@@ -711,6 +719,22 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
                   visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
                   label: Text(goodsEx.goods.extraLabel, style: Styles.chipStyle),
                   backgroundColor: Colors.blue,
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
+                )
+              )
+            ),
+          !goodsEx.goods.isLatest ?
+            const TextSpan() :
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Padding(
+                padding: const EdgeInsets.all(1),
+                child: Chip(
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  labelPadding: EdgeInsets.zero,
+                  visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                  label: const Text('Новинка', style: Styles.chipStyle),
+                  backgroundColor: Colors.yellow[700],
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
                 )
               )

@@ -365,15 +365,15 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
             SqlDialect.mysql: '',
             SqlDialect.postgres: '',
           }));
-  static const VerificationMeta _lastSyncTimeMeta =
-      const VerificationMeta('lastSyncTime');
+  static const VerificationMeta _lastLoadTimeMeta =
+      const VerificationMeta('lastLoadTime');
   @override
-  late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
-      'last_sync_time', aliasedName, true,
+  late final GeneratedColumn<DateTime> lastLoadTime = GeneratedColumn<DateTime>(
+      'last_load_time', aliasedName, true,
       type: DriftSqlType.dateTime, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [showLocalImage, showWithPrice, lastSyncTime];
+      [showLocalImage, showWithPrice, lastLoadTime];
   @override
   String get aliasedName => _alias ?? 'prefs';
   @override
@@ -399,11 +399,11 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
     } else if (isInserting) {
       context.missing(_showWithPriceMeta);
     }
-    if (data.containsKey('last_sync_time')) {
+    if (data.containsKey('last_load_time')) {
       context.handle(
-          _lastSyncTimeMeta,
-          lastSyncTime.isAcceptableOrUnknown(
-              data['last_sync_time']!, _lastSyncTimeMeta));
+          _lastLoadTimeMeta,
+          lastLoadTime.isAcceptableOrUnknown(
+              data['last_load_time']!, _lastLoadTimeMeta));
     }
     return context;
   }
@@ -418,8 +418,8 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
           .read(DriftSqlType.bool, data['${effectivePrefix}show_local_image'])!,
       showWithPrice: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}show_with_price'])!,
-      lastSyncTime: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      lastLoadTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_load_time']),
     );
   }
 
@@ -432,18 +432,18 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
 class Pref extends DataClass implements Insertable<Pref> {
   final bool showLocalImage;
   final bool showWithPrice;
-  final DateTime? lastSyncTime;
+  final DateTime? lastLoadTime;
   const Pref(
       {required this.showLocalImage,
       required this.showWithPrice,
-      this.lastSyncTime});
+      this.lastLoadTime});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['show_local_image'] = Variable<bool>(showLocalImage);
     map['show_with_price'] = Variable<bool>(showWithPrice);
-    if (!nullToAbsent || lastSyncTime != null) {
-      map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
+    if (!nullToAbsent || lastLoadTime != null) {
+      map['last_load_time'] = Variable<DateTime>(lastLoadTime);
     }
     return map;
   }
@@ -452,9 +452,9 @@ class Pref extends DataClass implements Insertable<Pref> {
     return PrefsCompanion(
       showLocalImage: Value(showLocalImage),
       showWithPrice: Value(showWithPrice),
-      lastSyncTime: lastSyncTime == null && nullToAbsent
+      lastLoadTime: lastLoadTime == null && nullToAbsent
           ? const Value.absent()
-          : Value(lastSyncTime),
+          : Value(lastLoadTime),
     );
   }
 
@@ -464,7 +464,7 @@ class Pref extends DataClass implements Insertable<Pref> {
     return Pref(
       showLocalImage: serializer.fromJson<bool>(json['showLocalImage']),
       showWithPrice: serializer.fromJson<bool>(json['showWithPrice']),
-      lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      lastLoadTime: serializer.fromJson<DateTime?>(json['lastLoadTime']),
     );
   }
   @override
@@ -473,69 +473,69 @@ class Pref extends DataClass implements Insertable<Pref> {
     return <String, dynamic>{
       'showLocalImage': serializer.toJson<bool>(showLocalImage),
       'showWithPrice': serializer.toJson<bool>(showWithPrice),
-      'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'lastLoadTime': serializer.toJson<DateTime?>(lastLoadTime),
     };
   }
 
   Pref copyWith(
           {bool? showLocalImage,
           bool? showWithPrice,
-          Value<DateTime?> lastSyncTime = const Value.absent()}) =>
+          Value<DateTime?> lastLoadTime = const Value.absent()}) =>
       Pref(
         showLocalImage: showLocalImage ?? this.showLocalImage,
         showWithPrice: showWithPrice ?? this.showWithPrice,
-        lastSyncTime:
-            lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        lastLoadTime:
+            lastLoadTime.present ? lastLoadTime.value : this.lastLoadTime,
       );
   @override
   String toString() {
     return (StringBuffer('Pref(')
           ..write('showLocalImage: $showLocalImage, ')
           ..write('showWithPrice: $showWithPrice, ')
-          ..write('lastSyncTime: $lastSyncTime')
+          ..write('lastLoadTime: $lastLoadTime')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(showLocalImage, showWithPrice, lastSyncTime);
+  int get hashCode => Object.hash(showLocalImage, showWithPrice, lastLoadTime);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Pref &&
           other.showLocalImage == this.showLocalImage &&
           other.showWithPrice == this.showWithPrice &&
-          other.lastSyncTime == this.lastSyncTime);
+          other.lastLoadTime == this.lastLoadTime);
 }
 
 class PrefsCompanion extends UpdateCompanion<Pref> {
   final Value<bool> showLocalImage;
   final Value<bool> showWithPrice;
-  final Value<DateTime?> lastSyncTime;
+  final Value<DateTime?> lastLoadTime;
   final Value<int> rowid;
   const PrefsCompanion({
     this.showLocalImage = const Value.absent(),
     this.showWithPrice = const Value.absent(),
-    this.lastSyncTime = const Value.absent(),
+    this.lastLoadTime = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PrefsCompanion.insert({
     required bool showLocalImage,
     required bool showWithPrice,
-    this.lastSyncTime = const Value.absent(),
+    this.lastLoadTime = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : showLocalImage = Value(showLocalImage),
         showWithPrice = Value(showWithPrice);
   static Insertable<Pref> custom({
     Expression<bool>? showLocalImage,
     Expression<bool>? showWithPrice,
-    Expression<DateTime>? lastSyncTime,
+    Expression<DateTime>? lastLoadTime,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (showLocalImage != null) 'show_local_image': showLocalImage,
       if (showWithPrice != null) 'show_with_price': showWithPrice,
-      if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
+      if (lastLoadTime != null) 'last_load_time': lastLoadTime,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -543,12 +543,12 @@ class PrefsCompanion extends UpdateCompanion<Pref> {
   PrefsCompanion copyWith(
       {Value<bool>? showLocalImage,
       Value<bool>? showWithPrice,
-      Value<DateTime?>? lastSyncTime,
+      Value<DateTime?>? lastLoadTime,
       Value<int>? rowid}) {
     return PrefsCompanion(
       showLocalImage: showLocalImage ?? this.showLocalImage,
       showWithPrice: showWithPrice ?? this.showWithPrice,
-      lastSyncTime: lastSyncTime ?? this.lastSyncTime,
+      lastLoadTime: lastLoadTime ?? this.lastLoadTime,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -562,8 +562,8 @@ class PrefsCompanion extends UpdateCompanion<Pref> {
     if (showWithPrice.present) {
       map['show_with_price'] = Variable<bool>(showWithPrice.value);
     }
-    if (lastSyncTime.present) {
-      map['last_sync_time'] = Variable<DateTime>(lastSyncTime.value);
+    if (lastLoadTime.present) {
+      map['last_load_time'] = Variable<DateTime>(lastLoadTime.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -576,7 +576,7 @@ class PrefsCompanion extends UpdateCompanion<Pref> {
     return (StringBuffer('PrefsCompanion(')
           ..write('showLocalImage: $showLocalImage, ')
           ..write('showWithPrice: $showWithPrice, ')
-          ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('lastLoadTime: $lastLoadTime, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -1693,9 +1693,7 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
   @override
   late final GeneratedColumn<String> guid = GeneratedColumn<String>(
       'guid', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      clientDefault: () => AppDataStore._kUuid.v4());
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
@@ -1762,12 +1760,8 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+      'id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _nameMeta = const VerificationMeta('name');
   @override
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
@@ -1902,6 +1896,8 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
     if (data.containsKey('guid')) {
       context.handle(
           _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
     }
     if (data.containsKey('is_deleted')) {
       context.handle(_isDeletedMeta,
@@ -2020,7 +2016,7 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {guid};
   @override
   Point map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -2040,7 +2036,7 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
       isNew: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}id']),
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       address: attachedDatabase.typeMapping
@@ -2092,7 +2088,7 @@ class Point extends DataClass implements Insertable<Point> {
   final DateTime? lastSyncTime;
   final bool needSync;
   final bool isNew;
-  final int id;
+  final int? id;
   final String name;
   final String? address;
   final String buyerName;
@@ -2118,7 +2114,7 @@ class Point extends DataClass implements Insertable<Point> {
       this.lastSyncTime,
       required this.needSync,
       required this.isNew,
-      required this.id,
+      this.id,
       required this.name,
       this.address,
       required this.buyerName,
@@ -2146,7 +2142,9 @@ class Point extends DataClass implements Insertable<Point> {
     if (!nullToAbsent || lastSyncTime != null) {
       map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
     }
-    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
     map['name'] = Variable<String>(name);
     if (!nullToAbsent || address != null) {
       map['address'] = Variable<String>(address);
@@ -2204,7 +2202,7 @@ class Point extends DataClass implements Insertable<Point> {
       lastSyncTime: lastSyncTime == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSyncTime),
-      id: Value(id),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       name: Value(name),
       address: address == null && nullToAbsent
           ? const Value.absent()
@@ -2256,7 +2254,7 @@ class Point extends DataClass implements Insertable<Point> {
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
       needSync: serializer.fromJson<bool>(json['needSync']),
       isNew: serializer.fromJson<bool>(json['isNew']),
-      id: serializer.fromJson<int>(json['id']),
+      id: serializer.fromJson<int?>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       address: serializer.fromJson<String?>(json['address']),
       buyerName: serializer.fromJson<String>(json['buyerName']),
@@ -2287,7 +2285,7 @@ class Point extends DataClass implements Insertable<Point> {
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
       'needSync': serializer.toJson<bool>(needSync),
       'isNew': serializer.toJson<bool>(isNew),
-      'id': serializer.toJson<int>(id),
+      'id': serializer.toJson<int?>(id),
       'name': serializer.toJson<String>(name),
       'address': serializer.toJson<String?>(address),
       'buyerName': serializer.toJson<String>(buyerName),
@@ -2316,7 +2314,7 @@ class Point extends DataClass implements Insertable<Point> {
           Value<DateTime?> lastSyncTime = const Value.absent(),
           bool? needSync,
           bool? isNew,
-          int? id,
+          Value<int?> id = const Value.absent(),
           String? name,
           Value<String?> address = const Value.absent(),
           String? buyerName,
@@ -2343,7 +2341,7 @@ class Point extends DataClass implements Insertable<Point> {
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
         needSync: needSync ?? this.needSync,
         isNew: isNew ?? this.isNew,
-        id: id ?? this.id,
+        id: id.present ? id.value : this.id,
         name: name ?? this.name,
         address: address.present ? address.value : this.address,
         buyerName: buyerName ?? this.buyerName,
@@ -2464,7 +2462,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
   final Value<DateTime> timestamp;
   final Value<DateTime> currentTimestamp;
   final Value<DateTime?> lastSyncTime;
-  final Value<int> id;
+  final Value<int?> id;
   final Value<String> name;
   final Value<String?> address;
   final Value<String> buyerName;
@@ -2482,6 +2480,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
   final Value<int?> maxdebt;
   final Value<int?> nds10;
   final Value<int?> nds20;
+  final Value<int> rowid;
   const PointsCompanion({
     this.guid = const Value.absent(),
     this.isDeleted = const Value.absent(),
@@ -2506,9 +2505,10 @@ class PointsCompanion extends UpdateCompanion<Point> {
     this.maxdebt = const Value.absent(),
     this.nds10 = const Value.absent(),
     this.nds20 = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   PointsCompanion.insert({
-    this.guid = const Value.absent(),
+    required String guid,
     this.isDeleted = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.currentTimestamp = const Value.absent(),
@@ -2531,7 +2531,9 @@ class PointsCompanion extends UpdateCompanion<Point> {
     this.maxdebt = const Value.absent(),
     this.nds10 = const Value.absent(),
     this.nds20 = const Value.absent(),
-  })  : name = Value(name),
+    this.rowid = const Value.absent(),
+  })  : guid = Value(guid),
+        name = Value(name),
         buyerName = Value(buyerName),
         reason = Value(reason);
   static Insertable<Point> custom({
@@ -2558,6 +2560,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
     Expression<int>? maxdebt,
     Expression<int>? nds10,
     Expression<int>? nds20,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (guid != null) 'guid': guid,
@@ -2583,6 +2586,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
       if (maxdebt != null) 'maxdebt': maxdebt,
       if (nds10 != null) 'nds10': nds10,
       if (nds20 != null) 'nds20': nds20,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -2592,7 +2596,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
       Value<DateTime>? timestamp,
       Value<DateTime>? currentTimestamp,
       Value<DateTime?>? lastSyncTime,
-      Value<int>? id,
+      Value<int?>? id,
       Value<String>? name,
       Value<String?>? address,
       Value<String>? buyerName,
@@ -2609,7 +2613,8 @@ class PointsCompanion extends UpdateCompanion<Point> {
       Value<int?>? plong,
       Value<int?>? maxdebt,
       Value<int?>? nds10,
-      Value<int?>? nds20}) {
+      Value<int?>? nds20,
+      Value<int>? rowid}) {
     return PointsCompanion(
       guid: guid ?? this.guid,
       isDeleted: isDeleted ?? this.isDeleted,
@@ -2634,6 +2639,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
       maxdebt: maxdebt ?? this.maxdebt,
       nds10: nds10 ?? this.nds10,
       nds20: nds20 ?? this.nds20,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -2709,6 +2715,9 @@ class PointsCompanion extends UpdateCompanion<Point> {
     if (nds20.present) {
       map['nds20'] = Variable<int>(nds20.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -2737,7 +2746,8 @@ class PointsCompanion extends UpdateCompanion<Point> {
           ..write('plong: $plong, ')
           ..write('maxdebt: $maxdebt, ')
           ..write('nds10: $nds10, ')
-          ..write('nds20: $nds20')
+          ..write('nds20: $nds20, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -2753,9 +2763,7 @@ class $PointImagesTable extends PointImages
   @override
   late final GeneratedColumn<String> guid = GeneratedColumn<String>(
       'guid', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      clientDefault: () => AppDataStore._kUuid.v4());
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
@@ -2822,18 +2830,17 @@ class $PointImagesTable extends PointImages
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _pointIdMeta =
-      const VerificationMeta('pointId');
+      'id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _pointGuidMeta =
+      const VerificationMeta('pointGuid');
   @override
-  late final GeneratedColumn<int> pointId = GeneratedColumn<int>(
-      'point_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+  late final GeneratedColumn<String> pointGuid = GeneratedColumn<String>(
+      'point_guid', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES points (guid) ON UPDATE CASCADE ON DELETE CASCADE'));
   static const VerificationMeta _latitudeMeta =
       const VerificationMeta('latitude');
   @override
@@ -2874,7 +2881,7 @@ class $PointImagesTable extends PointImages
         needSync,
         isNew,
         id,
-        pointId,
+        pointGuid,
         latitude,
         longitude,
         accuracy,
@@ -2893,6 +2900,8 @@ class $PointImagesTable extends PointImages
     if (data.containsKey('guid')) {
       context.handle(
           _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
     }
     if (data.containsKey('is_deleted')) {
       context.handle(_isDeletedMeta,
@@ -2925,11 +2934,11 @@ class $PointImagesTable extends PointImages
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('point_id')) {
-      context.handle(_pointIdMeta,
-          pointId.isAcceptableOrUnknown(data['point_id']!, _pointIdMeta));
+    if (data.containsKey('point_guid')) {
+      context.handle(_pointGuidMeta,
+          pointGuid.isAcceptableOrUnknown(data['point_guid']!, _pointGuidMeta));
     } else if (isInserting) {
-      context.missing(_pointIdMeta);
+      context.missing(_pointGuidMeta);
     }
     if (data.containsKey('latitude')) {
       context.handle(_latitudeMeta,
@@ -2965,7 +2974,7 @@ class $PointImagesTable extends PointImages
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {guid};
   @override
   PointImage map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -2985,9 +2994,9 @@ class $PointImagesTable extends PointImages
       isNew: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      pointId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}point_id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}id']),
+      pointGuid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}point_guid'])!,
       latitude: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}latitude'])!,
       longitude: attachedDatabase.typeMapping
@@ -3015,8 +3024,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
   final DateTime? lastSyncTime;
   final bool needSync;
   final bool isNew;
-  final int id;
-  final int pointId;
+  final int? id;
+  final String pointGuid;
   final double latitude;
   final double longitude;
   final double accuracy;
@@ -3030,8 +3039,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
       this.lastSyncTime,
       required this.needSync,
       required this.isNew,
-      required this.id,
-      required this.pointId,
+      this.id,
+      required this.pointGuid,
       required this.latitude,
       required this.longitude,
       required this.accuracy,
@@ -3047,8 +3056,10 @@ class PointImage extends DataClass implements Insertable<PointImage> {
     if (!nullToAbsent || lastSyncTime != null) {
       map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
     }
-    map['id'] = Variable<int>(id);
-    map['point_id'] = Variable<int>(pointId);
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    map['point_guid'] = Variable<String>(pointGuid);
     map['latitude'] = Variable<double>(latitude);
     map['longitude'] = Variable<double>(longitude);
     map['accuracy'] = Variable<double>(accuracy);
@@ -3066,8 +3077,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
       lastSyncTime: lastSyncTime == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSyncTime),
-      id: Value(id),
-      pointId: Value(pointId),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      pointGuid: Value(pointGuid),
       latitude: Value(latitude),
       longitude: Value(longitude),
       accuracy: Value(accuracy),
@@ -3087,8 +3098,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
       needSync: serializer.fromJson<bool>(json['needSync']),
       isNew: serializer.fromJson<bool>(json['isNew']),
-      id: serializer.fromJson<int>(json['id']),
-      pointId: serializer.fromJson<int>(json['pointId']),
+      id: serializer.fromJson<int?>(json['id']),
+      pointGuid: serializer.fromJson<String>(json['pointGuid']),
       latitude: serializer.fromJson<double>(json['latitude']),
       longitude: serializer.fromJson<double>(json['longitude']),
       accuracy: serializer.fromJson<double>(json['accuracy']),
@@ -3107,8 +3118,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
       'needSync': serializer.toJson<bool>(needSync),
       'isNew': serializer.toJson<bool>(isNew),
-      'id': serializer.toJson<int>(id),
-      'pointId': serializer.toJson<int>(pointId),
+      'id': serializer.toJson<int?>(id),
+      'pointGuid': serializer.toJson<String>(pointGuid),
       'latitude': serializer.toJson<double>(latitude),
       'longitude': serializer.toJson<double>(longitude),
       'accuracy': serializer.toJson<double>(accuracy),
@@ -3125,8 +3136,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
           Value<DateTime?> lastSyncTime = const Value.absent(),
           bool? needSync,
           bool? isNew,
-          int? id,
-          int? pointId,
+          Value<int?> id = const Value.absent(),
+          String? pointGuid,
           double? latitude,
           double? longitude,
           double? accuracy,
@@ -3141,8 +3152,8 @@ class PointImage extends DataClass implements Insertable<PointImage> {
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
         needSync: needSync ?? this.needSync,
         isNew: isNew ?? this.isNew,
-        id: id ?? this.id,
-        pointId: pointId ?? this.pointId,
+        id: id.present ? id.value : this.id,
+        pointGuid: pointGuid ?? this.pointGuid,
         latitude: latitude ?? this.latitude,
         longitude: longitude ?? this.longitude,
         accuracy: accuracy ?? this.accuracy,
@@ -3160,7 +3171,7 @@ class PointImage extends DataClass implements Insertable<PointImage> {
           ..write('needSync: $needSync, ')
           ..write('isNew: $isNew, ')
           ..write('id: $id, ')
-          ..write('pointId: $pointId, ')
+          ..write('pointGuid: $pointGuid, ')
           ..write('latitude: $latitude, ')
           ..write('longitude: $longitude, ')
           ..write('accuracy: $accuracy, ')
@@ -3180,7 +3191,7 @@ class PointImage extends DataClass implements Insertable<PointImage> {
       needSync,
       isNew,
       id,
-      pointId,
+      pointGuid,
       latitude,
       longitude,
       accuracy,
@@ -3198,7 +3209,7 @@ class PointImage extends DataClass implements Insertable<PointImage> {
           other.needSync == this.needSync &&
           other.isNew == this.isNew &&
           other.id == this.id &&
-          other.pointId == this.pointId &&
+          other.pointGuid == this.pointGuid &&
           other.latitude == this.latitude &&
           other.longitude == this.longitude &&
           other.accuracy == this.accuracy &&
@@ -3212,13 +3223,14 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
   final Value<DateTime> timestamp;
   final Value<DateTime> currentTimestamp;
   final Value<DateTime?> lastSyncTime;
-  final Value<int> id;
-  final Value<int> pointId;
+  final Value<int?> id;
+  final Value<String> pointGuid;
   final Value<double> latitude;
   final Value<double> longitude;
   final Value<double> accuracy;
   final Value<String> imageUrl;
   final Value<String> imageKey;
+  final Value<int> rowid;
   const PointImagesCompanion({
     this.guid = const Value.absent(),
     this.isDeleted = const Value.absent(),
@@ -3226,27 +3238,30 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
     this.currentTimestamp = const Value.absent(),
     this.lastSyncTime = const Value.absent(),
     this.id = const Value.absent(),
-    this.pointId = const Value.absent(),
+    this.pointGuid = const Value.absent(),
     this.latitude = const Value.absent(),
     this.longitude = const Value.absent(),
     this.accuracy = const Value.absent(),
     this.imageUrl = const Value.absent(),
     this.imageKey = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   PointImagesCompanion.insert({
-    this.guid = const Value.absent(),
+    required String guid,
     this.isDeleted = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.currentTimestamp = const Value.absent(),
     this.lastSyncTime = const Value.absent(),
     this.id = const Value.absent(),
-    required int pointId,
+    required String pointGuid,
     required double latitude,
     required double longitude,
     required double accuracy,
     required String imageUrl,
     required String imageKey,
-  })  : pointId = Value(pointId),
+    this.rowid = const Value.absent(),
+  })  : guid = Value(guid),
+        pointGuid = Value(pointGuid),
         latitude = Value(latitude),
         longitude = Value(longitude),
         accuracy = Value(accuracy),
@@ -3259,12 +3274,13 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
     Expression<DateTime>? currentTimestamp,
     Expression<DateTime>? lastSyncTime,
     Expression<int>? id,
-    Expression<int>? pointId,
+    Expression<String>? pointGuid,
     Expression<double>? latitude,
     Expression<double>? longitude,
     Expression<double>? accuracy,
     Expression<String>? imageUrl,
     Expression<String>? imageKey,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (guid != null) 'guid': guid,
@@ -3273,12 +3289,13 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
       if (currentTimestamp != null) 'current_timestamp': currentTimestamp,
       if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
       if (id != null) 'id': id,
-      if (pointId != null) 'point_id': pointId,
+      if (pointGuid != null) 'point_guid': pointGuid,
       if (latitude != null) 'latitude': latitude,
       if (longitude != null) 'longitude': longitude,
       if (accuracy != null) 'accuracy': accuracy,
       if (imageUrl != null) 'image_url': imageUrl,
       if (imageKey != null) 'image_key': imageKey,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -3288,13 +3305,14 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
       Value<DateTime>? timestamp,
       Value<DateTime>? currentTimestamp,
       Value<DateTime?>? lastSyncTime,
-      Value<int>? id,
-      Value<int>? pointId,
+      Value<int?>? id,
+      Value<String>? pointGuid,
       Value<double>? latitude,
       Value<double>? longitude,
       Value<double>? accuracy,
       Value<String>? imageUrl,
-      Value<String>? imageKey}) {
+      Value<String>? imageKey,
+      Value<int>? rowid}) {
     return PointImagesCompanion(
       guid: guid ?? this.guid,
       isDeleted: isDeleted ?? this.isDeleted,
@@ -3302,12 +3320,13 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
       currentTimestamp: currentTimestamp ?? this.currentTimestamp,
       lastSyncTime: lastSyncTime ?? this.lastSyncTime,
       id: id ?? this.id,
-      pointId: pointId ?? this.pointId,
+      pointGuid: pointGuid ?? this.pointGuid,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       accuracy: accuracy ?? this.accuracy,
       imageUrl: imageUrl ?? this.imageUrl,
       imageKey: imageKey ?? this.imageKey,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -3332,8 +3351,8 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (pointId.present) {
-      map['point_id'] = Variable<int>(pointId.value);
+    if (pointGuid.present) {
+      map['point_guid'] = Variable<String>(pointGuid.value);
     }
     if (latitude.present) {
       map['latitude'] = Variable<double>(latitude.value);
@@ -3350,6 +3369,9 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
     if (imageKey.present) {
       map['image_key'] = Variable<String>(imageKey.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -3362,30 +3384,28 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
           ..write('currentTimestamp: $currentTimestamp, ')
           ..write('lastSyncTime: $lastSyncTime, ')
           ..write('id: $id, ')
-          ..write('pointId: $pointId, ')
+          ..write('pointGuid: $pointGuid, ')
           ..write('latitude: $latitude, ')
           ..write('longitude: $longitude, ')
           ..write('accuracy: $accuracy, ')
           ..write('imageUrl: $imageUrl, ')
-          ..write('imageKey: $imageKey')
+          ..write('imageKey: $imageKey, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
 }
 
-class $EncashmentsTable extends Encashments
-    with TableInfo<$EncashmentsTable, Encashment> {
+class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $EncashmentsTable(this.attachedDatabase, [this._alias]);
+  $DepositsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _guidMeta = const VerificationMeta('guid');
   @override
   late final GeneratedColumn<String> guid = GeneratedColumn<String>(
       'guid', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      clientDefault: () => AppDataStore._kUuid.v4());
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
@@ -3452,51 +3472,25 @@ class $EncashmentsTable extends Encashments
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+      'id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _dateMeta = const VerificationMeta('date');
   @override
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
       'date', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _isCheckMeta =
-      const VerificationMeta('isCheck');
+  static const VerificationMeta _totalSumMeta =
+      const VerificationMeta('totalSum');
   @override
-  late final GeneratedColumn<bool> isCheck =
-      GeneratedColumn<bool>('is_check', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_check" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
-  static const VerificationMeta _buyerIdMeta =
-      const VerificationMeta('buyerId');
+  late final GeneratedColumn<double> totalSum = GeneratedColumn<double>(
+      'total_sum', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _checkTotalSumMeta =
+      const VerificationMeta('checkTotalSum');
   @override
-  late final GeneratedColumn<int> buyerId = GeneratedColumn<int>(
-      'buyer_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _debtIdMeta = const VerificationMeta('debtId');
-  @override
-  late final GeneratedColumn<int> debtId = GeneratedColumn<int>(
-      'debt_id', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _depositIdMeta =
-      const VerificationMeta('depositId');
-  @override
-  late final GeneratedColumn<int> depositId = GeneratedColumn<int>(
-      'deposit_id', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _encSumMeta = const VerificationMeta('encSum');
-  @override
-  late final GeneratedColumn<double> encSum = GeneratedColumn<double>(
-      'enc_sum', aliasedName, true,
-      type: DriftSqlType.double, requiredDuringInsert: false);
+  late final GeneratedColumn<double> checkTotalSum = GeneratedColumn<double>(
+      'check_total_sum', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         guid,
@@ -3508,24 +3502,23 @@ class $EncashmentsTable extends Encashments
         isNew,
         id,
         date,
-        isCheck,
-        buyerId,
-        debtId,
-        depositId,
-        encSum
+        totalSum,
+        checkTotalSum
       ];
   @override
-  String get aliasedName => _alias ?? 'encashments';
+  String get aliasedName => _alias ?? 'deposits';
   @override
-  String get actualTableName => 'encashments';
+  String get actualTableName => 'deposits';
   @override
-  VerificationContext validateIntegrity(Insertable<Encashment> instance,
+  VerificationContext validateIntegrity(Insertable<Deposit> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
     if (data.containsKey('guid')) {
       context.handle(
           _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
     }
     if (data.containsKey('is_deleted')) {
       context.handle(_isDeletedMeta,
@@ -3564,39 +3557,29 @@ class $EncashmentsTable extends Encashments
     } else if (isInserting) {
       context.missing(_dateMeta);
     }
-    if (data.containsKey('is_check')) {
-      context.handle(_isCheckMeta,
-          isCheck.isAcceptableOrUnknown(data['is_check']!, _isCheckMeta));
+    if (data.containsKey('total_sum')) {
+      context.handle(_totalSumMeta,
+          totalSum.isAcceptableOrUnknown(data['total_sum']!, _totalSumMeta));
     } else if (isInserting) {
-      context.missing(_isCheckMeta);
+      context.missing(_totalSumMeta);
     }
-    if (data.containsKey('buyer_id')) {
-      context.handle(_buyerIdMeta,
-          buyerId.isAcceptableOrUnknown(data['buyer_id']!, _buyerIdMeta));
+    if (data.containsKey('check_total_sum')) {
+      context.handle(
+          _checkTotalSumMeta,
+          checkTotalSum.isAcceptableOrUnknown(
+              data['check_total_sum']!, _checkTotalSumMeta));
     } else if (isInserting) {
-      context.missing(_buyerIdMeta);
-    }
-    if (data.containsKey('debt_id')) {
-      context.handle(_debtIdMeta,
-          debtId.isAcceptableOrUnknown(data['debt_id']!, _debtIdMeta));
-    }
-    if (data.containsKey('deposit_id')) {
-      context.handle(_depositIdMeta,
-          depositId.isAcceptableOrUnknown(data['deposit_id']!, _depositIdMeta));
-    }
-    if (data.containsKey('enc_sum')) {
-      context.handle(_encSumMeta,
-          encSum.isAcceptableOrUnknown(data['enc_sum']!, _encSumMeta));
+      context.missing(_checkTotalSumMeta);
     }
     return context;
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {guid};
   @override
-  Encashment map(Map<String, dynamic> data, {String? tablePrefix}) {
+  Deposit map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Encashment(
+    return Deposit(
       guid: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}guid'])!,
       isDeleted: attachedDatabase.typeMapping
@@ -3612,29 +3595,23 @@ class $EncashmentsTable extends Encashments
       isNew: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}id']),
       date: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
-      isCheck: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_check'])!,
-      buyerId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}buyer_id'])!,
-      debtId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}debt_id']),
-      depositId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}deposit_id']),
-      encSum: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}enc_sum']),
+      totalSum: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}total_sum'])!,
+      checkTotalSum: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}check_total_sum'])!,
     );
   }
 
   @override
-  $EncashmentsTable createAlias(String alias) {
-    return $EncashmentsTable(attachedDatabase, alias);
+  $DepositsTable createAlias(String alias) {
+    return $DepositsTable(attachedDatabase, alias);
   }
 }
 
-class Encashment extends DataClass implements Insertable<Encashment> {
+class Deposit extends DataClass implements Insertable<Deposit> {
   final String guid;
   final bool isDeleted;
   final DateTime timestamp;
@@ -3642,14 +3619,11 @@ class Encashment extends DataClass implements Insertable<Encashment> {
   final DateTime? lastSyncTime;
   final bool needSync;
   final bool isNew;
-  final int id;
+  final int? id;
   final DateTime date;
-  final bool isCheck;
-  final int buyerId;
-  final int? debtId;
-  final int? depositId;
-  final double? encSum;
-  const Encashment(
+  final double totalSum;
+  final double checkTotalSum;
+  const Deposit(
       {required this.guid,
       required this.isDeleted,
       required this.timestamp,
@@ -3657,13 +3631,10 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       this.lastSyncTime,
       required this.needSync,
       required this.isNew,
-      required this.id,
+      this.id,
       required this.date,
-      required this.isCheck,
-      required this.buyerId,
-      this.debtId,
-      this.depositId,
-      this.encSum});
+      required this.totalSum,
+      required this.checkTotalSum});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -3674,24 +3645,17 @@ class Encashment extends DataClass implements Insertable<Encashment> {
     if (!nullToAbsent || lastSyncTime != null) {
       map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
     }
-    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
     map['date'] = Variable<DateTime>(date);
-    map['is_check'] = Variable<bool>(isCheck);
-    map['buyer_id'] = Variable<int>(buyerId);
-    if (!nullToAbsent || debtId != null) {
-      map['debt_id'] = Variable<int>(debtId);
-    }
-    if (!nullToAbsent || depositId != null) {
-      map['deposit_id'] = Variable<int>(depositId);
-    }
-    if (!nullToAbsent || encSum != null) {
-      map['enc_sum'] = Variable<double>(encSum);
-    }
+    map['total_sum'] = Variable<double>(totalSum);
+    map['check_total_sum'] = Variable<double>(checkTotalSum);
     return map;
   }
 
-  EncashmentsCompanion toCompanion(bool nullToAbsent) {
-    return EncashmentsCompanion(
+  DepositsCompanion toCompanion(bool nullToAbsent) {
+    return DepositsCompanion(
       guid: Value(guid),
       isDeleted: Value(isDeleted),
       timestamp: Value(timestamp),
@@ -3699,24 +3663,17 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       lastSyncTime: lastSyncTime == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSyncTime),
-      id: Value(id),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       date: Value(date),
-      isCheck: Value(isCheck),
-      buyerId: Value(buyerId),
-      debtId:
-          debtId == null && nullToAbsent ? const Value.absent() : Value(debtId),
-      depositId: depositId == null && nullToAbsent
-          ? const Value.absent()
-          : Value(depositId),
-      encSum:
-          encSum == null && nullToAbsent ? const Value.absent() : Value(encSum),
+      totalSum: Value(totalSum),
+      checkTotalSum: Value(checkTotalSum),
     );
   }
 
-  factory Encashment.fromJson(Map<String, dynamic> json,
+  factory Deposit.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Encashment(
+    return Deposit(
       guid: serializer.fromJson<String>(json['guid']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
@@ -3724,13 +3681,10 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
       needSync: serializer.fromJson<bool>(json['needSync']),
       isNew: serializer.fromJson<bool>(json['isNew']),
-      id: serializer.fromJson<int>(json['id']),
+      id: serializer.fromJson<int?>(json['id']),
       date: serializer.fromJson<DateTime>(json['date']),
-      isCheck: serializer.fromJson<bool>(json['isCheck']),
-      buyerId: serializer.fromJson<int>(json['buyerId']),
-      debtId: serializer.fromJson<int?>(json['debtId']),
-      depositId: serializer.fromJson<int?>(json['depositId']),
-      encSum: serializer.fromJson<double?>(json['encSum']),
+      totalSum: serializer.fromJson<double>(json['totalSum']),
+      checkTotalSum: serializer.fromJson<double>(json['checkTotalSum']),
     );
   }
   @override
@@ -3744,17 +3698,14 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
       'needSync': serializer.toJson<bool>(needSync),
       'isNew': serializer.toJson<bool>(isNew),
-      'id': serializer.toJson<int>(id),
+      'id': serializer.toJson<int?>(id),
       'date': serializer.toJson<DateTime>(date),
-      'isCheck': serializer.toJson<bool>(isCheck),
-      'buyerId': serializer.toJson<int>(buyerId),
-      'debtId': serializer.toJson<int?>(debtId),
-      'depositId': serializer.toJson<int?>(depositId),
-      'encSum': serializer.toJson<double?>(encSum),
+      'totalSum': serializer.toJson<double>(totalSum),
+      'checkTotalSum': serializer.toJson<double>(checkTotalSum),
     };
   }
 
-  Encashment copyWith(
+  Deposit copyWith(
           {String? guid,
           bool? isDeleted,
           DateTime? timestamp,
@@ -3762,14 +3713,11 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           Value<DateTime?> lastSyncTime = const Value.absent(),
           bool? needSync,
           bool? isNew,
-          int? id,
+          Value<int?> id = const Value.absent(),
           DateTime? date,
-          bool? isCheck,
-          int? buyerId,
-          Value<int?> debtId = const Value.absent(),
-          Value<int?> depositId = const Value.absent(),
-          Value<double?> encSum = const Value.absent()}) =>
-      Encashment(
+          double? totalSum,
+          double? checkTotalSum}) =>
+      Deposit(
         guid: guid ?? this.guid,
         isDeleted: isDeleted ?? this.isDeleted,
         timestamp: timestamp ?? this.timestamp,
@@ -3778,17 +3726,14 @@ class Encashment extends DataClass implements Insertable<Encashment> {
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
         needSync: needSync ?? this.needSync,
         isNew: isNew ?? this.isNew,
-        id: id ?? this.id,
+        id: id.present ? id.value : this.id,
         date: date ?? this.date,
-        isCheck: isCheck ?? this.isCheck,
-        buyerId: buyerId ?? this.buyerId,
-        debtId: debtId.present ? debtId.value : this.debtId,
-        depositId: depositId.present ? depositId.value : this.depositId,
-        encSum: encSum.present ? encSum.value : this.encSum,
+        totalSum: totalSum ?? this.totalSum,
+        checkTotalSum: checkTotalSum ?? this.checkTotalSum,
       );
   @override
   String toString() {
-    return (StringBuffer('Encashment(')
+    return (StringBuffer('Deposit(')
           ..write('guid: $guid, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('timestamp: $timestamp, ')
@@ -3798,35 +3743,19 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           ..write('isNew: $isNew, ')
           ..write('id: $id, ')
           ..write('date: $date, ')
-          ..write('isCheck: $isCheck, ')
-          ..write('buyerId: $buyerId, ')
-          ..write('debtId: $debtId, ')
-          ..write('depositId: $depositId, ')
-          ..write('encSum: $encSum')
+          ..write('totalSum: $totalSum, ')
+          ..write('checkTotalSum: $checkTotalSum')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      guid,
-      isDeleted,
-      timestamp,
-      currentTimestamp,
-      lastSyncTime,
-      needSync,
-      isNew,
-      id,
-      date,
-      isCheck,
-      buyerId,
-      debtId,
-      depositId,
-      encSum);
+  int get hashCode => Object.hash(guid, isDeleted, timestamp, currentTimestamp,
+      lastSyncTime, needSync, isNew, id, date, totalSum, checkTotalSum);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Encashment &&
+      (other is Deposit &&
           other.guid == this.guid &&
           other.isDeleted == this.isDeleted &&
           other.timestamp == this.timestamp &&
@@ -3836,27 +3765,22 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           other.isNew == this.isNew &&
           other.id == this.id &&
           other.date == this.date &&
-          other.isCheck == this.isCheck &&
-          other.buyerId == this.buyerId &&
-          other.debtId == this.debtId &&
-          other.depositId == this.depositId &&
-          other.encSum == this.encSum);
+          other.totalSum == this.totalSum &&
+          other.checkTotalSum == this.checkTotalSum);
 }
 
-class EncashmentsCompanion extends UpdateCompanion<Encashment> {
+class DepositsCompanion extends UpdateCompanion<Deposit> {
   final Value<String> guid;
   final Value<bool> isDeleted;
   final Value<DateTime> timestamp;
   final Value<DateTime> currentTimestamp;
   final Value<DateTime?> lastSyncTime;
-  final Value<int> id;
+  final Value<int?> id;
   final Value<DateTime> date;
-  final Value<bool> isCheck;
-  final Value<int> buyerId;
-  final Value<int?> debtId;
-  final Value<int?> depositId;
-  final Value<double?> encSum;
-  const EncashmentsCompanion({
+  final Value<double> totalSum;
+  final Value<double> checkTotalSum;
+  final Value<int> rowid;
+  const DepositsCompanion({
     this.guid = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.timestamp = const Value.absent(),
@@ -3864,29 +3788,26 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
     this.lastSyncTime = const Value.absent(),
     this.id = const Value.absent(),
     this.date = const Value.absent(),
-    this.isCheck = const Value.absent(),
-    this.buyerId = const Value.absent(),
-    this.debtId = const Value.absent(),
-    this.depositId = const Value.absent(),
-    this.encSum = const Value.absent(),
+    this.totalSum = const Value.absent(),
+    this.checkTotalSum = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
-  EncashmentsCompanion.insert({
-    this.guid = const Value.absent(),
+  DepositsCompanion.insert({
+    required String guid,
     this.isDeleted = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.currentTimestamp = const Value.absent(),
     this.lastSyncTime = const Value.absent(),
     this.id = const Value.absent(),
     required DateTime date,
-    required bool isCheck,
-    required int buyerId,
-    this.debtId = const Value.absent(),
-    this.depositId = const Value.absent(),
-    this.encSum = const Value.absent(),
-  })  : date = Value(date),
-        isCheck = Value(isCheck),
-        buyerId = Value(buyerId);
-  static Insertable<Encashment> custom({
+    required double totalSum,
+    required double checkTotalSum,
+    this.rowid = const Value.absent(),
+  })  : guid = Value(guid),
+        date = Value(date),
+        totalSum = Value(totalSum),
+        checkTotalSum = Value(checkTotalSum);
+  static Insertable<Deposit> custom({
     Expression<String>? guid,
     Expression<bool>? isDeleted,
     Expression<DateTime>? timestamp,
@@ -3894,11 +3815,9 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
     Expression<DateTime>? lastSyncTime,
     Expression<int>? id,
     Expression<DateTime>? date,
-    Expression<bool>? isCheck,
-    Expression<int>? buyerId,
-    Expression<int>? debtId,
-    Expression<int>? depositId,
-    Expression<double>? encSum,
+    Expression<double>? totalSum,
+    Expression<double>? checkTotalSum,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (guid != null) 'guid': guid,
@@ -3908,28 +3827,24 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
       if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
       if (id != null) 'id': id,
       if (date != null) 'date': date,
-      if (isCheck != null) 'is_check': isCheck,
-      if (buyerId != null) 'buyer_id': buyerId,
-      if (debtId != null) 'debt_id': debtId,
-      if (depositId != null) 'deposit_id': depositId,
-      if (encSum != null) 'enc_sum': encSum,
+      if (totalSum != null) 'total_sum': totalSum,
+      if (checkTotalSum != null) 'check_total_sum': checkTotalSum,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
-  EncashmentsCompanion copyWith(
+  DepositsCompanion copyWith(
       {Value<String>? guid,
       Value<bool>? isDeleted,
       Value<DateTime>? timestamp,
       Value<DateTime>? currentTimestamp,
       Value<DateTime?>? lastSyncTime,
-      Value<int>? id,
+      Value<int?>? id,
       Value<DateTime>? date,
-      Value<bool>? isCheck,
-      Value<int>? buyerId,
-      Value<int?>? debtId,
-      Value<int?>? depositId,
-      Value<double?>? encSum}) {
-    return EncashmentsCompanion(
+      Value<double>? totalSum,
+      Value<double>? checkTotalSum,
+      Value<int>? rowid}) {
+    return DepositsCompanion(
       guid: guid ?? this.guid,
       isDeleted: isDeleted ?? this.isDeleted,
       timestamp: timestamp ?? this.timestamp,
@@ -3937,11 +3852,9 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
       lastSyncTime: lastSyncTime ?? this.lastSyncTime,
       id: id ?? this.id,
       date: date ?? this.date,
-      isCheck: isCheck ?? this.isCheck,
-      buyerId: buyerId ?? this.buyerId,
-      debtId: debtId ?? this.debtId,
-      depositId: depositId ?? this.depositId,
-      encSum: encSum ?? this.encSum,
+      totalSum: totalSum ?? this.totalSum,
+      checkTotalSum: checkTotalSum ?? this.checkTotalSum,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -3969,6 +3882,646 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
     if (date.present) {
       map['date'] = Variable<DateTime>(date.value);
     }
+    if (totalSum.present) {
+      map['total_sum'] = Variable<double>(totalSum.value);
+    }
+    if (checkTotalSum.present) {
+      map['check_total_sum'] = Variable<double>(checkTotalSum.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DepositsCompanion(')
+          ..write('guid: $guid, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('currentTimestamp: $currentTimestamp, ')
+          ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('id: $id, ')
+          ..write('date: $date, ')
+          ..write('totalSum: $totalSum, ')
+          ..write('checkTotalSum: $checkTotalSum, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $EncashmentsTable extends Encashments
+    with TableInfo<$EncashmentsTable, Encashment> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EncashmentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _guidMeta = const VerificationMeta('guid');
+  @override
+  late final GeneratedColumn<String> guid = GeneratedColumn<String>(
+      'guid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isDeletedMeta =
+      const VerificationMeta('isDeleted');
+  @override
+  late final GeneratedColumn<bool> isDeleted =
+      GeneratedColumn<bool>('is_deleted', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }),
+          defaultValue: const Constant(false));
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _currentTimestampMeta =
+      const VerificationMeta('currentTimestamp');
+  @override
+  late final GeneratedColumn<DateTime> currentTimestamp =
+      GeneratedColumn<DateTime>('current_timestamp', aliasedName, false,
+          type: DriftSqlType.dateTime,
+          requiredDuringInsert: false,
+          defaultValue: currentDateAndTime);
+  static const VerificationMeta _lastSyncTimeMeta =
+      const VerificationMeta('lastSyncTime');
+  @override
+  late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
+      'last_sync_time', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          (isNew & isDeleted.not()) |
+              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
+          true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
+        SqlDialect.mysql: '',
+        SqlDialect.postgres: '',
+      }));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew =
+      GeneratedColumn<bool>('is_new', aliasedName, false,
+          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _depositGuidMeta =
+      const VerificationMeta('depositGuid');
+  @override
+  late final GeneratedColumn<String> depositGuid = GeneratedColumn<String>(
+      'deposit_guid', aliasedName, true,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES deposits (guid) ON UPDATE CASCADE ON DELETE CASCADE'));
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+      'date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _isCheckMeta =
+      const VerificationMeta('isCheck');
+  @override
+  late final GeneratedColumn<bool> isCheck =
+      GeneratedColumn<bool>('is_check', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: true,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_check" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
+  static const VerificationMeta _buyerIdMeta =
+      const VerificationMeta('buyerId');
+  @override
+  late final GeneratedColumn<int> buyerId = GeneratedColumn<int>(
+      'buyer_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _debtIdMeta = const VerificationMeta('debtId');
+  @override
+  late final GeneratedColumn<int> debtId = GeneratedColumn<int>(
+      'debt_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _encSumMeta = const VerificationMeta('encSum');
+  @override
+  late final GeneratedColumn<double> encSum = GeneratedColumn<double>(
+      'enc_sum', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        guid,
+        isDeleted,
+        timestamp,
+        currentTimestamp,
+        lastSyncTime,
+        needSync,
+        isNew,
+        id,
+        depositGuid,
+        date,
+        isCheck,
+        buyerId,
+        debtId,
+        encSum
+      ];
+  @override
+  String get aliasedName => _alias ?? 'encashments';
+  @override
+  String get actualTableName => 'encashments';
+  @override
+  VerificationContext validateIntegrity(Insertable<Encashment> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('guid')) {
+      context.handle(
+          _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(_isDeletedMeta,
+          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('current_timestamp')) {
+      context.handle(
+          _currentTimestampMeta,
+          currentTimestamp.isAcceptableOrUnknown(
+              data['current_timestamp']!, _currentTimestampMeta));
+    }
+    if (data.containsKey('last_sync_time')) {
+      context.handle(
+          _lastSyncTimeMeta,
+          lastSyncTime.isAcceptableOrUnknown(
+              data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('deposit_guid')) {
+      context.handle(
+          _depositGuidMeta,
+          depositGuid.isAcceptableOrUnknown(
+              data['deposit_guid']!, _depositGuidMeta));
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('is_check')) {
+      context.handle(_isCheckMeta,
+          isCheck.isAcceptableOrUnknown(data['is_check']!, _isCheckMeta));
+    } else if (isInserting) {
+      context.missing(_isCheckMeta);
+    }
+    if (data.containsKey('buyer_id')) {
+      context.handle(_buyerIdMeta,
+          buyerId.isAcceptableOrUnknown(data['buyer_id']!, _buyerIdMeta));
+    } else if (isInserting) {
+      context.missing(_buyerIdMeta);
+    }
+    if (data.containsKey('debt_id')) {
+      context.handle(_debtIdMeta,
+          debtId.isAcceptableOrUnknown(data['debt_id']!, _debtIdMeta));
+    }
+    if (data.containsKey('enc_sum')) {
+      context.handle(_encSumMeta,
+          encSum.isAcceptableOrUnknown(data['enc_sum']!, _encSumMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {guid};
+  @override
+  Encashment map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Encashment(
+      guid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}guid'])!,
+      isDeleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      currentTimestamp: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
+      lastSyncTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id']),
+      depositGuid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}deposit_guid']),
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
+      isCheck: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_check'])!,
+      buyerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}buyer_id'])!,
+      debtId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}debt_id']),
+      encSum: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}enc_sum']),
+    );
+  }
+
+  @override
+  $EncashmentsTable createAlias(String alias) {
+    return $EncashmentsTable(attachedDatabase, alias);
+  }
+}
+
+class Encashment extends DataClass implements Insertable<Encashment> {
+  final String guid;
+  final bool isDeleted;
+  final DateTime timestamp;
+  final DateTime currentTimestamp;
+  final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
+  final int? id;
+  final String? depositGuid;
+  final DateTime date;
+  final bool isCheck;
+  final int buyerId;
+  final int? debtId;
+  final double? encSum;
+  const Encashment(
+      {required this.guid,
+      required this.isDeleted,
+      required this.timestamp,
+      required this.currentTimestamp,
+      this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
+      this.id,
+      this.depositGuid,
+      required this.date,
+      required this.isCheck,
+      required this.buyerId,
+      this.debtId,
+      this.encSum});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['guid'] = Variable<String>(guid);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['current_timestamp'] = Variable<DateTime>(currentTimestamp);
+    if (!nullToAbsent || lastSyncTime != null) {
+      map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
+    }
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    if (!nullToAbsent || depositGuid != null) {
+      map['deposit_guid'] = Variable<String>(depositGuid);
+    }
+    map['date'] = Variable<DateTime>(date);
+    map['is_check'] = Variable<bool>(isCheck);
+    map['buyer_id'] = Variable<int>(buyerId);
+    if (!nullToAbsent || debtId != null) {
+      map['debt_id'] = Variable<int>(debtId);
+    }
+    if (!nullToAbsent || encSum != null) {
+      map['enc_sum'] = Variable<double>(encSum);
+    }
+    return map;
+  }
+
+  EncashmentsCompanion toCompanion(bool nullToAbsent) {
+    return EncashmentsCompanion(
+      guid: Value(guid),
+      isDeleted: Value(isDeleted),
+      timestamp: Value(timestamp),
+      currentTimestamp: Value(currentTimestamp),
+      lastSyncTime: lastSyncTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncTime),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      depositGuid: depositGuid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(depositGuid),
+      date: Value(date),
+      isCheck: Value(isCheck),
+      buyerId: Value(buyerId),
+      debtId:
+          debtId == null && nullToAbsent ? const Value.absent() : Value(debtId),
+      encSum:
+          encSum == null && nullToAbsent ? const Value.absent() : Value(encSum),
+    );
+  }
+
+  factory Encashment.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Encashment(
+      guid: serializer.fromJson<String>(json['guid']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
+      lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
+      id: serializer.fromJson<int?>(json['id']),
+      depositGuid: serializer.fromJson<String?>(json['depositGuid']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      isCheck: serializer.fromJson<bool>(json['isCheck']),
+      buyerId: serializer.fromJson<int>(json['buyerId']),
+      debtId: serializer.fromJson<int?>(json['debtId']),
+      encSum: serializer.fromJson<double?>(json['encSum']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'guid': serializer.toJson<String>(guid),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
+      'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
+      'id': serializer.toJson<int?>(id),
+      'depositGuid': serializer.toJson<String?>(depositGuid),
+      'date': serializer.toJson<DateTime>(date),
+      'isCheck': serializer.toJson<bool>(isCheck),
+      'buyerId': serializer.toJson<int>(buyerId),
+      'debtId': serializer.toJson<int?>(debtId),
+      'encSum': serializer.toJson<double?>(encSum),
+    };
+  }
+
+  Encashment copyWith(
+          {String? guid,
+          bool? isDeleted,
+          DateTime? timestamp,
+          DateTime? currentTimestamp,
+          Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
+          Value<int?> id = const Value.absent(),
+          Value<String?> depositGuid = const Value.absent(),
+          DateTime? date,
+          bool? isCheck,
+          int? buyerId,
+          Value<int?> debtId = const Value.absent(),
+          Value<double?> encSum = const Value.absent()}) =>
+      Encashment(
+        guid: guid ?? this.guid,
+        isDeleted: isDeleted ?? this.isDeleted,
+        timestamp: timestamp ?? this.timestamp,
+        currentTimestamp: currentTimestamp ?? this.currentTimestamp,
+        lastSyncTime:
+            lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
+        id: id.present ? id.value : this.id,
+        depositGuid: depositGuid.present ? depositGuid.value : this.depositGuid,
+        date: date ?? this.date,
+        isCheck: isCheck ?? this.isCheck,
+        buyerId: buyerId ?? this.buyerId,
+        debtId: debtId.present ? debtId.value : this.debtId,
+        encSum: encSum.present ? encSum.value : this.encSum,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Encashment(')
+          ..write('guid: $guid, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('currentTimestamp: $currentTimestamp, ')
+          ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
+          ..write('id: $id, ')
+          ..write('depositGuid: $depositGuid, ')
+          ..write('date: $date, ')
+          ..write('isCheck: $isCheck, ')
+          ..write('buyerId: $buyerId, ')
+          ..write('debtId: $debtId, ')
+          ..write('encSum: $encSum')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      guid,
+      isDeleted,
+      timestamp,
+      currentTimestamp,
+      lastSyncTime,
+      needSync,
+      isNew,
+      id,
+      depositGuid,
+      date,
+      isCheck,
+      buyerId,
+      debtId,
+      encSum);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Encashment &&
+          other.guid == this.guid &&
+          other.isDeleted == this.isDeleted &&
+          other.timestamp == this.timestamp &&
+          other.currentTimestamp == this.currentTimestamp &&
+          other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
+          other.id == this.id &&
+          other.depositGuid == this.depositGuid &&
+          other.date == this.date &&
+          other.isCheck == this.isCheck &&
+          other.buyerId == this.buyerId &&
+          other.debtId == this.debtId &&
+          other.encSum == this.encSum);
+}
+
+class EncashmentsCompanion extends UpdateCompanion<Encashment> {
+  final Value<String> guid;
+  final Value<bool> isDeleted;
+  final Value<DateTime> timestamp;
+  final Value<DateTime> currentTimestamp;
+  final Value<DateTime?> lastSyncTime;
+  final Value<int?> id;
+  final Value<String?> depositGuid;
+  final Value<DateTime> date;
+  final Value<bool> isCheck;
+  final Value<int> buyerId;
+  final Value<int?> debtId;
+  final Value<double?> encSum;
+  final Value<int> rowid;
+  const EncashmentsCompanion({
+    this.guid = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.currentTimestamp = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
+    this.id = const Value.absent(),
+    this.depositGuid = const Value.absent(),
+    this.date = const Value.absent(),
+    this.isCheck = const Value.absent(),
+    this.buyerId = const Value.absent(),
+    this.debtId = const Value.absent(),
+    this.encSum = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  EncashmentsCompanion.insert({
+    required String guid,
+    this.isDeleted = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.currentTimestamp = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
+    this.id = const Value.absent(),
+    this.depositGuid = const Value.absent(),
+    required DateTime date,
+    required bool isCheck,
+    required int buyerId,
+    this.debtId = const Value.absent(),
+    this.encSum = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : guid = Value(guid),
+        date = Value(date),
+        isCheck = Value(isCheck),
+        buyerId = Value(buyerId);
+  static Insertable<Encashment> custom({
+    Expression<String>? guid,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? timestamp,
+    Expression<DateTime>? currentTimestamp,
+    Expression<DateTime>? lastSyncTime,
+    Expression<int>? id,
+    Expression<String>? depositGuid,
+    Expression<DateTime>? date,
+    Expression<bool>? isCheck,
+    Expression<int>? buyerId,
+    Expression<int>? debtId,
+    Expression<double>? encSum,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (guid != null) 'guid': guid,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (currentTimestamp != null) 'current_timestamp': currentTimestamp,
+      if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
+      if (id != null) 'id': id,
+      if (depositGuid != null) 'deposit_guid': depositGuid,
+      if (date != null) 'date': date,
+      if (isCheck != null) 'is_check': isCheck,
+      if (buyerId != null) 'buyer_id': buyerId,
+      if (debtId != null) 'debt_id': debtId,
+      if (encSum != null) 'enc_sum': encSum,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  EncashmentsCompanion copyWith(
+      {Value<String>? guid,
+      Value<bool>? isDeleted,
+      Value<DateTime>? timestamp,
+      Value<DateTime>? currentTimestamp,
+      Value<DateTime?>? lastSyncTime,
+      Value<int?>? id,
+      Value<String?>? depositGuid,
+      Value<DateTime>? date,
+      Value<bool>? isCheck,
+      Value<int>? buyerId,
+      Value<int?>? debtId,
+      Value<double?>? encSum,
+      Value<int>? rowid}) {
+    return EncashmentsCompanion(
+      guid: guid ?? this.guid,
+      isDeleted: isDeleted ?? this.isDeleted,
+      timestamp: timestamp ?? this.timestamp,
+      currentTimestamp: currentTimestamp ?? this.currentTimestamp,
+      lastSyncTime: lastSyncTime ?? this.lastSyncTime,
+      id: id ?? this.id,
+      depositGuid: depositGuid ?? this.depositGuid,
+      date: date ?? this.date,
+      isCheck: isCheck ?? this.isCheck,
+      buyerId: buyerId ?? this.buyerId,
+      debtId: debtId ?? this.debtId,
+      encSum: encSum ?? this.encSum,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (guid.present) {
+      map['guid'] = Variable<String>(guid.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (currentTimestamp.present) {
+      map['current_timestamp'] = Variable<DateTime>(currentTimestamp.value);
+    }
+    if (lastSyncTime.present) {
+      map['last_sync_time'] = Variable<DateTime>(lastSyncTime.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (depositGuid.present) {
+      map['deposit_guid'] = Variable<String>(depositGuid.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
     if (isCheck.present) {
       map['is_check'] = Variable<bool>(isCheck.value);
     }
@@ -3978,11 +4531,11 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
     if (debtId.present) {
       map['debt_id'] = Variable<int>(debtId.value);
     }
-    if (depositId.present) {
-      map['deposit_id'] = Variable<int>(depositId.value);
-    }
     if (encSum.present) {
       map['enc_sum'] = Variable<double>(encSum.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
     }
     return map;
   }
@@ -3996,12 +4549,13 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
           ..write('currentTimestamp: $currentTimestamp, ')
           ..write('lastSyncTime: $lastSyncTime, ')
           ..write('id: $id, ')
+          ..write('depositGuid: $depositGuid, ')
           ..write('date: $date, ')
           ..write('isCheck: $isCheck, ')
           ..write('buyerId: $buyerId, ')
           ..write('debtId: $debtId, ')
-          ..write('depositId: $depositId, ')
-          ..write('encSum: $encSum')
+          ..write('encSum: $encSum, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -4443,512 +4997,6 @@ class DebtsCompanion extends UpdateCompanion<Debt> {
           ..write('isCheck: $isCheck, ')
           ..write('dateUntil: $dateUntil, ')
           ..write('overdue: $overdue')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $DepositsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _guidMeta = const VerificationMeta('guid');
-  @override
-  late final GeneratedColumn<String> guid = GeneratedColumn<String>(
-      'guid', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      clientDefault: () => AppDataStore._kUuid.v4());
-  static const VerificationMeta _isDeletedMeta =
-      const VerificationMeta('isDeleted');
-  @override
-  late final GeneratedColumn<bool> isDeleted =
-      GeneratedColumn<bool>('is_deleted', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }),
-          defaultValue: const Constant(false));
-  static const VerificationMeta _timestampMeta =
-      const VerificationMeta('timestamp');
-  @override
-  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
-      'timestamp', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
-  static const VerificationMeta _currentTimestampMeta =
-      const VerificationMeta('currentTimestamp');
-  @override
-  late final GeneratedColumn<DateTime> currentTimestamp =
-      GeneratedColumn<DateTime>('current_timestamp', aliasedName, false,
-          type: DriftSqlType.dateTime,
-          requiredDuringInsert: false,
-          defaultValue: currentDateAndTime);
-  static const VerificationMeta _lastSyncTimeMeta =
-      const VerificationMeta('lastSyncTime');
-  @override
-  late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
-      'last_sync_time', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _needSyncMeta =
-      const VerificationMeta('needSync');
-  @override
-  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
-      'need_sync', aliasedName, false,
-      generatedAs: GeneratedAs(
-          (isNew & isDeleted.not()) |
-              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
-          true),
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
-  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
-  @override
-  late final GeneratedColumn<bool> isNew =
-      GeneratedColumn<bool>('is_new', aliasedName, false,
-          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _dateMeta = const VerificationMeta('date');
-  @override
-  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
-      'date', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _totalSumMeta =
-      const VerificationMeta('totalSum');
-  @override
-  late final GeneratedColumn<double> totalSum = GeneratedColumn<double>(
-      'total_sum', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _checkTotalSumMeta =
-      const VerificationMeta('checkTotalSum');
-  @override
-  late final GeneratedColumn<double> checkTotalSum = GeneratedColumn<double>(
-      'check_total_sum', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  @override
-  List<GeneratedColumn> get $columns => [
-        guid,
-        isDeleted,
-        timestamp,
-        currentTimestamp,
-        lastSyncTime,
-        needSync,
-        isNew,
-        id,
-        date,
-        totalSum,
-        checkTotalSum
-      ];
-  @override
-  String get aliasedName => _alias ?? 'deposits';
-  @override
-  String get actualTableName => 'deposits';
-  @override
-  VerificationContext validateIntegrity(Insertable<Deposit> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('guid')) {
-      context.handle(
-          _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
-    }
-    if (data.containsKey('is_deleted')) {
-      context.handle(_isDeletedMeta,
-          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
-    }
-    if (data.containsKey('timestamp')) {
-      context.handle(_timestampMeta,
-          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
-    }
-    if (data.containsKey('current_timestamp')) {
-      context.handle(
-          _currentTimestampMeta,
-          currentTimestamp.isAcceptableOrUnknown(
-              data['current_timestamp']!, _currentTimestampMeta));
-    }
-    if (data.containsKey('last_sync_time')) {
-      context.handle(
-          _lastSyncTimeMeta,
-          lastSyncTime.isAcceptableOrUnknown(
-              data['last_sync_time']!, _lastSyncTimeMeta));
-    }
-    if (data.containsKey('need_sync')) {
-      context.handle(_needSyncMeta,
-          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
-    }
-    if (data.containsKey('is_new')) {
-      context.handle(
-          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
-    }
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('date')) {
-      context.handle(
-          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
-    } else if (isInserting) {
-      context.missing(_dateMeta);
-    }
-    if (data.containsKey('total_sum')) {
-      context.handle(_totalSumMeta,
-          totalSum.isAcceptableOrUnknown(data['total_sum']!, _totalSumMeta));
-    } else if (isInserting) {
-      context.missing(_totalSumMeta);
-    }
-    if (data.containsKey('check_total_sum')) {
-      context.handle(
-          _checkTotalSumMeta,
-          checkTotalSum.isAcceptableOrUnknown(
-              data['check_total_sum']!, _checkTotalSumMeta));
-    } else if (isInserting) {
-      context.missing(_checkTotalSumMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {id};
-  @override
-  Deposit map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Deposit(
-      guid: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}guid'])!,
-      isDeleted: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
-      timestamp: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
-      currentTimestamp: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
-      lastSyncTime: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
-      needSync: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
-      isNew: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      date: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
-      totalSum: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}total_sum'])!,
-      checkTotalSum: attachedDatabase.typeMapping.read(
-          DriftSqlType.double, data['${effectivePrefix}check_total_sum'])!,
-    );
-  }
-
-  @override
-  $DepositsTable createAlias(String alias) {
-    return $DepositsTable(attachedDatabase, alias);
-  }
-}
-
-class Deposit extends DataClass implements Insertable<Deposit> {
-  final String guid;
-  final bool isDeleted;
-  final DateTime timestamp;
-  final DateTime currentTimestamp;
-  final DateTime? lastSyncTime;
-  final bool needSync;
-  final bool isNew;
-  final int id;
-  final DateTime date;
-  final double totalSum;
-  final double checkTotalSum;
-  const Deposit(
-      {required this.guid,
-      required this.isDeleted,
-      required this.timestamp,
-      required this.currentTimestamp,
-      this.lastSyncTime,
-      required this.needSync,
-      required this.isNew,
-      required this.id,
-      required this.date,
-      required this.totalSum,
-      required this.checkTotalSum});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['guid'] = Variable<String>(guid);
-    map['is_deleted'] = Variable<bool>(isDeleted);
-    map['timestamp'] = Variable<DateTime>(timestamp);
-    map['current_timestamp'] = Variable<DateTime>(currentTimestamp);
-    if (!nullToAbsent || lastSyncTime != null) {
-      map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
-    }
-    map['id'] = Variable<int>(id);
-    map['date'] = Variable<DateTime>(date);
-    map['total_sum'] = Variable<double>(totalSum);
-    map['check_total_sum'] = Variable<double>(checkTotalSum);
-    return map;
-  }
-
-  DepositsCompanion toCompanion(bool nullToAbsent) {
-    return DepositsCompanion(
-      guid: Value(guid),
-      isDeleted: Value(isDeleted),
-      timestamp: Value(timestamp),
-      currentTimestamp: Value(currentTimestamp),
-      lastSyncTime: lastSyncTime == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastSyncTime),
-      id: Value(id),
-      date: Value(date),
-      totalSum: Value(totalSum),
-      checkTotalSum: Value(checkTotalSum),
-    );
-  }
-
-  factory Deposit.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Deposit(
-      guid: serializer.fromJson<String>(json['guid']),
-      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
-      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
-      currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
-      lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
-      needSync: serializer.fromJson<bool>(json['needSync']),
-      isNew: serializer.fromJson<bool>(json['isNew']),
-      id: serializer.fromJson<int>(json['id']),
-      date: serializer.fromJson<DateTime>(json['date']),
-      totalSum: serializer.fromJson<double>(json['totalSum']),
-      checkTotalSum: serializer.fromJson<double>(json['checkTotalSum']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'guid': serializer.toJson<String>(guid),
-      'isDeleted': serializer.toJson<bool>(isDeleted),
-      'timestamp': serializer.toJson<DateTime>(timestamp),
-      'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
-      'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
-      'needSync': serializer.toJson<bool>(needSync),
-      'isNew': serializer.toJson<bool>(isNew),
-      'id': serializer.toJson<int>(id),
-      'date': serializer.toJson<DateTime>(date),
-      'totalSum': serializer.toJson<double>(totalSum),
-      'checkTotalSum': serializer.toJson<double>(checkTotalSum),
-    };
-  }
-
-  Deposit copyWith(
-          {String? guid,
-          bool? isDeleted,
-          DateTime? timestamp,
-          DateTime? currentTimestamp,
-          Value<DateTime?> lastSyncTime = const Value.absent(),
-          bool? needSync,
-          bool? isNew,
-          int? id,
-          DateTime? date,
-          double? totalSum,
-          double? checkTotalSum}) =>
-      Deposit(
-        guid: guid ?? this.guid,
-        isDeleted: isDeleted ?? this.isDeleted,
-        timestamp: timestamp ?? this.timestamp,
-        currentTimestamp: currentTimestamp ?? this.currentTimestamp,
-        lastSyncTime:
-            lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
-        needSync: needSync ?? this.needSync,
-        isNew: isNew ?? this.isNew,
-        id: id ?? this.id,
-        date: date ?? this.date,
-        totalSum: totalSum ?? this.totalSum,
-        checkTotalSum: checkTotalSum ?? this.checkTotalSum,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('Deposit(')
-          ..write('guid: $guid, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('timestamp: $timestamp, ')
-          ..write('currentTimestamp: $currentTimestamp, ')
-          ..write('lastSyncTime: $lastSyncTime, ')
-          ..write('needSync: $needSync, ')
-          ..write('isNew: $isNew, ')
-          ..write('id: $id, ')
-          ..write('date: $date, ')
-          ..write('totalSum: $totalSum, ')
-          ..write('checkTotalSum: $checkTotalSum')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(guid, isDeleted, timestamp, currentTimestamp,
-      lastSyncTime, needSync, isNew, id, date, totalSum, checkTotalSum);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Deposit &&
-          other.guid == this.guid &&
-          other.isDeleted == this.isDeleted &&
-          other.timestamp == this.timestamp &&
-          other.currentTimestamp == this.currentTimestamp &&
-          other.lastSyncTime == this.lastSyncTime &&
-          other.needSync == this.needSync &&
-          other.isNew == this.isNew &&
-          other.id == this.id &&
-          other.date == this.date &&
-          other.totalSum == this.totalSum &&
-          other.checkTotalSum == this.checkTotalSum);
-}
-
-class DepositsCompanion extends UpdateCompanion<Deposit> {
-  final Value<String> guid;
-  final Value<bool> isDeleted;
-  final Value<DateTime> timestamp;
-  final Value<DateTime> currentTimestamp;
-  final Value<DateTime?> lastSyncTime;
-  final Value<int> id;
-  final Value<DateTime> date;
-  final Value<double> totalSum;
-  final Value<double> checkTotalSum;
-  const DepositsCompanion({
-    this.guid = const Value.absent(),
-    this.isDeleted = const Value.absent(),
-    this.timestamp = const Value.absent(),
-    this.currentTimestamp = const Value.absent(),
-    this.lastSyncTime = const Value.absent(),
-    this.id = const Value.absent(),
-    this.date = const Value.absent(),
-    this.totalSum = const Value.absent(),
-    this.checkTotalSum = const Value.absent(),
-  });
-  DepositsCompanion.insert({
-    this.guid = const Value.absent(),
-    this.isDeleted = const Value.absent(),
-    this.timestamp = const Value.absent(),
-    this.currentTimestamp = const Value.absent(),
-    this.lastSyncTime = const Value.absent(),
-    this.id = const Value.absent(),
-    required DateTime date,
-    required double totalSum,
-    required double checkTotalSum,
-  })  : date = Value(date),
-        totalSum = Value(totalSum),
-        checkTotalSum = Value(checkTotalSum);
-  static Insertable<Deposit> custom({
-    Expression<String>? guid,
-    Expression<bool>? isDeleted,
-    Expression<DateTime>? timestamp,
-    Expression<DateTime>? currentTimestamp,
-    Expression<DateTime>? lastSyncTime,
-    Expression<int>? id,
-    Expression<DateTime>? date,
-    Expression<double>? totalSum,
-    Expression<double>? checkTotalSum,
-  }) {
-    return RawValuesInsertable({
-      if (guid != null) 'guid': guid,
-      if (isDeleted != null) 'is_deleted': isDeleted,
-      if (timestamp != null) 'timestamp': timestamp,
-      if (currentTimestamp != null) 'current_timestamp': currentTimestamp,
-      if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
-      if (id != null) 'id': id,
-      if (date != null) 'date': date,
-      if (totalSum != null) 'total_sum': totalSum,
-      if (checkTotalSum != null) 'check_total_sum': checkTotalSum,
-    });
-  }
-
-  DepositsCompanion copyWith(
-      {Value<String>? guid,
-      Value<bool>? isDeleted,
-      Value<DateTime>? timestamp,
-      Value<DateTime>? currentTimestamp,
-      Value<DateTime?>? lastSyncTime,
-      Value<int>? id,
-      Value<DateTime>? date,
-      Value<double>? totalSum,
-      Value<double>? checkTotalSum}) {
-    return DepositsCompanion(
-      guid: guid ?? this.guid,
-      isDeleted: isDeleted ?? this.isDeleted,
-      timestamp: timestamp ?? this.timestamp,
-      currentTimestamp: currentTimestamp ?? this.currentTimestamp,
-      lastSyncTime: lastSyncTime ?? this.lastSyncTime,
-      id: id ?? this.id,
-      date: date ?? this.date,
-      totalSum: totalSum ?? this.totalSum,
-      checkTotalSum: checkTotalSum ?? this.checkTotalSum,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (guid.present) {
-      map['guid'] = Variable<String>(guid.value);
-    }
-    if (isDeleted.present) {
-      map['is_deleted'] = Variable<bool>(isDeleted.value);
-    }
-    if (timestamp.present) {
-      map['timestamp'] = Variable<DateTime>(timestamp.value);
-    }
-    if (currentTimestamp.present) {
-      map['current_timestamp'] = Variable<DateTime>(currentTimestamp.value);
-    }
-    if (lastSyncTime.present) {
-      map['last_sync_time'] = Variable<DateTime>(lastSyncTime.value);
-    }
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (date.present) {
-      map['date'] = Variable<DateTime>(date.value);
-    }
-    if (totalSum.present) {
-      map['total_sum'] = Variable<double>(totalSum.value);
-    }
-    if (checkTotalSum.present) {
-      map['check_total_sum'] = Variable<double>(checkTotalSum.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('DepositsCompanion(')
-          ..write('guid: $guid, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('timestamp: $timestamp, ')
-          ..write('currentTimestamp: $currentTimestamp, ')
-          ..write('lastSyncTime: $lastSyncTime, ')
-          ..write('id: $id, ')
-          ..write('date: $date, ')
-          ..write('totalSum: $totalSum, ')
-          ..write('checkTotalSum: $checkTotalSum')
           ..write(')'))
         .toString();
   }
@@ -5647,9 +5695,7 @@ class $IncRequestsTable extends IncRequests
   @override
   late final GeneratedColumn<String> guid = GeneratedColumn<String>(
       'guid', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      clientDefault: () => AppDataStore._kUuid.v4());
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
@@ -5716,12 +5762,8 @@ class $IncRequestsTable extends IncRequests
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+      'id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _dateMeta = const VerificationMeta('date');
   @override
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
@@ -5776,6 +5818,8 @@ class $IncRequestsTable extends IncRequests
     if (data.containsKey('guid')) {
       context.handle(
           _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
     }
     if (data.containsKey('is_deleted')) {
       context.handle(_isDeletedMeta,
@@ -5834,7 +5878,7 @@ class $IncRequestsTable extends IncRequests
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {guid};
   @override
   IncRequest map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -5854,7 +5898,7 @@ class $IncRequestsTable extends IncRequests
       isNew: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}id']),
       date: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}date']),
       buyerId: attachedDatabase.typeMapping
@@ -5882,7 +5926,7 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
   final DateTime? lastSyncTime;
   final bool needSync;
   final bool isNew;
-  final int id;
+  final int? id;
   final DateTime? date;
   final int? buyerId;
   final double? incSum;
@@ -5896,7 +5940,7 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
       this.lastSyncTime,
       required this.needSync,
       required this.isNew,
-      required this.id,
+      this.id,
       this.date,
       this.buyerId,
       this.incSum,
@@ -5912,7 +5956,9 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
     if (!nullToAbsent || lastSyncTime != null) {
       map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
     }
-    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
     if (!nullToAbsent || date != null) {
       map['date'] = Variable<DateTime>(date);
     }
@@ -5938,7 +5984,7 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
       lastSyncTime: lastSyncTime == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSyncTime),
-      id: Value(id),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       date: date == null && nullToAbsent ? const Value.absent() : Value(date),
       buyerId: buyerId == null && nullToAbsent
           ? const Value.absent()
@@ -5961,7 +6007,7 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
       needSync: serializer.fromJson<bool>(json['needSync']),
       isNew: serializer.fromJson<bool>(json['isNew']),
-      id: serializer.fromJson<int>(json['id']),
+      id: serializer.fromJson<int?>(json['id']),
       date: serializer.fromJson<DateTime?>(json['date']),
       buyerId: serializer.fromJson<int?>(json['buyerId']),
       incSum: serializer.fromJson<double?>(json['incSum']),
@@ -5980,7 +6026,7 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
       'needSync': serializer.toJson<bool>(needSync),
       'isNew': serializer.toJson<bool>(isNew),
-      'id': serializer.toJson<int>(id),
+      'id': serializer.toJson<int?>(id),
       'date': serializer.toJson<DateTime?>(date),
       'buyerId': serializer.toJson<int?>(buyerId),
       'incSum': serializer.toJson<double?>(incSum),
@@ -5997,7 +6043,7 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
           Value<DateTime?> lastSyncTime = const Value.absent(),
           bool? needSync,
           bool? isNew,
-          int? id,
+          Value<int?> id = const Value.absent(),
           Value<DateTime?> date = const Value.absent(),
           Value<int?> buyerId = const Value.absent(),
           Value<double?> incSum = const Value.absent(),
@@ -6012,7 +6058,7 @@ class IncRequest extends DataClass implements Insertable<IncRequest> {
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
         needSync: needSync ?? this.needSync,
         isNew: isNew ?? this.isNew,
-        id: id ?? this.id,
+        id: id.present ? id.value : this.id,
         date: date.present ? date.value : this.date,
         buyerId: buyerId.present ? buyerId.value : this.buyerId,
         incSum: incSum.present ? incSum.value : this.incSum,
@@ -6067,12 +6113,13 @@ class IncRequestsCompanion extends UpdateCompanion<IncRequest> {
   final Value<DateTime> timestamp;
   final Value<DateTime> currentTimestamp;
   final Value<DateTime?> lastSyncTime;
-  final Value<int> id;
+  final Value<int?> id;
   final Value<DateTime?> date;
   final Value<int?> buyerId;
   final Value<double?> incSum;
   final Value<String?> info;
   final Value<String> status;
+  final Value<int> rowid;
   const IncRequestsCompanion({
     this.guid = const Value.absent(),
     this.isDeleted = const Value.absent(),
@@ -6085,9 +6132,10 @@ class IncRequestsCompanion extends UpdateCompanion<IncRequest> {
     this.incSum = const Value.absent(),
     this.info = const Value.absent(),
     this.status = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   IncRequestsCompanion.insert({
-    this.guid = const Value.absent(),
+    required String guid,
     this.isDeleted = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.currentTimestamp = const Value.absent(),
@@ -6098,7 +6146,9 @@ class IncRequestsCompanion extends UpdateCompanion<IncRequest> {
     this.incSum = const Value.absent(),
     this.info = const Value.absent(),
     required String status,
-  }) : status = Value(status);
+    this.rowid = const Value.absent(),
+  })  : guid = Value(guid),
+        status = Value(status);
   static Insertable<IncRequest> custom({
     Expression<String>? guid,
     Expression<bool>? isDeleted,
@@ -6111,6 +6161,7 @@ class IncRequestsCompanion extends UpdateCompanion<IncRequest> {
     Expression<double>? incSum,
     Expression<String>? info,
     Expression<String>? status,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (guid != null) 'guid': guid,
@@ -6124,6 +6175,7 @@ class IncRequestsCompanion extends UpdateCompanion<IncRequest> {
       if (incSum != null) 'inc_sum': incSum,
       if (info != null) 'info': info,
       if (status != null) 'status': status,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -6133,12 +6185,13 @@ class IncRequestsCompanion extends UpdateCompanion<IncRequest> {
       Value<DateTime>? timestamp,
       Value<DateTime>? currentTimestamp,
       Value<DateTime?>? lastSyncTime,
-      Value<int>? id,
+      Value<int?>? id,
       Value<DateTime?>? date,
       Value<int?>? buyerId,
       Value<double?>? incSum,
       Value<String?>? info,
-      Value<String>? status}) {
+      Value<String>? status,
+      Value<int>? rowid}) {
     return IncRequestsCompanion(
       guid: guid ?? this.guid,
       isDeleted: isDeleted ?? this.isDeleted,
@@ -6151,6 +6204,7 @@ class IncRequestsCompanion extends UpdateCompanion<IncRequest> {
       incSum: incSum ?? this.incSum,
       info: info ?? this.info,
       status: status ?? this.status,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -6190,6 +6244,9 @@ class IncRequestsCompanion extends UpdateCompanion<IncRequest> {
     if (status.present) {
       map['status'] = Variable<String>(status.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -6206,7 +6263,8 @@ class IncRequestsCompanion extends UpdateCompanion<IncRequest> {
           ..write('buyerId: $buyerId, ')
           ..write('incSum: $incSum, ')
           ..write('info: $info, ')
-          ..write('status: $status')
+          ..write('status: $status, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -6274,6 +6332,18 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           requiredDuringInsert: true,
           defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
             SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
+  static const VerificationMeta _isLatestMeta =
+      const VerificationMeta('isLatest');
+  @override
+  late final GeneratedColumn<bool> isLatest =
+      GeneratedColumn<bool>('is_latest', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: true,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_latest" IN (0, 1))',
             SqlDialect.mysql: '',
             SqlDialect.postgres: '',
           }));
@@ -6379,6 +6449,7 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
         manufacturer,
         isHit,
         isNew,
+        isLatest,
         pricelistSetId,
         cost,
         minPrice,
@@ -6450,6 +6521,12 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
     } else if (isInserting) {
       context.missing(_isNewMeta);
+    }
+    if (data.containsKey('is_latest')) {
+      context.handle(_isLatestMeta,
+          isLatest.isAcceptableOrUnknown(data['is_latest']!, _isLatestMeta));
+    } else if (isInserting) {
+      context.missing(_isLatestMeta);
     }
     if (data.containsKey('pricelist_set_id')) {
       context.handle(
@@ -6576,6 +6653,8 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           .read(DriftSqlType.bool, data['${effectivePrefix}is_hit'])!,
       isNew: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
+      isLatest: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_latest'])!,
       pricelistSetId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}pricelist_set_id'])!,
       cost: attachedDatabase.typeMapping
@@ -6625,6 +6704,7 @@ class Goods extends DataClass implements Insertable<Goods> {
   final String? manufacturer;
   final bool isHit;
   final bool isNew;
+  final bool isLatest;
   final int pricelistSetId;
   final double cost;
   final double minPrice;
@@ -6649,6 +6729,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       this.manufacturer,
       required this.isHit,
       required this.isNew,
+      required this.isLatest,
       required this.pricelistSetId,
       required this.cost,
       required this.minPrice,
@@ -6677,6 +6758,7 @@ class Goods extends DataClass implements Insertable<Goods> {
     }
     map['is_hit'] = Variable<bool>(isHit);
     map['is_new'] = Variable<bool>(isNew);
+    map['is_latest'] = Variable<bool>(isLatest);
     map['pricelist_set_id'] = Variable<int>(pricelistSetId);
     map['cost'] = Variable<double>(cost);
     map['min_price'] = Variable<double>(minPrice);
@@ -6709,6 +6791,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           : Value(manufacturer),
       isHit: Value(isHit),
       isNew: Value(isNew),
+      isLatest: Value(isLatest),
       pricelistSetId: Value(pricelistSetId),
       cost: Value(cost),
       minPrice: Value(minPrice),
@@ -6741,6 +6824,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       manufacturer: serializer.fromJson<String?>(json['manufacturer']),
       isHit: serializer.fromJson<bool>(json['isHit']),
       isNew: serializer.fromJson<bool>(json['isNew']),
+      isLatest: serializer.fromJson<bool>(json['isLatest']),
       pricelistSetId: serializer.fromJson<int>(json['pricelistSetId']),
       cost: serializer.fromJson<double>(json['cost']),
       minPrice: serializer.fromJson<double>(json['minPrice']),
@@ -6771,6 +6855,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       'manufacturer': serializer.toJson<String?>(manufacturer),
       'isHit': serializer.toJson<bool>(isHit),
       'isNew': serializer.toJson<bool>(isNew),
+      'isLatest': serializer.toJson<bool>(isLatest),
       'pricelistSetId': serializer.toJson<int>(pricelistSetId),
       'cost': serializer.toJson<double>(cost),
       'minPrice': serializer.toJson<double>(minPrice),
@@ -6798,6 +6883,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           Value<String?> manufacturer = const Value.absent(),
           bool? isHit,
           bool? isNew,
+          bool? isLatest,
           int? pricelistSetId,
           double? cost,
           double? minPrice,
@@ -6823,6 +6909,7 @@ class Goods extends DataClass implements Insertable<Goods> {
             manufacturer.present ? manufacturer.value : this.manufacturer,
         isHit: isHit ?? this.isHit,
         isNew: isNew ?? this.isNew,
+        isLatest: isLatest ?? this.isLatest,
         pricelistSetId: pricelistSetId ?? this.pricelistSetId,
         cost: cost ?? this.cost,
         minPrice: minPrice ?? this.minPrice,
@@ -6851,6 +6938,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           ..write('manufacturer: $manufacturer, ')
           ..write('isHit: $isHit, ')
           ..write('isNew: $isNew, ')
+          ..write('isLatest: $isLatest, ')
           ..write('pricelistSetId: $pricelistSetId, ')
           ..write('cost: $cost, ')
           ..write('minPrice: $minPrice, ')
@@ -6880,6 +6968,7 @@ class Goods extends DataClass implements Insertable<Goods> {
         manufacturer,
         isHit,
         isNew,
+        isLatest,
         pricelistSetId,
         cost,
         minPrice,
@@ -6908,6 +6997,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           other.manufacturer == this.manufacturer &&
           other.isHit == this.isHit &&
           other.isNew == this.isNew &&
+          other.isLatest == this.isLatest &&
           other.pricelistSetId == this.pricelistSetId &&
           other.cost == this.cost &&
           other.minPrice == this.minPrice &&
@@ -6934,6 +7024,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   final Value<String?> manufacturer;
   final Value<bool> isHit;
   final Value<bool> isNew;
+  final Value<bool> isLatest;
   final Value<int> pricelistSetId;
   final Value<double> cost;
   final Value<double> minPrice;
@@ -6958,6 +7049,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     this.manufacturer = const Value.absent(),
     this.isHit = const Value.absent(),
     this.isNew = const Value.absent(),
+    this.isLatest = const Value.absent(),
     this.pricelistSetId = const Value.absent(),
     this.cost = const Value.absent(),
     this.minPrice = const Value.absent(),
@@ -6983,6 +7075,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     this.manufacturer = const Value.absent(),
     required bool isHit,
     required bool isNew,
+    required bool isLatest,
     required int pricelistSetId,
     required double cost,
     required double minPrice,
@@ -7004,6 +7097,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
         categoryId = Value(categoryId),
         isHit = Value(isHit),
         isNew = Value(isNew),
+        isLatest = Value(isLatest),
         pricelistSetId = Value(pricelistSetId),
         cost = Value(cost),
         minPrice = Value(minPrice),
@@ -7027,6 +7121,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     Expression<String>? manufacturer,
     Expression<bool>? isHit,
     Expression<bool>? isNew,
+    Expression<bool>? isLatest,
     Expression<int>? pricelistSetId,
     Expression<double>? cost,
     Expression<double>? minPrice,
@@ -7052,6 +7147,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       if (manufacturer != null) 'manufacturer': manufacturer,
       if (isHit != null) 'is_hit': isHit,
       if (isNew != null) 'is_new': isNew,
+      if (isLatest != null) 'is_latest': isLatest,
       if (pricelistSetId != null) 'pricelist_set_id': pricelistSetId,
       if (cost != null) 'cost': cost,
       if (minPrice != null) 'min_price': minPrice,
@@ -7081,6 +7177,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       Value<String?>? manufacturer,
       Value<bool>? isHit,
       Value<bool>? isNew,
+      Value<bool>? isLatest,
       Value<int>? pricelistSetId,
       Value<double>? cost,
       Value<double>? minPrice,
@@ -7105,6 +7202,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       manufacturer: manufacturer ?? this.manufacturer,
       isHit: isHit ?? this.isHit,
       isNew: isNew ?? this.isNew,
+      isLatest: isLatest ?? this.isLatest,
       pricelistSetId: pricelistSetId ?? this.pricelistSetId,
       cost: cost ?? this.cost,
       minPrice: minPrice ?? this.minPrice,
@@ -7150,6 +7248,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     }
     if (isNew.present) {
       map['is_new'] = Variable<bool>(isNew.value);
+    }
+    if (isLatest.present) {
+      map['is_latest'] = Variable<bool>(isLatest.value);
     }
     if (pricelistSetId.present) {
       map['pricelist_set_id'] = Variable<int>(pricelistSetId.value);
@@ -7211,6 +7312,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
           ..write('manufacturer: $manufacturer, ')
           ..write('isHit: $isHit, ')
           ..write('isNew: $isNew, ')
+          ..write('isLatest: $isLatest, ')
           ..write('pricelistSetId: $pricelistSetId, ')
           ..write('cost: $cost, ')
           ..write('minPrice: $minPrice, ')
@@ -8124,9 +8226,7 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
   @override
   late final GeneratedColumn<String> guid = GeneratedColumn<String>(
       'guid', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      clientDefault: () => AppDataStore._kUuid.v4());
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
@@ -8193,12 +8293,8 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+      'id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _dateMeta = const VerificationMeta('date');
   @override
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
@@ -8332,6 +8428,8 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
     if (data.containsKey('guid')) {
       context.handle(
           _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
     }
     if (data.containsKey('is_deleted')) {
       context.handle(_isDeletedMeta,
@@ -8434,7 +8532,7 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {guid};
   @override
   Order map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -8454,7 +8552,7 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
       isNew: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}id']),
       date: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}date']),
       status: attachedDatabase.typeMapping
@@ -8494,7 +8592,7 @@ class Order extends DataClass implements Insertable<Order> {
   final DateTime? lastSyncTime;
   final bool needSync;
   final bool isNew;
-  final int id;
+  final int? id;
   final DateTime? date;
   final String status;
   final int? preOrderId;
@@ -8514,7 +8612,7 @@ class Order extends DataClass implements Insertable<Order> {
       this.lastSyncTime,
       required this.needSync,
       required this.isNew,
-      required this.id,
+      this.id,
       this.date,
       required this.status,
       this.preOrderId,
@@ -8536,7 +8634,9 @@ class Order extends DataClass implements Insertable<Order> {
     if (!nullToAbsent || lastSyncTime != null) {
       map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
     }
-    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
     if (!nullToAbsent || date != null) {
       map['date'] = Variable<DateTime>(date);
     }
@@ -8568,7 +8668,7 @@ class Order extends DataClass implements Insertable<Order> {
       lastSyncTime: lastSyncTime == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSyncTime),
-      id: Value(id),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       date: date == null && nullToAbsent ? const Value.absent() : Value(date),
       status: Value(status),
       preOrderId: preOrderId == null && nullToAbsent
@@ -8598,7 +8698,7 @@ class Order extends DataClass implements Insertable<Order> {
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
       needSync: serializer.fromJson<bool>(json['needSync']),
       isNew: serializer.fromJson<bool>(json['isNew']),
-      id: serializer.fromJson<int>(json['id']),
+      id: serializer.fromJson<int?>(json['id']),
       date: serializer.fromJson<DateTime?>(json['date']),
       status: serializer.fromJson<String>(json['status']),
       preOrderId: serializer.fromJson<int?>(json['preOrderId']),
@@ -8623,7 +8723,7 @@ class Order extends DataClass implements Insertable<Order> {
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
       'needSync': serializer.toJson<bool>(needSync),
       'isNew': serializer.toJson<bool>(isNew),
-      'id': serializer.toJson<int>(id),
+      'id': serializer.toJson<int?>(id),
       'date': serializer.toJson<DateTime?>(date),
       'status': serializer.toJson<String>(status),
       'preOrderId': serializer.toJson<int?>(preOrderId),
@@ -8646,7 +8746,7 @@ class Order extends DataClass implements Insertable<Order> {
           Value<DateTime?> lastSyncTime = const Value.absent(),
           bool? needSync,
           bool? isNew,
-          int? id,
+          Value<int?> id = const Value.absent(),
           Value<DateTime?> date = const Value.absent(),
           String? status,
           Value<int?> preOrderId = const Value.absent(),
@@ -8667,7 +8767,7 @@ class Order extends DataClass implements Insertable<Order> {
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
         needSync: needSync ?? this.needSync,
         isNew: isNew ?? this.isNew,
-        id: id ?? this.id,
+        id: id.present ? id.value : this.id,
         date: date.present ? date.value : this.date,
         status: status ?? this.status,
         preOrderId: preOrderId.present ? preOrderId.value : this.preOrderId,
@@ -8758,7 +8858,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
   final Value<DateTime> timestamp;
   final Value<DateTime> currentTimestamp;
   final Value<DateTime?> lastSyncTime;
-  final Value<int> id;
+  final Value<int?> id;
   final Value<DateTime?> date;
   final Value<String> status;
   final Value<int?> preOrderId;
@@ -8770,6 +8870,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
   final Value<String?> info;
   final Value<bool> needProcessing;
   final Value<bool> isEditable;
+  final Value<int> rowid;
   const OrdersCompanion({
     this.guid = const Value.absent(),
     this.isDeleted = const Value.absent(),
@@ -8788,9 +8889,10 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     this.info = const Value.absent(),
     this.needProcessing = const Value.absent(),
     this.isEditable = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   OrdersCompanion.insert({
-    this.guid = const Value.absent(),
+    required String guid,
     this.isDeleted = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.currentTimestamp = const Value.absent(),
@@ -8807,7 +8909,9 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     this.info = const Value.absent(),
     required bool needProcessing,
     required bool isEditable,
-  })  : status = Value(status),
+    this.rowid = const Value.absent(),
+  })  : guid = Value(guid),
+        status = Value(status),
         needDocs = Value(needDocs),
         needInc = Value(needInc),
         isBonus = Value(isBonus),
@@ -8832,6 +8936,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     Expression<String>? info,
     Expression<bool>? needProcessing,
     Expression<bool>? isEditable,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (guid != null) 'guid': guid,
@@ -8851,6 +8956,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       if (info != null) 'info': info,
       if (needProcessing != null) 'need_processing': needProcessing,
       if (isEditable != null) 'is_editable': isEditable,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -8860,7 +8966,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       Value<DateTime>? timestamp,
       Value<DateTime>? currentTimestamp,
       Value<DateTime?>? lastSyncTime,
-      Value<int>? id,
+      Value<int?>? id,
       Value<DateTime?>? date,
       Value<String>? status,
       Value<int?>? preOrderId,
@@ -8871,7 +8977,8 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       Value<int?>? buyerId,
       Value<String?>? info,
       Value<bool>? needProcessing,
-      Value<bool>? isEditable}) {
+      Value<bool>? isEditable,
+      Value<int>? rowid}) {
     return OrdersCompanion(
       guid: guid ?? this.guid,
       isDeleted: isDeleted ?? this.isDeleted,
@@ -8890,6 +8997,7 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       info: info ?? this.info,
       needProcessing: needProcessing ?? this.needProcessing,
       isEditable: isEditable ?? this.isEditable,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -8947,6 +9055,9 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     if (isEditable.present) {
       map['is_editable'] = Variable<bool>(isEditable.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -8969,7 +9080,8 @@ class OrdersCompanion extends UpdateCompanion<Order> {
           ..write('buyerId: $buyerId, ')
           ..write('info: $info, ')
           ..write('needProcessing: $needProcessing, ')
-          ..write('isEditable: $isEditable')
+          ..write('isEditable: $isEditable, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -8985,9 +9097,7 @@ class $OrderLinesTable extends OrderLines
   @override
   late final GeneratedColumn<String> guid = GeneratedColumn<String>(
       'guid', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      clientDefault: () => AppDataStore._kUuid.v4());
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
@@ -9054,18 +9164,17 @@ class $OrderLinesTable extends OrderLines
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
-  static const VerificationMeta _orderIdMeta =
-      const VerificationMeta('orderId');
+      'id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _orderGuidMeta =
+      const VerificationMeta('orderGuid');
   @override
-  late final GeneratedColumn<int> orderId = GeneratedColumn<int>(
-      'order_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+  late final GeneratedColumn<String> orderGuid = GeneratedColumn<String>(
+      'order_guid', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES orders (guid) ON UPDATE CASCADE ON DELETE CASCADE'));
   static const VerificationMeta _goodsIdMeta =
       const VerificationMeta('goodsId');
   @override
@@ -9109,7 +9218,7 @@ class $OrderLinesTable extends OrderLines
         needSync,
         isNew,
         id,
-        orderId,
+        orderGuid,
         goodsId,
         vol,
         price,
@@ -9129,6 +9238,8 @@ class $OrderLinesTable extends OrderLines
     if (data.containsKey('guid')) {
       context.handle(
           _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
     }
     if (data.containsKey('is_deleted')) {
       context.handle(_isDeletedMeta,
@@ -9161,11 +9272,11 @@ class $OrderLinesTable extends OrderLines
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('order_id')) {
-      context.handle(_orderIdMeta,
-          orderId.isAcceptableOrUnknown(data['order_id']!, _orderIdMeta));
+    if (data.containsKey('order_guid')) {
+      context.handle(_orderGuidMeta,
+          orderGuid.isAcceptableOrUnknown(data['order_guid']!, _orderGuidMeta));
     } else if (isInserting) {
-      context.missing(_orderIdMeta);
+      context.missing(_orderGuidMeta);
     }
     if (data.containsKey('goods_id')) {
       context.handle(_goodsIdMeta,
@@ -9209,7 +9320,7 @@ class $OrderLinesTable extends OrderLines
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {guid};
   @override
   OrderLine map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -9229,9 +9340,9 @@ class $OrderLinesTable extends OrderLines
       isNew: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
-      orderId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}order_id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}id']),
+      orderGuid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}order_guid'])!,
       goodsId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}goods_id'])!,
       vol: attachedDatabase.typeMapping
@@ -9261,8 +9372,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
   final DateTime? lastSyncTime;
   final bool needSync;
   final bool isNew;
-  final int id;
-  final int orderId;
+  final int? id;
+  final String orderGuid;
   final int goodsId;
   final double vol;
   final double price;
@@ -9277,8 +9388,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       this.lastSyncTime,
       required this.needSync,
       required this.isNew,
-      required this.id,
-      required this.orderId,
+      this.id,
+      required this.orderGuid,
       required this.goodsId,
       required this.vol,
       required this.price,
@@ -9295,8 +9406,10 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
     if (!nullToAbsent || lastSyncTime != null) {
       map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
     }
-    map['id'] = Variable<int>(id);
-    map['order_id'] = Variable<int>(orderId);
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    map['order_guid'] = Variable<String>(orderGuid);
     map['goods_id'] = Variable<int>(goodsId);
     map['vol'] = Variable<double>(vol);
     map['price'] = Variable<double>(price);
@@ -9315,8 +9428,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       lastSyncTime: lastSyncTime == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSyncTime),
-      id: Value(id),
-      orderId: Value(orderId),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      orderGuid: Value(orderGuid),
       goodsId: Value(goodsId),
       vol: Value(vol),
       price: Value(price),
@@ -9337,8 +9450,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
       needSync: serializer.fromJson<bool>(json['needSync']),
       isNew: serializer.fromJson<bool>(json['isNew']),
-      id: serializer.fromJson<int>(json['id']),
-      orderId: serializer.fromJson<int>(json['orderId']),
+      id: serializer.fromJson<int?>(json['id']),
+      orderGuid: serializer.fromJson<String>(json['orderGuid']),
       goodsId: serializer.fromJson<int>(json['goodsId']),
       vol: serializer.fromJson<double>(json['vol']),
       price: serializer.fromJson<double>(json['price']),
@@ -9358,8 +9471,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
       'needSync': serializer.toJson<bool>(needSync),
       'isNew': serializer.toJson<bool>(isNew),
-      'id': serializer.toJson<int>(id),
-      'orderId': serializer.toJson<int>(orderId),
+      'id': serializer.toJson<int?>(id),
+      'orderGuid': serializer.toJson<String>(orderGuid),
       'goodsId': serializer.toJson<int>(goodsId),
       'vol': serializer.toJson<double>(vol),
       'price': serializer.toJson<double>(price),
@@ -9377,8 +9490,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           Value<DateTime?> lastSyncTime = const Value.absent(),
           bool? needSync,
           bool? isNew,
-          int? id,
-          int? orderId,
+          Value<int?> id = const Value.absent(),
+          String? orderGuid,
           int? goodsId,
           double? vol,
           double? price,
@@ -9394,8 +9507,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
         needSync: needSync ?? this.needSync,
         isNew: isNew ?? this.isNew,
-        id: id ?? this.id,
-        orderId: orderId ?? this.orderId,
+        id: id.present ? id.value : this.id,
+        orderGuid: orderGuid ?? this.orderGuid,
         goodsId: goodsId ?? this.goodsId,
         vol: vol ?? this.vol,
         price: price ?? this.price,
@@ -9414,7 +9527,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           ..write('needSync: $needSync, ')
           ..write('isNew: $isNew, ')
           ..write('id: $id, ')
-          ..write('orderId: $orderId, ')
+          ..write('orderGuid: $orderGuid, ')
           ..write('goodsId: $goodsId, ')
           ..write('vol: $vol, ')
           ..write('price: $price, ')
@@ -9435,7 +9548,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       needSync,
       isNew,
       id,
-      orderId,
+      orderGuid,
       goodsId,
       vol,
       price,
@@ -9454,7 +9567,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           other.needSync == this.needSync &&
           other.isNew == this.isNew &&
           other.id == this.id &&
-          other.orderId == this.orderId &&
+          other.orderGuid == this.orderGuid &&
           other.goodsId == this.goodsId &&
           other.vol == this.vol &&
           other.price == this.price &&
@@ -9469,14 +9582,15 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
   final Value<DateTime> timestamp;
   final Value<DateTime> currentTimestamp;
   final Value<DateTime?> lastSyncTime;
-  final Value<int> id;
-  final Value<int> orderId;
+  final Value<int?> id;
+  final Value<String> orderGuid;
   final Value<int> goodsId;
   final Value<double> vol;
   final Value<double> price;
   final Value<double> priceOriginal;
   final Value<int> package;
   final Value<int> rel;
+  final Value<int> rowid;
   const OrderLinesCompanion({
     this.guid = const Value.absent(),
     this.isDeleted = const Value.absent(),
@@ -9484,29 +9598,32 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     this.currentTimestamp = const Value.absent(),
     this.lastSyncTime = const Value.absent(),
     this.id = const Value.absent(),
-    this.orderId = const Value.absent(),
+    this.orderGuid = const Value.absent(),
     this.goodsId = const Value.absent(),
     this.vol = const Value.absent(),
     this.price = const Value.absent(),
     this.priceOriginal = const Value.absent(),
     this.package = const Value.absent(),
     this.rel = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   OrderLinesCompanion.insert({
-    this.guid = const Value.absent(),
+    required String guid,
     this.isDeleted = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.currentTimestamp = const Value.absent(),
     this.lastSyncTime = const Value.absent(),
     this.id = const Value.absent(),
-    required int orderId,
+    required String orderGuid,
     required int goodsId,
     required double vol,
     required double price,
     required double priceOriginal,
     required int package,
     required int rel,
-  })  : orderId = Value(orderId),
+    this.rowid = const Value.absent(),
+  })  : guid = Value(guid),
+        orderGuid = Value(orderGuid),
         goodsId = Value(goodsId),
         vol = Value(vol),
         price = Value(price),
@@ -9520,13 +9637,14 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     Expression<DateTime>? currentTimestamp,
     Expression<DateTime>? lastSyncTime,
     Expression<int>? id,
-    Expression<int>? orderId,
+    Expression<String>? orderGuid,
     Expression<int>? goodsId,
     Expression<double>? vol,
     Expression<double>? price,
     Expression<double>? priceOriginal,
     Expression<int>? package,
     Expression<int>? rel,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (guid != null) 'guid': guid,
@@ -9535,13 +9653,14 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
       if (currentTimestamp != null) 'current_timestamp': currentTimestamp,
       if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
       if (id != null) 'id': id,
-      if (orderId != null) 'order_id': orderId,
+      if (orderGuid != null) 'order_guid': orderGuid,
       if (goodsId != null) 'goods_id': goodsId,
       if (vol != null) 'vol': vol,
       if (price != null) 'price': price,
       if (priceOriginal != null) 'price_original': priceOriginal,
       if (package != null) 'package': package,
       if (rel != null) 'rel': rel,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -9551,14 +9670,15 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
       Value<DateTime>? timestamp,
       Value<DateTime>? currentTimestamp,
       Value<DateTime?>? lastSyncTime,
-      Value<int>? id,
-      Value<int>? orderId,
+      Value<int?>? id,
+      Value<String>? orderGuid,
       Value<int>? goodsId,
       Value<double>? vol,
       Value<double>? price,
       Value<double>? priceOriginal,
       Value<int>? package,
-      Value<int>? rel}) {
+      Value<int>? rel,
+      Value<int>? rowid}) {
     return OrderLinesCompanion(
       guid: guid ?? this.guid,
       isDeleted: isDeleted ?? this.isDeleted,
@@ -9566,13 +9686,14 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
       currentTimestamp: currentTimestamp ?? this.currentTimestamp,
       lastSyncTime: lastSyncTime ?? this.lastSyncTime,
       id: id ?? this.id,
-      orderId: orderId ?? this.orderId,
+      orderGuid: orderGuid ?? this.orderGuid,
       goodsId: goodsId ?? this.goodsId,
       vol: vol ?? this.vol,
       price: price ?? this.price,
       priceOriginal: priceOriginal ?? this.priceOriginal,
       package: package ?? this.package,
       rel: rel ?? this.rel,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -9597,8 +9718,8 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (orderId.present) {
-      map['order_id'] = Variable<int>(orderId.value);
+    if (orderGuid.present) {
+      map['order_guid'] = Variable<String>(orderGuid.value);
     }
     if (goodsId.present) {
       map['goods_id'] = Variable<int>(goodsId.value);
@@ -9618,6 +9739,9 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     if (rel.present) {
       map['rel'] = Variable<int>(rel.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -9630,13 +9754,14 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
           ..write('currentTimestamp: $currentTimestamp, ')
           ..write('lastSyncTime: $lastSyncTime, ')
           ..write('id: $id, ')
-          ..write('orderId: $orderId, ')
+          ..write('orderGuid: $orderGuid, ')
           ..write('goodsId: $goodsId, ')
           ..write('vol: $vol, ')
           ..write('price: $price, ')
           ..write('priceOriginal: $priceOriginal, ')
           ..write('package: $package, ')
-          ..write('rel: $rel')
+          ..write('rel: $rel, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -12562,9 +12687,7 @@ class $PartnersPricesTable extends PartnersPrices
   @override
   late final GeneratedColumn<String> guid = GeneratedColumn<String>(
       'guid', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      clientDefault: () => AppDataStore._kUuid.v4());
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
@@ -12631,12 +12754,8 @@ class $PartnersPricesTable extends PartnersPrices
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+      'id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _goodsIdMeta =
       const VerificationMeta('goodsId');
   @override
@@ -12693,6 +12812,8 @@ class $PartnersPricesTable extends PartnersPrices
     if (data.containsKey('guid')) {
       context.handle(
           _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
     }
     if (data.containsKey('is_deleted')) {
       context.handle(_isDeletedMeta,
@@ -12759,7 +12880,7 @@ class $PartnersPricesTable extends PartnersPrices
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {guid};
   @override
   PartnersPrice map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -12779,7 +12900,7 @@ class $PartnersPricesTable extends PartnersPrices
       isNew: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}id']),
       goodsId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}goods_id'])!,
       partnerId: attachedDatabase.typeMapping
@@ -12807,7 +12928,7 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
   final DateTime? lastSyncTime;
   final bool needSync;
   final bool isNew;
-  final int id;
+  final int? id;
   final int goodsId;
   final int partnerId;
   final double price;
@@ -12821,7 +12942,7 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
       this.lastSyncTime,
       required this.needSync,
       required this.isNew,
-      required this.id,
+      this.id,
       required this.goodsId,
       required this.partnerId,
       required this.price,
@@ -12837,7 +12958,9 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
     if (!nullToAbsent || lastSyncTime != null) {
       map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
     }
-    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
     map['goods_id'] = Variable<int>(goodsId);
     map['partner_id'] = Variable<int>(partnerId);
     map['price'] = Variable<double>(price);
@@ -12855,7 +12978,7 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
       lastSyncTime: lastSyncTime == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSyncTime),
-      id: Value(id),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       goodsId: Value(goodsId),
       partnerId: Value(partnerId),
       price: Value(price),
@@ -12875,7 +12998,7 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
       needSync: serializer.fromJson<bool>(json['needSync']),
       isNew: serializer.fromJson<bool>(json['isNew']),
-      id: serializer.fromJson<int>(json['id']),
+      id: serializer.fromJson<int?>(json['id']),
       goodsId: serializer.fromJson<int>(json['goodsId']),
       partnerId: serializer.fromJson<int>(json['partnerId']),
       price: serializer.fromJson<double>(json['price']),
@@ -12894,7 +13017,7 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
       'needSync': serializer.toJson<bool>(needSync),
       'isNew': serializer.toJson<bool>(isNew),
-      'id': serializer.toJson<int>(id),
+      'id': serializer.toJson<int?>(id),
       'goodsId': serializer.toJson<int>(goodsId),
       'partnerId': serializer.toJson<int>(partnerId),
       'price': serializer.toJson<double>(price),
@@ -12911,7 +13034,7 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
           Value<DateTime?> lastSyncTime = const Value.absent(),
           bool? needSync,
           bool? isNew,
-          int? id,
+          Value<int?> id = const Value.absent(),
           int? goodsId,
           int? partnerId,
           double? price,
@@ -12926,7 +13049,7 @@ class PartnersPrice extends DataClass implements Insertable<PartnersPrice> {
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
         needSync: needSync ?? this.needSync,
         isNew: isNew ?? this.isNew,
-        id: id ?? this.id,
+        id: id.present ? id.value : this.id,
         goodsId: goodsId ?? this.goodsId,
         partnerId: partnerId ?? this.partnerId,
         price: price ?? this.price,
@@ -12993,12 +13116,13 @@ class PartnersPricesCompanion extends UpdateCompanion<PartnersPrice> {
   final Value<DateTime> timestamp;
   final Value<DateTime> currentTimestamp;
   final Value<DateTime?> lastSyncTime;
-  final Value<int> id;
+  final Value<int?> id;
   final Value<int> goodsId;
   final Value<int> partnerId;
   final Value<double> price;
   final Value<DateTime> dateFrom;
   final Value<DateTime> dateTo;
+  final Value<int> rowid;
   const PartnersPricesCompanion({
     this.guid = const Value.absent(),
     this.isDeleted = const Value.absent(),
@@ -13011,9 +13135,10 @@ class PartnersPricesCompanion extends UpdateCompanion<PartnersPrice> {
     this.price = const Value.absent(),
     this.dateFrom = const Value.absent(),
     this.dateTo = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   PartnersPricesCompanion.insert({
-    this.guid = const Value.absent(),
+    required String guid,
     this.isDeleted = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.currentTimestamp = const Value.absent(),
@@ -13024,7 +13149,9 @@ class PartnersPricesCompanion extends UpdateCompanion<PartnersPrice> {
     required double price,
     required DateTime dateFrom,
     required DateTime dateTo,
-  })  : goodsId = Value(goodsId),
+    this.rowid = const Value.absent(),
+  })  : guid = Value(guid),
+        goodsId = Value(goodsId),
         partnerId = Value(partnerId),
         price = Value(price),
         dateFrom = Value(dateFrom),
@@ -13041,6 +13168,7 @@ class PartnersPricesCompanion extends UpdateCompanion<PartnersPrice> {
     Expression<double>? price,
     Expression<DateTime>? dateFrom,
     Expression<DateTime>? dateTo,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (guid != null) 'guid': guid,
@@ -13054,6 +13182,7 @@ class PartnersPricesCompanion extends UpdateCompanion<PartnersPrice> {
       if (price != null) 'price': price,
       if (dateFrom != null) 'date_from': dateFrom,
       if (dateTo != null) 'date_to': dateTo,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -13063,12 +13192,13 @@ class PartnersPricesCompanion extends UpdateCompanion<PartnersPrice> {
       Value<DateTime>? timestamp,
       Value<DateTime>? currentTimestamp,
       Value<DateTime?>? lastSyncTime,
-      Value<int>? id,
+      Value<int?>? id,
       Value<int>? goodsId,
       Value<int>? partnerId,
       Value<double>? price,
       Value<DateTime>? dateFrom,
-      Value<DateTime>? dateTo}) {
+      Value<DateTime>? dateTo,
+      Value<int>? rowid}) {
     return PartnersPricesCompanion(
       guid: guid ?? this.guid,
       isDeleted: isDeleted ?? this.isDeleted,
@@ -13081,6 +13211,7 @@ class PartnersPricesCompanion extends UpdateCompanion<PartnersPrice> {
       price: price ?? this.price,
       dateFrom: dateFrom ?? this.dateFrom,
       dateTo: dateTo ?? this.dateTo,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -13120,6 +13251,9 @@ class PartnersPricesCompanion extends UpdateCompanion<PartnersPrice> {
     if (dateTo.present) {
       map['date_to'] = Variable<DateTime>(dateTo.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -13136,7 +13270,8 @@ class PartnersPricesCompanion extends UpdateCompanion<PartnersPrice> {
           ..write('partnerId: $partnerId, ')
           ..write('price: $price, ')
           ..write('dateFrom: $dateFrom, ')
-          ..write('dateTo: $dateTo')
+          ..write('dateTo: $dateTo, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -13453,9 +13588,7 @@ class $PartnersPricelistsTable extends PartnersPricelists
   @override
   late final GeneratedColumn<String> guid = GeneratedColumn<String>(
       'guid', aliasedName, false,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      clientDefault: () => AppDataStore._kUuid.v4());
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
@@ -13522,12 +13655,8 @@ class $PartnersPricelistsTable extends PartnersPricelists
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+      'id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _partnerIdMeta =
       const VerificationMeta('partnerId');
   @override
@@ -13579,6 +13708,8 @@ class $PartnersPricelistsTable extends PartnersPricelists
     if (data.containsKey('guid')) {
       context.handle(
           _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
     }
     if (data.containsKey('is_deleted')) {
       context.handle(_isDeletedMeta,
@@ -13643,7 +13774,7 @@ class $PartnersPricelistsTable extends PartnersPricelists
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {guid};
   @override
   PartnersPricelist map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -13663,7 +13794,7 @@ class $PartnersPricelistsTable extends PartnersPricelists
       isNew: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}id']),
       partnerId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}partner_id'])!,
       pricelistId: attachedDatabase.typeMapping
@@ -13690,7 +13821,7 @@ class PartnersPricelist extends DataClass
   final DateTime? lastSyncTime;
   final bool needSync;
   final bool isNew;
-  final int id;
+  final int? id;
   final int partnerId;
   final int pricelistId;
   final int pricelistSetId;
@@ -13703,7 +13834,7 @@ class PartnersPricelist extends DataClass
       this.lastSyncTime,
       required this.needSync,
       required this.isNew,
-      required this.id,
+      this.id,
       required this.partnerId,
       required this.pricelistId,
       required this.pricelistSetId,
@@ -13718,7 +13849,9 @@ class PartnersPricelist extends DataClass
     if (!nullToAbsent || lastSyncTime != null) {
       map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
     }
-    map['id'] = Variable<int>(id);
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
     map['partner_id'] = Variable<int>(partnerId);
     map['pricelist_id'] = Variable<int>(pricelistId);
     map['pricelist_set_id'] = Variable<int>(pricelistSetId);
@@ -13735,7 +13868,7 @@ class PartnersPricelist extends DataClass
       lastSyncTime: lastSyncTime == null && nullToAbsent
           ? const Value.absent()
           : Value(lastSyncTime),
-      id: Value(id),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
       partnerId: Value(partnerId),
       pricelistId: Value(pricelistId),
       pricelistSetId: Value(pricelistSetId),
@@ -13754,7 +13887,7 @@ class PartnersPricelist extends DataClass
       lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
       needSync: serializer.fromJson<bool>(json['needSync']),
       isNew: serializer.fromJson<bool>(json['isNew']),
-      id: serializer.fromJson<int>(json['id']),
+      id: serializer.fromJson<int?>(json['id']),
       partnerId: serializer.fromJson<int>(json['partnerId']),
       pricelistId: serializer.fromJson<int>(json['pricelistId']),
       pricelistSetId: serializer.fromJson<int>(json['pricelistSetId']),
@@ -13772,7 +13905,7 @@ class PartnersPricelist extends DataClass
       'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
       'needSync': serializer.toJson<bool>(needSync),
       'isNew': serializer.toJson<bool>(isNew),
-      'id': serializer.toJson<int>(id),
+      'id': serializer.toJson<int?>(id),
       'partnerId': serializer.toJson<int>(partnerId),
       'pricelistId': serializer.toJson<int>(pricelistId),
       'pricelistSetId': serializer.toJson<int>(pricelistSetId),
@@ -13788,7 +13921,7 @@ class PartnersPricelist extends DataClass
           Value<DateTime?> lastSyncTime = const Value.absent(),
           bool? needSync,
           bool? isNew,
-          int? id,
+          Value<int?> id = const Value.absent(),
           int? partnerId,
           int? pricelistId,
           int? pricelistSetId,
@@ -13802,7 +13935,7 @@ class PartnersPricelist extends DataClass
             lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
         needSync: needSync ?? this.needSync,
         isNew: isNew ?? this.isNew,
-        id: id ?? this.id,
+        id: id.present ? id.value : this.id,
         partnerId: partnerId ?? this.partnerId,
         pricelistId: pricelistId ?? this.pricelistId,
         pricelistSetId: pricelistSetId ?? this.pricelistSetId,
@@ -13865,11 +13998,12 @@ class PartnersPricelistsCompanion extends UpdateCompanion<PartnersPricelist> {
   final Value<DateTime> timestamp;
   final Value<DateTime> currentTimestamp;
   final Value<DateTime?> lastSyncTime;
-  final Value<int> id;
+  final Value<int?> id;
   final Value<int> partnerId;
   final Value<int> pricelistId;
   final Value<int> pricelistSetId;
   final Value<double> discount;
+  final Value<int> rowid;
   const PartnersPricelistsCompanion({
     this.guid = const Value.absent(),
     this.isDeleted = const Value.absent(),
@@ -13881,9 +14015,10 @@ class PartnersPricelistsCompanion extends UpdateCompanion<PartnersPricelist> {
     this.pricelistId = const Value.absent(),
     this.pricelistSetId = const Value.absent(),
     this.discount = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   PartnersPricelistsCompanion.insert({
-    this.guid = const Value.absent(),
+    required String guid,
     this.isDeleted = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.currentTimestamp = const Value.absent(),
@@ -13893,7 +14028,9 @@ class PartnersPricelistsCompanion extends UpdateCompanion<PartnersPricelist> {
     required int pricelistId,
     required int pricelistSetId,
     required double discount,
-  })  : partnerId = Value(partnerId),
+    this.rowid = const Value.absent(),
+  })  : guid = Value(guid),
+        partnerId = Value(partnerId),
         pricelistId = Value(pricelistId),
         pricelistSetId = Value(pricelistSetId),
         discount = Value(discount);
@@ -13908,6 +14045,7 @@ class PartnersPricelistsCompanion extends UpdateCompanion<PartnersPricelist> {
     Expression<int>? pricelistId,
     Expression<int>? pricelistSetId,
     Expression<double>? discount,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (guid != null) 'guid': guid,
@@ -13920,6 +14058,7 @@ class PartnersPricelistsCompanion extends UpdateCompanion<PartnersPricelist> {
       if (pricelistId != null) 'pricelist_id': pricelistId,
       if (pricelistSetId != null) 'pricelist_set_id': pricelistSetId,
       if (discount != null) 'discount': discount,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
@@ -13929,11 +14068,12 @@ class PartnersPricelistsCompanion extends UpdateCompanion<PartnersPricelist> {
       Value<DateTime>? timestamp,
       Value<DateTime>? currentTimestamp,
       Value<DateTime?>? lastSyncTime,
-      Value<int>? id,
+      Value<int?>? id,
       Value<int>? partnerId,
       Value<int>? pricelistId,
       Value<int>? pricelistSetId,
-      Value<double>? discount}) {
+      Value<double>? discount,
+      Value<int>? rowid}) {
     return PartnersPricelistsCompanion(
       guid: guid ?? this.guid,
       isDeleted: isDeleted ?? this.isDeleted,
@@ -13945,6 +14085,7 @@ class PartnersPricelistsCompanion extends UpdateCompanion<PartnersPricelist> {
       pricelistId: pricelistId ?? this.pricelistId,
       pricelistSetId: pricelistSetId ?? this.pricelistSetId,
       discount: discount ?? this.discount,
+      rowid: rowid ?? this.rowid,
     );
   }
 
@@ -13981,6 +14122,9 @@ class PartnersPricelistsCompanion extends UpdateCompanion<PartnersPricelist> {
     if (discount.present) {
       map['discount'] = Variable<double>(discount.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
@@ -13996,7 +14140,8 @@ class PartnersPricelistsCompanion extends UpdateCompanion<PartnersPricelist> {
           ..write('partnerId: $partnerId, ')
           ..write('pricelistId: $pricelistId, ')
           ..write('pricelistSetId: $pricelistSetId, ')
-          ..write('discount: $discount')
+          ..write('discount: $discount, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -14774,9 +14919,9 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final $PointFormatsTable pointFormats = $PointFormatsTable(this);
   late final $PointsTable points = $PointsTable(this);
   late final $PointImagesTable pointImages = $PointImagesTable(this);
+  late final $DepositsTable deposits = $DepositsTable(this);
   late final $EncashmentsTable encashments = $EncashmentsTable(this);
   late final $DebtsTable debts = $DebtsTable(this);
-  late final $DepositsTable deposits = $DepositsTable(this);
   late final $ShipmentsTable shipments = $ShipmentsTable(this);
   late final $ShipmentLinesTable shipmentLines = $ShipmentLinesTable(this);
   late final $IncRequestsTable incRequests = $IncRequestsTable(this);
@@ -14827,7 +14972,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final UsersDao usersDao = UsersDao(this as AppDataStore);
   Selectable<AppInfoResult> appInfo() {
     return customSelect(
-        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_id = points.id AND need_sync = 1)) AS points_to_sync, (SELECT COUNT(*) FROM deposits WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND need_sync = 1)) AS deposits_to_sync, (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_id = orders.id AND need_sync = 1)) AS orders_to_sync, (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS inc_requests_to_sync, (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS partner_prices_to_sync, (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS partners_pricelists_to_sync, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM encashments) AS encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total FROM prefs',
+        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_guid = points.guid AND need_sync = 1)) AS points_to_sync, (SELECT COUNT(*) FROM deposits WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM encashments WHERE deposit_guid = deposits.guid AND need_sync = 1)) AS deposits_to_sync, (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_guid = orders.guid AND need_sync = 1)) AS orders_to_sync, (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS inc_requests_to_sync, (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS partner_prices_to_sync, (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS partners_pricelists_to_sync, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM encashments) AS encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total FROM prefs',
         variables: [],
         readsFrom: {
           points,
@@ -14846,7 +14991,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
       return AppInfoResult(
         showLocalImage: row.read<bool>('show_local_image'),
         showWithPrice: row.read<bool>('show_with_price'),
-        lastSyncTime: row.readNullable<DateTime>('last_sync_time'),
+        lastLoadTime: row.readNullable<DateTime>('last_load_time'),
         pointsToSync: row.read<int>('points_to_sync'),
         depositsToSync: row.read<int>('deposits_to_sync'),
         ordersToSync: row.read<int>('orders_to_sync'),
@@ -14875,9 +15020,9 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         pointFormats,
         points,
         pointImages,
+        deposits,
         encashments,
         debts,
-        deposits,
         shipments,
         shipmentLines,
         incRequests,
@@ -14907,12 +15052,59 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         goodsStocks,
         goodsPartnersPricelists
       ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
+        [
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('points',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('point_images', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('points',
+                limitUpdateKind: UpdateKind.update),
+            result: [
+              TableUpdate('point_images', kind: UpdateKind.update),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('deposits',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('encashments', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('deposits',
+                limitUpdateKind: UpdateKind.update),
+            result: [
+              TableUpdate('encashments', kind: UpdateKind.update),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('orders',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('order_lines', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('orders',
+                limitUpdateKind: UpdateKind.update),
+            result: [
+              TableUpdate('order_lines', kind: UpdateKind.update),
+            ],
+          ),
+        ],
+      );
 }
 
 class AppInfoResult {
   final bool showLocalImage;
   final bool showWithPrice;
-  final DateTime? lastSyncTime;
+  final DateTime? lastLoadTime;
   final int pointsToSync;
   final int depositsToSync;
   final int ordersToSync;
@@ -14927,7 +15119,7 @@ class AppInfoResult {
   AppInfoResult({
     required this.showLocalImage,
     required this.showWithPrice,
-    this.lastSyncTime,
+    this.lastLoadTime,
     required this.pointsToSync,
     required this.depositsToSync,
     required this.ordersToSync,
@@ -15081,7 +15273,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
   $SeenPreOrdersTable get seenPreOrders => attachedDatabase.seenPreOrders;
   Selectable<OrderExResult> orderEx() {
     return customSelect(
-        'SELECT"orders"."guid" AS "nested_0.guid", "orders"."is_deleted" AS "nested_0.is_deleted", "orders"."timestamp" AS "nested_0.timestamp", "orders"."current_timestamp" AS "nested_0.current_timestamp", "orders"."last_sync_time" AS "nested_0.last_sync_time", "orders"."need_sync" AS "nested_0.need_sync", "orders"."is_new" AS "nested_0.is_new", "orders"."id" AS "nested_0.id", "orders"."date" AS "nested_0.date", "orders"."status" AS "nested_0.status", "orders"."pre_order_id" AS "nested_0.pre_order_id", "orders"."need_docs" AS "nested_0.need_docs", "orders"."need_inc" AS "nested_0.need_inc", "orders"."is_bonus" AS "nested_0.is_bonus", "orders"."is_physical" AS "nested_0.is_physical", "orders"."buyer_id" AS "nested_0.buyer_id", "orders"."info" AS "nested_0.info", "orders"."need_processing" AS "nested_0.need_processing", "orders"."is_editable" AS "nested_0.is_editable","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", COALESCE((SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price) FROM order_lines WHERE order_lines.order_id = orders.id AND order_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM order_lines WHERE order_id = orders.id) AS lines_count FROM orders LEFT JOIN buyers ON buyers.id = orders.buyer_id ORDER BY orders.date DESC, buyers.name',
+        'SELECT"orders"."guid" AS "nested_0.guid", "orders"."is_deleted" AS "nested_0.is_deleted", "orders"."timestamp" AS "nested_0.timestamp", "orders"."current_timestamp" AS "nested_0.current_timestamp", "orders"."last_sync_time" AS "nested_0.last_sync_time", "orders"."need_sync" AS "nested_0.need_sync", "orders"."is_new" AS "nested_0.is_new", "orders"."id" AS "nested_0.id", "orders"."date" AS "nested_0.date", "orders"."status" AS "nested_0.status", "orders"."pre_order_id" AS "nested_0.pre_order_id", "orders"."need_docs" AS "nested_0.need_docs", "orders"."need_inc" AS "nested_0.need_inc", "orders"."is_bonus" AS "nested_0.is_bonus", "orders"."is_physical" AS "nested_0.is_physical", "orders"."buyer_id" AS "nested_0.buyer_id", "orders"."info" AS "nested_0.info", "orders"."need_processing" AS "nested_0.need_processing", "orders"."is_editable" AS "nested_0.is_editable","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", COALESCE((SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price) FROM order_lines WHERE order_lines.order_guid = orders.guid AND order_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM order_lines WHERE order_guid = orders.guid) AS lines_count FROM orders LEFT JOIN buyers ON buyers.id = orders.buyer_id ORDER BY orders.date DESC, buyers.name',
         variables: [],
         readsFrom: {
           orderLines,
@@ -15097,11 +15289,11 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     });
   }
 
-  Selectable<OrderLineExResult> orderLineEx(int orderId) {
+  Selectable<OrderLineExResult> orderLineEx(String orderGuid) {
     return customSelect(
-        'SELECT"order_lines"."guid" AS "nested_0.guid", "order_lines"."is_deleted" AS "nested_0.is_deleted", "order_lines"."timestamp" AS "nested_0.timestamp", "order_lines"."current_timestamp" AS "nested_0.current_timestamp", "order_lines"."last_sync_time" AS "nested_0.last_sync_time", "order_lines"."need_sync" AS "nested_0.need_sync", "order_lines"."is_new" AS "nested_0.is_new", "order_lines"."id" AS "nested_0.id", "order_lines"."order_id" AS "nested_0.order_id", "order_lines"."goods_id" AS "nested_0.goods_id", "order_lines"."vol" AS "nested_0.vol", "order_lines"."price" AS "nested_0.price", "order_lines"."price_original" AS "nested_0.price_original", "order_lines"."package" AS "nested_0.package", "order_lines"."rel" AS "nested_0.rel", goods.name AS goods_name FROM order_lines JOIN goods ON goods.id = order_lines.goods_id WHERE order_lines.order_id = ?1 ORDER BY goods.name',
+        'SELECT"order_lines"."guid" AS "nested_0.guid", "order_lines"."is_deleted" AS "nested_0.is_deleted", "order_lines"."timestamp" AS "nested_0.timestamp", "order_lines"."current_timestamp" AS "nested_0.current_timestamp", "order_lines"."last_sync_time" AS "nested_0.last_sync_time", "order_lines"."need_sync" AS "nested_0.need_sync", "order_lines"."is_new" AS "nested_0.is_new", "order_lines"."id" AS "nested_0.id", "order_lines"."order_guid" AS "nested_0.order_guid", "order_lines"."goods_id" AS "nested_0.goods_id", "order_lines"."vol" AS "nested_0.vol", "order_lines"."price" AS "nested_0.price", "order_lines"."price_original" AS "nested_0.price_original", "order_lines"."package" AS "nested_0.package", "order_lines"."rel" AS "nested_0.rel", goods.name AS goods_name FROM order_lines JOIN goods ON goods.id = order_lines.goods_id WHERE order_lines.order_guid = ?1 ORDER BY goods.name',
         variables: [
-          Variable<int>(orderId)
+          Variable<String>(orderGuid)
         ],
         readsFrom: {
           allGoods,
@@ -15158,7 +15350,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_hit" AS "nested_0.is_hit", "goods"."is_new" AS "nested_0.is_new", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."mc_vol" AS "nested_0.mc_vol", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date, (SELECT MAX(shipment_lines.price) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN (SELECT MAX(shipments.date) AS last_shipment_date, shipments.buyer_id FROM shipments GROUP BY shipments.buyer_id) AS sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_price FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
+        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_hit" AS "nested_0.is_hit", "goods"."is_new" AS "nested_0.is_new", "goods"."is_latest" AS "nested_0.is_latest", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."mc_vol" AS "nested_0.mc_vol", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date, (SELECT MAX(shipment_lines.price) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN (SELECT MAX(shipments.date) AS last_shipment_date, shipments.buyer_id FROM shipments GROUP BY shipments.buyer_id) AS sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_price FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
         variables: [
           Variable<int>(buyerId),
           for (var $ in goodsIds) Variable<int>($)

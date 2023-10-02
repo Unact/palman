@@ -46,16 +46,16 @@ class ShipmentsDao extends DatabaseAccessor<AppDataStore> with _$ShipmentsDaoMix
     await db._loadData(shipmentLines, list);
   }
 
-  Future<void> loadIncRequests(List<IncRequest> list) async {
-    await db._loadData(incRequests, list);
+  Future<void> loadIncRequests(List<IncRequest> list, [bool clearTable = true]) async {
+    await db._loadData(incRequests, list, clearTable);
   }
 
-  Future<void> updateIncRequest(int id, IncRequestsCompanion updatedIncRequest) async {
-    await (update(incRequests)..where((tbl) => tbl.id.equals(id))).write(updatedIncRequest);
+  Future<void> updateIncRequest(String guid, IncRequestsCompanion updatedIncRequest) async {
+    await (update(incRequests)..where((tbl) => tbl.guid.equals(guid))).write(updatedIncRequest);
   }
 
-  Future<int> addIncRequest(IncRequestsCompanion newIncRequest) async {
-    return await into(incRequests).insert(newIncRequest);
+  Future<void> addIncRequest(IncRequestsCompanion newIncRequest) async {
+    await into(incRequests).insert(newIncRequest);
   }
 
   Future<List<IncRequest>> getIncRequestsForSync() async {
@@ -80,12 +80,12 @@ class ShipmentsDao extends DatabaseAccessor<AppDataStore> with _$ShipmentsDaoMix
     ).watch();
   }
 
-  Future<IncRequestEx> getIncRequestEx(int id) async {
+  Future<IncRequestEx> getIncRequestEx(String guid) async {
     final res = select(incRequests)
       .join([
         leftOuterJoin(buyers, buyers.id.equalsExp(incRequests.buyerId)),
       ])
-      ..where(incRequests.id.equals(id));
+      ..where(incRequests.guid.equals(guid));
 
     return res.map(
       (row) => IncRequestEx(

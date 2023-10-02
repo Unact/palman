@@ -9,6 +9,7 @@ class ApiGoods extends Equatable {
   final String? manufacturer;
   final bool isHit;
   final bool isNew;
+  final bool isLatest;
   final int pricelistSetId;
   final double cost;
   final double minPrice;
@@ -34,6 +35,7 @@ class ApiGoods extends Equatable {
     this.manufacturer,
     required this.isHit,
     required this.isNew,
+    required this.isLatest,
     required this.pricelistSetId,
     required this.cost,
     required this.minPrice,
@@ -61,6 +63,7 @@ class ApiGoods extends Equatable {
       manufacturer: json['manufacturer'],
       isHit: json['isHit'],
       isNew: json['isNew'],
+      isLatest: json['isLatest'],
       pricelistSetId: json['pricelistSetId'],
       cost: Parsing.parseDouble(json['cost'])!,
       minPrice: Parsing.parseDouble(json['minPrice'])!,
@@ -89,6 +92,7 @@ class ApiGoods extends Equatable {
       manufacturer: manufacturer,
       isHit: isHit,
       isNew: isNew,
+      isLatest: isLatest,
       pricelistSetId: pricelistSetId,
       cost: cost,
       minPrice: minPrice,
@@ -117,6 +121,7 @@ class ApiGoods extends Equatable {
     manufacturer,
     isHit,
     isNew,
+    isLatest,
     pricelistSetId,
     cost,
     minPrice,

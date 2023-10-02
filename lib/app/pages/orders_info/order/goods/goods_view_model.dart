@@ -23,10 +23,10 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     orderExListSubscription = ordersRepository.watchOrderExList().listen((event) {
       emit(state.copyWith(
         status: GoodsStateStatus.dataLoaded,
-        orderEx: event.firstWhereOrNull((e) => e.order.id == state.orderEx.order.id)
+        orderEx: event.firstWhereOrNull((e) => e.order.guid == state.orderEx.order.guid)
       ));
     });
-    orderLineExListSubscription = ordersRepository.watchOrderLineExList(state.orderEx.order.id).listen((event) {
+    orderLineExListSubscription = ordersRepository.watchOrderLineExList(state.orderEx.order.guid).listen((event) {
       emit(state.copyWith(status: GoodsStateStatus.dataLoaded, linesExList: event));
     });
     categoriesSubscription = ordersRepository.watchCategories(buyerId: state.orderEx.order.buyerId!).listen((event) {
@@ -69,6 +69,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       showGoodsImage: false,
       showOnlyActive: false,
       showOnlyOrder: false,
+      showOnlyLatest: false,
       goodsNameSearch: const Optional.absent(),
       goodsDetails: List.empty(),
       visibleCategories: state.allCategories
@@ -133,6 +134,16 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     await searchGoods();
   }
 
+  Future<void> toggleShowOnlyLatest() async {
+    emit(state.copyWith(
+      showOnlyLatest: !state.showOnlyLatest,
+      selectedCategory: const Optional.absent(),
+      goodsDetails: []
+    ));
+
+    await searchGoods();
+  }
+
   Future<void> toggleShowOnlyOrder() async {
     final newShowOnlyOrder = !state.showOnlyOrder;
 
@@ -150,7 +161,8 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       extraLabel: state.selectedGoodsFilter?.value,
       categoryId: state.selectedCategory?.id,
       bonusProgramId: state.selectedBonusProgram?.id,
-      goodsIds: state.showOnlyOrder ? state.filteredOrderLinesExList.map((e) => e.line.goodsId).toList() : null
+      goodsIds: state.showOnlyOrder ? state.filteredOrderLinesExList.map((e) => e.line.goodsId).toList() : null,
+      onlyLatest: state.showOnlyLatest
     );
     final categoryIds = goods.map((e) => e.categoryId).toSet();
     final visibleCategories = state.selectedCategory == null ?
@@ -177,7 +189,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> updateOrderLineVol(GoodsDetail goodsDetail, double? vol) async {
-    final orderLineEx = (await ordersRepository.getOrderLineExList(state.orderEx.order.id))
+    final orderLineEx = (await ordersRepository.getOrderLineExList(state.orderEx.order.guid))
       .firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goodsEx.goods.id);
 
     if (vol == null || vol <= 0) {

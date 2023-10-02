@@ -84,17 +84,17 @@ part 'users_dao.dart';
         (
           SELECT COUNT(*)
           FROM points
-          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM point_images WHERE point_id = points.id AND need_sync = 1)
+          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM point_images WHERE point_guid = points.guid AND need_sync = 1)
         ) AS "points_to_sync",
         (
           SELECT COUNT(*)
           FROM deposits
-          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM encashments WHERE deposit_id = deposits.id AND need_sync = 1)
+          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM encashments WHERE deposit_guid = deposits.guid AND need_sync = 1)
         ) AS "deposits_to_sync",
         (
           SELECT COUNT(*)
           FROM orders
-          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM order_lines WHERE order_id = orders.id AND need_sync = 1)
+          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM order_lines WHERE order_guid = orders.guid AND need_sync = 1)
         ) AS "orders_to_sync",
         (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS "inc_requests_to_sync",
         (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS "partner_prices_to_sync",
@@ -184,9 +184,9 @@ class AppDataStore extends _$AppDataStore {
     });
   }
 
-  Future<void> _loadData(TableInfo table, Iterable<Insertable> rows) async {
+  Future<void> _loadData(TableInfo table, Iterable<Insertable> rows, [bool clearTable = true]) async {
     await batch((batch) {
-      batch.deleteWhere(table, (row) => const Constant(true));
+      if (clearTable) batch.deleteWhere(table, (row) => const Constant(true));
       batch.insertAll(table, rows, mode: InsertMode.insertOrReplace);
     });
   }
@@ -197,16 +197,20 @@ class AppDataStore extends _$AppDataStore {
     await batch((batch) {
       for (var e in toUpdate) {
         batch.customStatement(
-          'UPDATE ${table.actualTableName} SET guid = ?1 WHERE id = ?2',
-          [AppDataStore._kUuid.v4(), e.id],
+          'UPDATE ${table.actualTableName} SET guid = ?1 WHERE guid = ?2',
+          [AppDataStore._kUuid.v4(), e.guid],
           [TableUpdate.onTable(table, kind: UpdateKind.update)]
         );
       }
     });
   }
 
+  String generateGuid() {
+    return _kUuid.v4();
+  }
+
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -256,7 +260,7 @@ class AppDataStore extends _$AppDataStore {
       ));
       await m.createIndex(Index(
         'order_lines_order_idx',
-        'CREATE INDEX order_lines_order_idx ON order_lines(order_id)'
+        'CREATE INDEX order_lines_order_idx ON order_lines(order_guid)'
       ));
       await m.createIndex(Index(
         'pre_order_lines_goods_idx',
@@ -280,14 +284,20 @@ class AppDataStore extends _$AppDataStore {
       ));
       await m.createIndex(Index(
         'point_images_point_idx',
-        'CREATE INDEX point_images_point_idx ON point_images(point_id)'
+        'CREATE INDEX point_images_point_idx ON point_images(point_guid)'
       ));
       await m.createIndex(Index(
         'goods_category_idx',
         'CREATE INDEX goods_category_idx ON goods(category_id)'
       ));
+      await m.createIndex(Index(
+        'encashments_deposit_idx',
+        'CREATE INDEX encashments_deposit_idx ON encashments(deposit_guid)'
+      ));
     },
     beforeOpen: (details) async {
+      await customStatement('PRAGMA foreign_keys = ON');
+
       if (details.hadUpgrade || details.wasCreated) await _populateData();
     },
   );

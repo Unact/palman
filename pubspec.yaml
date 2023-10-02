@@ -60,6 +60,7 @@ flutter_launcher_icons:
 
 flutter:
   assets:
+    - assets/placeicon.png
     - assets/filled_placeicon.png
     - assets/not_filled_placeicon.png
   uses-material-design: true

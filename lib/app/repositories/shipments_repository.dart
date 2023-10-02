@@ -48,14 +48,17 @@ class ShipmentsRepository extends BaseRepository {
         'incSum': e.incSum
       }).toList();
 
-      await api.saveShipments(incRequestsData);
+      final data = await api.saveShipments(incRequestsData);
+      final apiIncRequests = data.incRequests.map((e) => e.toDatabaseEnt()).toList();
       await dataStore.transaction(() async {
         for (var incRequest in incRequests) {
           await dataStore.shipmentsDao.updateIncRequest(
-            incRequest.id,
+            incRequest.guid,
             IncRequestsCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
+
+        await dataStore.shipmentsDao.loadIncRequests(apiIncRequests, false);
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
@@ -86,10 +89,14 @@ class ShipmentsRepository extends BaseRepository {
   }
 
   Future<IncRequestEx> addIncRequest() async {
-    final id = await dataStore.shipmentsDao.addIncRequest(
-      IncRequestsCompanion.insert(status: Strings.incRequestDefaultStatus)
+    final guid = dataStore.generateGuid();
+    await dataStore.shipmentsDao.addIncRequest(
+      IncRequestsCompanion.insert(
+        guid: guid,
+        status: Strings.incRequestDefaultStatus
+      )
     );
-    final incRequestEx = await dataStore.shipmentsDao.getIncRequestEx(id);
+    final incRequestEx = await dataStore.shipmentsDao.getIncRequestEx(guid);
 
     return incRequestEx;
   }
@@ -108,11 +115,11 @@ class ShipmentsRepository extends BaseRepository {
       isDeleted: const Value(false)
     );
 
-    await dataStore.shipmentsDao.updateIncRequest(incRequest.id, updatedIncRequest);
+    await dataStore.shipmentsDao.updateIncRequest(incRequest.guid, updatedIncRequest);
   }
 
   Future<void> deleteIncRequest(IncRequest incRequest) async {
-    await dataStore.shipmentsDao.updateIncRequest(incRequest.id, const IncRequestsCompanion(isDeleted: Value(true)));
+    await dataStore.shipmentsDao.updateIncRequest(incRequest.guid, const IncRequestsCompanion(isDeleted: Value(true)));
   }
 
   Future<void> regenerateGuid() async {

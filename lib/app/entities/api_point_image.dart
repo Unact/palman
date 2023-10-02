@@ -34,10 +34,10 @@ class ApiPointImage extends Equatable {
     );
   }
 
-  PointImage toDatabaseEnt(int pointId) {
+  PointImage toDatabaseEnt(String pointGuid) {
     return PointImage(
       id: id,
-      pointId: pointId,
+      pointGuid: pointGuid,
       latitude: latitude,
       longitude: longitude,
       accuracy: accuracy,

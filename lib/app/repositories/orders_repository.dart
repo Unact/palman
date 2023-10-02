@@ -87,7 +87,8 @@ class OrdersRepository extends BaseRepository {
 
       await dataStore.transaction(() async {
         final orders = data.orders.map((e) => e.toDatabaseEnt()).toList();
-        final orderLines = data.orders.map((e) => e.lines.map((i) => i.toDatabaseEnt(e.id))).expand((e) => e).toList();
+        final orderLines = data.orders
+          .map((e) => e.lines.map((i) => i.toDatabaseEnt(e.guid))).expand((e) => e).toList();
         final preOrders = data.preOrders.map((e) => e.toDatabaseEnt()).toList();
         final preOrderLines = data.preOrders
           .map((e) => e.lines.map((i) => i.toDatabaseEnt(e.id))).expand((e) => e).toList();
@@ -140,7 +141,7 @@ class OrdersRepository extends BaseRepository {
         'buyerId': e.buyerId,
         'info': e.info,
         'needProcessing': e.needProcessing,
-        'lines': orderLines.where((i) => i.orderId == e.id).map((i) => {
+        'lines': orderLines.where((i) => i.orderGuid == e.guid).map((i) => {
           'guid': i.guid,
           'isNew': i.isNew,
           'isDeleted': i.isDeleted,
@@ -155,20 +156,26 @@ class OrdersRepository extends BaseRepository {
         }).toList()
       }).toList();
 
-      await api.saveOrders(ordersData);
+      final data = await api.saveOrders(ordersData);
+      final apiOrders = data.orders.map((e) => e.toDatabaseEnt()).toList();
+      final apiOrderLines = data.orders
+        .map((e) => e.lines.map((i) => i.toDatabaseEnt(e.guid))).expand((e) => e).toList();
       await dataStore.transaction(() async {
         for (var order in orders) {
           await dataStore.ordersDao.updateOrder(
-            order.id,
+            order.guid,
             OrdersCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
         for (var orderLine in orderLines) {
           await dataStore.ordersDao.updateOrderLine(
-            orderLine.id,
+            orderLine.guid,
             OrderLinesCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
+
+        await dataStore.ordersDao.loadOrders(apiOrders, false);
+        await dataStore.ordersDao.loadOrderLines(apiOrderLines, false);
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
@@ -193,6 +200,7 @@ class OrdersRepository extends BaseRepository {
     required int? categoryId,
     required int? bonusProgramId,
     required List<int>? goodsIds,
+    required bool onlyLatest,
   }) async {
     return dataStore.ordersDao.getGoods(
       name: name,
@@ -200,6 +208,7 @@ class OrdersRepository extends BaseRepository {
       categoryId: categoryId,
       bonusProgramId: bonusProgramId,
       goodsIds: goodsIds,
+      onlyLatest: onlyLatest
     );
   }
 
@@ -267,20 +276,20 @@ class OrdersRepository extends BaseRepository {
     );
   }
 
-  Future<OrderExResult?> getOrderEx(int orderId) async {
-    return dataStore.ordersDao.getOrderEx(orderId);
+  Future<OrderExResult?> getOrderEx(String guid) async {
+    return dataStore.ordersDao.getOrderEx(guid);
   }
 
-  Future<List<OrderLineExResult>> getOrderLineExList(int orderId) async {
-    return dataStore.ordersDao.getOrderLineExList(orderId);
+  Future<List<OrderLineExResult>> getOrderLineExList(String orderGuid) async {
+    return dataStore.ordersDao.getOrderLineExList(orderGuid);
   }
 
   Stream<List<OrderExResult>> watchOrderExList() {
     return dataStore.ordersDao.watchOrderExList();
   }
 
-  Stream<List<OrderLineExResult>> watchOrderLineExList(int orderId) {
-    return dataStore.ordersDao.watchOrderLineExList(orderId);
+  Stream<List<OrderLineExResult>> watchOrderLineExList(String orderGuid) {
+    return dataStore.ordersDao.watchOrderLineExList(orderGuid);
   }
 
   Stream<List<PreOrderExResult>> watchPreOrderExList() {
@@ -307,8 +316,10 @@ class OrdersRepository extends BaseRepository {
     bool isPhysical = false,
     bool needInc = false,
   }) async {
-    final id = await dataStore.ordersDao.addOrder(
+    final guid = dataStore.generateGuid();
+    await dataStore.ordersDao.addOrder(
       OrdersCompanion.insert(
+        guid: guid,
         status: OrderStatus.draft.value,
         needDocs: needDocs,
         isBonus: isBonus,
@@ -321,7 +332,7 @@ class OrdersRepository extends BaseRepository {
         isEditable: true
       )
     );
-    final orderEx = await dataStore.ordersDao.getOrderEx(id);
+    final orderEx = await dataStore.ordersDao.getOrderEx(guid);
 
     return orderEx;
   }
@@ -350,11 +361,11 @@ class OrdersRepository extends BaseRepository {
       isDeleted: const Value(false)
     );
 
-    await dataStore.ordersDao.updateOrder(order.id, updatedOrder);
+    await dataStore.ordersDao.updateOrder(order.guid, updatedOrder);
   }
 
   Future<void> deleteOrder(Order order) async {
-    await dataStore.ordersDao.updateOrder(order.id, const OrdersCompanion(isDeleted: Value(true)));
+    await dataStore.ordersDao.updateOrder(order.guid, const OrdersCompanion(isDeleted: Value(true)));
   }
 
   Future<void> addOrderLine(Order order, {
@@ -365,9 +376,11 @@ class OrdersRepository extends BaseRepository {
     required int package,
     required int rel
   }) async {
+    final guid = dataStore.generateGuid();
     await dataStore.ordersDao.addOrderLine(
       OrderLinesCompanion.insert(
-        orderId: order.id,
+        guid: guid,
+        orderGuid: order.guid,
         goodsId: goodsId,
         vol: vol,
         price: price,
@@ -396,16 +409,18 @@ class OrdersRepository extends BaseRepository {
       isDeleted: const Value(false)
     );
 
-    await dataStore.ordersDao.updateOrderLine(orderLine.id, updatedOrderLine);
+    await dataStore.ordersDao.updateOrderLine(orderLine.guid, updatedOrderLine);
   }
 
   Future<void> deleteOrderLine(OrderLine orderLine) async {
-    await dataStore.ordersDao.updateOrderLine(orderLine.id, const OrderLinesCompanion(isDeleted: Value(true)));
+    await dataStore.ordersDao.updateOrderLine(orderLine.guid, const OrderLinesCompanion(isDeleted: Value(true)));
   }
 
   Future<OrderExResult> createOrderFromPreOrder(PreOrder preOrder, List<PreOrderLine> preOrderLines) async {
     final orderEx = await dataStore.transaction(() async {
-      final id = await dataStore.ordersDao.addOrder(OrdersCompanion.insert(
+      final guid = dataStore.generateGuid();
+      await dataStore.ordersDao.addOrder(OrdersCompanion.insert(
+        guid: guid,
         status: OrderStatus.draft.value,
         preOrderId: Value(preOrder.id),
         buyerId: Value(preOrder.buyerId),
@@ -428,8 +443,10 @@ class OrdersRepository extends BaseRepository {
 
         if (goodsDetail == null) continue;
 
+        final lineGuid = dataStore.generateGuid();
         await dataStore.ordersDao.addOrderLine(OrderLinesCompanion.insert(
-          orderId: id,
+          guid: lineGuid,
+          orderGuid: guid,
           goodsId: preOrderLine.goodsId,
           vol: preOrderLine.vol * preOrderLine.rel / goodsDetail.rel,
           price: goodsDetail.price,
@@ -439,7 +456,7 @@ class OrdersRepository extends BaseRepository {
         ));
       }
 
-      return await dataStore.ordersDao.getOrderEx(id);
+      return await dataStore.ordersDao.getOrderEx(guid);
     });
 
     return orderEx;
@@ -447,25 +464,27 @@ class OrdersRepository extends BaseRepository {
 
   Future<OrderExResult> copyOrder(Order order, List<OrderLine> orderLines) async {
     final orderEx = await dataStore.transaction(() async {
-      final id = await dataStore.ordersDao.addOrder(order.toCompanion(false).copyWith(
+      final guid = dataStore.generateGuid();
+      await dataStore.ordersDao.addOrder(order.toCompanion(false).copyWith(
         id: const Value.absent(),
-        guid: const Value.absent(),
+        guid: Value(guid),
         timestamp: const Value.absent(),
         currentTimestamp: const Value.absent(),
         lastSyncTime: const Value.absent()
       ));
       for (var orderLine in orderLines) {
+        final lineGuid = dataStore.generateGuid();
         await dataStore.ordersDao.addOrderLine(orderLine.toCompanion(false).copyWith(
-          orderId: Value(id),
+          orderGuid: Value(guid),
           id: const Value.absent(),
-          guid: const Value.absent(),
+          guid: Value(lineGuid),
           timestamp: const Value.absent(),
           currentTimestamp: const Value.absent(),
           lastSyncTime: const Value.absent()
         ));
       }
 
-      return await dataStore.ordersDao.getOrderEx(id);
+      return await dataStore.ordersDao.getOrderEx(guid);
     });
 
     return orderEx;
@@ -473,7 +492,7 @@ class OrdersRepository extends BaseRepository {
 
   Future<void> updateOrderLinePrices(Order order) async {
     await dataStore.transaction(() async {
-      final orderLinesEx = await dataStore.ordersDao.getOrderLineExList(order.id);
+      final orderLinesEx = await dataStore.ordersDao.getOrderLineExList(order.guid);
       final goodsDetails = await dataStore.ordersDao.getGoodsDetails(
         buyerId: order.buyerId!,
         date: order.date!,
@@ -487,7 +506,7 @@ class OrdersRepository extends BaseRepository {
         if (orderLine.line.price != orderLine.line.priceOriginal) continue;
 
         await dataStore.ordersDao.updateOrderLine(
-          orderLine.line.id,
+          orderLine.line.guid,
           OrderLinesCompanion(
             price: Value(goodsDetail.price),
             priceOriginal: Value(goodsDetail.price)

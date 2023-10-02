@@ -27,11 +27,11 @@ part of 'database.dart';
           (
             SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price)
             FROM order_lines
-            where order_lines.order_id = orders.id AND order_lines.is_deleted = 0
+            where order_lines.order_guid = orders.guid AND order_lines.is_deleted = 0
           ),
           0
         ) AS "lines_total",
-        (SELECT COUNT(*) FROM order_lines where order_id = orders.id) AS "lines_count"
+        (SELECT COUNT(*) FROM order_lines where order_guid = orders.guid) AS "lines_count"
       FROM orders
       LEFT JOIN buyers on buyers.id = orders.buyer_id
       ORDER BY orders.date DESC, buyers.name
@@ -42,7 +42,7 @@ part of 'database.dart';
         goods.name AS "goods_name"
       FROM order_lines
       JOIN goods ON goods.id = order_lines.goods_id
-      WHERE order_lines.order_id = :order_id
+      WHERE order_lines.order_guid = :order_guid
       ORDER BY goods.name
     ''',
     'preOrderEx': '''
@@ -174,12 +174,12 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     await db._loadData(goodsFilters, list);
   }
 
-  Future<void> loadOrders(List<Order> list) async {
-    await db._loadData(orders, list);
+  Future<void> loadOrders(List<Order> list, [bool clearTable = true]) async {
+    await db._loadData(orders, list, clearTable);
   }
 
-  Future<void> loadOrderLines(List<OrderLine> list) async {
-    await db._loadData(orderLines, list);
+  Future<void> loadOrderLines(List<OrderLine> list, [bool clearTable = true]) async {
+    await db._loadData(orderLines, list, clearTable);
   }
 
   Future<void> loadPreOrders(List<PreOrder> list) async {
@@ -190,16 +190,16 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     await db._loadData(preOrderLines, list);
   }
 
-  Future<void> updateOrder(int id, OrdersCompanion updatedOrder) async {
-    await (update(orders)..where((tbl) => tbl.id.equals(id))).write(updatedOrder);
+  Future<void> updateOrder(String guid, OrdersCompanion updatedOrder) async {
+    await (update(orders)..where((tbl) => tbl.guid.equals(guid))).write(updatedOrder);
   }
 
-  Future<int> addOrder(OrdersCompanion newOrder) async {
-    return await into(orders).insert(newOrder);
+  Future<void> addOrder(OrdersCompanion newOrder) async {
+    await into(orders).insert(newOrder);
   }
 
-  Future<void> updateOrderLine(int id, OrderLinesCompanion updatedOrderLine) async {
-    await (update(orderLines)..where((tbl) => tbl.id.equals(id))).write(updatedOrderLine);
+  Future<void> updateOrderLine(String guid, OrderLinesCompanion updatedOrderLine) async {
+    await (update(orderLines)..where((tbl) => tbl.guid.equals(guid))).write(updatedOrderLine);
   }
 
   Future<int> addOrderLine(OrderLinesCompanion newOrderLine) async {
@@ -213,7 +213,7 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
   Future<List<Order>> getOrdersForSync() async {
     final hasOrderLineToSync = existsQuery(
       select(orderLines)
-        ..where((tbl) => tbl.orderId.equalsExp(orders.id))
+        ..where((tbl) => tbl.orderGuid.equalsExp(orders.guid))
         ..where((tbl) => tbl.needSync.equals(true))
     );
 
@@ -226,7 +226,7 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
   Future<List<OrderLine>> getOrderLinesForSync() async {
     final hasOrderToSync = existsQuery(
       select(orders)
-        ..where((tbl) => tbl.id.equalsExp(orderLines.orderId))
+        ..where((tbl) => tbl.guid.equalsExp(orderLines.orderGuid))
         ..where((tbl) => tbl.needSync.equals(true) | orderLines.needSync.equals(true))
     );
 
@@ -242,7 +242,8 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     required String? extraLabel,
     required int? categoryId,
     required int? bonusProgramId,
-    required List<int>? goodsIds
+    required List<int>? goodsIds,
+    required bool onlyLatest
   }) async {
     final hasBonusProgram = existsQuery(
       select(goodsBonusPrograms)
@@ -259,7 +260,8 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
       ..where(categoryId != null ? (tbl) => tbl.categoryId.equals(categoryId) : (tbl) => const Constant(true))
       ..where(bonusProgramId != null ? (tbl) => hasBonusProgram : (tbl) => const Constant(true))
       ..where((tbl) => hasStock)
-      ..where(goodsIds != null ? (tbl) => tbl.id.isIn(goodsIds) : (tbl) => const Constant(true));
+      ..where(goodsIds != null ? (tbl) => tbl.id.isIn(goodsIds) : (tbl) => const Constant(true))
+      ..where(onlyLatest ? (tbl) => tbl.isLatest.equals(true) : (tbl) => const Constant(true));
 
     return query.get();
   }
@@ -295,20 +297,20 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     )).toList();
   }
 
-  Future<OrderExResult> getOrderEx(int id) async {
-    return (await orderEx().get()).firstWhere((e) => e.order.id == id);
+  Future<OrderExResult> getOrderEx(String guid) async {
+    return (await orderEx().get()).firstWhere((e) => e.order.guid == guid);
   }
 
   Stream<List<OrderExResult>> watchOrderExList() {
     return orderEx().watch();
   }
 
-  Future<List<OrderLineExResult>> getOrderLineExList(int orderId) async {
-    return orderLineEx(orderId).get();
+  Future<List<OrderLineExResult>> getOrderLineExList(String orderGuid) async {
+    return orderLineEx(orderGuid).get();
   }
 
-  Stream<List<OrderLineExResult>> watchOrderLineExList(int orderId) {
-    return orderLineEx(orderId).watch();
+  Stream<List<OrderLineExResult>> watchOrderLineExList(String orderGuid) {
+    return orderLineEx(orderGuid).watch();
   }
 
   Stream<List<PreOrderExResult>> watchPreOrderExList() {

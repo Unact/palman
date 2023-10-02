@@ -100,8 +100,8 @@ class _PersonViewState extends State<_PersonView> {
         InfoRow(
           title: const Text('Данные загружены', style: Styles.formStyle),
           trailing: Text(
-            state.appInfo?.lastSyncTime != null ?
-              Format.dateTimeStr(state.appInfo?.lastSyncTime!) :
+            state.appInfo?.lastLoadTime != null ?
+              Format.dateTimeStr(state.appInfo?.lastLoadTime!) :
               'Загрузка не проводилась',
             style: Styles.formStyle
           )
