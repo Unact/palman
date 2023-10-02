@@ -21,7 +21,7 @@ class Refreshable extends StatefulWidget {
 }
 
 class _RefreshableState extends State<Refreshable> {
-  String failedText = Strings.genericErrorMsg;
+  String failedText = '';
 
   Future<bool> tryRefresh(BuildContext context) async {
     if (widget.pendingChanges == 0) {
@@ -45,7 +45,7 @@ class _RefreshableState extends State<Refreshable> {
       }
     ) ?? true;
 
-    if (result) {
+    if (!result) {
       widget.onRefresh.call();
 
       return true;
@@ -80,6 +80,7 @@ class _RefreshableState extends State<Refreshable> {
       onRefresh: () async {
         try {
           final refreshed = await tryRefresh(context);
+          setState(() => failedText = refreshed ? '' : 'Загрузка отменена');
           return refreshed ? IndicatorResult.success : IndicatorResult.fail;
         } on AppError catch(e) {
           setState(() => failedText = e.message);
