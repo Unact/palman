@@ -115,10 +115,6 @@ class _InfoViewState extends State<_InfoView> {
                   null :
                   vm.preloadGoodsImages
               ),
-              SaveButton(
-                onSave: state.isLoading ? null : vm.syncChanges,
-                pendingChanges: vm.state.pendingChanges,
-              ),
               IconButton(
                 color: Colors.white,
                 icon: const Icon(Icons.person),
@@ -134,6 +130,10 @@ class _InfoViewState extends State<_InfoView> {
                       )
                     );
                   }
+              ),
+              SaveButton(
+                onSave: state.isLoading ? null : vm.syncChanges,
+                pendingChanges: vm.state.pendingChanges,
               )
             ]
           ),
