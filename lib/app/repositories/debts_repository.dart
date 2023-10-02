@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:drift/drift.dart';
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
@@ -102,33 +101,20 @@ class DebtsRepository extends BaseRepository {
   }
 
   Future<Deposit> depositEncashments(DateTime date, List<EncashmentEx> encashmentExList) async {
-    final deposits = await dataStore.debtsDao.getDeposits();
     final encWithSum = encashmentExList.where((e) => (e.encashment.encSum ?? 0) > 0);
     final encWithoutSum = encashmentExList.where((e) => (e.encashment.encSum ?? 0) == 0);
-    Deposit? deposit = deposits.firstWhereOrNull((e) => e.date == date);
     final totalSum = encWithSum.fold(0.0, (acc, e) => acc + e.encashment.encSum!);
     final checkTotalSum = encWithSum
       .where((e) => e.encashment.isCheck).fold(0.0, (acc, e) => acc + e.encashment.encSum!);
 
-    if (deposit != null) {
-      await dataStore.debtsDao.updateDeposit(
-        deposit.id,
-        DepositsCompanion(
-          totalSum: Value(deposit.totalSum + totalSum),
-          checkTotalSum: Value(deposit.checkTotalSum + checkTotalSum),
-          isDeleted: const Value(false)
-        )
-      );
-    } else {
-      final id = await dataStore.debtsDao.addDeposit(
-        DepositsCompanion.insert(
-          date: date,
-          totalSum: totalSum,
-          checkTotalSum: checkTotalSum
-        )
-      );
-      deposit = await dataStore.debtsDao.getDeposit(id);
-    }
+    final id = await dataStore.debtsDao.addDeposit(
+      DepositsCompanion.insert(
+        date: date,
+        totalSum: totalSum,
+        checkTotalSum: checkTotalSum
+      )
+    );
+    final deposit = await dataStore.debtsDao.getDeposit(id);
 
     for (var e in encWithSum) {
       await dataStore.debtsDao.updateEncashment(e.encashment.id, EncashmentsCompanion(depositId: Value(deposit.id)));
