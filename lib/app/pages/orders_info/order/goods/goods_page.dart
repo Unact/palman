@@ -786,10 +786,10 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
           contentPadding: const EdgeInsets.only(left: 8, top: 4, right: 8, bottom: 4),
           tileColor: Colors.transparent,
           trailing: buildGoodsTileTrailing(context, goodsDetail, orderLineEx, enabled),
-          subtitle: _GoodsSubtitle(goodsDetail, orderLineEx),
           title: buildGoodsTileTitle(context, goodsDetail),
           onTap: !enabled ? null : () => widget.onTap(goodsDetail)
         ),
+        _GoodsSubtitle(goodsDetail, orderLineEx),
         buildGoodsImage(context, goodsDetail)
       ]
     );
