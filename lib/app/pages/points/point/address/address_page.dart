@@ -7,6 +7,7 @@ import 'package:u_app_utils/u_app_utils.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart';
 
 import '/app/constants/strings.dart';
+import '/app/constants/styles.dart';
 import '/app/pages/shared/page_view_model.dart';
 
 part 'address_state.dart';
@@ -68,6 +69,7 @@ class AddressViewState extends State<_AddressView> {
               TextFormField(
                 decoration: const InputDecoration(labelText: 'Укажите адрес'),
                 initialValue: vm.state.address,
+                style: Styles.formStyle,
                 onChanged: vm.changeAddress
               ),
               const SizedBox(height: 10),

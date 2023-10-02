@@ -6,6 +6,7 @@ import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
+import '/app/constants/styles.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
@@ -88,35 +89,42 @@ class _PersonViewState extends State<_PersonView> {
     return ListView(
       padding: const EdgeInsets.only(top: 24, bottom: 24),
       children: [
-        InfoRow(title: const Text('Логин'), trailing: Text(state.username)),
-        InfoRow(title: const Text('Торговый представитель'), trailing: Text(state.salesmanName)),
         InfoRow(
-          title: const Text('Данные загружены'),
+          title: const Text('Логин', style: Styles.formStyle),
+          trailing: Text(state.username, style: Styles.formStyle)
+        ),
+        InfoRow(
+          title: const Text('Торговый представитель', style: Styles.formStyle),
+          trailing: Text(state.salesmanName, style: Styles.formStyle)
+        ),
+        InfoRow(
+          title: const Text('Данные загружены', style: Styles.formStyle),
           trailing: Text(
             state.appInfo?.lastSyncTime != null ?
               Format.dateTimeStr(state.appInfo?.lastSyncTime!) :
-              'Загрузка не проводилась'
+              'Загрузка не проводилась',
+            style: Styles.formStyle
           )
         ),
         InfoRow(
-          title: const Text('Отображать фото локально'),
+          title: const Text('Отображать фото локально', style: Styles.formStyle),
           trailing: state.appInfo == null ? null : Checkbox(
             value: state.appInfo!.showLocalImage,
             onChanged: (newValue) => vm.updateShowLocalImage(newValue!)
           )
         ),
         InfoRow(
-          title: const Text('Показывать нулевые цены'),
+          title: const Text('Показывать нулевые цены', style: Styles.formStyle),
           trailing: state.appInfo == null ? null : Checkbox(
             value: !state.appInfo!.showWithPrice,
             onChanged: (newValue) => vm.updateShowWithPrice(!newValue!)
           )
         ),
         InfoRow(
-          title: const Text('Версия'),
+          title: const Text('Версия', style: Styles.formStyle),
           trailing: FutureBuilder(
             future: Misc.fullVersion,
-            builder: (context, snapshot) => Text(snapshot.data ?? ''),
+            builder: (context, snapshot) => Text(snapshot.data ?? '', style: Styles.formStyle),
           )
         ),
         FutureBuilder(
@@ -136,7 +144,7 @@ class _PersonViewState extends State<_PersonView> {
                       backgroundColor: Theme.of(context).colorScheme.primary
                     ),
                     onPressed: vm.launchAppUpdate,
-                    child: const Text('Обновить приложение'),
+                    child: const Text('Обновить приложение', style: Styles.formStyle),
                   )
                 ],
               )
@@ -155,7 +163,7 @@ class _PersonViewState extends State<_PersonView> {
                   backgroundColor: Theme.of(context).colorScheme.primary
                 ),
                 onPressed: vm.apiLogout,
-                child: const Text('Выйти', style: TextStyle(color: Colors.white)),
+                child: const Text('Выйти', style: Styles.formStyle),
               )
             ]
           )

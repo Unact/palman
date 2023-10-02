@@ -11,13 +11,13 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
-import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/partners_repository.dart';
 import '/app/repositories/shipments_repository.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/widgets/widgets.dart';
 import 'inc_request/inc_request_page.dart';
 import 'order/order_page.dart';
 import 'pre_order/pre_order_page.dart';
@@ -65,27 +65,6 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   void closeRefresher(IndicatorResult result) {
     refresherCompleter.complete(result);
     refresherCompleter = Completer();
-  }
-
-  Future<void> showConfirmationDialog() async {
-    final vm = context.read<OrdersInfoViewModel>();
-
-    final result = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Внимание'),
-          content: const SingleChildScrollView(child: Text('Присутствуют не сохраненные изменения. Продолжить?')),
-          actions: <Widget>[
-            TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(true)),
-            TextButton(child: const Text(Strings.ok), onPressed: () => Navigator.of(context).pop(false))
-          ],
-        );
-      }
-    ) ?? true;
-
-    await vm.getData(result);
   }
 
   Future<void> openIncRequestPage(IncRequestEx incRequestEx) async {
@@ -141,76 +120,38 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
               title: const Text(Strings.ordersInfoPageName),
               bottom: TabBar(
                 tabs: [
-                  const Tab(text: 'Заказы'),
-                  const Tab(text: 'Заявки'),
-                  const Tab(text: 'Отгрузки'),
+                  const Tab(child: Text('Заказы', style: Styles.tabStyle, softWrap: false)),
+                  const Tab(child: Text('Заявки', style: Styles.tabStyle, softWrap: false)),
+                  const Tab(child: Text('Отгрузки', style: Styles.tabStyle, softWrap: false)),
                   Tab(
                     child: Badge(
                       backgroundColor: Theme.of(context).colorScheme.error,
                       label: Text(state.notSeenCnt.toString()),
                       isLabelVisible: state.notSeenCnt != 0,
                       offset: const Offset(12, -12),
-                      child: const Text('Предзаказы других ТП', overflow: TextOverflow.fade, softWrap: false),
+                      child: const Text('Предзаказы других ТП', style: Styles.tabStyle, softWrap: false),
                     )
                   )
                 ]
               ),
               actions: <Widget>[
-                Center(
-                  child: Badge(
-                    backgroundColor: Theme.of(context).colorScheme.error,
-                    label: Text(state.pendingChanges.toString()),
-                    isLabelVisible: state.hasPendingChanges,
-                    offset: const Offset(-4, 4),
-                    child: IconButton(
-                      color: Colors.white,
-                      icon: const Icon(Icons.save),
-                      splashRadius: 12,
-                      tooltip: 'Сохранить изменения',
-                      onPressed: state.isBusy || !state.hasPendingChanges ? null : vm.saveChanges
-                    )
-                  ),
-                )
+                SaveButton(
+                  onSave: state.isLoading ? null : vm.syncChanges,
+                  pendingChanges: vm.state.pendingChanges,
+                ),
               ]
             ),
-            body: EasyRefresh.builder(
-              canRefreshAfterNoMore: true,
-              header: ClassicHeader(
-                dragText: 'Потяните чтобы обновить',
-                armedText: 'Отпустите чтобы обновить',
-                readyText: 'Загрузка',
-                processingText: 'Загрузка',
-                messageText: 'Последнее обновление: %T',
-                failedText: state.message,
-                processedText: 'Данные успешно обновлены',
-                noMoreText: 'Идет сохранение данных',
-                clamping: true,
-                position: IndicatorPosition.locator,
-              ),
-              onRefresh: () async {
-                if (vm.state.isBusy) return IndicatorResult.noMore;
-
-                vm.tryGetData();
-                final result = await refresherCompleter.future;
-
-                return result;
-              },
+            body: Refreshable(
+              pendingChanges: vm.state.pendingChanges,
+              onRefresh: vm.getData,
               childBuilder: (context, physics) {
-                return NestedScrollView(
-                  physics: physics,
-                  headerSliverBuilder: (context, innerBoxIsScrolled) {
-                    return [
-                      const HeaderLocator.sliver(clearExtent: false),
-                    ];
-                  },
-                  body: TabBarView(
-                    children: [
-                      buildOrdersView(context, physics),
-                      buildIncRequestsView(context, physics),
-                      buildShipmentsView(context, physics),
-                      buildPreOrdersView(context, physics),
-                    ]
-                  )
+                return TabBarView(
+                  children: [
+                    buildOrdersView(context, physics),
+                    buildIncRequestsView(context, physics),
+                    buildShipmentsView(context, physics),
+                    buildPreOrdersView(context, physics),
+                  ]
                 );
               }
             )
@@ -219,26 +160,6 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       },
       listener: (context, state) async {
         switch (state.status) {
-          case OrdersInfoStateStatus.loadConfirmation:
-            showConfirmationDialog();
-            break;
-          case OrdersInfoStateStatus.loadDeclined:
-            closeRefresher(IndicatorResult.fail);
-            break;
-          case OrdersInfoStateStatus.loadFailure:
-            closeRefresher(IndicatorResult.fail);
-            break;
-          case OrdersInfoStateStatus.loadSuccess:
-            closeRefresher(IndicatorResult.success);
-            break;
-          case OrdersInfoStateStatus.saveInProgress:
-            progressDialog.open();
-            break;
-          case OrdersInfoStateStatus.saveFailure:
-          case OrdersInfoStateStatus.saveSuccess:
-            Misc.showMessage(context, state.message);
-            progressDialog.close();
-            break;
           case OrdersInfoStateStatus.orderAdded:
             WidgetsBinding.instance.addPostFrameCallback((_) {
               openOrderPage(state.newOrder!);
@@ -259,7 +180,10 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
     final vm = context.read<OrdersInfoViewModel>();
     final orderDate = vm.state.filteredOrderExList
       .groupFoldBy<DateTime?, List<OrderExResult>>((e) => e.order.date, (acc, e) => (acc ?? [])..add(e));
-    final orderDateList = orderDate.entries.toList();
+    final orderDateList = orderDate.entries.sortedByCompare(
+      (e) => e.key,
+      (a, b) => a == null ? -1 : b == null ? 1 : b.compareTo(a)
+    );
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -311,11 +235,13 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   Widget buildOrderTile(BuildContext context, OrderExResult orderEx) {
     final vm = context.read<OrdersInfoViewModel>();
     final tile = ListTile(
-      title: Text(orderEx.buyer != null ? '${orderEx.buyer!.fullname}\n' : 'Клиент не указан\n'),
+      title: Text(
+        orderEx.buyer != null ? '${orderEx.buyer!.fullname}\n' : 'Клиент не указан\n',
+        style: Styles.tileTitleText
+      ),
       trailing: orderEx.order.needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: 'Сумма: ${Format.numberStr(orderEx.linesTotal)}\n',
@@ -373,7 +299,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   Widget buildOrderDateTile(BuildContext context, DateTime? date, List<OrderExResult> orderExList) {
     return ExpansionTile(
       initiallyExpanded: true,
-      title: Text(Format.dateStr(date)),
+      title: Text(date == null ? 'Дата не указана' : Format.dateStr(date)),
       children: orderExList.map((e) => buildOrderTile(context, e)).toList()
     );
   }
@@ -381,13 +307,15 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   Widget buildIncRequestTile(BuildContext context, IncRequestEx incRequestEx) {
     final vm = context.read<OrdersInfoViewModel>();
     final tile = ListTile(
-      title: Text(Format.dateStr(incRequestEx.incRequest.date)),
+      title: Text(
+        incRequestEx.incRequest.date == null ? 'Дата не указана' : Format.dateStr(incRequestEx.incRequest.date),
+        style: Styles.tileTitleText
+      ),
       trailing: incRequestEx.incRequest.needSync ?
         Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) :
         null,
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: incRequestEx.buyer != null ?
@@ -405,7 +333,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
             ),
             TextSpan(
               text: 'Статус: ${incRequestEx.incRequest.status}\n',
-              style: Styles.tileText.copyWith(color: Colors.blue)
+              style: Styles.tileText.copyWith(color: Styles.blueColor)
             )
           ]
         )
@@ -430,10 +358,9 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
 
   Widget buildPreOrderTile(BuildContext context, PreOrderExResult preOrderEx) {
     return ListTile(
-      title: Text(Format.dateStr(preOrderEx.preOrder.date)),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text(Format.dateStr(preOrderEx.preOrder.date), style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: preOrderEx.wasSeen ? '' : 'Новый!\n',
@@ -457,7 +384,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
             ),
             TextSpan(
               text: preOrderEx.hasOrder ? 'Создан заказ' : 'Заказ не создан',
-              style: Styles.tileText.copyWith(color: Colors.blue)
+              style: Styles.tileText.copyWith(color: Styles.blueColor)
             )
           ]
         )
@@ -499,6 +426,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
         cursorColor: theme.textSelectionTheme.selectionColor,
         autocorrect: false,
         controller: buyerController,
+        style: Styles.formStyle,
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           labelText: 'Клиент',
@@ -516,7 +444,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       errorBuilder: (BuildContext ctx, error) {
         return Padding(
           padding: const EdgeInsets.all(8),
-          child: Text('Произошла ошибка', style: TextStyle(color: theme.colorScheme.error)),
+          child: Text('Произошла ошибка', style: Styles.formStyle.copyWith(color: theme.colorScheme.error))
         );
       },
       noItemsFoundBuilder: (BuildContext ctx) {
@@ -525,7 +453,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
           child: Text(
             'Ничего не найдено',
             textAlign: TextAlign.center,
-            style: TextStyle(color: theme.disabledColor, fontSize: 14.0),
+            style: Styles.formStyle.copyWith(color: theme.disabledColor),
           ),
         );
       },
@@ -536,7 +464,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       itemBuilder: (BuildContext ctx, Buyer suggestion) {
         return ListTile(
           isThreeLine: false,
-          title: Text(suggestion.fullname)
+          title: Text(suggestion.fullname, style: Styles.formStyle)
         );
       },
       onSuggestionSelected: (Buyer suggestion) async {
@@ -553,12 +481,9 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       .groupFoldBy<DateTime, List<ShipmentExResult>>((e) => e.shipment.date, (acc, e) => (acc ?? [])..add(e));
     final shipmentDateList = shipmentDate.entries.toList();
 
-    return SliverChildBuilderDelegate(
-      (BuildContext context, int idx) {
-        return buildShipmentDateTile(context, shipmentDateList[idx].key, shipmentDateList[idx].value);
-      },
-      childCount: shipmentDateList.length
-    );
+    return SliverChildListDelegate(
+      shipmentDateList.map((e) => buildShipmentDateTile(context, e.key, e.value)
+    ).toList());
   }
 
   Widget buildShipmentDateTile(BuildContext context, DateTime date, List<ShipmentExResult> shipmentExList) {
@@ -571,10 +496,9 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
 
   Widget buildShipmentTile(BuildContext context, ShipmentExResult shipmentEx) {
      return ListTile(
-      title: Text(shipmentEx.buyer.fullname),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text('${shipmentEx.buyer.fullname}\n', style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <InlineSpan>[
             TextSpan(
               text: 'Номер: ${shipmentEx.shipment.ndoc}\n',
@@ -601,7 +525,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
                   width: 200,
                   child: Text(
                     'Сумма: ${Format.numberStr(shipmentEx.shipment.shipmentSum)}',
-                    style: Styles.tileText.copyWith(fontWeight: FontWeight.bold, color: Colors.grey)
+                    style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
                   ),
                 ),
                 Text('Позиций: ${shipmentEx.linesCount}\n', style: Styles.tileText)
@@ -617,13 +541,13 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
 
   Color _statusColor(OrderExResult orderEx) {
     switch (orderEx.order.detailedStatus) {
-      case OrderStatus.deleted: return Colors.red;
-      case OrderStatus.draft: return Colors.blue;
-      case OrderStatus.upload: return Colors.grey[700]!;
-      case OrderStatus.processing: return Colors.brown;
-      case OrderStatus.done: return Colors.green;
-      case OrderStatus.onhold: return Colors.red;
-      case OrderStatus.unknown: return Colors.black;
+      case OrderStatus.deleted: return Styles.redColor;
+      case OrderStatus.draft: return Styles.blueColor;
+      case OrderStatus.upload: return Styles.greyColor;
+      case OrderStatus.processing: return Styles.brownColor;
+      case OrderStatus.done: return Styles.greenColor;
+      case OrderStatus.onhold: return Styles.redColor;
+      case OrderStatus.unknown: return Styles.blackColor;
     }
   }
 }

@@ -7,15 +7,14 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
-import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
-import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/partners_repository.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/widgets/widgets.dart';
 import 'goods/goods_page.dart';
 
 part 'order_state.dart';
@@ -97,20 +96,9 @@ class _OrderViewState extends State<_OrderView> {
                 tooltip: 'Создать дубликат',
                 onPressed: state.isEditable ? vm.copy : null
               ),
-              Center(
-                child: Badge(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  label: const Text('1'),
-                  isLabelVisible: state.needSync,
-                  offset: const Offset(-4, 4),
-                  child: IconButton(
-                    color: Colors.white,
-                    icon: const Icon(Icons.save),
-                    splashRadius: 12,
-                    tooltip: 'Сохранить изменения',
-                    onPressed: state.needSync ? vm.save : null
-                  )
-                ),
+              SaveButton(
+                onSave: state.needSync ? vm.syncChanges : null,
+                pendingChanges: state.needSync ? 1 : 0
               )
             ],
           ),
@@ -135,14 +123,6 @@ class _OrderViewState extends State<_OrderView> {
               Navigator.of(context).pop();
               openOrderPage(state.newOrder!);
             });
-            break;
-          case OrderStateStatus.saveInProgress:
-            progressDialog.open();
-            break;
-          case OrderStateStatus.saveFailure:
-          case OrderStateStatus.saveSuccess:
-            Misc.showMessage(context, state.message);
-            progressDialog.close();
             break;
           default:
         }
@@ -205,7 +185,7 @@ class _OrderViewState extends State<_OrderView> {
       errorBuilder: (BuildContext ctx, error) {
         return Padding(
           padding: const EdgeInsets.all(8),
-          child: Text('Произошла ошибка', style: Styles.formStyle.apply(color: theme.colorScheme.error)),
+          child: Text('Произошла ошибка', style: Styles.formStyle.copyWith(color: theme.colorScheme.error)),
         );
       },
       noItemsFoundBuilder: (BuildContext ctx) {
@@ -238,42 +218,42 @@ class _OrderViewState extends State<_OrderView> {
     return [
       InfoRow(
         trailingFlex: 2,
-        title: const Text('Статус'),
-        trailing: Text(order.detailedStatus.name)
+        title: const Text('Статус', style: Styles.formStyle),
+        trailing: Text(order.detailedStatus.name, style: Styles.formStyle)
       ),
       !vm.state.orderEx.order.isEditable ? Container() : InfoRow(
         trailingFlex: 2,
-        title: const Text('Передан в работу'),
-        trailing: Text(order.needProcessing ? 'Да' : 'Нет')
+        title: const Text('Передан в работу', style: Styles.formStyle),
+        trailing: Text(order.needProcessing ? 'Да' : 'Нет', style: Styles.formStyle)
       ),
       InfoRow(
         trailingFlex: 2,
-        title: const Text('Клиент'),
+        title: const Text('Клиент', style: Styles.formStyle),
         trailing: buildBuyerSearch(context)
       ),
       vm.state.preOrderMode ? Container() : InfoRow(
-        title: const Text('Бонусный'),
+        title: const Text('Бонусный', style: Styles.formStyle),
         trailing: Checkbox(
           value: order.isBonus,
           onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateIsBonus(value!)
         )
       ),
       vm.state.preOrderMode ? Container() : InfoRow(
-        title: const Text('Требуется инкассация'),
+        title: const Text('Требуется инкассация', style: Styles.formStyle),
         trailing: Checkbox(
           value: order.needInc,
           onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateNeedInc(value!)
         )
       ),
       InfoRow(
-        title: const Text('Нужна счет-фактура'),
+        title: const Text('Нужна счет-фактура', style: Styles.formStyle),
         trailing: Checkbox(
           value: order.needDocs,
           onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateNeedDocs(value!)
         )
       ),
       vm.state.preOrderMode ? Container() : InfoRow(
-        title: const Text('Физ. лицо'),
+        title: const Text('Физ. лицо', style: Styles.formStyle),
         trailing: Checkbox(
           value: order.isPhysical,
           onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateIsPhysical(value!)
@@ -281,7 +261,7 @@ class _OrderViewState extends State<_OrderView> {
       ),
       InfoRow(
         trailingFlex: 2,
-        title: const Text('Дата доставки'),
+        title: const Text('Дата доставки', style: Styles.formStyle),
         trailing: Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
@@ -297,7 +277,7 @@ class _OrderViewState extends State<_OrderView> {
         )
       ),
       InfoRow(
-        title: const Text('Комментарий'),
+        title: const Text('Комментарий', style: Styles.formStyle),
         trailing: TextFormField(
           enabled: vm.state.isEditable,
           initialValue: order.info,
@@ -306,8 +286,8 @@ class _OrderViewState extends State<_OrderView> {
         )
       ),
       InfoRow(
-        title: const Text('Стоимость'),
-        trailing: Text(Format.numberStr(vm.state.orderEx.linesTotal))
+        title: const Text('Стоимость', style: Styles.formStyle),
+        trailing: Text(Format.numberStr(vm.state.orderEx.linesTotal), style: Styles.formStyle)
       ),
       buildOrderListView(context)
     ];
@@ -316,10 +296,9 @@ class _OrderViewState extends State<_OrderView> {
   Widget buildOrderLineTile(BuildContext context, OrderLineExResult orderLineEx) {
     final vm = context.read<OrderViewModel>();
     final tile = ListTile(
-      title: Text(orderLineEx.goodsName),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text(orderLineEx.goodsName, style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: 'Кол-во: ${orderLineEx.line.vol.toInt()}\n',

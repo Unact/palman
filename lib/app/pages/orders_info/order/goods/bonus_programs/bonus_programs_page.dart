@@ -93,10 +93,9 @@ class _BonusProgramsViewState extends State<_BonusProgramsView> {
 
   Widget buildBonusProgramTile(BuildContext context, FilteredBonusProgramsResult bonusProgram) {
     return ListTile(
-      title: Text(bonusProgram.name),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text(bonusProgram.name, style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: 'Выполни: ${bonusProgram.condition}\n',
@@ -125,23 +124,27 @@ class _BonusProgramsViewState extends State<_BonusProgramsView> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           SizedBox(
-            width: 140,
+            width: 144,
             child: CheckboxListTile(
               title: const Text('Группа', style: Styles.formStyle),
               value: vm.state.filterByCategory,
               onChanged: vm.changeFilterByCategory
             )
           ),
-          DropdownButton<BonusProgramGroup?>(
-            style: Styles.formStyle,
-            value: vm.state.selectedBonusProgramGroup,
-            items: [
-              const DropdownMenuItem<BonusProgramGroup?>(value: null, child: Text('Все')),
-              ...vm.state.bonusProgramGroups.map<DropdownMenuItem<BonusProgramGroup>>((BonusProgramGroup v) {
-                return DropdownMenuItem<BonusProgramGroup>(value: v, child: Text(v.name));
-              }).toList()
-            ],
-            onChanged: vm.changeSelectedBonusProgramGroup
+          SizedBox(
+            width: 156,
+            child: DropdownButton<BonusProgramGroup?>(
+              isExpanded: true,
+              style: Theme.of(context).textTheme.titleMedium!.merge(Styles.formStyle),
+              value: vm.state.selectedBonusProgramGroup,
+              items: [
+                const DropdownMenuItem<BonusProgramGroup?>(value: null, child: Text('Все')),
+                ...vm.state.bonusProgramGroups.map<DropdownMenuItem<BonusProgramGroup>>((BonusProgramGroup v) {
+                  return DropdownMenuItem<BonusProgramGroup>(value: v, child: Text(v.name, softWrap: false));
+                }).toList()
+              ],
+              onChanged: vm.changeSelectedBonusProgramGroup
+            )
           )
         ],
       ),

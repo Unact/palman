@@ -60,49 +60,18 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
     await incRequestExListSubscription?.cancel();
   }
 
-  Future<void> saveChanges() async {
-    if (state.isBusy) return;
-
-    emit(state.copyWith(status: OrdersInfoStateStatus.saveInProgress, isBusy: true));
-
-    try {
-      await _syncChanges();
-
-      emit(state.copyWith(status: OrdersInfoStateStatus.saveSuccess, message: Strings.changesSaved, isBusy: false));
-    } on AppError catch(e) {
-      emit(state.copyWith(status: OrdersInfoStateStatus.saveFailure, message: e.message, isBusy: false));
-    }
-  }
-
-  Future<void> _syncChanges() async {
-    await usersRepository.refresh();
-
+  Future<void> syncChanges() async {
     final futures = [
       ordersRepository.syncChanges,
       shipmentsRepository.syncChanges
     ];
 
+    await usersRepository.refresh();
     await Future.wait(futures.map((e) => e.call()));
   }
 
-  Future<void> tryGetData() async {
-    if (state.hasPendingChanges) {
-      emit(state.copyWith(status: OrdersInfoStateStatus.loadConfirmation));
-      return;
-    }
-
-    await getData(false);
-  }
-
-  Future<void> getData(bool declined) async {
-    if (declined) {
-      emit(state.copyWith(status: OrdersInfoStateStatus.loadDeclined, message: 'Обновление отменено'));
-      return;
-    }
-
-    if (state.isBusy) return;
-
-    await usersRepository.refresh();
+  Future<void> getData() async {
+    if (state.isLoading) return;
 
     final futures = [
       ordersRepository.loadRemains,
@@ -110,22 +79,12 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
       shipmentsRepository.loadShipments,
     ];
 
-    emit(state.copyWith(status: OrdersInfoStateStatus.loadInProgress, isBusy: true));
-
     try {
+      emit(state.copyWith(isLoading: true));
+      await usersRepository.refresh();
       await Future.wait(futures.map((e) => e.call()));
-
-      emit(state.copyWith(
-        status: OrdersInfoStateStatus.loadSuccess,
-        message: 'Данные успешно обновлены',
-        isBusy: false
-      ));
-    } on AppError catch(e) {
-      emit(state.copyWith(
-        status: OrdersInfoStateStatus.loadFailure,
-        message: e.message,
-        isBusy: false
-      ));
+    } finally {
+      emit(state.copyWith(isLoading: false));
     }
   }
 

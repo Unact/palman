@@ -47,12 +47,13 @@ class _HandPriceChangeViewState extends State<_HandPriceChangeView> {
         controller ??= TextEditingController(text: state.handPrice?.toStringAsFixed(2).replaceAll('.', ','));
 
         return AlertDialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 8),
           title: const Text('Изменение цены'),
           content: SingleChildScrollView(
             child: ListBody(
               children: [
                 buildInfoTable(context),
-                buildPriceRow(context)
+                buildPriceTable(context)
               ]
             )
           ),
@@ -92,9 +93,9 @@ class _HandPriceChangeViewState extends State<_HandPriceChangeView> {
 
     return Table(
       columnWidths: const <int, TableColumnWidth>{
-        0: FixedColumnWidth(128),
-        1: FixedColumnWidth(64),
-        2: FixedColumnWidth(82),
+        0: FixedColumnWidth(118),
+        1: FixedColumnWidth(90),
+        2: FixedColumnWidth(90),
       },
       defaultVerticalAlignment: TableCellVerticalAlignment.top,
       children: [
@@ -102,47 +103,53 @@ class _HandPriceChangeViewState extends State<_HandPriceChangeView> {
           children: <Widget>[
             const Text('Мин. цена', style: Styles.formStyle),
             Text(Format.numberStr(vm.state.minHandPrice), style: Styles.formStyle),
-            const SizedBox(height: 32)
+            Container()
           ],
         )
       ],
     );
   }
 
-  Widget buildPriceRow(BuildContext context) {
+  Widget buildPriceTable(BuildContext context) {
     final vm = context.read<HandPriceChangeViewModel>();
     final handPrice = vm.state.handPrice ?? 0;
 
-    return InfoRow(
-      padding: EdgeInsets.zero,
-      trailingFlex: 2,
-      title: const Text('Цена', style: Styles.formStyle),
-      trailing: SizedBox(
-        width: 160,
-        child: NumTextField(
-          textAlign: TextAlign.center,
-          controller: controller,
-          style: Styles.formStyle,
-          textAlignVertical: TextAlignVertical.center,
-          decoration: InputDecoration(
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.add),
-              tooltip: 'Увеличить цену',
-              onPressed: validHandPrice(handPrice + vm.state.priceStep) ?
-                () => updateHandPriceAndText(handPrice + vm.state.priceStep) :
-                null
-            ),
-            prefixIcon: IconButton(
-              icon: const Icon(Icons.remove),
-              tooltip: 'Уменьшить цену',
-              onPressed: validHandPrice(handPrice - vm.state.priceStep) ?
-                () => updateHandPriceAndText(handPrice - vm.state.priceStep) :
-                null
+    return Table(
+      columnWidths: const <int, TableColumnWidth>{
+        0: FixedColumnWidth(118),
+        1: FixedColumnWidth(180),
+      },
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      children: [
+        TableRow(
+          children: [
+            const Text('Цена', style: Styles.formStyle),
+            NumTextField(
+              textAlign: TextAlign.center,
+              controller: controller,
+              style: Styles.formStyle,
+              textAlignVertical: TextAlignVertical.center,
+              decoration: InputDecoration(
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.add),
+                  tooltip: 'Увеличить цену',
+                  onPressed: validHandPrice(handPrice + vm.state.priceStep) ?
+                    () => updateHandPriceAndText(handPrice + vm.state.priceStep) :
+                    null
+                ),
+                prefixIcon: IconButton(
+                  icon: const Icon(Icons.remove),
+                  tooltip: 'Уменьшить цену',
+                  onPressed: validHandPrice(handPrice - vm.state.priceStep) ?
+                    () => updateHandPriceAndText(handPrice - vm.state.priceStep) :
+                    null
+                )
+              ),
+              onTap: () => vm.updateHandPrice(Parsing.parseDouble(controller!.text))
             )
-          ),
-          onTap: () => vm.updateHandPrice(Parsing.parseDouble(controller!.text))
+          ]
         )
-      )
+      ]
     );
   }
 

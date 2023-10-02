@@ -35,9 +35,9 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     await super.initViewModel();
 
     await _startLocationListen();
-    await saveChangesBackground();
+    await saveLocationChanges();
 
-    syncTimer = Timer.periodic(const Duration(minutes: 10), saveChangesBackground);
+    syncTimer = Timer.periodic(const Duration(minutes: 10), saveLocationChanges);
 
     userSubscription = usersRepository.watchUser().listen((event) {
       emit(state.copyWith(status: InfoStateStatus.dataLoaded, user: event));
@@ -81,11 +81,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     ).listen(_saveLocation);
   }
 
-  Future<void> _syncChanges() async {
-    await usersRepository.refresh();
-
+  Future<void> syncChanges() async {
     final futures = [
-      locationsRepository.syncChanges,
       pointsRepository.syncChanges,
       debtsRepository.syncChanges,
       ordersRepository.syncChanges,
@@ -93,57 +90,28 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       shipmentsRepository.syncChanges
     ];
 
+    await usersRepository.refresh();
     await Future.wait(futures.map((e) => e.call()));
   }
 
-  Future<void> saveChangesBackground([Timer? _]) async {
-    if (state.isBusy) return;
-
-    emit(state.copyWith(status: InfoStateStatus.syncInProgress, isBusy: true));
+  Future<void> saveLocationChanges([Timer? _]) async {
+    emit(state.copyWith(status: InfoStateStatus.syncInProgress));
 
     try {
-      await _syncChanges();
+      await locationsRepository.syncChanges();
 
-      emit(state.copyWith(status: InfoStateStatus.syncSuccess, syncMessage: '', isBusy: false));
+      emit(state.copyWith(status: InfoStateStatus.syncSuccess, syncMessage: ''));
     } on AppError catch(e) {
-      emit(state.copyWith(status: InfoStateStatus.syncFailure, syncMessage: e.message, isBusy: false));
+      emit(state.copyWith(status: InfoStateStatus.syncFailure, syncMessage: e.message));
     }
   }
 
-  Future<void> tryGetData() async {
-    if (state.hasPendingChanges) {
-      emit(state.copyWith(status: InfoStateStatus.loadConfirmation));
-      return;
-    }
-
-    await getData(false);
-  }
-
-  Future<void> saveChangesForeground() async {
-    if (state.isBusy) return;
-
-    emit(state.copyWith(status: InfoStateStatus.saveInProgress, syncMessage: '', isBusy: true));
-
-    try {
-      await _syncChanges();
-
-      emit(state.copyWith(status: InfoStateStatus.saveSuccess, message: Strings.changesSaved, isBusy: false));
-    } on AppError catch(e) {
-      emit(state.copyWith(status: InfoStateStatus.saveFailure, message: e.message, isBusy: false));
-    }
-  }
-
-  Future<void> getData(bool declined) async {
+  Future<void> getData() async {
     Future<void> loadData(Future<void> Function() method) async {
       await method.call();
       emit(state.copyWith(loaded: state.loaded + 1));
     }
-    if (declined) {
-      emit(state.copyWith(status: InfoStateStatus.loadDeclined, message: 'Обновление отменено'));
-      return;
-    }
-
-    if (state.isBusy) return;
+    if (state.isLoading) return;
 
     final futures = [
       usersRepository.loadUserData,
@@ -157,28 +125,13 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       shipmentsRepository.loadShipments,
     ];
 
-    emit(state.copyWith(status: InfoStateStatus.loadInProgress, syncMessage: '', isBusy: true, toLoad: futures.length));
-
     try {
+      emit(state.copyWith(isLoading: true, loaded: 0, toLoad: futures.length));
       await usersRepository.refresh();
       await Future.wait(futures.map((e) => loadData(e)));
       await appRepository.updatePref(lastSyncTime: Optional.of(DateTime.now()));
-
-      emit(state.copyWith(
-        status: InfoStateStatus.loadSuccess,
-        message: 'Данные успешно обновлены',
-        isBusy: false,
-        loaded: 0,
-        toLoad: 0
-      ));
-    } on AppError catch(e) {
-      emit(state.copyWith(
-        status: InfoStateStatus.loadFailure,
-        message: e.message,
-        isBusy: false,
-        loaded: 0,
-        toLoad: 0
-      ));
+    } finally {
+      emit(state.copyWith(isLoading: false, loaded: 0, toLoad: 0));
     }
   }
 
@@ -315,7 +268,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   }
 
   Future<void> regenerateGuids() async {
-    if (state.isBusy) {
+    if (state.isLoading) {
       emit(state.copyWith(
         status: InfoStateStatus.guidRegenerateFailure,
         message: 'Нельзя менять идентификаторы! Идет синхронизация данных'

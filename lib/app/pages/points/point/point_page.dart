@@ -11,10 +11,10 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
-import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/points_repository.dart';
+import '/app/widgets/widgets.dart';
 import 'address/address_page.dart';
 
 part 'point_state.dart';
@@ -110,20 +110,9 @@ class _PointViewState extends State<_PointView> {
           appBar: AppBar(
             title: const Text('Точка'),
             actions: [
-              Center(
-                child: Badge(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  label: const Text('1'),
-                  isLabelVisible: state.needSync,
-                  offset: const Offset(-4, 4),
-                  child: IconButton(
-                    color: Colors.white,
-                    icon: const Icon(Icons.save),
-                    splashRadius: 12,
-                    tooltip: 'Сохранить изменения',
-                    onPressed: state.needSync ? vm.save : null
-                  )
-                ),
+              SaveButton(
+                onSave: state.needSync ? vm.syncChanges : null,
+                pendingChanges: state.needSync ? 1 : 0
               )
             ],
           ),
@@ -149,14 +138,6 @@ class _PointViewState extends State<_PointView> {
           case PointStateStatus.cameraOpened:
             await showCameraView();
             break;
-          case PointStateStatus.saveInProgress:
-            progressDialog.open();
-            break;
-          case PointStateStatus.saveFailure:
-          case PointStateStatus.saveSuccess:
-            Misc.showMessage(context, state.message);
-            progressDialog.close();
-            break;
           default:
         }
       },
@@ -168,9 +149,12 @@ class _PointViewState extends State<_PointView> {
     final point = vm.state.pointEx.point;
 
     return [
-      InfoRow(title: const Text('Юр. лица'), trailing: ExpandingText(point.buyerName)),
       InfoRow(
-        title: const Text('Адрес'),
+        title: const Text('Юр. лица', style: Styles.formStyle),
+        trailing: ExpandingText(point.buyerName, style: Styles.formStyle)
+      ),
+      InfoRow(
+        title: const Text('Адрес', style: Styles.formStyle),
         trailing: Row(
           children: [
             Expanded(child: ExpandingText(point.address ?? '', style: Styles.formStyle)),
@@ -184,11 +168,11 @@ class _PointViewState extends State<_PointView> {
         )
       ),
       InfoRow(
-        title: const Text('Формат'),
+        title: const Text('Формат', style: Styles.formStyle),
         trailing: DropdownButtonFormField(
           isExpanded: true,
           value: point.pointFormat,
-          style: Styles.formStyle,
+          style: Theme.of(context).textTheme.titleMedium!.merge(Styles.formStyle),
           alignment: AlignmentDirectional.center,
           items: vm.state.pointFormats.map((PointFormat v) {
             return DropdownMenuItem<int>(
@@ -200,7 +184,7 @@ class _PointViewState extends State<_PointView> {
         )
       ),
       InfoRow(
-        title: const Text('Кол-во касс'),
+        title: const Text('Кол-во касс', style: Styles.formStyle),
         trailing: NumTextField(
           decimal: false,
           textAlign: TextAlign.start,
@@ -210,7 +194,7 @@ class _PointViewState extends State<_PointView> {
         )
       ),
       InfoRow(
-        title: const Text('Вывеска'),
+        title: const Text('Вывеска', style: Styles.formStyle),
         trailing: TextFormField(
           initialValue: point.name,
           onFieldSubmitted: vm.updateName,
@@ -218,7 +202,7 @@ class _PointViewState extends State<_PointView> {
         )
       ),
       InfoRow(
-        title: const Text('Email для чеков'),
+        title: const Text('Email для чеков', style: Styles.formStyle),
         trailing: TextFormField(
           initialValue: point.emailOnlineCheck,
           onFieldSubmitted: vm.updateEmailOnlineCheck,
@@ -226,7 +210,7 @@ class _PointViewState extends State<_PointView> {
         ),
       ),
       InfoRow(
-        title: const Text('Email'),
+        title: const Text('Email', style: Styles.formStyle),
         trailing: TextFormField(
           initialValue: point.email,
           onFieldSubmitted: vm.updateEmail,
@@ -234,7 +218,7 @@ class _PointViewState extends State<_PointView> {
         )
       ),
       InfoRow(
-        title: const Text('ИНН'),
+        title: const Text('ИНН', style: Styles.formStyle),
         trailing: TextFormField(
           initialValue: point.inn,
           onFieldSubmitted: vm.updateInn,
@@ -242,7 +226,7 @@ class _PointViewState extends State<_PointView> {
         )
       ),
       InfoRow(
-        title: const Text('Лимит'),
+        title: const Text('Лимит', style: Styles.formStyle),
         trailing: NumTextField(
           decimal: false,
           textAlign: TextAlign.start,
@@ -252,7 +236,7 @@ class _PointViewState extends State<_PointView> {
         )
       ),
       InfoRow(
-        title: const Text('НДС10'),
+        title: const Text('НДС10', style: Styles.formStyle),
         trailing: NumTextField(
           decimal: false,
           textAlign: TextAlign.start,
@@ -262,7 +246,7 @@ class _PointViewState extends State<_PointView> {
         )
       ),
       InfoRow(
-        title: const Text('НДС20'),
+        title: const Text('НДС20', style: Styles.formStyle),
         trailing: NumTextField(
           decimal: false,
           textAlign: TextAlign.start,
@@ -272,7 +256,7 @@ class _PointViewState extends State<_PointView> {
         )
       ),
       InfoRow(
-        title: const Text('Срок'),
+        title: const Text('Срок', style: Styles.formStyle),
         trailing: NumTextField(
           decimal: false,
           textAlign: TextAlign.start,
@@ -282,7 +266,7 @@ class _PointViewState extends State<_PointView> {
         )
       ),
       InfoRow(
-        title: const Text('Тел. для чеков'),
+        title: const Text('Тел. для чеков', style: Styles.formStyle),
         trailing: TextFormField(
           initialValue: point.phoneOnlineCheck,
           onFieldSubmitted: vm.updatePhoneOnlineCheck,
@@ -290,7 +274,7 @@ class _PointViewState extends State<_PointView> {
         )
       ),
       InfoRow(
-        title: const Text('ЮЛ'),
+        title: const Text('ЮЛ', style: Styles.formStyle),
         trailing: TextFormField(
           initialValue: point.jur,
           onFieldSubmitted: vm.updateJur,
@@ -299,8 +283,11 @@ class _PointViewState extends State<_PointView> {
       ),
       const ListTile(
         contentPadding: EdgeInsets.all(8),
-        title: Text('Фотографии точки'),
-        subtitle: Text('Необходим вид с улицы, а также общий план торгового зала с разных углов. Не менее 3 фото.')
+        title: Text('Фотографии точки', style: Styles.formStyle),
+        subtitle: Text(
+          'Необходим вид с улицы, а также общий план торгового зала с разных углов. Не менее 3 фото.',
+          style: Styles.formStyle
+        )
       ),
       GridView.count(crossAxisCount: 4, shrinkWrap: true, mainAxisSpacing: 16, children: buildImages(context))
     ];

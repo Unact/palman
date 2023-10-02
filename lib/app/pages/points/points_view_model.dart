@@ -3,9 +3,11 @@ part of 'points_page.dart';
 class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   final AppRepository appRepository;
   final PointsRepository pointsRepository;
+  final UsersRepository usersRepository;
   StreamSubscription<List<PointEx>>? pointExListSubscription;
+  StreamSubscription<AppInfoResult>? appInfoSubscription;
 
-  PointsViewModel(this.appRepository, this.pointsRepository) :
+  PointsViewModel(this.appRepository, this.pointsRepository, this.usersRepository) :
     super(PointsState(selectedReason: PointsState.kReasonFilter.first));
 
   @override
@@ -18,6 +20,9 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     pointExListSubscription = pointsRepository.watchPointExList().listen((event) {
       emit(state.copyWith(status: PointsStateStatus.dataLoaded, pointExList: event));
     });
+    appInfoSubscription = appRepository.watchAppInfo().listen((event) {
+      emit(state.copyWith(status: PointsStateStatus.dataLoaded, appInfo: event));
+    });
   }
 
   @override
@@ -25,6 +30,7 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     await super.close();
 
     await pointExListSubscription?.cancel();
+    await appInfoSubscription?.cancel();
   }
 
   void changeSelectedReason((String code, String value) selectedReason) {
@@ -55,5 +61,30 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
       status: PointsStateStatus.pointDeleted,
       pointExList: state.pointExList.where((e) => e != pointEx).toList()
     ));
+  }
+
+  Future<void> syncChanges() async {
+    final futures = [
+      pointsRepository.syncChanges
+    ];
+
+    await usersRepository.refresh();
+    await Future.wait(futures.map((e) => e.call()));
+  }
+
+  Future<void> getData() async {
+    if (state.isLoading) return;
+
+    final futures = [
+      pointsRepository.loadPoints
+    ];
+
+    try {
+      emit(state.copyWith(isLoading: true));
+      await usersRepository.refresh();
+      await Future.wait(futures.map((e) => e.call()));
+    } finally {
+      emit(state.copyWith(isLoading: false));
+    }
   }
 }

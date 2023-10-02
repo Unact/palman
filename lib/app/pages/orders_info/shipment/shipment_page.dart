@@ -63,10 +63,9 @@ class _ShipmentViewState extends State<_ShipmentView> {
 
   Widget buildShipmentLineTile(BuildContext context, ShipmentLineEx shipmentLineEx) {
     return ListTile(
-      title: Text(shipmentLineEx.goods.name),
-      subtitle: RichText(
-        text: TextSpan(
-          style: Styles.defaultTextSpan,
+      title: Text(shipmentLineEx.goods.name, style: Styles.tileTitleText),
+      subtitle: Text.rich(
+        TextSpan(
           children: <TextSpan>[
             TextSpan(
               text: 'Кол-во: ${shipmentLineEx.line.vol.toInt()}\n',

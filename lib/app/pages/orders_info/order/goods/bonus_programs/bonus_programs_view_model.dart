@@ -20,7 +20,10 @@ class BonusProgramsViewModel extends PageViewModel<BonusProgramsState, BonusProg
 
     await _searchBonusPrograms();
 
-    bonusProgramGroupsSubscription = ordersRepository.watchBonusProgramGroups(buyerId: state.buyer.id).listen((event) {
+    bonusProgramGroupsSubscription = ordersRepository.watchBonusProgramGroups(
+      buyerId: state.buyer.id,
+      date: state.date
+    ).listen((event) {
       emit(state.copyWith(status: BonusProgramsStateStatus.dataLoaded, bonusProgramGroups: event));
     });
   }

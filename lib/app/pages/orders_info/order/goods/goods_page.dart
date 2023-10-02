@@ -197,19 +197,20 @@ class _GoodsViewState extends State<_GoodsView> {
 
     if (vm.state.groupByManufacturer) {
       for (var e in vm.state.manufacturers) {
-        groupedGoods[e] = vm.state.goodsDetails.where((g) => g.goods.manufacturer == e).toList();
+        groupedGoods[e] = vm.state.filteredGoodsDetails.where((g) => g.goods.manufacturer == e).toList();
       }
     } else {
       for (var e in vm.state.goodsFirstWords) {
-        groupedGoods[e] = vm.state.goodsDetails.where((g) => g.goods.name.split(' ').first == e).toList();
+        groupedGoods[e] = vm.state.filteredGoodsDetails.where((g) => g.goods.name.split(' ').first == e).toList();
       }
     }
 
     return _GoodsGroupsView(
-      key: Key(vm.state.goodsDetails.fold(0, (prev, e) => prev + e.goods.hashCode).toString()),
+      key: Key(vm.state.filteredGoodsDetails.fold(0, (prev, e) => prev + e.goods.hashCode).toString()),
       groupedGoods: groupedGoods,
       showOnlyActive: vm.state.showOnlyActive,
       initiallyExpanded: vm.state.goodsListInitiallyExpanded,
+      showWithPrice: vm.state.showWithPrice,
       compactMode: compactMode,
       showGroupInfo: vm.state.showGroupInfo,
       showGoodsImage: vm.state.showGoodsImage,
@@ -466,7 +467,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
                 tooltip: 'Показать актив',
                 onPressed: () => setState(() => groupedCategoriesActive[name] = !showOnlyActive)
               ),
-            title: Text(name, style: const TextStyle(color: Colors.white)),
+            title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             children: children
           ),
         )
@@ -513,6 +514,7 @@ class _GoodsGroupsView extends StatefulWidget {
   final Map<String, List<GoodsDetail>> groupedGoods;
   final bool showOnlyActive;
   final bool initiallyExpanded;
+  final bool showWithPrice;
   final bool showGroupInfo;
   final bool showGoodsImage;
   final bool compactMode;
@@ -525,6 +527,7 @@ class _GoodsGroupsView extends StatefulWidget {
   _GoodsGroupsView({
     required this.groupedGoods,
     required this.showOnlyActive,
+    required this.showWithPrice,
     required this.initiallyExpanded,
     required this.showGroupInfo,
     required this.showGoodsImage,
@@ -593,7 +596,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
                 tooltip: 'Показать актив',
                 onPressed: () => setState(() => groupedGoodsActive[name] = !showOnlyActive)
               ),
-            title: Text(name, style: const TextStyle(color: Colors.white)),
+            title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             children: children
           ),
         )
@@ -670,13 +673,15 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     final tags = goodsDetail.bonusPrograms;
     final daysDiff = goodsDetail.hadShipment ? DateTime.now().difference(goodsEx.lastShipmentDate!) : null;
 
-    return RichText(
-      text: TextSpan(
-        style: const TextStyle(color: Colors.black),
+    return Text.rich(
+      TextSpan(
+        style: Styles.tileTitleText,
         children: <InlineSpan>[
           TextSpan(
             text: goodsEx.goods.name,
-            style: TextStyle(fontSize: 14.0, color: goodsDetail.stock?.isVollow ?? false ? Colors.pink : Colors.black)
+            style: Styles.tileTitleText.copyWith(
+              color: goodsDetail.stock?.isVollow ?? false ? Colors.pink : Colors.black
+            )
           ),
           daysDiff == null ?
             const TextSpan() :
@@ -769,14 +774,10 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
   }
 
   Widget buildGoodsTile(BuildContext context, GoodsDetail goodsDetail) {
-    final vm = context.read<GoodsViewModel>();
     final orderLineEx = widget.linesExList.firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goods.id);
     final enabled = goodsDetail.price != 0 &&
       !goodsDetail.goodsEx.restricted &&
       widget.orderEx.order.isEditable;
-
-    if (vm.state.showWithPrice && goodsDetail.price == 0 && orderLineEx == null) return Container();
-    if (goodsDetail.stock == null && orderLineEx == null) return Container();
 
     return Column(
       children: [
@@ -784,10 +785,10 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
           contentPadding: const EdgeInsets.only(left: 8, top: 4, right: 8, bottom: 4),
           tileColor: Colors.transparent,
           trailing: buildGoodsTileTrailing(context, goodsDetail, orderLineEx, enabled),
-          subtitle: _GoodsSubtitle(goodsDetail, orderLineEx),
           title: buildGoodsTileTitle(context, goodsDetail),
           onTap: !enabled ? null : () => widget.onTap(goodsDetail)
         ),
+        _GoodsSubtitle(goodsDetail, orderLineEx),
         buildGoodsImage(context, goodsDetail)
       ]
     );
@@ -888,13 +889,9 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
           onPressed: () => setState(() => expanded = true)
         ),
         Expanded(
-          child: RichText(
-            text: TextSpan(
-              style: Styles.defaultTextSpan.copyWith(
-                fontSize: 12,
-                color: Colors.grey[700],
-                fontWeight: FontWeight.w500
-              ),
+          child: Text.rich(
+            TextSpan(
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.w500),
               children: <InlineSpan>[
                 const TextSpan(text: 'Цена: '),
                 (goods.handPrice ?? 0) > 0 ?
@@ -956,13 +953,9 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
           onPressed: () => setState(() => expanded = false)
         ),
         Expanded(
-          child: RichText(
-            text: TextSpan(
-              style: Styles.defaultTextSpan.copyWith(
-                fontSize: 12,
-                color: Colors.grey[700],
-                fontWeight: FontWeight.w500
-              ),
+          child: Text.rich(
+            TextSpan(
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.w500),
               children: <InlineSpan>[
                 TextSpan(
                   text: (goodsEx.lastPrice ?? 0) > 0 && (goods.handPrice ?? 0) > 0 ?
