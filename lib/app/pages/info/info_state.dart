@@ -3,14 +3,6 @@ part of 'info_page.dart';
 enum InfoStateStatus {
   initial,
   dataLoaded,
-  loadDeclined,
-  loadSuccess,
-  loadFailure,
-  loadInProgress,
-  loadConfirmation,
-  saveSuccess,
-  saveFailure,
-  saveInProgress,
   syncSuccess,
   syncFailure,
   syncInProgress,
@@ -28,7 +20,7 @@ class InfoState {
     this.status = InfoStateStatus.initial,
     this.message = '',
     this.syncMessage = '',
-    this.isBusy = false,
+    this.isLoading = false,
     this.user,
     this.appInfo,
     this.pointImages = const [],
@@ -44,7 +36,7 @@ class InfoState {
   final InfoStateStatus status;
   final String message;
   final String syncMessage;
-  final bool isBusy;
+  final bool isLoading;
   final User? user;
   final AppInfoResult? appInfo;
   final List<PointImage> pointImages;
@@ -64,7 +56,6 @@ class InfoState {
     appInfo!.incRequestsToSync +
     appInfo!.partnerPricesToSync +
     appInfo!.partnersPricelistsToSync;
-  bool get hasPendingChanges => pendingChanges != 0;
 
   int get encashmentsTotal => appInfo == null ? 0 : appInfo!.encashmentsTotal;
   int get ordersTotal => appInfo == null ? 0 : appInfo!.ordersTotal;
@@ -76,7 +67,7 @@ class InfoState {
     InfoStateStatus? status,
     String? message,
     String? syncMessage,
-    bool? isBusy,
+    bool? isLoading,
     User? user,
     AppInfoResult? appInfo,
     List<PointImage>? pointImages,
@@ -92,7 +83,7 @@ class InfoState {
       status: status ?? this.status,
       message: message ?? this.message,
       syncMessage: syncMessage ?? this.syncMessage,
-      isBusy: isBusy ?? this.isBusy,
+      isLoading: isLoading ?? this.isLoading,
       user: user ?? this.user,
       appInfo: appInfo ?? this.appInfo,
       pointImages: pointImages ?? this.pointImages,

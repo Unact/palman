@@ -11,13 +11,13 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
-import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/partners_repository.dart';
 import '/app/repositories/shipments_repository.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/widgets/widgets.dart';
 import 'inc_request/inc_request_page.dart';
 import 'order/order_page.dart';
 import 'pre_order/pre_order_page.dart';
@@ -65,27 +65,6 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   void closeRefresher(IndicatorResult result) {
     refresherCompleter.complete(result);
     refresherCompleter = Completer();
-  }
-
-  Future<void> showConfirmationDialog() async {
-    final vm = context.read<OrdersInfoViewModel>();
-
-    final result = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Внимание'),
-          content: const SingleChildScrollView(child: Text('Присутствуют не сохраненные изменения. Продолжить?')),
-          actions: <Widget>[
-            TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(true)),
-            TextButton(child: const Text(Strings.ok), onPressed: () => Navigator.of(context).pop(false))
-          ],
-        );
-      }
-    ) ?? true;
-
-    await vm.getData(result);
   }
 
   Future<void> openIncRequestPage(IncRequestEx incRequestEx) async {
@@ -156,61 +135,23 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
                 ]
               ),
               actions: <Widget>[
-                Center(
-                  child: Badge(
-                    backgroundColor: Theme.of(context).colorScheme.error,
-                    label: Text(state.pendingChanges.toString()),
-                    isLabelVisible: state.hasPendingChanges,
-                    offset: const Offset(-4, 4),
-                    child: IconButton(
-                      color: Colors.white,
-                      icon: const Icon(Icons.save),
-                      splashRadius: 12,
-                      tooltip: 'Сохранить изменения',
-                      onPressed: state.isBusy || !state.hasPendingChanges ? null : vm.saveChanges
-                    )
-                  ),
-                )
+                SaveButton(
+                  onSave: state.isLoading ? null : vm.syncChanges,
+                  pendingChanges: vm.state.pendingChanges,
+                ),
               ]
             ),
-            body: EasyRefresh.builder(
-              canRefreshAfterNoMore: true,
-              header: ClassicHeader(
-                dragText: 'Потяните чтобы обновить',
-                armedText: 'Отпустите чтобы обновить',
-                readyText: 'Загрузка',
-                processingText: 'Загрузка',
-                messageText: 'Последнее обновление: %T',
-                failedText: state.message,
-                processedText: 'Данные успешно обновлены',
-                noMoreText: 'Идет сохранение данных',
-                clamping: true,
-                position: IndicatorPosition.locator,
-              ),
-              onRefresh: () async {
-                if (vm.state.isBusy) return IndicatorResult.noMore;
-
-                vm.tryGetData();
-                final result = await refresherCompleter.future;
-
-                return result;
-              },
+            body: Refreshable(
+              pendingChanges: vm.state.pendingChanges,
+              onRefresh: vm.getData,
               childBuilder: (context, physics) {
-                return NestedScrollView(
-                  physics: physics,
-                  headerSliverBuilder: (context, innerBoxIsScrolled) {
-                    return [
-                      const HeaderLocator.sliver(clearExtent: false),
-                    ];
-                  },
-                  body: TabBarView(
-                    children: [
-                      buildOrdersView(context, physics),
-                      buildIncRequestsView(context, physics),
-                      buildShipmentsView(context, physics),
-                      buildPreOrdersView(context, physics),
-                    ]
-                  )
+                return TabBarView(
+                  children: [
+                    buildOrdersView(context, physics),
+                    buildIncRequestsView(context, physics),
+                    buildShipmentsView(context, physics),
+                    buildPreOrdersView(context, physics),
+                  ]
                 );
               }
             )
@@ -219,26 +160,6 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       },
       listener: (context, state) async {
         switch (state.status) {
-          case OrdersInfoStateStatus.loadConfirmation:
-            showConfirmationDialog();
-            break;
-          case OrdersInfoStateStatus.loadDeclined:
-            closeRefresher(IndicatorResult.fail);
-            break;
-          case OrdersInfoStateStatus.loadFailure:
-            closeRefresher(IndicatorResult.fail);
-            break;
-          case OrdersInfoStateStatus.loadSuccess:
-            closeRefresher(IndicatorResult.success);
-            break;
-          case OrdersInfoStateStatus.saveInProgress:
-            progressDialog.open();
-            break;
-          case OrdersInfoStateStatus.saveFailure:
-          case OrdersInfoStateStatus.saveSuccess:
-            Misc.showMessage(context, state.message);
-            progressDialog.close();
-            break;
           case OrdersInfoStateStatus.orderAdded:
             WidgetsBinding.instance.addPostFrameCallback((_) {
               openOrderPage(state.newOrder!);
@@ -560,12 +481,9 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       .groupFoldBy<DateTime, List<ShipmentExResult>>((e) => e.shipment.date, (acc, e) => (acc ?? [])..add(e));
     final shipmentDateList = shipmentDate.entries.toList();
 
-    return SliverChildBuilderDelegate(
-      (BuildContext context, int idx) {
-        return buildShipmentDateTile(context, shipmentDateList[idx].key, shipmentDateList[idx].value);
-      },
-      childCount: shipmentDateList.length
-    );
+    return SliverChildListDelegate(
+      shipmentDateList.map((e) => buildShipmentDateTile(context, e.key, e.value)
+    ).toList());
   }
 
   Widget buildShipmentDateTile(BuildContext context, DateTime date, List<ShipmentExResult> shipmentExList) {

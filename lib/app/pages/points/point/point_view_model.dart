@@ -180,16 +180,8 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
     _notifyPointUpdated();
   }
 
-  Future<void> save() async {
-    emit(state.copyWith(status: PointStateStatus.saveInProgress));
-
-    try {
-      await pointsRepository.syncPoints([state.pointEx.point], state.pointEx.images.toList());
-
-      emit(state.copyWith(status: PointStateStatus.saveSuccess, message: Strings.changesSaved));
-    } on AppError catch(e) {
-      emit(state.copyWith(status: PointStateStatus.saveFailure, message: e.message));
-    }
+  Future<void> syncChanges() async {
+    await pointsRepository.syncPoints([state.pointEx.point], state.pointEx.images.toList());
   }
 
   void _notifyPointUpdated() {

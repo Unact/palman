@@ -14,6 +14,8 @@ import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/points_repository.dart';
+import '/app/repositories/users_repository.dart';
+import '/app/widgets/widgets.dart';
 import 'point/point_page.dart';
 
 part 'points_state.dart';
@@ -30,6 +32,7 @@ class PointsPage extends StatelessWidget {
       create: (context) => PointsViewModel(
         RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<PointsRepository>(context),
+        RepositoryProvider.of<UsersRepository>(context),
       ),
       child: _PointsView(),
     );
@@ -42,7 +45,7 @@ class _PointsView extends StatefulWidget {
 }
 
 class _PointsViewState extends State<_PointsView> {
-  static const int kSliverHeaderHeight = 82;
+  static const int kSliverHeaderHeight = 104;
   ym.PlacemarkMapObject? tappedPoint;
 
   @override
@@ -54,16 +57,35 @@ class _PointsViewState extends State<_PointsView> {
         return Scaffold(
           appBar: AppBar(
             title: const Text(Strings.pointsPageName),
-            bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(64),
-              child: buildHeader(context)
-            )
+            actions: [
+              SaveButton(
+                onSave: state.isLoading ? null : vm.syncChanges,
+                pendingChanges: vm.state.pendingChanges,
+              )
+            ],
           ),
           floatingActionButton: FloatingActionButton(
             onPressed: vm.addNewPoint,
             child: const Icon(Icons.add),
           ),
-          body:  buildPointView(context)
+          body: Refreshable(
+            pendingChanges: vm.state.pendingChanges,
+            onRefresh: vm.getData,
+            childBuilder: (context, physics) {
+              return CustomScrollView(
+                physics: physics,
+                slivers: [
+                  SliverAppBar(
+                    centerTitle: true,
+                    pinned: true,
+                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                    title: buildHeader(context),
+                  ),
+                  SliverList(delegate: buildPointView(context))
+                ]
+              );
+            }
+          )
         );
       },
       listener: (context, state) async {
@@ -123,7 +145,7 @@ class _PointsViewState extends State<_PointsView> {
     );
   }
 
-  Widget buildPointView(BuildContext context) {
+  SliverChildDelegate buildPointView(BuildContext context) {
     final vm = context.read<PointsViewModel>();
     final height = MediaQuery.of(context).size.height -
       kToolbarHeight -
@@ -132,10 +154,10 @@ class _PointsViewState extends State<_PointsView> {
       kSliverHeaderHeight;
 
     if (vm.state.listView) {
-      return ListView(children: vm.state.filteredPointExList.map((e) => buildPointTile(context, e)).toList());
+      return SliverChildListDelegate(vm.state.filteredPointExList.map((e) => buildPointTile(context, e)).toList());
     }
 
-    return SizedBox(
+    return SliverChildListDelegate([SizedBox(
       height: height,
       child: ym.YandexMap(
         gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
@@ -157,7 +179,7 @@ class _PointsViewState extends State<_PointsView> {
 
           await controller.moveCamera(ym.CameraUpdate.newBounds(boundingBox));
         },
-      )
+      ))]
     );
   }
 

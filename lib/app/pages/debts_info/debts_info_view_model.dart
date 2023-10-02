@@ -1,12 +1,15 @@
 part of 'debts_info_page.dart';
 
 class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateStatus> {
+  final AppRepository appRepository;
   final DebtsRepository debtsRepository;
+  final UsersRepository usersRepository;
   StreamSubscription<List<EncashmentEx>>? encashmentExListSubscription;
   StreamSubscription<List<DebtEx>>? debtExListSubscription;
   StreamSubscription<List<Deposit>>? depositsSubscription;
+  StreamSubscription<AppInfoResult>? appInfoSubscription;
 
-  DebtsInfoViewModel(this.debtsRepository) : super(DebtsInfoState());
+  DebtsInfoViewModel(this.appRepository, this.debtsRepository, this.usersRepository): super(DebtsInfoState());
 
   @override
   DebtsInfoStateStatus get status => state.status;
@@ -33,6 +36,9 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
         deposits: event
       ));
     });
+    appInfoSubscription = appRepository.watchAppInfo().listen((event) {
+      emit(state.copyWith(status: DebtsInfoStateStatus.dataLoaded, appInfo: event));
+    });
   }
 
   @override
@@ -42,6 +48,7 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
     await encashmentExListSubscription?.cancel();
     await debtExListSubscription?.cancel();
     await depositsSubscription?.cancel();
+    await appInfoSubscription?.cancel();
   }
 
   Future<void> createDeposit() async {
@@ -68,5 +75,30 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
       encashmentEx.debt!,
       debtSum: Optional.of(encashmentEx.debt!.debtSum + (encashmentEx.encashment.encSum ?? 0)),
     );
+  }
+
+  Future<void> syncChanges() async {
+    final futures = [
+      debtsRepository.syncChanges
+    ];
+
+    await usersRepository.refresh();
+    await Future.wait(futures.map((e) => e.call()));
+  }
+
+  Future<void> getData() async {
+    if (state.isLoading) return;
+
+    final futures = [
+      debtsRepository.loadDebts
+    ];
+
+    try {
+      emit(state.copyWith(isLoading: true));
+      await usersRepository.refresh();
+      await Future.wait(futures.map((e) => e.call()));
+    } finally {
+      emit(state.copyWith(isLoading: false));
+    }
   }
 }

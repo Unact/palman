@@ -5,10 +5,7 @@ enum PointStateStatus {
   dataLoaded,
   pointUpdated,
   cameraError,
-  cameraOpened,
-  saveInProgress,
-  saveFailure,
-  saveSuccess
+  cameraOpened
 }
 
 class PointState {

@@ -10,7 +10,10 @@ import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
+import '/app/repositories/app_repository.dart';
 import '/app/repositories/debts_repository.dart';
+import '/app/repositories/users_repository.dart';
+import '/app/widgets/widgets.dart';
 import 'encashment/encashment_page.dart';
 
 part 'debts_info_state.dart';
@@ -25,7 +28,9 @@ class DebtsInfoPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<DebtsInfoViewModel>(
       create: (context) => DebtsInfoViewModel(
-        RepositoryProvider.of<DebtsRepository>(context)
+        RepositoryProvider.of<AppRepository>(context),
+        RepositoryProvider.of<DebtsRepository>(context),
+        RepositoryProvider.of<UsersRepository>(context)
       ),
       child: _DebtsInfoView(),
     );
@@ -66,6 +71,8 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
   Widget build(BuildContext context) {
     return BlocConsumer<DebtsInfoViewModel, DebtsInfoState>(
       builder: (context, state) {
+        final vm = context.read<DebtsInfoViewModel>();
+
         return DefaultTabController(
           length: 3,
           child: Scaffold(
@@ -77,7 +84,11 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
                   icon: const Icon(Icons.money),
                   tooltip: 'Сдать выручку',
                   onPressed: state.canDeposit ? showDepositConfirmationDialog : null
-                )
+                ),
+                SaveButton(
+                  onSave: state.isLoading ? null : vm.syncChanges,
+                  pendingChanges: vm.state.pendingChanges,
+                ),
               ],
               bottom: const TabBar(
                 tabs: [
@@ -87,14 +98,18 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
                 ],
               ),
             ),
-            body: TabBarView(
-              children: [
-                buildDebtListView(context),
-                buildEncashmentListView(context),
-                buildDepositListView(context)
-              ],
+            body: Refreshable(
+              pendingChanges: vm.state.pendingChanges,
+              onRefresh: vm.getData,
+              childBuilder: (context, physics) => TabBarView(
+                children: [
+                  buildDebtListView(context, physics),
+                  buildEncashmentListView(context, physics),
+                  buildDepositListView(context, physics)
+                ],
+              ),
             ),
-          ),
+          )
         );
       },
       listener: (context, state) async {
@@ -110,16 +125,17 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
     );
   }
 
-  Widget buildDepositListView(BuildContext context) {
+  Widget buildDepositListView(BuildContext context, ScrollPhysics physics) {
     final vm = context.read<DebtsInfoViewModel>();
 
     return ListView(
+      physics: physics,
       padding: const EdgeInsets.only(top: 16),
       children: vm.state.deposits.map((e) => buildDepositTile(context, e)).toList()
     );
   }
 
-  Widget buildEncashmentListView(BuildContext context) {
+  Widget buildEncashmentListView(BuildContext context, ScrollPhysics physics) {
     final vm = context.read<DebtsInfoViewModel>();
     final List<Widget> children = [];
 
@@ -139,16 +155,17 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
       ));
     }
 
-    return ListView(children: children);
+    return ListView(physics: physics, children: children);
   }
 
-  Widget buildDebtListView(BuildContext context) {
+  Widget buildDebtListView(BuildContext context, ScrollPhysics physics) {
     final vm = context.read<DebtsInfoViewModel>();
 
     final partnerDebt = vm.state.debtExList
       .groupFoldBy<Partner, List<DebtEx>>((e) => e.partner, (acc, e) => (acc ?? [])..add(e));
 
     return ListView(
+      physics: physics,
       children: partnerDebt.entries.map((e) => buildDebtPartnerTile(context, e.key, e.value)).toList()
     );
   }

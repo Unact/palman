@@ -7,15 +7,14 @@ import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
-import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
-import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/partners_repository.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/widgets/widgets.dart';
 import 'goods/goods_page.dart';
 
 part 'order_state.dart';
@@ -97,20 +96,9 @@ class _OrderViewState extends State<_OrderView> {
                 tooltip: 'Создать дубликат',
                 onPressed: state.isEditable ? vm.copy : null
               ),
-              Center(
-                child: Badge(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  label: const Text('1'),
-                  isLabelVisible: state.needSync,
-                  offset: const Offset(-4, 4),
-                  child: IconButton(
-                    color: Colors.white,
-                    icon: const Icon(Icons.save),
-                    splashRadius: 12,
-                    tooltip: 'Сохранить изменения',
-                    onPressed: state.needSync ? vm.save : null
-                  )
-                ),
+              SaveButton(
+                onSave: state.needSync ? vm.syncChanges : null,
+                pendingChanges: state.needSync ? 1 : 0
               )
             ],
           ),
@@ -135,14 +123,6 @@ class _OrderViewState extends State<_OrderView> {
               Navigator.of(context).pop();
               openOrderPage(state.newOrder!);
             });
-            break;
-          case OrderStateStatus.saveInProgress:
-            progressDialog.open();
-            break;
-          case OrderStateStatus.saveFailure:
-          case OrderStateStatus.saveSuccess:
-            Misc.showMessage(context, state.message);
-            progressDialog.close();
             break;
           default:
         }

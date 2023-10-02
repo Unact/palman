@@ -11,10 +11,10 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
-import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/points_repository.dart';
+import '/app/widgets/widgets.dart';
 import 'address/address_page.dart';
 
 part 'point_state.dart';
@@ -110,20 +110,9 @@ class _PointViewState extends State<_PointView> {
           appBar: AppBar(
             title: const Text('Точка'),
             actions: [
-              Center(
-                child: Badge(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  label: const Text('1'),
-                  isLabelVisible: state.needSync,
-                  offset: const Offset(-4, 4),
-                  child: IconButton(
-                    color: Colors.white,
-                    icon: const Icon(Icons.save),
-                    splashRadius: 12,
-                    tooltip: 'Сохранить изменения',
-                    onPressed: state.needSync ? vm.save : null
-                  )
-                ),
+              SaveButton(
+                onSave: state.needSync ? vm.syncChanges : null,
+                pendingChanges: state.needSync ? 1 : 0
               )
             ],
           ),
@@ -148,14 +137,6 @@ class _PointViewState extends State<_PointView> {
             break;
           case PointStateStatus.cameraOpened:
             await showCameraView();
-            break;
-          case PointStateStatus.saveInProgress:
-            progressDialog.open();
-            break;
-          case PointStateStatus.saveFailure:
-          case PointStateStatus.saveSuccess:
-            Misc.showMessage(context, state.message);
-            progressDialog.close();
             break;
           default:
         }

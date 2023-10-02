@@ -24,6 +24,7 @@ import '/app/repositories/points_repository.dart';
 import '/app/repositories/prices_repository.dart';
 import '/app/repositories/shipments_repository.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/widgets/widgets.dart';
 
 part 'info_state.dart';
 part 'info_view_model.dart';
@@ -85,26 +86,6 @@ class _InfoViewState extends State<_InfoView> {
     homeVm.setCurrentIndex(index);
   }
 
-  Future<void> showConfirmationDialog() async {
-    final vm = context.read<InfoViewModel>();
-    final result = await showDialog<bool>(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Внимание'),
-          content: const SingleChildScrollView(child: Text('Присутствуют не сохраненные изменения. Продолжить?')),
-          actions: <Widget>[
-            TextButton(child: const Text(Strings.cancel), onPressed: () => Navigator.of(context).pop(true)),
-            TextButton(child: const Text(Strings.ok), onPressed: () => Navigator.of(context).pop(false))
-          ],
-        );
-      }
-    ) ?? true;
-
-    await vm.getData(result);
-  }
-
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<InfoViewModel, InfoState>(
@@ -122,7 +103,7 @@ class _InfoViewState extends State<_InfoView> {
                 color: Colors.white,
                 icon: const Icon(Icons.local_mall_sharp),
                 tooltip: 'Загрузить фотографии точек',
-                onPressed: state.isBusy || !state.pointImagePreloadCanceled ?
+                onPressed: state.isLoading || !state.pointImagePreloadCanceled ?
                   null :
                   vm.preloadPointImages
               ),
@@ -130,30 +111,19 @@ class _InfoViewState extends State<_InfoView> {
                 color: Colors.white,
                 icon: const Icon(Icons.warehouse),
                 tooltip: 'Загрузить фотографии товаров',
-                onPressed: state.isBusy || !state.goodsImagePreloadCanceled ?
+                onPressed: state.isLoading || !state.goodsImagePreloadCanceled ?
                   null :
                   vm.preloadGoodsImages
               ),
-              Center(
-                child: Badge(
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  label: Text(state.pendingChanges.toString()),
-                  isLabelVisible: state.hasPendingChanges,
-                  offset: const Offset(-4, 4),
-                  child: IconButton(
-                    color: Colors.white,
-                    icon: const Icon(Icons.save),
-                    splashRadius: 12,
-                    tooltip: 'Сохранить изменения',
-                    onPressed: state.isBusy || !state.hasPendingChanges ? null : vm.saveChangesForeground
-                  )
-                ),
+              SaveButton(
+                onSave: state.isLoading ? null : vm.syncChanges,
+                pendingChanges: vm.state.pendingChanges,
               ),
               IconButton(
                 color: Colors.white,
                 icon: const Icon(Icons.person),
                 tooltip: 'Пользователь',
-                onPressed: state.isBusy ?
+                onPressed: state.isLoading ?
                   null :
                   () async {
                     Navigator.push(
@@ -167,28 +137,13 @@ class _InfoViewState extends State<_InfoView> {
               )
             ]
           ),
-          body: EasyRefresh(
-            canRefreshAfterNoMore: true,
-            header: ClassicHeader(
-              dragText: 'Потяните чтобы обновить',
-              armedText: 'Отпустите чтобы обновить',
-              readyText: 'Загрузка',
-              processingText: state.toLoad != 0 ? 'Загружено ${state.loaded} из ${state.toLoad} словарей' : 'Загрузка',
-              messageText: 'Последнее обновление: $lastSyncTime',
-              failedText: state.message,
-              processedText: 'Словари успешно обновлены',
-              noMoreText: 'Идет сохранение данных'
-            ),
-            onRefresh: () async {
-              if (vm.state.isBusy) return IndicatorResult.noMore;
-
-              vm.tryGetData();
-              final result = await refresherCompleter.future;
-
-              return result;
-            },
-            child: ListView(
-              physics: const AlwaysScrollableScrollPhysics(),
+          body: Refreshable(
+            processingText: state.toLoad != 0 ? 'Загружено ${state.loaded} из ${state.toLoad} словарей' : 'Загрузка',
+            messageText: 'Последнее обновление: $lastSyncTime',
+            pendingChanges: vm.state.pendingChanges,
+            onRefresh: vm.getData,
+            childBuilder: (context, physics) => ListView(
+              physics: physics,
               padding: const EdgeInsets.only(top: 24, left: 8, right: 8, bottom: 24),
               children: <Widget>[
                 Column(
@@ -210,26 +165,6 @@ class _InfoViewState extends State<_InfoView> {
           case InfoStateStatus.guidRegenerateSuccess:
           case InfoStateStatus.guidRegenerateFailure:
             Misc.showMessage(context, state.message);
-            break;
-          case InfoStateStatus.loadConfirmation:
-            showConfirmationDialog();
-            break;
-          case InfoStateStatus.loadDeclined:
-            closeRefresher(IndicatorResult.fail);
-            break;
-          case InfoStateStatus.loadFailure:
-            closeRefresher(IndicatorResult.fail);
-            break;
-          case InfoStateStatus.loadSuccess:
-            closeRefresher(IndicatorResult.success);
-            break;
-          case InfoStateStatus.saveInProgress:
-            progressDialog.open();
-            break;
-          case InfoStateStatus.saveFailure:
-          case InfoStateStatus.saveSuccess:
-            Misc.showMessage(context, state.message);
-            progressDialog.close();
             break;
           default:
             break;
@@ -392,7 +327,7 @@ class _InfoViewState extends State<_InfoView> {
   Widget buildErrorCard(BuildContext context) {
     final vm = context.read<InfoViewModel>();
 
-    if (vm.state.syncMessage.isEmpty || !vm.state.hasPendingChanges) return Container();
+    if (vm.state.syncMessage.isEmpty) return Container();
 
     return Card(
       child: ListTile(

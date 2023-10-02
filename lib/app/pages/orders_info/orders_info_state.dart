@@ -5,14 +5,6 @@ enum OrdersInfoStateStatus {
   dataLoaded,
   orderAdded,
   orderDeleted,
-  loadInProgress,
-  loadConfirmation,
-  loadDeclined,
-  loadFailure,
-  loadSuccess,
-  saveInProgress,
-  saveSuccess,
-  saveFailure,
   buyerChanged,
   incRequestAdded,
   incRequestDeleted
@@ -22,7 +14,7 @@ class OrdersInfoState {
   OrdersInfoState({
     this.status = OrdersInfoStateStatus.initial,
     this.appInfo,
-    this.isBusy = false,
+    this.isLoading = false,
     this.orderExList = const [],
     this.newOrder,
     this.message = '',
@@ -35,7 +27,7 @@ class OrdersInfoState {
   });
 
   final OrdersInfoStateStatus status;
-  final bool isBusy;
+  final bool isLoading;
   final List<OrderExResult> orderExList;
   final OrderExResult? newOrder;
   final List<IncRequestEx> incRequestExList;
@@ -69,7 +61,7 @@ class OrdersInfoState {
 
   OrdersInfoState copyWith({
     OrdersInfoStateStatus? status,
-    bool? isBusy,
+    bool? isLoading,
     AppInfoResult? appInfo,
     List<OrderExResult>? orderExList,
     OrderExResult? newOrder,
@@ -83,7 +75,7 @@ class OrdersInfoState {
   }) {
     return OrdersInfoState(
       status: status ?? this.status,
-      isBusy: isBusy ?? this.isBusy,
+      isLoading: isLoading ?? this.isLoading,
       appInfo: appInfo ?? this.appInfo,
       orderExList: orderExList ?? this.orderExList,
       newOrder: newOrder ?? this.newOrder,
