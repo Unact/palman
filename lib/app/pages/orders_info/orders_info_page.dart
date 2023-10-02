@@ -259,7 +259,10 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
     final vm = context.read<OrdersInfoViewModel>();
     final orderDate = vm.state.filteredOrderExList
       .groupFoldBy<DateTime?, List<OrderExResult>>((e) => e.order.date, (acc, e) => (acc ?? [])..add(e));
-    final orderDateList = orderDate.entries.toList();
+    final orderDateList = orderDate.entries.sortedByCompare(
+      (e) => e.key,
+      (a, b) => a == null ? -1 : b == null ? 1 : b.compareTo(a)
+    );
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -375,7 +378,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   Widget buildOrderDateTile(BuildContext context, DateTime? date, List<OrderExResult> orderExList) {
     return ExpansionTile(
       initiallyExpanded: true,
-      title: Text(Format.dateStr(date)),
+      title: Text(date == null ? 'Дата не указана' : Format.dateStr(date)),
       children: orderExList.map((e) => buildOrderTile(context, e)).toList()
     );
   }
@@ -383,7 +386,10 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   Widget buildIncRequestTile(BuildContext context, IncRequestEx incRequestEx) {
     final vm = context.read<OrdersInfoViewModel>();
     final tile = ListTile(
-      title: Text(Format.dateStr(incRequestEx.incRequest.date), style: Styles.tileTitleText),
+      title: Text(
+        incRequestEx.incRequest.date == null ? 'Дата не указана' : Format.dateStr(incRequestEx.incRequest.date),
+        style: Styles.tileTitleText
+      ),
       trailing: incRequestEx.incRequest.needSync ?
         Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) :
         null,

@@ -59,13 +59,14 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
         controller ??= TextEditingController(text: state.price?.toStringAsFixed(2).replaceAll('.', ','));
 
         return AlertDialog(
+          insetPadding: const EdgeInsets.symmetric(horizontal: 12),
           title: const Text('Изменение цены'),
           content: SingleChildScrollView(
             child: ListBody(
               children: [
                 buildInfoTable(context),
-                buildDateRow(context),
-                buildPriceRow(context)
+                buildDateTable(context),
+                buildPriceTable(context)
               ]
             )
           ),
@@ -110,9 +111,9 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
 
     return Table(
       columnWidths: const <int, TableColumnWidth>{
-        0: FixedColumnWidth(128),
-        1: FixedColumnWidth(64),
-        2: FixedColumnWidth(82),
+        0: FixedColumnWidth(148),
+        1: FixedColumnWidth(98),
+        2: FixedColumnWidth(122),
       },
       defaultVerticalAlignment: TableCellVerticalAlignment.top,
       children: [
@@ -153,52 +154,77 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
     );
   }
 
-  Widget buildDateRow(BuildContext context) {
+  Widget buildDateTable(BuildContext context) {
     final vm = context.read<PriceChangeViewModel>();
 
-    return InfoRow(
-      padding: EdgeInsets.zero,
-      trailingFlex: 2,
-      title: const Text('До даты', style: Styles.formStyle),
-      trailing: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Text(vm.state.dateTo != null ? Format.dateStr(vm.state.dateTo!) : 'Бессрочно', style: Styles.formStyle),
-          IconButton(
-            onPressed: () async {
-              final newDate = await showDatePicker(
-                context: context,
-                firstDate: vm.state.dateFrom,
-                lastDate: endOfTime,
-                initialDate: vm.state.dateFrom
-              );
+    return Table(
+      columnWidths: const <int, TableColumnWidth>{
+        0: FixedColumnWidth(118),
+        1: FixedColumnWidth(90),
+        2: FixedColumnWidth(90),
+      },
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      children:[
+        TableRow(
+          children: [
+            const TableCell(
+              verticalAlignment: TableCellVerticalAlignment.middle,
+              child: Text('До даты', style: Styles.formStyle)
+            ),
+            TableCell(
+              verticalAlignment: TableCellVerticalAlignment.middle,
+              child: Text(
+                vm.state.dateTo != null ? Format.dateStr(vm.state.dateTo!) : 'Бессрочно',
+                style: Styles.formStyle
+              )
+            ),
+            Row(
+              children: [
+                IconButton(
+                  onPressed: () async {
+                    final newDate = await showDatePicker(
+                      context: context,
+                      firstDate: vm.state.dateFrom,
+                      lastDate: endOfTime,
+                      initialDate: vm.state.dateFrom
+                    );
 
-              if (newDate != null) vm.updateDateTo(newDate);
-            },
-            tooltip: 'Указать дату',
-            icon: const Icon(Icons.calendar_month)
-          ),
-          IconButton(
-            icon: const Icon(Icons.hourglass_full_sharp),
-            tooltip: 'Бессрочно',
-            onPressed: () => vm.updateDateTo(null)
-          )
-        ]
-      )
+                    if (newDate != null) vm.updateDateTo(newDate);
+                  },
+                  tooltip: 'Указать дату',
+                  icon: const Icon(Icons.calendar_month)
+                ),
+                IconButton(
+                  icon: const Icon(Icons.hourglass_full_sharp),
+                  tooltip: 'Бессрочно',
+                  onPressed: () => vm.updateDateTo(null)
+                )
+              ]
+            )
+          ]
+        )
+      ]
     );
   }
 
-  Widget buildPriceRow(BuildContext context) {
+  Widget buildPriceTable(BuildContext context) {
     final vm = context.read<PriceChangeViewModel>();
     final price = vm.state.price ?? 0;
 
-    return InfoRow(
-      padding: EdgeInsets.zero,
-      trailingFlex: 2,
-      title: const Text('Цена', style: Styles.formStyle),
-      trailing: SizedBox(
-        width: 160,
-        child: NumTextField(
+    return Table(
+      columnWidths: const <int, TableColumnWidth>{
+        0: FixedColumnWidth(118),
+        1: FixedColumnWidth(0),
+        2: FixedColumnWidth(180),
+      },
+      defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+      children:[
+
+      TableRow(
+      children: [
+      const Text('Цена', style: Styles.formStyle),
+      Container(),
+      NumTextField(
           textAlign: TextAlign.center,
           controller: controller,
           style: Styles.formStyle,
@@ -221,8 +247,8 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
           ),
           onTap: () => vm.updatePrice(Parsing.parseDouble(controller!.text))
         )
-      )
-    );
+      ]
+    )]);
   }
 
   void updatePriceAndText(double? sum) {
