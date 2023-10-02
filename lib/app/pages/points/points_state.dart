@@ -6,15 +6,7 @@ enum PointsStateStatus {
   selectedReasonChanged,
   listViewChanged,
   pointAdded,
-  pointDeleted,
-  loadInProgress,
-  loadConfirmation,
-  loadDeclined,
-  loadFailure,
-  loadSuccess,
-  saveInProgress,
-  saveSuccess,
-  saveFailure,
+  pointDeleted
 }
 
 class PointsState {

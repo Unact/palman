@@ -4,15 +4,7 @@ enum DebtsInfoStateStatus {
   initial,
   dataLoaded,
   encashmentAdded,
-  encashmentDeleted,
-  loadInProgress,
-  loadConfirmation,
-  loadDeclined,
-  loadFailure,
-  loadSuccess,
-  saveInProgress,
-  saveSuccess,
-  saveFailure,
+  encashmentDeleted
 }
 
 class DebtsInfoState {
