@@ -13,6 +13,7 @@ import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/partners_repository.dart';
+import '/app/repositories/prices_repository.dart';
 import '/app/repositories/users_repository.dart';
 import '/app/widgets/widgets.dart';
 import 'goods/goods_page.dart';
@@ -36,6 +37,7 @@ class OrderPage extends StatelessWidget {
         RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<OrdersRepository>(context),
         RepositoryProvider.of<PartnersRepository>(context),
+        RepositoryProvider.of<PricesRepository>(context),
         RepositoryProvider.of<UsersRepository>(context)
       ),
       child: _OrderView(),
@@ -97,8 +99,8 @@ class _OrderViewState extends State<_OrderView> {
                 onPressed: state.isEditable ? vm.copy : null
               ),
               SaveButton(
-                onSave: state.needSync ? vm.syncChanges : null,
-                pendingChanges: state.needSync ? 1 : 0
+                onSave: state.pendingChanges != 0 ? vm.syncChanges : null,
+                pendingChanges: state.pendingChanges
               )
             ],
           ),

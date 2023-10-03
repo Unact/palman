@@ -46,7 +46,7 @@ class _RefreshableState extends State<Refreshable> {
     ) ?? true;
 
     if (!result) {
-      widget.onRefresh.call();
+      await widget.onRefresh.call();
 
       return true;
     }

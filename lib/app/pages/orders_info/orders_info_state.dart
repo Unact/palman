@@ -45,8 +45,9 @@ class OrdersInfoState {
   int get pendingChanges => appInfo == null ?
     0 :
     appInfo!.ordersToSync +
-    appInfo!.incRequestsToSync;
-  bool get hasPendingChanges => pendingChanges != 0;
+    appInfo!.incRequestsToSync +
+    appInfo!.partnerPricesToSync +
+    appInfo!.partnersPricelistsToSync;
 
   List<OrderExResult> get filteredOrderExList => orderExList
     .where((e) => !e.order.isDeleted && e.order.detailedStatus != OrderStatus.deleted)
