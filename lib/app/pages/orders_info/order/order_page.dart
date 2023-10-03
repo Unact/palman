@@ -99,7 +99,7 @@ class _OrderViewState extends State<_OrderView> {
                 onPressed: state.isEditable ? vm.copy : null
               ),
               SaveButton(
-                onSave: state.pendingChanges != 0 ? vm.syncChanges : null,
+                onSave: vm.syncChanges,
                 pendingChanges: state.pendingChanges
               )
             ],

@@ -111,7 +111,7 @@ class _PointViewState extends State<_PointView> {
             title: const Text('Точка'),
             actions: [
               SaveButton(
-                onSave: state.needSync ? vm.syncChanges : null,
+                onSave: vm.syncChanges,
                 pendingChanges: state.needSync ? 1 : 0
               )
             ],
