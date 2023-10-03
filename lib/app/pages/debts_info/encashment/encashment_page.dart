@@ -69,29 +69,28 @@ class _EncashmentViewState extends State<_EncashmentView> {
       padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 16.0),
       child: Column(
         children: [
-          InfoRow(
-            trailingFlex: 2,
+          InfoRow.page(
             title: const Text('Документ', style: Styles.formStyle),
             trailing: Text(debt.info ?? '', style: Styles.formStyle)
           ),
-          InfoRow(
+          InfoRow.page(
             title: const Text('Сумма', style: Styles.formStyle),
             trailing: Text(Format.numberStr(debt.orderSum), style: Styles.formStyle)
           ),
-          InfoRow(
+          InfoRow.page(
             title: const Text('Долг', style: Styles.formStyle),
             trailing: Text(Format.numberStr(debt.debtSum), style: Styles.formStyle)
           ),
-          InfoRow(
+          InfoRow.page(
             title: const Text('Чек', style: Styles.formStyle),
             trailing: Text(debt.isCheck ? 'Да' : 'Нет', style: Styles.formStyle)
           ),
-          InfoRow(
+          InfoRow.page(
             title: const Text('Оплата', style: Styles.formStyle),
             trailing: !vm.state.isEditable ?
               null :
               NumTextField(
-                textAlign: TextAlign.end,
+                textAlign: TextAlign.start,
                 controller: controller,
                 enabled: vm.state.isEditable,
                 style: Styles.formStyle,

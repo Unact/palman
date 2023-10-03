@@ -154,7 +154,7 @@ class _GoodsViewState extends State<_GoodsView> {
               )
             ],
             bottom: PreferredSize(
-              preferredSize: const Size.fromHeight(166),
+              preferredSize: Size.fromHeight(compactMode ? 166 : 116),
               child: buildHeader(context, compactMode)
             )
           ),
@@ -230,26 +230,43 @@ class _GoodsViewState extends State<_GoodsView> {
       color: Theme.of(context).scaffoldBackgroundColor,
       child: Column(
         children: [
-          Row(
-            children: [
-              !compactMode ?
-                Container() :
-                SizedBox(
-                  width: 160,
-                  child: TextField(
-                    readOnly: true,
-                    decoration: InputDecoration(
-                      labelText: 'Категория',
-                      suffixIcon: IconButton(
-                        onPressed: showCategorySelectDialog,
-                        icon: const Icon(Icons.arrow_drop_down),
-                        tooltip: 'Выбрать категорию',
-                      )
-                    ),
-                    controller: TextEditingController(text: vm.state.selectedCategory?.name),
-                    style: Styles.formStyle
+          !compactMode ?
+            Container() :
+            SizedBox(
+              width: 160,
+              child: TextField(
+                readOnly: true,
+                decoration: InputDecoration(
+                  labelText: 'Категория',
+                  suffixIcon: IconButton(
+                    onPressed: showCategorySelectDialog,
+                    icon: const Icon(Icons.arrow_drop_down),
+                    tooltip: 'Выбрать категорию',
                   )
                 ),
+                controller: TextEditingController(text: vm.state.selectedCategory?.name),
+                style: Styles.formStyle
+              )
+            ),
+          Row(
+            children: [
+              Flexible(
+                child: TextFormField(
+                  decoration: InputDecoration(
+                    labelText: 'Наименование',
+                    suffixIcon: vm.state.goodsNameSearch?.isEmpty ?? true ? null :  IconButton(
+                      icon: const Icon(Icons.delete),
+                      tooltip: 'Очистить',
+                      onPressed: () => vm.setGoodsNameSearch(null)
+                    )
+                  ),
+                  onFieldSubmitted: vm.setGoodsNameSearch,
+                  autocorrect: false,
+                  style: Styles.formStyle,
+                  controller: nameController,
+                )
+              ),
+              const SizedBox(width: 4),
               Flexible(
                 child: TextField(
                   readOnly: true,
@@ -273,25 +290,7 @@ class _GoodsViewState extends State<_GoodsView> {
               )
             ],
           ),
-          const SizedBox(height: 2),
-          TextFormField(
-            decoration: InputDecoration(
-              labelText: 'Наименование',
-              suffixIcon: vm.state.goodsNameSearch?.isEmpty ?? true ? null :  IconButton(
-                icon: const Icon(Icons.delete),
-                tooltip: 'Очистить',
-                onPressed: () => vm.setGoodsNameSearch(null)
-              )
-            ),
-            onFieldSubmitted: vm.setGoodsNameSearch,
-            autocorrect: false,
-            style: Styles.formStyle,
-            controller: nameController,
-          ),
-          SizedBox(
-            height: 48,
-            child: buildGoodsFiltersRow(context),
-          )
+          buildGoodsFiltersRow(context),
         ],
       )
     );
@@ -302,12 +301,20 @@ class _GoodsViewState extends State<_GoodsView> {
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: vm.state.goodsFilters.map((e) => ChoiceChip(
-        label: Text(e.name),
-        labelStyle: Styles.formStyle,
-        selected: e == vm.state.selectedGoodsFilter,
-        onSelected: (bool selected) => vm.selectGoodsFilter(selected ? e : null)
-      )).toList()
+      children: [
+        ...vm.state.goodsFilters.map((e) => ChoiceChip(
+          label: Text(e.name),
+          labelStyle: Styles.formStyle,
+          selected: e == vm.state.selectedGoodsFilter,
+          onSelected: (bool selected) => vm.selectGoodsFilter(selected ? e : null)
+        )).toList(),
+        ChoiceChip(
+          label: const Text('Н'),
+          labelStyle: Styles.formStyle,
+          selected: vm.state.showOnlyLatest,
+          onSelected: (bool selected) => vm.toggleShowOnlyLatest()
+        )
+      ]
     );
   }
 
@@ -715,6 +722,22 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
                 )
               )
             ),
+          !goodsEx.goods.isLatest ?
+            const TextSpan() :
+            WidgetSpan(
+              alignment: PlaceholderAlignment.middle,
+              child: Padding(
+                padding: const EdgeInsets.all(1),
+                child: Chip(
+                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  labelPadding: EdgeInsets.zero,
+                  visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                  label: const Text('Новинка', style: Styles.chipStyle),
+                  backgroundColor: Colors.yellow[700],
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
+                )
+              )
+            ),
           ...tags.map((e) => WidgetSpan(
             alignment: PlaceholderAlignment.middle,
             child: Padding(
@@ -782,13 +805,16 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     return Column(
       children: [
         ListTile(
-          contentPadding: const EdgeInsets.only(left: 8, top: 4, right: 8, bottom: 4),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 8),
           tileColor: Colors.transparent,
           trailing: buildGoodsTileTrailing(context, goodsDetail, orderLineEx, enabled),
           title: buildGoodsTileTitle(context, goodsDetail),
           onTap: !enabled ? null : () => widget.onTap(goodsDetail)
         ),
-        _GoodsSubtitle(goodsDetail, orderLineEx),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: _GoodsSubtitle(goodsDetail, orderLineEx)
+        ),
         buildGoodsImage(context, goodsDetail)
       ]
     );
@@ -885,6 +911,9 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
     if (!expanded) {
       children.addAll([
         IconButton(
+          splashRadius: 24,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          constraints: const BoxConstraints(maxHeight: 24),
           icon: const Icon(Icons.expand_circle_down),
           onPressed: () => setState(() => expanded = true)
         ),
@@ -925,7 +954,7 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
                   )
                 ),
                 const TextSpan(text: ' руб.'),
-                TextSpan(text: widget.goodsDetail.rel == 1 ? '\n' :'\nВложение: ${widget.goodsDetail.rel} '),
+                TextSpan(text: widget.goodsDetail.rel == 1 ? ' ' : ' Вложение: ${widget.goodsDetail.rel} '),
                 TextSpan(text: 'Кратность: ${widget.goodsDetail.stockRel} '),
                 TextSpan(text: 'Остаток: ${stockVol != 0 ? '' : '0 шт.'}'),
                 TextSpan(text: stockVol~/goods.categoryPackageRel > 0 ?
@@ -949,6 +978,9 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
     } else {
       children.addAll([
         IconButton(
+          splashRadius: 24,
+          padding: const EdgeInsets.symmetric(horizontal: 4),
+          constraints: const BoxConstraints(maxHeight: 24),
           icon: Transform.rotate(angle: pi, child: const Icon(Icons.expand_circle_down)),
           onPressed: () => setState(() => expanded = false)
         ),
@@ -998,9 +1030,9 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
                   text: ' руб.${goods.cost > 0 ? ' (${((linePrice - goods.cost)/goods.cost*100).round()}%)' : ''}'
                 ),
                 TextSpan(
-                  text: minPrice != 0 && minPrice < bonusPrice ? ' Мин. цена: ${Format.numberStr(minPrice)} ' : null
+                  text: minPrice != 0 && minPrice < bonusPrice ? ' Мин. цена: ${Format.numberStr(minPrice)}\n' : '\n'
                 ),
-                TextSpan(text: widget.goodsDetail.rel == 1 ? '\n' :'\nВложение: ${widget.goodsDetail.rel} '),
+                TextSpan(text: widget.goodsDetail.rel == 1 ? '' : 'Вложение: ${widget.goodsDetail.rel} '),
                 TextSpan(text: 'Кратность: ${widget.goodsDetail.stockRel} '),
                 TextSpan(text: 'Остаток: ${stockVol != 0 ? '' : '0 шт.'}'),
                 TextSpan(text: stockVol~/goods.categoryPackageRel > 0 ?

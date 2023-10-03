@@ -17,7 +17,7 @@ class EncashmentViewModel extends PageViewModel<EncashmentState, EncashmentState
     encashmentExListSubscription = debtsRepository.watchEncashmentExList().listen((event) {
       emit(state.copyWith(
         status: EncashmentStateStatus.dataLoaded,
-        encashmentEx: event.firstWhereOrNull((e) => e.encashment.id == state.encashmentEx.encashment.id)
+        encashmentEx: event.firstWhereOrNull((e) => e.encashment.guid == state.encashmentEx.encashment.guid)
       ));
     });
   }

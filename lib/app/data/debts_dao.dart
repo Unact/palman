@@ -24,28 +24,28 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     await db._loadData(debts, list);
   }
 
-  Future<void> loadDeposits(List<Deposit> list) async {
-    await db._loadData(deposits, list);
+  Future<void> loadDeposits(List<Deposit> list, [bool clearTable = true]) async {
+    await db._loadData(deposits, list, clearTable);
   }
 
-  Future<void> loadEncashments(List<Encashment> list) async {
-    await db._loadData(encashments, list);
+  Future<void> loadEncashments(List<Encashment> list, [bool clearTable = true]) async {
+    await db._loadData(encashments, list, clearTable);
   }
 
-  Future<int> addDeposit(DepositsCompanion newDeposit) async {
-    return await into(deposits).insert(newDeposit);
+  Future<void> addDeposit(DepositsCompanion newDeposit) async {
+    await into(deposits).insert(newDeposit);
   }
 
-  Future<void> updateDeposit(int id, DepositsCompanion updatedDeposit) async {
-    await (update(deposits)..where((tbl) => tbl.id.equals(id))).write(updatedDeposit);
+  Future<void> updateDeposit(String guid, DepositsCompanion updatedDeposit) async {
+    await (update(deposits)..where((tbl) => tbl.guid.equals(guid))).write(updatedDeposit);
   }
 
-  Future<int> addEncashment(EncashmentsCompanion newEncashment) async {
-    return await into(encashments).insert(newEncashment);
+  Future<void> addEncashment(EncashmentsCompanion newEncashment) async {
+    await into(encashments).insert(newEncashment);
   }
 
-  Future<void> updateEncashment(int id, EncashmentsCompanion updatedEncashment) async {
-    await (update(encashments)..where((tbl) => tbl.id.equals(id))).write(updatedEncashment);
+  Future<void> updateEncashment(String guid, EncashmentsCompanion updatedEncashment) async {
+    await (update(encashments)..where((tbl) => tbl.guid.equals(guid))).write(updatedEncashment);
   }
 
   Future<void> updateDebt(int id, DebtsCompanion updatedDebt) async {
@@ -55,7 +55,7 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
   Future<List<Encashment>> getEncashmentsForSync() async {
     final hasDepositToSync = existsQuery(
       select(deposits)
-        ..where((tbl) => tbl.id.equalsExp(encashments.depositId))
+        ..where((tbl) => tbl.guid.equalsExp(encashments.depositGuid))
         ..where((tbl) => tbl.needSync.equals(true) | encashments.needSync.equals(true))
     );
 
@@ -65,7 +65,7 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
   Future<List<Deposit>> getDepositsForSync() async {
     final hasEncashmentToSync = existsQuery(
       select(encashments)
-        ..where((tbl) => tbl.depositId.equalsExp(deposits.id))
+        ..where((tbl) => tbl.depositGuid.equalsExp(deposits.guid))
         ..where((tbl) => tbl.needSync.equals(true))
     );
 
@@ -89,7 +89,7 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
   Stream<List<EncashmentEx>> watchEncashmentExList() {
     final res = select(encashments)
       .join([
-        leftOuterJoin(deposits, deposits.id.equalsExp(encashments.depositId)),
+        leftOuterJoin(deposits, deposits.guid.equalsExp(encashments.depositGuid)),
         innerJoin(buyers, buyers.id.equalsExp(encashments.buyerId)),
         leftOuterJoin(debts, debts.id.equalsExp(encashments.debtId))
       ])
@@ -108,14 +108,14 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     ).watch();
   }
 
-  Future<EncashmentEx> getEncashmentEx(int id) async {
+  Future<EncashmentEx> getEncashmentEx(String guid) async {
     final res = select(encashments)
       .join([
-        leftOuterJoin(deposits, deposits.id.equalsExp(encashments.depositId)),
+        leftOuterJoin(deposits, deposits.guid.equalsExp(encashments.depositGuid)),
         innerJoin(buyers, buyers.id.equalsExp(encashments.buyerId)),
         leftOuterJoin(debts, debts.id.equalsExp(encashments.debtId))
       ])
-      ..where(encashments.id.equals(id));
+      ..where(encashments.guid.equals(guid));
 
     return res.map(
       (row) => EncashmentEx(
@@ -127,8 +127,8 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     ).getSingle();
   }
 
-  Future<Deposit> getDeposit(int id) async {
-    return await (select(deposits)..where((tbl) => tbl.id.equals(id))).getSingle();
+  Future<Deposit> getDeposit(String guid) async {
+    return await (select(deposits)..where((tbl) => tbl.guid.equals(guid))).getSingle();
   }
 
   Selectable<Deposit> _deposits() {

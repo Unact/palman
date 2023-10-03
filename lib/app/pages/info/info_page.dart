@@ -91,8 +91,8 @@ class _InfoViewState extends State<_InfoView> {
     return BlocConsumer<InfoViewModel, InfoState>(
       builder: (context, state) {
         final vm = context.read<InfoViewModel>();
-        final lastSyncTime = state.appInfo?.lastSyncTime != null ?
-          Format.dateTimeStr(state.appInfo?.lastSyncTime) :
+        final lastLoadTime = state.appInfo?.lastLoadTime != null ?
+          Format.dateTimeStr(state.appInfo?.lastLoadTime) :
           'Загрузка не проводилась';
 
         return Scaffold(
@@ -139,7 +139,7 @@ class _InfoViewState extends State<_InfoView> {
           ),
           body: Refreshable(
             processingText: state.toLoad != 0 ? 'Загружено ${state.loaded} из ${state.toLoad} словарей' : 'Загрузка',
-            messageText: 'Последнее обновление: $lastSyncTime',
+            messageText: 'Последнее обновление: $lastLoadTime',
             pendingChanges: vm.state.pendingChanges,
             onRefresh: vm.getData,
             childBuilder: (context, physics) => ListView(

@@ -1,7 +1,7 @@
 part of 'database.dart';
 
 mixin Syncable on Table {
-  TextColumn get guid => text().clientDefault(() => AppDataStore._kUuid.v4())();
+  TextColumn get guid => text()();
   BoolColumn get isDeleted => boolean().withDefault(const Constant(false))();
   DateTimeColumn get timestamp => dateTime().withDefault(currentDateAndTime)();
   DateTimeColumn get currentTimestamp => dateTime().withDefault(currentDateAndTime)();
@@ -9,12 +9,15 @@ mixin Syncable on Table {
   BoolColumn get needSync => boolean()
     .generatedAs((isNew & isDeleted.not()) | (isNew.not() & lastSyncTime.isSmallerThan(timestamp)), stored: true)();
   BoolColumn get isNew => boolean().generatedAs(lastSyncTime.isNull())();
+
+  @override
+  Set<Column> get primaryKey => {guid};
 }
 
 class Prefs extends Table {
   BoolColumn get showLocalImage => boolean()();
   BoolColumn get showWithPrice => boolean()();
-  DateTimeColumn get lastSyncTime => dateTime().nullable()();
+  DateTimeColumn get lastLoadTime => dateTime().nullable()();
 }
 
 class Users extends Table {
@@ -58,7 +61,7 @@ class Locations extends Table {
 }
 
 class Points extends Table with Syncable {
-  IntColumn get id => integer().autoIncrement()();
+  IntColumn get id => integer().nullable()();
   TextColumn get name => text()();
   TextColumn get address => text().nullable()();
   TextColumn get buyerName => text()();
@@ -79,8 +82,9 @@ class Points extends Table with Syncable {
 }
 
 class PointImages extends Table with Syncable {
-  IntColumn get id => integer().autoIncrement()();
-  IntColumn get pointId => integer()();
+  IntColumn get id => integer().nullable()();
+  TextColumn get pointGuid => text()
+    .references(Points, #guid, onUpdate: KeyAction.cascade, onDelete: KeyAction.cascade)();
   RealColumn get latitude => real()();
   RealColumn get longitude => real()();
   RealColumn get accuracy => real()();
@@ -89,12 +93,14 @@ class PointImages extends Table with Syncable {
 }
 
 class Encashments extends Table with Syncable {
-  IntColumn get id => integer().autoIncrement()();
+  IntColumn get id => integer().nullable()();
+  TextColumn get depositGuid => text()
+    .nullable()
+    .references(Deposits, #guid, onUpdate: KeyAction.cascade, onDelete: KeyAction.cascade)();
   DateTimeColumn get date => dateTime()();
   BoolColumn get isCheck => boolean()();
   IntColumn get buyerId => integer()();
   IntColumn get debtId => integer().nullable()();
-  IntColumn get depositId => integer().nullable()();
   RealColumn get encSum => real().nullable()();
 }
 
@@ -111,7 +117,7 @@ class Debts extends Table {
 }
 
 class Deposits extends Table with Syncable {
-  IntColumn get id => integer().autoIncrement()();
+  IntColumn get id => integer().nullable()();
   DateTimeColumn get date => dateTime()();
   RealColumn get totalSum => real()();
   RealColumn get checkTotalSum => real()();
@@ -137,7 +143,7 @@ class ShipmentLines extends Table {
 }
 
 class IncRequests extends Table with Syncable {
-  IntColumn get id => integer().autoIncrement()();
+  IntColumn get id => integer().nullable()();
   DateTimeColumn get date => dateTime().nullable()();
   IntColumn get buyerId => integer().nullable()();
   RealColumn get incSum => real().nullable()();
@@ -158,6 +164,7 @@ class AllGoods extends Table {
   TextColumn get manufacturer => text().nullable()();
   BoolColumn get isHit => boolean()();
   BoolColumn get isNew => boolean()();
+  BoolColumn get isLatest => boolean()();
   IntColumn get pricelistSetId => integer()();
   RealColumn get cost => real()();
   RealColumn get minPrice => real()();
@@ -278,7 +285,7 @@ class PricelistSetCategories extends Table {
 }
 
 class PartnersPrices extends Table with Syncable {
-  IntColumn get id => integer().autoIncrement()();
+  IntColumn get id => integer().nullable()();
   IntColumn get goodsId => integer()();
   IntColumn get partnerId => integer()();
   RealColumn get price => real()();
@@ -295,7 +302,7 @@ class PricelistPrices extends Table {
 }
 
 class PartnersPricelists extends Table with Syncable {
-  IntColumn get id => integer().autoIncrement()();
+  IntColumn get id => integer().nullable()();
   IntColumn get partnerId => integer()();
   IntColumn get pricelistId => integer()();
   IntColumn get pricelistSetId => integer()();
@@ -332,8 +339,7 @@ class GoodsPartnersPricelists extends Table {
 }
 
 class Orders extends Table with Syncable {
-  IntColumn get id => integer().autoIncrement()();
-
+  IntColumn get id => integer().nullable()();
   DateTimeColumn get date => dateTime().nullable()();
   TextColumn get status => text()();
   IntColumn get preOrderId => integer().nullable()();
@@ -348,9 +354,9 @@ class Orders extends Table with Syncable {
 }
 
 class OrderLines extends Table with Syncable {
-  IntColumn get id => integer().autoIncrement()();
-
-  IntColumn get orderId => integer()();
+  IntColumn get id => integer().nullable()();
+  TextColumn get orderGuid => text()
+    .references(Orders, #guid, onUpdate: KeyAction.cascade, onDelete: KeyAction.cascade)();
   IntColumn get goodsId => integer()();
   RealColumn get vol => real()();
   RealColumn get price => real()();

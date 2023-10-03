@@ -26,6 +26,7 @@ class GoodsState {
     this.showGroupInfo = false,
     this.showOnlyActive = false,
     this.showOnlyOrder = false,
+    this.showOnlyLatest = false,
     this.appInfo
   });
 
@@ -87,6 +88,7 @@ class GoodsState {
   final bool showGroupInfo;
   final bool showOnlyActive;
   final bool showOnlyOrder;
+  final bool showOnlyLatest;
   final AppInfoResult? appInfo;
 
   bool get showLocalImage => appInfo?.showLocalImage ?? true;
@@ -110,6 +112,7 @@ class GoodsState {
     bool? showGroupInfo,
     bool? showOnlyActive,
     bool? showOnlyOrder,
+    bool? showOnlyLatest,
     AppInfoResult? appInfo
   }) {
     return GoodsState(
@@ -130,6 +133,7 @@ class GoodsState {
       showGroupInfo: showGroupInfo ?? this.showGroupInfo,
       showOnlyActive: showOnlyActive ?? this.showOnlyActive,
       showOnlyOrder: showOnlyOrder ?? this.showOnlyOrder,
+      showOnlyLatest: showOnlyLatest ?? this.showOnlyLatest,
       appInfo: appInfo ?? this.appInfo
     );
   }

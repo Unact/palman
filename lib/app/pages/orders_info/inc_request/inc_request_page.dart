@@ -93,16 +93,14 @@ class _IncRequestViewState extends State<_IncRequestView> {
       padding: const EdgeInsets.only(left: 8.0, right: 8.0, top: 16.0),
       child: Column(
         children: [
-          InfoRow(
-            trailingFlex: 2,
-            title: const Text('Клиент'),
+          InfoRow.page(
+            title: const Text('Клиент', style: Styles.formStyle),
             trailing: buildBuyerSearch(context)
           ),
-          InfoRow(
-            trailingFlex: 2,
-            title: const Text('Дата'),
+          InfoRow.page(
+            title: const Text('Дата', style: Styles.formStyle),
             trailing: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Text(Format.dateStr(incRequestEx.incRequest.date), style: Styles.formStyle),
                 !vm.state.isEditable || vm.state.workdates.isEmpty ?
@@ -116,26 +114,24 @@ class _IncRequestViewState extends State<_IncRequestView> {
               ]
             )
           ),
-          InfoRow(
-            trailingFlex: 2,
-            title: const Text('Сумма'),
+          InfoRow.page(
+            title: const Text('Сумма', style: Styles.formStyle),
             trailing: !vm.state.isEditable ?
               Text(Format.numberStr(incRequestEx.incRequest.incSum), style: Styles.formStyle) :
               NumTextField(
-                textAlign: TextAlign.end,
+                textAlign: TextAlign.start,
                 controller: sumController,
                 enabled: vm.state.isEditable,
                 style: Styles.formStyle,
                 onTap: () => vm.updateIncSum(Parsing.parseDouble(sumController!.text))
               )
           ),
-          InfoRow(
-            trailingFlex: 2,
-            title: const Text('Комментарий'),
+          InfoRow.page(
+            title: const Text('Комментарий', style: Styles.formStyle),
             trailing: !vm.state.isEditable ?
               Text(incRequestEx.incRequest.info ?? '', style: Styles.formStyle) :
               TextFormField(
-                textAlign: TextAlign.end,
+                textAlign: TextAlign.start,
                 initialValue: incRequestEx.incRequest.info,
                 maxLines: 1,
                 style: Styles.formStyle,

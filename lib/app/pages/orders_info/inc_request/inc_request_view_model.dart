@@ -25,7 +25,7 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
     incRequestExListSubscription = shipmentsRepository.watchIncRequestExList().listen((event) {
       emit(state.copyWith(
         status: IncRequestStateStatus.dataLoaded,
-        incRequestEx: event.firstWhereOrNull((e) => e.incRequest.id == state.incRequestEx.incRequest.id)
+        incRequestEx: event.firstWhereOrNull((e) => e.incRequest.guid == state.incRequestEx.incRequest.guid)
       ));
     });
     buyersSubscription = partnersRepository.watchBuyers().listen((event) {

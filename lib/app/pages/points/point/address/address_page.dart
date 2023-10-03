@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
@@ -79,6 +81,7 @@ class AddressViewState extends State<_AddressView> {
                 child: Stack(
                   children: [
                     YandexMap(
+                      gestureRecognizers: {Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())},
                       logoAlignment: const MapAlignment(
                         horizontal: HorizontalAlignment.left,
                         vertical: VerticalAlignment.bottom

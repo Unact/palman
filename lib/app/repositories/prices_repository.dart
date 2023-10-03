@@ -65,20 +65,25 @@ class PricesRepository extends BaseRepository {
         }).toList(),
       };
 
-      await api.savePrices(pricesData);
+      final data = await api.savePrices(pricesData);
+      final apiPartnersPrices = data.partnersPrices.map((e) => e.toDatabaseEnt()).toList();
+      final apiPartnersPricelists = data.partnersPricelists.map((e) => e.toDatabaseEnt()).toList();
       await dataStore.transaction(() async {
         for (var price in prices) {
           await dataStore.pricesDao.updatePartnersPrice(
-            price.id,
+            price.guid,
             PartnersPricesCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
         for (var pricelist in pricelists) {
           await dataStore.pricesDao.updatePartnersPricelist(
-            pricelist.id,
+            pricelist.guid,
             PartnersPricelistsCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
+
+        await dataStore.pricesDao.loadPartnersPrices(apiPartnersPrices, false);
+        await dataStore.pricesDao.loadPartnersPricelists(apiPartnersPricelists, false);
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
@@ -141,7 +146,7 @@ class PricesRepository extends BaseRepository {
       isDeleted: const Value(false)
     );
 
-    await dataStore.pricesDao.updatePartnersPricelist(partnersPricelist.id, updatedPartnersPricelist);
+    await dataStore.pricesDao.updatePartnersPricelist(partnersPricelist.guid, updatedPartnersPricelist);
   }
 
   Future<void> addPartnersPrice({
@@ -151,8 +156,10 @@ class PricesRepository extends BaseRepository {
     required DateTime dateFrom,
     required DateTime dateTo
   }) async {
+    final guid = dataStore.generateGuid();
     await dataStore.pricesDao.addPartnersPrice(
       PartnersPricesCompanion.insert(
+        guid: guid,
         goodsId: goodsId,
         partnerId: partnerId,
         price: price,
@@ -178,7 +185,7 @@ class PricesRepository extends BaseRepository {
       isDeleted: const Value(false)
     );
 
-    await dataStore.pricesDao.updatePartnersPrice(partnersPrice.id, updatedPartnersPrice);
+    await dataStore.pricesDao.updatePartnersPrice(partnersPrice.guid, updatedPartnersPrice);
   }
 
   Future<void> regenerateGuid() async {

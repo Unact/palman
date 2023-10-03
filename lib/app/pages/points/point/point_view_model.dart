@@ -23,7 +23,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
     pointExListSubscription = pointsRepository.watchPointExList().listen((event) {
       emit(state.copyWith(
         status: PointStateStatus.dataLoaded,
-        pointEx: event.firstWhereOrNull((e) => e.point.id == state.pointEx.point.id)
+        pointEx: event.firstWhereOrNull((e) => e.point.guid == state.pointEx.point.guid)
       ));
     });
     pointFormatsSubscription = pointsRepository.watchPointFormats().listen((event) {
@@ -74,12 +74,12 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
     _notifyPointUpdated();
   }
 
-  Future<void> updateAddress(String? address, double latitude, double longitude) async {
+  Future<void> updateAddress(String? address, double? latitude, double? longitude) async {
     await pointsRepository.updatePoint(
       state.pointEx.point,
       address: Optional.fromNullable(address),
-      latitude: Optional.of(latitude),
-      longitude: Optional.of(longitude)
+      latitude: Optional.fromNullable(latitude),
+      longitude: Optional.fromNullable(longitude)
     );
     _notifyPointUpdated();
   }

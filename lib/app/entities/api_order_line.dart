@@ -37,10 +37,10 @@ class ApiOrderLine extends Equatable {
     );
   }
 
-  OrderLine toDatabaseEnt(int orderId) {
+  OrderLine toDatabaseEnt(String orderGuid) {
     return OrderLine(
       id: id,
-      orderId: orderId,
+      orderGuid: orderGuid,
       goodsId: goodsId,
       vol: vol,
       price: price,

@@ -105,36 +105,36 @@ class PricesDao extends DatabaseAccessor<AppDataStore> with _$PricesDaoMixin {
     await db._loadData(pricelistSetCategories, list);
   }
 
-  Future<void> loadPartnersPrices(List<PartnersPrice> list) async {
-    await db._loadData(partnersPrices, list);
+  Future<void> loadPartnersPrices(List<PartnersPrice> list, [bool clearTable = true]) async {
+    await db._loadData(partnersPrices, list, clearTable);
   }
 
   Future<void> loadPricelistPrices(List<PricelistPrice> list) async {
     await db._loadData(pricelistPrices, list);
   }
 
-  Future<void> loadPartnersPricelists(List<PartnersPricelist> list) async {
-    await db._loadData(partnersPricelists, list);
+  Future<void> loadPartnersPricelists(List<PartnersPricelist> list, [bool clearTable = true]) async {
+    await db._loadData(partnersPricelists, list, clearTable);
   }
 
   Future<void> loadGoodsPartnersPricelists(List<GoodsPartnersPricelist> list) async {
     await db._loadData(goodsPartnersPricelists, list);
   }
 
-  Future<void> updatePartnersPricelist(int id, PartnersPricelistsCompanion updatedPartnersPricelist) async {
-    await (update(partnersPricelists)..where((tbl) => tbl.id.equals(id))).write(updatedPartnersPricelist);
+  Future<void> updatePartnersPricelist(String guid, PartnersPricelistsCompanion updatedPartnersPricelist) async {
+    await (update(partnersPricelists)..where((tbl) => tbl.guid.equals(guid))).write(updatedPartnersPricelist);
   }
 
-  Future<void> updatePartnersPrice(int id, PartnersPricesCompanion updatedPartnersPrice) async {
-    await (update(partnersPrices)..where((tbl) => tbl.id.equals(id))).write(updatedPartnersPrice);
+  Future<void> updatePartnersPrice(String guid, PartnersPricesCompanion updatedPartnersPrice) async {
+    await (update(partnersPrices)..where((tbl) => tbl.guid.equals(guid))).write(updatedPartnersPrice);
   }
 
-  Future<int> addPartnersPrice(PartnersPricesCompanion newPartnersPrice) async {
-    return await into(partnersPrices).insert(newPartnersPrice);
+  Future<void> addPartnersPrice(PartnersPricesCompanion newPartnersPrice) async {
+    await into(partnersPrices).insert(newPartnersPrice);
   }
 
-  Future<int> addPartnersPricelist(PartnersPricelistsCompanion newPartnersPricelist) async {
-    return await into(partnersPricelists).insert(newPartnersPricelist);
+  Future<void> addPartnersPricelist(PartnersPricelistsCompanion newPartnersPricelist) async {
+    await into(partnersPricelists).insert(newPartnersPricelist);
   }
 
   Future<List<PartnersPricelist>> getPartnersPricelistsForSync() async {

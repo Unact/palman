@@ -52,7 +52,7 @@ class PointsRepository extends BaseRepository {
       await dataStore.transaction(() async {
         final points = data.points.map((e) => e.toDatabaseEnt()).toList();
         final pointImages = data.points
-          .map((e) => e.images.map((i) => i.toDatabaseEnt(e.id))).expand((e) => e)
+          .map((e) => e.images.map((i) => i.toDatabaseEnt(e.guid))).expand((e) => e)
           .toList();
 
         await dataStore.pointsDao.loadPoints(points);
@@ -84,14 +84,16 @@ class PointsRepository extends BaseRepository {
   }
 
   Future<PointEx> addPoint() async {
-    final id = await dataStore.pointsDao.addPoint(
+    final guid = dataStore.generateGuid();
+    await dataStore.pointsDao.addPoint(
       PointsCompanion.insert(
+        guid: guid,
         name: Strings.newPointName,
         buyerName: Strings.newPointName,
         reason: Strings.pointReasonZone
       )
     );
-    final point = await dataStore.pointsDao.getPointEx(id);
+    final point = await dataStore.pointsDao.getPointEx(guid);
 
     return point;
   }
@@ -104,9 +106,11 @@ class PointsRepository extends BaseRepository {
     required DateTime timestamp
   }) async {
     final imageKey = md5.convert(await file.readAsBytes());
+    final guid = dataStore.generateGuid();
     await dataStore.pointsDao.addPointImage(
       PointImagesCompanion.insert(
-        pointId: point.id,
+        guid: guid,
+        pointGuid: point.guid,
         latitude: latitude,
         longitude: longitude,
         accuracy: accuracy,
@@ -119,7 +123,7 @@ class PointsRepository extends BaseRepository {
 
   Future<void> updatePoint(Point point, {
     Optional<String>? name,
-    Optional<String>? address,
+    Optional<String?>? address,
     Optional<String>? buyerName,
     Optional<String>? reason,
     Optional<double?>? latitude,
@@ -138,7 +142,7 @@ class PointsRepository extends BaseRepository {
   }) async {
     final newPoint = PointsCompanion(
       name: name == null ? const Value.absent() : Value(name.value),
-      address: address == null ? const Value.absent() : Value(address.value),
+      address: address == null ? const Value.absent() : Value(address.orNull),
       buyerName: buyerName == null ? const Value.absent() : Value(buyerName.value),
       reason: reason == null ? const Value.absent() : Value(reason.value),
       latitude: latitude == null ? const Value.absent() : Value(latitude.orNull),
@@ -157,15 +161,15 @@ class PointsRepository extends BaseRepository {
       isDeleted: const Value(false)
     );
 
-    await dataStore.pointsDao.updatePoint(point.id, newPoint);
+    await dataStore.pointsDao.updatePoint(point.guid, newPoint);
   }
 
   Future<void> deletePoint(Point point) async {
-    await dataStore.pointsDao.updatePoint(point.id, const PointsCompanion(isDeleted: Value(true)));
+    await dataStore.pointsDao.updatePoint(point.guid, const PointsCompanion(isDeleted: Value(true)));
   }
 
   Future<void> deletePointImage(PointImage pointImage) async {
-    await dataStore.pointsDao.updatePointImage(pointImage.id, const PointImagesCompanion(isDeleted: Value(true)));
+    await dataStore.pointsDao.updatePointImage(pointImage.guid, const PointImagesCompanion(isDeleted: Value(true)));
   }
 
   Future<void> syncPoints(List<Point> points, List<PointImage> pointImages) async {
@@ -202,7 +206,7 @@ class PointsRepository extends BaseRepository {
         'maxdebt': e.maxdebt,
         'nds10': e.nds10,
         'nds20': e.nds20,
-        'images': pointImages.where((i) => i.pointId == e.id).map((i) => {
+        'images': pointImages.where((i) => i.pointGuid == e.guid).map((i) => {
           'guid': i.guid,
           'isNew': i.isNew,
           'isDeleted': i.isDeleted,
@@ -215,20 +219,27 @@ class PointsRepository extends BaseRepository {
         }).toList()
       }).toList();
 
-      await api.savePoints(pointsData);
+      final data = await api.savePoints(pointsData);
+      final apiPoints = data.points.map((e) => e.toDatabaseEnt()).toList();
+      final apiPointImages = data.points
+        .map((e) => e.images.map((i) => i.toDatabaseEnt(e.guid))).expand((e) => e)
+        .toList();
       await dataStore.transaction(() async {
         for (var point in points) {
           await dataStore.pointsDao.updatePoint(
-            point.id,
+            point.guid,
             PointsCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
         for (var pointImage in pointImages) {
           await dataStore.pointsDao.updatePointImage(
-            pointImage.id,
+            pointImage.guid,
             PointImagesCompanion(lastSyncTime: Value(lastSyncTime))
           );
         }
+
+        await dataStore.pointsDao.loadPoints(apiPoints, false);
+        await dataStore.pointsDao.loadPointImages(apiPointImages, false);
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);

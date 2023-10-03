@@ -216,54 +216,50 @@ class _OrderViewState extends State<_OrderView> {
     final order = vm.state.orderEx.order;
 
     return [
-      InfoRow(
-        trailingFlex: 2,
+      InfoRow.page(
         title: const Text('Статус', style: Styles.formStyle),
         trailing: Text(order.detailedStatus.name, style: Styles.formStyle)
       ),
-      !vm.state.orderEx.order.isEditable ? Container() : InfoRow(
-        trailingFlex: 2,
+      !vm.state.orderEx.order.isEditable ? Container() : InfoRow.page(
         title: const Text('Передан в работу', style: Styles.formStyle),
         trailing: Text(order.needProcessing ? 'Да' : 'Нет', style: Styles.formStyle)
       ),
-      InfoRow(
-        trailingFlex: 2,
+      InfoRow.page(
         title: const Text('Клиент', style: Styles.formStyle),
         trailing: buildBuyerSearch(context)
       ),
-      vm.state.preOrderMode ? Container() : InfoRow(
+      vm.state.preOrderMode ? Container() : InfoRow.page(
         title: const Text('Бонусный', style: Styles.formStyle),
         trailing: Checkbox(
           value: order.isBonus,
           onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateIsBonus(value!)
         )
       ),
-      vm.state.preOrderMode ? Container() : InfoRow(
+      vm.state.preOrderMode ? Container() : InfoRow.page(
         title: const Text('Требуется инкассация', style: Styles.formStyle),
         trailing: Checkbox(
           value: order.needInc,
           onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateNeedInc(value!)
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('Нужна счет-фактура', style: Styles.formStyle),
         trailing: Checkbox(
           value: order.needDocs,
           onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateNeedDocs(value!)
         )
       ),
-      vm.state.preOrderMode ? Container() : InfoRow(
+      vm.state.preOrderMode ? Container() : InfoRow.page(
         title: const Text('Физ. лицо', style: Styles.formStyle),
         trailing: Checkbox(
           value: order.isPhysical,
           onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateIsPhysical(value!)
         )
       ),
-      InfoRow(
-        trailingFlex: 2,
+      InfoRow.page(
         title: const Text('Дата доставки', style: Styles.formStyle),
         trailing: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Text(Format.dateStr(order.date), style: Styles.formStyle),
             !vm.state.isEditable || vm.state.workdates.isEmpty ?
@@ -276,7 +272,7 @@ class _OrderViewState extends State<_OrderView> {
           ]
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('Комментарий', style: Styles.formStyle),
         trailing: TextFormField(
           enabled: vm.state.isEditable,
@@ -285,7 +281,7 @@ class _OrderViewState extends State<_OrderView> {
           style: Styles.formStyle
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('Стоимость', style: Styles.formStyle),
         trailing: Text(Format.numberStr(vm.state.orderEx.linesTotal), style: Styles.formStyle)
       ),

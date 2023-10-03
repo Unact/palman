@@ -40,7 +40,7 @@ dependencies:
   u_app_utils:
     git:
       url: git@github.com:Unact/u_app_utils.git
-      ref: ca82c1d
+      ref: baea1fb
   uuid: ^3.0.7
   yandex_mapkit: ^3.3.3
 
@@ -60,6 +60,7 @@ flutter_launcher_icons:
 
 flutter:
   assets:
+    - assets/placeicon.png
     - assets/filled_placeicon.png
     - assets/not_filled_placeicon.png
   uses-material-design: true
