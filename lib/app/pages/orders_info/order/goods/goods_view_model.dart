@@ -199,14 +199,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     }
 
     if (orderLineEx != null) {
-      await ordersRepository.updateOrderLine(
-        orderLineEx.line,
-        vol: Optional.of(vol),
-        rel: Optional.of(goodsDetail.rel),
-        price: Optional.of(goodsDetail.price),
-        priceOriginal: Optional.of(goodsDetail.pricelistPrice),
-        package: Optional.of(goodsDetail.package)
-      );
+      await ordersRepository.updateOrderLine(orderLineEx.line, vol: Optional.of(vol));
 
       return;
     }

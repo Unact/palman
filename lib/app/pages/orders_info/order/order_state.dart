@@ -17,7 +17,8 @@ class OrderState {
     this.linesExList = const [],
     this.workdates = const [],
     this.buyers = const [],
-    this.newOrder
+    this.newOrder,
+    this.appInfo
   });
 
   final OrderStateStatus status;
@@ -29,6 +30,7 @@ class OrderState {
   final List<Workdate> workdates;
   final List<Buyer> buyers;
   final OrderExResult? newOrder;
+  final AppInfoResult? appInfo;
 
   bool get isEditable => orderEx.order.isEditable;
   bool get canBeProcessed => !orderEx.order.isEditable || filteredOrderLinesExList.isEmpty;
@@ -37,7 +39,13 @@ class OrderState {
 
   bool get preOrderMode => user?.preOrderMode ?? false;
 
-  bool get needSync => orderEx.order.needSync || linesExList.any((e) => e.line.needSync);
+  bool get orderNeedSync => orderEx.order.needSync || linesExList.any((e) => e.line.needSync);
+
+  int get pendingChanges => appInfo == null ?
+    0 :
+    (orderNeedSync ? 1 : 0) +
+    appInfo!.partnerPricesToSync +
+    appInfo!.partnersPricelistsToSync;
 
   OrderState copyWith({
     OrderStateStatus? status,
@@ -47,7 +55,8 @@ class OrderState {
     List<OrderLineExResult>? linesExList,
     List<Workdate>? workdates,
     List<Buyer>? buyers,
-    OrderExResult? newOrder
+    OrderExResult? newOrder,
+    AppInfoResult? appInfo
   }) {
     return OrderState(
       status: status ?? this.status,
@@ -57,7 +66,8 @@ class OrderState {
       linesExList: linesExList ?? this.linesExList,
       workdates: workdates ?? this.workdates,
       buyers: buyers ?? this.buyers,
-      newOrder: newOrder ?? this.newOrder
+      newOrder: newOrder ?? this.newOrder,
+      appInfo: appInfo ?? this.appInfo
     );
   }
 }

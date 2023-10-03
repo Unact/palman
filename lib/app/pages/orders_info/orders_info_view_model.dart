@@ -5,6 +5,7 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
   final OrdersRepository ordersRepository;
   final ShipmentsRepository shipmentsRepository;
   final PartnersRepository partnersRepository;
+  final PricesRepository pricesRepository;
   final UsersRepository usersRepository;
   StreamSubscription<List<PreOrderExResult>>? preOrderExListSubscription;
   StreamSubscription<List<ShipmentExResult>>? shipmentExListSubscription;
@@ -17,6 +18,7 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
     this.appRepository,
     this.ordersRepository,
     this.partnersRepository,
+    this.pricesRepository,
     this.shipmentsRepository,
     this.usersRepository
   ) : super(OrdersInfoState());
@@ -63,6 +65,7 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
   Future<void> syncChanges() async {
     final futures = [
       ordersRepository.syncChanges,
+      pricesRepository.syncChanges,
       shipmentsRepository.syncChanges
     ];
 

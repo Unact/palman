@@ -4,6 +4,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   final AppRepository appRepository;
   final PartnersRepository partnersRepository;
   final OrdersRepository ordersRepository;
+  final PricesRepository pricesRepository;
   final UsersRepository usersRepository;
 
   StreamSubscription<User>? userSubscription;
@@ -11,11 +12,13 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   StreamSubscription<List<OrderLineExResult>>? orderLineExListSubscription;
   StreamSubscription<List<Buyer>>? buyersSubscription;
   StreamSubscription<List<Workdate>>? workdatesSubscription;
+  StreamSubscription<AppInfoResult>? appInfoSubscription;
 
   OrderViewModel(
     this.appRepository,
     this.ordersRepository,
     this.partnersRepository,
+    this.pricesRepository,
     this.usersRepository,
     {
       required OrderExResult orderEx
@@ -50,6 +53,9 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     workdatesSubscription = appRepository.watchWorkdates().listen((event) {
       emit(state.copyWith(status: OrderStateStatus.dataLoaded, workdates: event));
     });
+    appInfoSubscription = appRepository.watchAppInfo().listen((event) {
+      emit(state.copyWith(status: OrderStateStatus.dataLoaded, appInfo: event));
+    });
   }
 
   @override
@@ -61,6 +67,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     await orderLineExListSubscription?.cancel();
     await buyersSubscription?.cancel();
     await workdatesSubscription?.cancel();
+    await appInfoSubscription?.cancel();
   }
 
   Future<void> updateNeedProcessing() async {
@@ -150,7 +157,17 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   }
 
   Future<void> syncChanges() async {
-    await ordersRepository.syncOrders([state.orderEx.order], state.linesExList.map((e) => e.line).toList());
+    final futures = [
+      pricesRepository.syncChanges,
+      () async {
+        if (!state.orderNeedSync) return;
+
+        await ordersRepository.syncOrders([state.orderEx.order], state.linesExList.map((e) => e.line).toList());
+      }
+    ];
+
+    await usersRepository.refresh();
+    await Future.wait(futures.map((e) => e.call()));
   }
 
   void _notifyOrderUpdated() {
