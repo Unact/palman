@@ -232,21 +232,18 @@ class _GoodsViewState extends State<_GoodsView> {
         children: [
           !compactMode ?
             Container() :
-            SizedBox(
-              width: 160,
-              child: TextField(
-                readOnly: true,
-                decoration: InputDecoration(
-                  labelText: 'Категория',
-                  suffixIcon: IconButton(
-                    onPressed: showCategorySelectDialog,
-                    icon: const Icon(Icons.arrow_drop_down),
-                    tooltip: 'Выбрать категорию',
-                  )
-                ),
-                controller: TextEditingController(text: vm.state.selectedCategory?.name),
-                style: Styles.formStyle
-              )
+            TextField(
+              readOnly: true,
+              decoration: InputDecoration(
+                labelText: 'Категория',
+                suffixIcon: IconButton(
+                  onPressed: showCategorySelectDialog,
+                  icon: const Icon(Icons.arrow_drop_down),
+                  tooltip: 'Выбрать категорию',
+                )
+              ),
+              controller: TextEditingController(text: vm.state.selectedCategory?.name),
+              style: Styles.formStyle
             ),
           Row(
             children: [
@@ -498,7 +495,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
 
     return Row(
       children: [
-        Expanded(child: Text(category.name)),
+        Expanded(child: Text(category.name, style: Styles.tileTitleText.copyWith(fontWeight: FontWeight.w500))),
         daysDiff == null ?
           Container() :
           Padding(
@@ -687,7 +684,8 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
           TextSpan(
             text: goodsEx.goods.name,
             style: Styles.tileTitleText.copyWith(
-              color: goodsDetail.stock?.isVollow ?? false ? Colors.pink : Colors.black
+              color: goodsDetail.stock?.isVollow ?? false ? Colors.pink : Colors.black,
+
             )
           ),
           daysDiff == null ?
@@ -815,7 +813,8 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: _GoodsSubtitle(goodsDetail, orderLineEx)
         ),
-        buildGoodsImage(context, goodsDetail)
+        buildGoodsImage(context, goodsDetail),
+        Divider(height: 4, color: Theme.of(context).textTheme.displaySmall?.color)
       ]
     );
   }
@@ -845,7 +844,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
         style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
         decoration: InputDecoration(
           fillColor: Colors.transparent,
-          border: !enabled ? InputBorder.none : null,
+          border: InputBorder.none,
           suffixIcon: !enabled ? null : IconButton(
             icon: const Icon(Icons.add),
             tooltip: 'Увеличить кол-во',
@@ -906,6 +905,7 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
     final bonusPrice = widget.goodsDetail.price;
     final effPrice = (bonusPrice - (widget.orderLineEx?.line.priceOriginal ?? price)).abs();
     final linePrice = widget.orderLineEx?.line.price ?? bonusPrice;
+    final color = Theme.of(context).textTheme.displaySmall?.color;
     List<Widget> children = [];
 
     if (!expanded) {
@@ -914,13 +914,13 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
           splashRadius: 24,
           padding: const EdgeInsets.symmetric(horizontal: 4),
           constraints: const BoxConstraints(maxHeight: 24),
-          icon: const Icon(Icons.expand_circle_down),
+          icon: Icon(Icons.expand_circle_down, color: color),
           onPressed: () => setState(() => expanded = true)
         ),
         Expanded(
           child: Text.rich(
             TextSpan(
-              style: Styles.tileText.copyWith(fontWeight: FontWeight.w500),
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.w500, color: color),
               children: <InlineSpan>[
                 const TextSpan(text: 'Цена: '),
                 (goods.handPrice ?? 0) > 0 ?
@@ -981,13 +981,13 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
           splashRadius: 24,
           padding: const EdgeInsets.symmetric(horizontal: 4),
           constraints: const BoxConstraints(maxHeight: 24),
-          icon: Transform.rotate(angle: pi, child: const Icon(Icons.expand_circle_down)),
+          icon: Transform.rotate(angle: pi, child: Icon(Icons.expand_circle_down, color: color)),
           onPressed: () => setState(() => expanded = false)
         ),
         Expanded(
           child: Text.rich(
             TextSpan(
-              style: Styles.tileText.copyWith(fontWeight: FontWeight.w500),
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.w500, color: color),
               children: <InlineSpan>[
                 TextSpan(
                   text: (goodsEx.lastPrice ?? 0) > 0 && (goods.handPrice ?? 0) > 0 ?
