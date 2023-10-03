@@ -87,17 +87,18 @@ class _PersonViewState extends State<_PersonView> {
     final state = vm.state;
 
     return ListView(
+      shrinkWrap: true,
       padding: const EdgeInsets.only(top: 24, bottom: 24),
       children: [
-        InfoRow(
+        InfoRow.page(
           title: const Text('Логин', style: Styles.formStyle),
           trailing: Text(state.username, style: Styles.formStyle)
         ),
-        InfoRow(
+        InfoRow.page(
           title: const Text('Торговый представитель', style: Styles.formStyle),
           trailing: Text(state.salesmanName, style: Styles.formStyle)
         ),
-        InfoRow(
+        InfoRow.page(
           title: const Text('Данные загружены', style: Styles.formStyle),
           trailing: Text(
             state.appInfo?.lastLoadTime != null ?
@@ -106,21 +107,21 @@ class _PersonViewState extends State<_PersonView> {
             style: Styles.formStyle
           )
         ),
-        InfoRow(
+        InfoRow.page(
           title: const Text('Отображать фото локально', style: Styles.formStyle),
           trailing: state.appInfo == null ? null : Checkbox(
             value: state.appInfo!.showLocalImage,
             onChanged: (newValue) => vm.updateShowLocalImage(newValue!)
           )
         ),
-        InfoRow(
+        InfoRow.page(
           title: const Text('Показывать нулевые цены', style: Styles.formStyle),
           trailing: state.appInfo == null ? null : Checkbox(
             value: !state.appInfo!.showWithPrice,
             onChanged: (newValue) => vm.updateShowWithPrice(!newValue!)
           )
         ),
-        InfoRow(
+        InfoRow.page(
           title: const Text('Версия', style: Styles.formStyle),
           trailing: FutureBuilder(
             future: Misc.fullVersion,

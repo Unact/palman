@@ -149,15 +149,16 @@ class _PointViewState extends State<_PointView> {
     final point = vm.state.pointEx.point;
 
     return [
-      InfoRow(
+      InfoRow.page(
         title: const Text('Юр. лица', style: Styles.formStyle),
         trailing: ExpandingText(point.buyerName, style: Styles.formStyle)
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('Адрес', style: Styles.formStyle),
         trailing: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Expanded(child: ExpandingText(point.address ?? '', style: Styles.formStyle)),
+            Expanded(child: Text(point.address ?? '', style: Styles.formStyle, textAlign: TextAlign.left)),
             IconButton(
               onPressed: showAddressDialog,
               icon: const Icon(Icons.map),
@@ -167,7 +168,7 @@ class _PointViewState extends State<_PointView> {
           ]
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('Формат', style: Styles.formStyle),
         trailing: DropdownButtonFormField(
           isExpanded: true,
@@ -183,7 +184,7 @@ class _PointViewState extends State<_PointView> {
           onChanged: (v) => vm.updatePointFormat(v!)
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('Кол-во касс', style: Styles.formStyle),
         trailing: NumTextField(
           decimal: false,
@@ -193,7 +194,7 @@ class _PointViewState extends State<_PointView> {
           style: Styles.formStyle
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('Вывеска', style: Styles.formStyle),
         trailing: TextFormField(
           initialValue: point.name,
@@ -201,7 +202,7 @@ class _PointViewState extends State<_PointView> {
           style: Styles.formStyle
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('Email для чеков', style: Styles.formStyle),
         trailing: TextFormField(
           initialValue: point.emailOnlineCheck,
@@ -209,7 +210,7 @@ class _PointViewState extends State<_PointView> {
           style: Styles.formStyle
         ),
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('Email', style: Styles.formStyle),
         trailing: TextFormField(
           initialValue: point.email,
@@ -217,7 +218,7 @@ class _PointViewState extends State<_PointView> {
           style: Styles.formStyle
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('ИНН', style: Styles.formStyle),
         trailing: TextFormField(
           initialValue: point.inn,
@@ -225,7 +226,7 @@ class _PointViewState extends State<_PointView> {
           style: Styles.formStyle
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('Лимит', style: Styles.formStyle),
         trailing: NumTextField(
           decimal: false,
@@ -235,7 +236,7 @@ class _PointViewState extends State<_PointView> {
           style: Styles.formStyle
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('НДС10', style: Styles.formStyle),
         trailing: NumTextField(
           decimal: false,
@@ -245,7 +246,7 @@ class _PointViewState extends State<_PointView> {
           style: Styles.formStyle
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('НДС20', style: Styles.formStyle),
         trailing: NumTextField(
           decimal: false,
@@ -255,7 +256,7 @@ class _PointViewState extends State<_PointView> {
           style: Styles.formStyle
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('Срок', style: Styles.formStyle),
         trailing: NumTextField(
           decimal: false,
@@ -265,7 +266,7 @@ class _PointViewState extends State<_PointView> {
           style: Styles.formStyle
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('Тел. для чеков', style: Styles.formStyle),
         trailing: TextFormField(
           initialValue: point.phoneOnlineCheck,
@@ -273,7 +274,7 @@ class _PointViewState extends State<_PointView> {
           style: Styles.formStyle
         )
       ),
-      InfoRow(
+      InfoRow.page(
         title: const Text('ЮЛ', style: Styles.formStyle),
         trailing: TextFormField(
           initialValue: point.jur,
