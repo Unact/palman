@@ -157,11 +157,11 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   }
 
   Future<void> syncChanges() async {
-    await pricesRepository.syncChanges();
-
     if (state.orderNeedSync) {
       await ordersRepository.syncOrders([state.orderEx.order], state.linesExList.map((e) => e.line).toList());
     }
+
+    await pricesRepository.syncChanges();
   }
 
   void _notifyOrderUpdated() {
