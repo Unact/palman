@@ -189,6 +189,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
                   initialValue: '${goods.shelfLife} ${goods.shelfLifeTypeName.toLowerCase()}'
                 ),
                 ExpansionTile(
+                  initiallyExpanded: true,
                   tilePadding: const EdgeInsets.symmetric(horizontal: 8),
                   title: const Text('Продажи'),
                   children: state.goodsShipments.map((e) => buildGoodsShipmentTile(context, e)).toList()

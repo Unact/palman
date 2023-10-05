@@ -103,11 +103,11 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
 
   Widget buildInfoTable(BuildContext context) {
     final vm = context.read<PriceChangeViewModel>();
-    final curGoodsPricelist = vm.state.goodsPricelist;
+    final goodsPricelist = vm.state.goodsPricelist;
     final cost = vm.state.goodsEx.goods.cost;
     final minPrice = vm.state.goodsEx.goods.minPrice;
     final costDiff = (((vm.state.price ?? 0) - cost)/cost*100).roundDigits(1);
-    final priceDiff = (((vm.state.price ?? 0) - curGoodsPricelist.price)/curGoodsPricelist.price*100).roundDigits(1);
+    final priceDiff = (((vm.state.price ?? 0) - goodsPricelist.price)/goodsPricelist.price*100).roundDigits(1);
 
     return Table(
       columnWidths: const <int, TableColumnWidth>{
@@ -139,8 +139,8 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
         ),
         TableRow(
           children: <Widget>[
-            Text(curGoodsPricelist.name, style: Styles.formStyle),
-            Text(Format.numberStr(curGoodsPricelist.price), style: Styles.formStyle),
+            Text(goodsPricelist.name, style: Styles.formStyle),
+            Text(Format.numberStr(goodsPricelist.price), style: Styles.formStyle),
             SizedBox(
               height: 32,
               child: Text(
@@ -210,6 +210,8 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
   Widget buildPriceTable(BuildContext context) {
     final vm = context.read<PriceChangeViewModel>();
     final price = vm.state.price ?? 0;
+    final incrPrice = (price + vm.state.priceStep).ceilDigits(4);
+    final decrPrice = (price - vm.state.priceStep).ceilDigits(4);
 
     return Table(
       columnWidths: const <int, TableColumnWidth>{
@@ -218,37 +220,34 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
         2: FixedColumnWidth(180),
       },
       defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-      children:[
-
-      TableRow(
       children: [
-      const Text('Цена', style: Styles.formStyle),
-      Container(),
-      NumTextField(
-          textAlign: TextAlign.center,
-          controller: controller,
-          style: Styles.formStyle,
-          textAlignVertical: TextAlignVertical.center,
-          decoration: InputDecoration(
-            suffixIcon: IconButton(
-              icon: const Icon(Icons.add),
-              tooltip: 'Увеличить цену',
-              onPressed: validPrice(price + vm.state.priceStep) ?
-                () => updatePriceAndText(price + vm.state.priceStep) :
-                null
-            ),
-            prefixIcon: IconButton(
-              icon: const Icon(Icons.remove),
-              tooltip: 'Уменьшить цену',
-              onPressed: validPrice(price - vm.state.priceStep) ?
-                () => updatePriceAndText(price - vm.state.priceStep) :
-                null
+        TableRow(
+          children: [
+            const Text('Цена', style: Styles.formStyle),
+            Container(),
+            NumTextField(
+              textAlign: TextAlign.center,
+              controller: controller,
+              style: Styles.formStyle,
+              textAlignVertical: TextAlignVertical.center,
+              decoration: InputDecoration(
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.add),
+                  tooltip: 'Увеличить цену',
+                  onPressed: validPrice(incrPrice) ? () => updatePriceAndText(incrPrice) : null
+                ),
+                prefixIcon: IconButton(
+                  icon: const Icon(Icons.remove),
+                  tooltip: 'Уменьшить цену',
+                  onPressed: validPrice(decrPrice) ? () => updatePriceAndText(decrPrice) : null
+                )
+              ),
+              onTap: () => vm.updatePrice(Parsing.parseDouble(controller!.text))
             )
-          ),
-          onTap: () => vm.updatePrice(Parsing.parseDouble(controller!.text))
+          ]
         )
       ]
-    )]);
+    );
   }
 
   void updatePriceAndText(double? sum) {
@@ -264,6 +263,6 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
 
     if (price == null) return false;
 
-    return price >= vm.state.goodsEx.goods.minPrice && price != vm.state.goodsPricelist.price;
+    return price >= (vm.state.goodsEx.goods.minPrice * 100).truncate()/100;
   }
 }
