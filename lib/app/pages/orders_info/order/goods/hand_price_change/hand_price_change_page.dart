@@ -113,6 +113,8 @@ class _HandPriceChangeViewState extends State<_HandPriceChangeView> {
   Widget buildPriceTable(BuildContext context) {
     final vm = context.read<HandPriceChangeViewModel>();
     final handPrice = vm.state.handPrice ?? 0;
+    final incrHandPrice = (handPrice + vm.state.priceStep).ceilDigits(4);
+    final decrHandPrice = (handPrice - vm.state.priceStep).ceilDigits(4);
 
     return Table(
       columnWidths: const <int, TableColumnWidth>{
@@ -133,16 +135,12 @@ class _HandPriceChangeViewState extends State<_HandPriceChangeView> {
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.add),
                   tooltip: 'Увеличить цену',
-                  onPressed: validHandPrice(handPrice + vm.state.priceStep) ?
-                    () => updateHandPriceAndText(handPrice + vm.state.priceStep) :
-                    null
+                  onPressed: validHandPrice(incrHandPrice) ? () => updateHandPriceAndText(incrHandPrice) : null
                 ),
                 prefixIcon: IconButton(
                   icon: const Icon(Icons.remove),
                   tooltip: 'Уменьшить цену',
-                  onPressed: validHandPrice(handPrice - vm.state.priceStep) ?
-                    () => updateHandPriceAndText(handPrice - vm.state.priceStep) :
-                    null
+                  onPressed: validHandPrice(decrHandPrice) ? () => updateHandPriceAndText(decrHandPrice) : null
                 )
               ),
               onTap: () => vm.updateHandPrice(Parsing.parseDouble(controller!.text))
@@ -166,6 +164,6 @@ class _HandPriceChangeViewState extends State<_HandPriceChangeView> {
 
     if (price == null) return false;
 
-    return price >= vm.state.minHandPrice;
+    return price >= (vm.state.minHandPrice * 100).truncate()/100;
   }
 }
