@@ -35,7 +35,15 @@ part of 'database.dart';
           SELECT COUNT(*)
           FROM order_lines
           WHERE order_guid = orders.guid AND order_lines.is_deleted = 0
-        ) AS "lines_count"
+        ) AS "lines_count",
+        COALESCE(
+          (
+            SELECT MAX(need_sync)
+            FROM order_lines
+            WHERE order_guid = orders.guid
+          ),
+          0
+        ) AS "lines_need_sync"
       FROM orders
       LEFT JOIN buyers on buyers.id = orders.buyer_id
       ORDER BY orders.date DESC, buyers.name

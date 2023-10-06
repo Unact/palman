@@ -235,12 +235,13 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
 
   Widget buildOrderTile(BuildContext context, OrderExResult orderEx) {
     final vm = context.read<OrdersInfoViewModel>();
+    final needSync = orderEx.order.needSync || orderEx.linesNeedSync;
     final tile = ListTile(
       title: Text(
         orderEx.buyer != null ? '${orderEx.buyer!.fullname}\n' : 'Клиент не указан\n',
         style: Styles.tileTitleText
       ),
-      trailing: orderEx.order.needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
+      trailing: needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
       subtitle: Text.rich(
         TextSpan(
           children: <TextSpan>[

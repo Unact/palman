@@ -34,7 +34,7 @@ class _HomeView extends StatefulWidget {
 }
 
 class _HomeViewState extends State<_HomeView> with WidgetsBindingObserver {
-  bool permission = false;
+  bool? permission;
 
   @override
   void initState() {
@@ -65,7 +65,9 @@ class _HomeViewState extends State<_HomeView> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     return BlocBuilder<HomeViewModel, HomeState>(
       builder: (context, state) {
-        if (!permission) {
+        if (permission == null) return const Scaffold();
+
+        if (!permission!) {
           return const Scaffold(
             body: Center(child: Text(
               'Для работы с приложением необходимо дать права на получение местоположения',

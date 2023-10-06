@@ -171,9 +171,13 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
   }
 
   Widget buildDepositTile(BuildContext context, Deposit deposit) {
+    final vm = context.read<DebtsInfoViewModel>();
+    final needSync = deposit.needSync ||
+      vm.state.encashmentExList.any((e) => e.deposit == deposit && e.encashment.needSync);
+
     return ListTile(
       title: Text(Format.dateStr(deposit.date), style: Styles.tileTitleText),
-      trailing: deposit.needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
+      trailing: needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
       subtitle: Text.rich(
         TextSpan(
           children: <TextSpan>[

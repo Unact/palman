@@ -209,6 +209,7 @@ class _PointsViewState extends State<_PointsView> {
 
   Widget buildPointTile(BuildContext context, PointEx pointEx) {
     final vm = context.read<PointsViewModel>();
+    final needSync = pointEx.point.needSync || pointEx.images.any((e) => e.needSync);
 
     final tile = ListTile(
       contentPadding: const EdgeInsets.all(8),
@@ -235,7 +236,7 @@ class _PointsViewState extends State<_PointsView> {
         )
       ),
       dense: true,
-      trailing: pointEx.point.needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
+      trailing: needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
       onTap: () => openPointPage(pointEx)
     );
 
