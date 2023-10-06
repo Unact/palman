@@ -25,6 +25,7 @@ dependencies:
     sdk: flutter
   flutter_typeahead: ^4.7.0
   geolocator: ^9.0.2
+  holding_gesture: ^1.2.0
   http: ^0.13.6
   mask_text_input_formatter: ^2.4.0
   package_info_plus: ^4.0.2

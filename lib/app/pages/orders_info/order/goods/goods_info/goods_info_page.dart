@@ -53,14 +53,15 @@ class _GoodsInfoView extends StatefulWidget {
 class _GoodsInfoViewState extends State<_GoodsInfoView> {
   Future<void> showPriceChangeDialog() async {
     final vm = context.read<GoodsInfoViewModel>();
+    final today = DateTime.now().date();
 
     final result = await showDialog<(DateTime dateFrom, DateTime dateTo, double price)>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext context) => PriceChangePage(
         price: vm.state.curPartnersPrice?.price,
-        dateFrom: DateTime.now().date(),
-        dateTo: vm.state.curPartnersPrice?.dateTo,
+        dateFrom: today,
+        dateTo: vm.state.curPartnersPrice?.dateTo ?? today.add(const Duration(days: 6)),
         goodsEx: vm.state.goodsEx,
         goodsPricelist: vm.state.curGoodsPricelist!
       )
