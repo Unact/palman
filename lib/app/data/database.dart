@@ -210,7 +210,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -230,7 +230,7 @@ class AppDataStore extends _$AppDataStore {
               CREATE TRIGGER $triggerName
               AFTER UPDATE OF ${updateableColumns.join(',')} ON $name
               BEGIN
-                UPDATE $name SET timestamp = CAST(STRFTIME('%s', CURRENT_TIMESTAMP) AS INTEGER) WHERE id = OLD.id;
+                UPDATE $name SET timestamp = CAST(STRFTIME('%s', CURRENT_TIMESTAMP) AS INTEGER) WHERE guid = OLD.guid;
               END;
             ''',
             triggerName
