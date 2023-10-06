@@ -27,11 +27,23 @@ part of 'database.dart';
           (
             SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price)
             FROM order_lines
-            where order_lines.order_guid = orders.guid AND order_lines.is_deleted = 0
+            WHERE order_lines.order_guid = orders.guid AND order_lines.is_deleted = 0
           ),
           0
         ) AS "lines_total",
-        (SELECT COUNT(*) FROM order_lines where order_guid = orders.guid) AS "lines_count"
+        (
+          SELECT COUNT(*)
+          FROM order_lines
+          WHERE order_guid = orders.guid AND order_lines.is_deleted = 0
+        ) AS "lines_count",
+        COALESCE(
+          (
+            SELECT MAX(need_sync)
+            FROM order_lines
+            WHERE order_guid = orders.guid
+          ),
+          0
+        ) AS "lines_need_sync"
       FROM orders
       LEFT JOIN buyers on buyers.id = orders.buyer_id
       ORDER BY orders.date DESC, buyers.name
@@ -53,13 +65,13 @@ part of 'database.dart';
           (
             SELECT SUM(pre_order_lines.rel * pre_order_lines.vol * pre_order_lines.price)
             FROM pre_order_lines
-            where pre_order_lines.pre_order_id = pre_orders.id
+            WHERE pre_order_lines.pre_order_id = pre_orders.id
           ),
           0
         ) AS "lines_total",
-        (SELECT COUNT(*) FROM pre_order_lines where pre_order_id = pre_orders.id) AS "lines_count",
-        EXISTS(SELECT 1 FROM orders where pre_order_id = pre_orders.id) AS "has_order",
-        EXISTS(SELECT 1 FROM seen_pre_orders where id = pre_orders.id) AS "was_seen"
+        (SELECT COUNT(*) FROM pre_order_lines WHERE pre_order_id = pre_orders.id) AS "lines_count",
+        EXISTS(SELECT 1 FROM orders WHERE pre_order_id = pre_orders.id) AS "has_order",
+        EXISTS(SELECT 1 FROM seen_pre_orders WHERE id = pre_orders.id) AS "was_seen"
       FROM pre_orders
       JOIN buyers on buyers.id = pre_orders.buyer_id
       ORDER BY pre_orders.date DESC, buyers.name

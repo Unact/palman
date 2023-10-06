@@ -6,7 +6,7 @@ class PriceChangeViewModel extends PageViewModel<PriceChangeState, PriceChangeSt
     required GoodsPricelistsResult goodsPricelist,
     required double? price,
     required DateTime dateFrom,
-    required DateTime? dateTo
+    required DateTime dateTo
   }) : super(
     PriceChangeState(
       goodsEx: goodsEx,
@@ -22,10 +22,7 @@ class PriceChangeViewModel extends PageViewModel<PriceChangeState, PriceChangeSt
 
   @override
   Future<void> initViewModel() async {
-    emit(state.copyWith(
-      price: state.price == null ? Optional.of(state.goodsPricelist.price) : null,
-      dateTo: state.dateTo == null ? Optional.of(state.dateFrom.add(const Duration(days: 6))) : null
-    ));
+    emit(state.copyWith(price: state.price == null ? Optional.of(state.goodsPricelist.price) : null));
 
     await super.initViewModel();
   }
@@ -37,10 +34,10 @@ class PriceChangeViewModel extends PageViewModel<PriceChangeState, PriceChangeSt
     ));
   }
 
-  void updateDateTo(DateTime? dateTo) async {
+  void updateDateTo(DateTime dateTo) async {
     emit(state.copyWith(
       status: PriceChangeStateStatus.dateUpdated,
-      dateTo: Optional.fromNullable(dateTo)
+      dateTo: dateTo
     ));
   }
 }

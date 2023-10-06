@@ -11,10 +11,9 @@ class AddressViewModel extends PageViewModel<AddressState, AddressStateStatus> {
   Future<void> initViewModel() async {
     await super.initViewModel();
 
-    if (!await Permissions.hasLocationPermissions()) return;
     if (state.latitude != null && state.longitude != null) return;
 
-    changeCoordsToMyPosition(false);
+    changeCoordsToMyPosition();
   }
 
   void changeAddress(String address) {
@@ -32,12 +31,7 @@ class AddressViewModel extends PageViewModel<AddressState, AddressStateStatus> {
     ));
   }
 
-  Future<void> changeCoordsToMyPosition([bool checkPermission = true]) async {
-    if (checkPermission && !await Permissions.hasLocationPermissions()) {
-      emit(state.copyWith(status: AddressStateStatus.permissionNotGranted));
-      return;
-    }
-
+  Future<void> changeCoordsToMyPosition() async {
     final position = await Geolocator.getCurrentPosition();
     changeCoords(position.latitude, position.longitude);
   }

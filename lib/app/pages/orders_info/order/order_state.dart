@@ -16,7 +16,7 @@ class OrderState {
     this.message = '',
     this.linesExList = const [],
     this.workdates = const [],
-    this.buyers = const [],
+    this.buyerExList = const [],
     this.newOrder,
     this.appInfo
   });
@@ -28,7 +28,7 @@ class OrderState {
   final String message;
   final List<OrderLineExResult> linesExList;
   final List<Workdate> workdates;
-  final List<Buyer> buyers;
+  final List<BuyerEx> buyerExList;
   final OrderExResult? newOrder;
   final AppInfoResult? appInfo;
 
@@ -54,7 +54,7 @@ class OrderState {
     OrderExResult? orderEx,
     List<OrderLineExResult>? linesExList,
     List<Workdate>? workdates,
-    List<Buyer>? buyers,
+    List<BuyerEx>? buyerExList,
     OrderExResult? newOrder,
     AppInfoResult? appInfo
   }) {
@@ -65,7 +65,7 @@ class OrderState {
       orderEx: orderEx ?? this.orderEx,
       linesExList: linesExList ?? this.linesExList,
       workdates: workdates ?? this.workdates,
-      buyers: buyers ?? this.buyers,
+      buyerExList: buyerExList ?? this.buyerExList,
       newOrder: newOrder ?? this.newOrder,
       appInfo: appInfo ?? this.appInfo
     );

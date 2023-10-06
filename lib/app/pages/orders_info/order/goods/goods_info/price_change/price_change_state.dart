@@ -22,8 +22,10 @@ class PriceChangeState {
   final GoodsPricelistsResult goodsPricelist;
   final GoodsExResult goodsEx;
   final DateTime dateFrom;
-  final DateTime? dateTo;
+  final DateTime dateTo;
   final double? price;
+
+  DateTime get maxDateTo => dateFrom.add(const Duration(days: 90));
 
   double get priceStep {
     final minStep = [
@@ -31,7 +33,7 @@ class PriceChangeState {
       (price ?? 0) - goodsEx.goods.minPrice
     ].min;
 
-    return minStep > 0 ? minStep : 0.01;
+    return minStep > 0.01 ? minStep : 0.01;
   }
 
   PriceChangeState copyWith({
@@ -39,7 +41,7 @@ class PriceChangeState {
     GoodsPricelistsResult? goodsPricelist,
     GoodsExResult? goodsEx,
     DateTime? dateFrom,
-    Optional<DateTime>? dateTo,
+    DateTime? dateTo,
     Optional<double>? price,
   }) {
     return PriceChangeState(
@@ -47,7 +49,7 @@ class PriceChangeState {
       goodsPricelist: goodsPricelist ?? this.goodsPricelist,
       goodsEx: goodsEx ?? this.goodsEx,
       dateFrom: dateFrom ?? this.dateFrom,
-      dateTo: dateTo != null ? dateTo.orNull : this.dateTo,
+      dateTo: dateTo ?? this.dateTo,
       price: price != null ? price.orNull : this.price
     );
   }

@@ -521,7 +521,11 @@ class OrdersRepository extends BaseRepository {
     final oldCacheObjects = cacheObjects.where((e) => !newKeys.contains(e.key));
 
     for (var oldCacheObject in oldCacheObjects) {
-      await goodsCacheManager.removeFile(oldCacheObject.key);
+      try {
+        await goodsCacheManager.removeFile(oldCacheObject.key);
+      } on PathNotFoundException {
+        continue;
+      }
     }
   }
 

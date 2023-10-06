@@ -15273,7 +15273,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
   $SeenPreOrdersTable get seenPreOrders => attachedDatabase.seenPreOrders;
   Selectable<OrderExResult> orderEx() {
     return customSelect(
-        'SELECT"orders"."guid" AS "nested_0.guid", "orders"."is_deleted" AS "nested_0.is_deleted", "orders"."timestamp" AS "nested_0.timestamp", "orders"."current_timestamp" AS "nested_0.current_timestamp", "orders"."last_sync_time" AS "nested_0.last_sync_time", "orders"."need_sync" AS "nested_0.need_sync", "orders"."is_new" AS "nested_0.is_new", "orders"."id" AS "nested_0.id", "orders"."date" AS "nested_0.date", "orders"."status" AS "nested_0.status", "orders"."pre_order_id" AS "nested_0.pre_order_id", "orders"."need_docs" AS "nested_0.need_docs", "orders"."need_inc" AS "nested_0.need_inc", "orders"."is_bonus" AS "nested_0.is_bonus", "orders"."is_physical" AS "nested_0.is_physical", "orders"."buyer_id" AS "nested_0.buyer_id", "orders"."info" AS "nested_0.info", "orders"."need_processing" AS "nested_0.need_processing", "orders"."is_editable" AS "nested_0.is_editable","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", COALESCE((SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price) FROM order_lines WHERE order_lines.order_guid = orders.guid AND order_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM order_lines WHERE order_guid = orders.guid) AS lines_count FROM orders LEFT JOIN buyers ON buyers.id = orders.buyer_id ORDER BY orders.date DESC, buyers.name',
+        'SELECT"orders"."guid" AS "nested_0.guid", "orders"."is_deleted" AS "nested_0.is_deleted", "orders"."timestamp" AS "nested_0.timestamp", "orders"."current_timestamp" AS "nested_0.current_timestamp", "orders"."last_sync_time" AS "nested_0.last_sync_time", "orders"."need_sync" AS "nested_0.need_sync", "orders"."is_new" AS "nested_0.is_new", "orders"."id" AS "nested_0.id", "orders"."date" AS "nested_0.date", "orders"."status" AS "nested_0.status", "orders"."pre_order_id" AS "nested_0.pre_order_id", "orders"."need_docs" AS "nested_0.need_docs", "orders"."need_inc" AS "nested_0.need_inc", "orders"."is_bonus" AS "nested_0.is_bonus", "orders"."is_physical" AS "nested_0.is_physical", "orders"."buyer_id" AS "nested_0.buyer_id", "orders"."info" AS "nested_0.info", "orders"."need_processing" AS "nested_0.need_processing", "orders"."is_editable" AS "nested_0.is_editable","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", COALESCE((SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price) FROM order_lines WHERE order_lines.order_guid = orders.guid AND order_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM order_lines WHERE order_guid = orders.guid AND order_lines.is_deleted = 0) AS lines_count, COALESCE((SELECT MAX(need_sync) FROM order_lines WHERE order_guid = orders.guid), 0) AS lines_need_sync FROM orders LEFT JOIN buyers ON buyers.id = orders.buyer_id ORDER BY orders.date DESC, buyers.name',
         variables: [],
         readsFrom: {
           orderLines,
@@ -15285,6 +15285,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
         buyer: await buyers.mapFromRowOrNull(row, tablePrefix: 'nested_1'),
         linesTotal: row.read<double>('lines_total'),
         linesCount: row.read<int>('lines_count'),
+        linesNeedSync: row.read<bool>('lines_need_sync'),
       );
     });
   }
@@ -15409,11 +15410,13 @@ class OrderExResult {
   final Buyer? buyer;
   final double linesTotal;
   final int linesCount;
+  final bool linesNeedSync;
   OrderExResult({
     required this.order,
     this.buyer,
     required this.linesTotal,
     required this.linesCount,
+    required this.linesNeedSync,
   });
 }
 

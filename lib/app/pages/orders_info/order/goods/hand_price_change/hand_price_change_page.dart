@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:holding_gesture/holding_gesture.dart';
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
@@ -132,15 +133,21 @@ class _HandPriceChangeViewState extends State<_HandPriceChangeView> {
               style: Styles.formStyle,
               textAlignVertical: TextAlignVertical.center,
               decoration: InputDecoration(
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.add),
-                  tooltip: 'Увеличить цену',
-                  onPressed: validHandPrice(incrHandPrice) ? () => updateHandPriceAndText(incrHandPrice) : null
+                suffixIcon: HoldDetector(
+                  onHold: () => validHandPrice(incrHandPrice) ? updateHandPriceAndText(incrHandPrice) : null,
+                  child: IconButton(
+                    icon: const Icon(Icons.add),
+                    tooltip: 'Увеличить цену',
+                    onPressed: validHandPrice(incrHandPrice) ? () => updateHandPriceAndText(incrHandPrice) : null,
+                  )
                 ),
-                prefixIcon: IconButton(
-                  icon: const Icon(Icons.remove),
-                  tooltip: 'Уменьшить цену',
-                  onPressed: validHandPrice(decrHandPrice) ? () => updateHandPriceAndText(decrHandPrice) : null
+                prefixIcon: HoldDetector(
+                  onHold: () => validHandPrice(decrHandPrice) ? updateHandPriceAndText(decrHandPrice) : null,
+                  child: IconButton(
+                    icon: const Icon(Icons.remove),
+                    tooltip: 'Уменьшить цену',
+                    onPressed: validHandPrice(decrHandPrice) ? () => updateHandPriceAndText(decrHandPrice) : null
+                  )
                 )
               ),
               onTap: () => vm.updateHandPrice(Parsing.parseDouble(controller!.text))

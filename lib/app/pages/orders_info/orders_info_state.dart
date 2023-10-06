@@ -20,7 +20,7 @@ class OrdersInfoState {
     this.message = '',
     this.incRequestExList = const [],
     this.newIncRequest,
-    this.buyers = const [],
+    this.buyerExList = const [],
     this.shipmentExList = const [],
     this.selectedBuyer,
     this.preOrderExList = const []
@@ -32,7 +32,7 @@ class OrdersInfoState {
   final OrderExResult? newOrder;
   final List<IncRequestEx> incRequestExList;
   final IncRequestEx? newIncRequest;
-  final List<Buyer> buyers;
+  final List<BuyerEx> buyerExList;
   final List<ShipmentExResult> shipmentExList;
   final Buyer? selectedBuyer;
   final List<PreOrderExResult> preOrderExList;
@@ -69,7 +69,7 @@ class OrdersInfoState {
     String? message,
     List<IncRequestEx>? incRequestExList,
     IncRequestEx? newIncRequest,
-    List<Buyer>? buyers,
+    List<BuyerEx>? buyerExList,
     List<ShipmentExResult>? shipmentExList,
     Optional<Buyer>? selectedBuyer,
     List<PreOrderExResult>? preOrderExList
@@ -83,7 +83,7 @@ class OrdersInfoState {
       message: message ?? this.message,
       incRequestExList: incRequestExList ?? this.incRequestExList,
       newIncRequest: newIncRequest ?? this.newIncRequest,
-      buyers: buyers ?? this.buyers,
+      buyerExList: buyerExList ?? this.buyerExList,
       shipmentExList: shipmentExList ?? this.shipmentExList,
       selectedBuyer: selectedBuyer != null ? selectedBuyer.orNull : this.selectedBuyer,
       preOrderExList: preOrderExList ?? this.preOrderExList

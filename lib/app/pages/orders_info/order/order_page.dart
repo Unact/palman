@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
@@ -158,59 +157,10 @@ class _OrderViewState extends State<_OrderView> {
 
   Widget buildBuyerSearch(BuildContext context) {
     final vm = context.read<OrderViewModel>();
-    final theme = Theme.of(context);
 
-    if (!vm.state.isEditable) {
-      return Text(vm.state.orderEx.buyer?.fullname ?? '', style: Styles.formStyle);
-    }
+    if (!vm.state.isEditable) return Text(vm.state.orderEx.buyer?.fullname ?? '', style: Styles.formStyle);
 
-    return TypeAheadField(
-      textFieldConfiguration: TextFieldConfiguration(
-        maxLines: 1,
-        style: Styles.formStyle,
-        cursorColor: theme.textSelectionTheme.selectionColor,
-        autocorrect: false,
-        controller: buyerController,
-        textInputAction: TextInputAction.done,
-        decoration: InputDecoration(
-          suffixIcon: buyerController!.text == '' ? null : IconButton(
-            tooltip: 'Очистить',
-            onPressed: () {
-              buyerController!.text = '';
-              vm.updateBuyer(null);
-            },
-            icon: const Icon(Icons.clear)
-          )
-        ),
-        onChanged: (value) => value.isEmpty ? vm.updateBuyer(null) : null
-      ),
-      errorBuilder: (BuildContext ctx, error) {
-        return Padding(
-          padding: const EdgeInsets.all(8),
-          child: Text('Произошла ошибка', style: Styles.formStyle.copyWith(color: theme.colorScheme.error)),
-        );
-      },
-      noItemsFoundBuilder: (BuildContext ctx) {
-        return const Padding(
-          padding: EdgeInsets.all(8),
-          child: Text('Ничего не найдено', style: Styles.formStyle),
-        );
-      },
-      suggestionsCallback: (String value) async {
-        return vm.state.buyers.
-          where((Buyer buyer) => buyer.name.toLowerCase().contains(value.toLowerCase())).toList();
-      },
-      itemBuilder: (BuildContext ctx, Buyer suggestion) {
-        return ListTile(
-          isThreeLine: false,
-          title: Text(suggestion.fullname, style: Styles.formStyle)
-        );
-      },
-      onSuggestionSelected: (Buyer suggestion) async {
-        buyerController!.text = suggestion.fullname;
-        vm.updateBuyer(suggestion);
-      }
-    );
+    return BuyerField(buyerExList: vm.state.buyerExList, onSelect: vm.updateBuyer);
   }
 
   List<Widget> buildOrderFields(BuildContext context) {

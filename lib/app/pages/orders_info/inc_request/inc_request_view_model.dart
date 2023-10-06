@@ -4,7 +4,7 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
   final AppRepository appRepository;
   final PartnersRepository partnersRepository;
   final ShipmentsRepository shipmentsRepository;
-  StreamSubscription<List<Buyer>>? buyersSubscription;
+  StreamSubscription<List<BuyerEx>>? buyersSubscription;
   StreamSubscription<List<IncRequestEx>>? incRequestExListSubscription;
   StreamSubscription<List<Workdate>>? workdatesSubscription;
 
@@ -29,7 +29,7 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
       ));
     });
     buyersSubscription = partnersRepository.watchBuyers().listen((event) {
-      emit(state.copyWith(status: IncRequestStateStatus.dataLoaded, buyers: event));
+      emit(state.copyWith(status: IncRequestStateStatus.dataLoaded, buyerExList: event));
     });
     workdatesSubscription = appRepository.watchWorkdates().listen((event) {
       emit(state.copyWith(status: IncRequestStateStatus.dataLoaded, workdates: event));

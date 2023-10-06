@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:holding_gesture/holding_gesture.dart';
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
@@ -16,7 +17,7 @@ class PriceChangePage extends StatelessWidget {
   final GoodsExResult goodsEx;
   final GoodsPricelistsResult goodsPricelist;
   final DateTime dateFrom;
-  final DateTime? dateTo;
+  final DateTime dateTo;
   final double? price;
 
   PriceChangePage({
@@ -50,7 +51,6 @@ class _PriceChangeView extends StatefulWidget {
 
 class _PriceChangeViewState extends State<_PriceChangeView> {
   TextEditingController? controller;
-  final endOfTime = DateTime(9999, 1, 1);
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +91,7 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
                     return;
                   }
 
-                  Navigator.of(context).pop((state.dateFrom, state.dateTo ?? endOfTime, state.price));
+                  Navigator.of(context).pop((state.dateFrom, state.dateTo, state.price));
                 },
               child: const Text(Strings.ok)
             )
@@ -174,32 +174,23 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
             TableCell(
               verticalAlignment: TableCellVerticalAlignment.middle,
               child: Text(
-                vm.state.dateTo != null ? Format.dateStr(vm.state.dateTo!) : 'Бессрочно',
+                Format.dateStr(vm.state.dateTo),
                 style: Styles.formStyle
               )
             ),
-            Row(
-              children: [
-                IconButton(
-                  onPressed: () async {
-                    final newDate = await showDatePicker(
-                      context: context,
-                      firstDate: vm.state.dateFrom,
-                      lastDate: endOfTime,
-                      initialDate: vm.state.dateFrom
-                    );
+            IconButton(
+              onPressed: () async {
+                final newDate = await showDatePicker(
+                  context: context,
+                  firstDate: vm.state.dateFrom,
+                  lastDate: vm.state.maxDateTo,
+                  initialDate: vm.state.dateFrom
+                );
 
-                    if (newDate != null) vm.updateDateTo(newDate);
-                  },
-                  tooltip: 'Указать дату',
-                  icon: const Icon(Icons.calendar_month)
-                ),
-                IconButton(
-                  icon: const Icon(Icons.hourglass_full_sharp),
-                  tooltip: 'Бессрочно',
-                  onPressed: () => vm.updateDateTo(null)
-                )
-              ]
+                if (newDate != null) vm.updateDateTo(newDate);
+              },
+              tooltip: 'Указать дату',
+              icon: const Icon(Icons.calendar_month)
             )
           ]
         )
@@ -231,15 +222,21 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
               style: Styles.formStyle,
               textAlignVertical: TextAlignVertical.center,
               decoration: InputDecoration(
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.add),
-                  tooltip: 'Увеличить цену',
-                  onPressed: validPrice(incrPrice) ? () => updatePriceAndText(incrPrice) : null
+                suffixIcon: HoldDetector(
+                  onHold: () => validPrice(incrPrice) ? updatePriceAndText(incrPrice) : null,
+                  child: IconButton(
+                    icon: const Icon(Icons.add),
+                    tooltip: 'Увеличить цену',
+                    onPressed: validPrice(incrPrice) ? () => updatePriceAndText(incrPrice) : null,
+                  )
                 ),
-                prefixIcon: IconButton(
-                  icon: const Icon(Icons.remove),
-                  tooltip: 'Уменьшить цену',
-                  onPressed: validPrice(decrPrice) ? () => updatePriceAndText(decrPrice) : null
+                prefixIcon: HoldDetector(
+                  onHold: () => validPrice(decrPrice) ? updatePriceAndText(decrPrice) : null,
+                  child: IconButton(
+                    icon: const Icon(Icons.remove),
+                    tooltip: 'Уменьшить цену',
+                    onPressed: validPrice(decrPrice) ? () => updatePriceAndText(decrPrice) : null
+                  )
                 )
               ),
               onTap: () => vm.updatePrice(Parsing.parseDouble(controller!.text))
