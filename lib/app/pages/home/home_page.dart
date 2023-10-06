@@ -71,7 +71,8 @@ class _HomeViewState extends State<_HomeView> with WidgetsBindingObserver {
           return const Scaffold(
             body: Center(child: Text(
               'Для работы с приложением необходимо дать права на получение местоположения',
-              style: Styles.tileTitleText
+              style: Styles.tileTitleText,
+              textAlign: TextAlign.center,
             ))
           );
         }
