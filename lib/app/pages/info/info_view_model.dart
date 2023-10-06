@@ -74,8 +74,6 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   }
 
   Future<void> _startLocationListen() async {
-    if (!await Permissions.hasLocationPermissions()) return;
-
     positionSubscription = Geolocator.getPositionStream(
       locationSettings: _getLocationSettings()
     ).listen(_saveLocation);

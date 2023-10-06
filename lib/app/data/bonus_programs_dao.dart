@@ -40,7 +40,7 @@ part of 'database.dart';
         (
           SELECT MAX(goods_bonus_program_prices.price)
           FROM goods_bonus_program_prices
-          where
+          WHERE
             goods_bonus_program_prices.bonus_program_id = bonus_programs.id AND
             goods_bonus_program_prices.goods_id = goods.id
         ) AS "goods_price",

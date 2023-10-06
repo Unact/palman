@@ -49,14 +49,6 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
       return;
     }
 
-    if (!await Permissions.hasLocationPermissions()) {
-      emit(state.copyWith(
-        status: PointStateStatus.cameraError,
-        message: Strings.locationPermissionError
-      ));
-      return;
-    }
-
     emit(state.copyWith(status: PointStateStatus.cameraOpened));
   }
 

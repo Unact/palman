@@ -263,7 +263,11 @@ class PointsRepository extends BaseRepository {
     final oldCacheObjects = cacheObjects.where((e) => !newKeys.contains(e.key));
 
     for (var oldCacheObject in oldCacheObjects) {
-      await pointImagesCacheManager.removeFile(oldCacheObject.key);
+      try {
+        await pointImagesCacheManager.removeFile(oldCacheObject.key);
+      } on PathNotFoundException {
+        continue;
+      }
     }
   }
 

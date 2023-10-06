@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
@@ -27,11 +28,52 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class _HomeView extends StatelessWidget {
+class _HomeView extends StatefulWidget {
+  @override
+  _HomeViewState createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<_HomeView> with WidgetsBindingObserver {
+  bool permission = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    Permissions.hasLocationPermissions().then((value) => setState(() => permission = value));
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state != AppLifecycleState.resumed) return;
+
+    Permissions.hasLocationPermissions().then((value) => setState(() {
+      if (value == permission) return;
+
+      permission = value;
+      Navigator.of(context).popUntil((route) => route.isFirst);
+    }));
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<HomeViewModel, HomeState>(
       builder: (context, state) {
+        if (!permission) {
+          return const Scaffold(
+            body: Center(child: Text(
+              'Для работы с приложением необходимо дать права на получение местоположения',
+              style: Styles.tileTitleText
+            ))
+          );
+        }
+
         return Scaffold(
           bottomNavigationBar: buildBottomNavigationBar(context),
           body: IndexedStack(
