@@ -12,13 +12,13 @@ class IncRequestState {
     required this.incRequestEx,
     this.message = '',
     this.workdates = const [],
-    this.buyers = const []
+    this.buyerExList = const []
   });
 
   final IncRequestStateStatus status;
   final IncRequestEx incRequestEx;
   final List<Workdate> workdates;
-  final List<Buyer> buyers;
+  final List<BuyerEx> buyerExList;
   final String message;
 
   bool get isEditable => incRequestEx.incRequest.isNew;
@@ -28,14 +28,14 @@ class IncRequestState {
     IncRequestEx? incRequestEx,
     String? message,
     List<Workdate>? workdates,
-    List<Buyer>? buyers
+    List<BuyerEx>? buyerExList
   }) {
     return IncRequestState(
       status: status ?? this.status,
       incRequestEx: incRequestEx ?? this.incRequestEx,
       message: message ?? this.message,
       workdates: workdates ?? this.workdates,
-      buyers: buyers ?? this.buyers
+      buyerExList: buyerExList ?? this.buyerExList
     );
   }
 }

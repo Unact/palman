@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
@@ -13,6 +12,7 @@ import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/partners_repository.dart';
 import '/app/repositories/shipments_repository.dart';
+import '/app/widgets/widgets.dart';
 
 part 'inc_request_state.dart';
 part 'inc_request_view_model.dart';
@@ -145,58 +145,9 @@ class _IncRequestViewState extends State<_IncRequestView> {
 
   Widget buildBuyerSearch(BuildContext context) {
     final vm = context.read<IncRequestViewModel>();
-    final theme = Theme.of(context);
 
-    if (!vm.state.isEditable) {
-      return Text(vm.state.incRequestEx.buyer?.fullname ?? '', style: Styles.formStyle);
-    }
+    if (!vm.state.isEditable) return Text(vm.state.incRequestEx.buyer?.fullname ?? '', style: Styles.formStyle);
 
-    return TypeAheadField(
-      textFieldConfiguration: TextFieldConfiguration(
-        maxLines: 1,
-        style: Styles.formStyle,
-        cursorColor: theme.textSelectionTheme.selectionColor,
-        autocorrect: false,
-        controller: buyerController,
-        textInputAction: TextInputAction.done,
-        decoration: InputDecoration(
-          suffixIcon: buyerController!.text == '' ? null : IconButton(
-            onPressed: () {
-              buyerController!.text = '';
-              vm.updateBuyer(null);
-            },
-            tooltip: 'Очистить',
-            icon: const Icon(Icons.clear)
-          )
-        ),
-        onChanged: (value) => value.isEmpty ? vm.updateBuyer(null) : null
-      ),
-      errorBuilder: (BuildContext ctx, error) {
-        return Padding(
-          padding: const EdgeInsets.all(8),
-          child: Text('Произошла ошибка', style: Styles.formStyle.apply(color: theme.colorScheme.error)),
-        );
-      },
-      noItemsFoundBuilder: (BuildContext ctx) {
-        return const Padding(
-          padding: EdgeInsets.all(8),
-          child: Text('Ничего не найдено', style: Styles.formStyle),
-        );
-      },
-      suggestionsCallback: (String value) async {
-        return vm.state.buyers.
-          where((Buyer buyer) => buyer.name.toLowerCase().contains(value.toLowerCase())).toList();
-      },
-      itemBuilder: (BuildContext ctx, Buyer suggestion) {
-        return ListTile(
-          isThreeLine: false,
-          title: Text(suggestion.fullname, style: Styles.formStyle)
-        );
-      },
-      onSuggestionSelected: (Buyer suggestion) async {
-        buyerController!.text = suggestion.fullname;
-        vm.updateBuyer(suggestion);
-      }
-    );
+    return BuyerField(buyerExList: vm.state.buyerExList, onSelect: vm.updateBuyer);
   }
 }

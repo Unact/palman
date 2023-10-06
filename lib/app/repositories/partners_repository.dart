@@ -6,7 +6,7 @@ import '/app/repositories/base_repository.dart';
 class PartnersRepository extends BaseRepository {
   PartnersRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
-  Stream<List<Buyer>> watchBuyers() {
+  Stream<List<BuyerEx>> watchBuyers() {
     return dataStore.partnersDao.watchBuyers();
   }
 }

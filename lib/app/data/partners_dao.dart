@@ -17,7 +17,25 @@ class PartnersDao extends DatabaseAccessor<AppDataStore> with _$PartnersDaoMixin
     await db._loadData(partners, list);
   }
 
-  Stream<List<Buyer>> watchBuyers() {
-    return (select(buyers)..orderBy([(tbl) => OrderingTerm(expression: tbl.name)])).watch();
+  Stream<List<BuyerEx>> watchBuyers() {
+    final res = select(buyers)
+      .join([
+        innerJoin(partners, partners.id.equalsExp(buyers.partnerId))
+      ])
+      ..orderBy([OrderingTerm(expression: buyers.name), OrderingTerm(expression: partners.name)]);
+
+    return res.map(
+      (row) => BuyerEx(
+        row.readTable(buyers),
+        row.readTable(partners)
+      )
+    ).watch();
   }
+}
+
+class BuyerEx {
+  final Buyer buyer;
+  final Partner partner;
+
+  BuyerEx(this.buyer, this.partner);
 }

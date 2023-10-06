@@ -41,7 +41,7 @@ dependencies:
   u_app_utils:
     git:
       url: git@github.com:Unact/u_app_utils.git
-      ref: c7d9f12
+      ref: 28b84e8
   uuid: ^3.0.7
   yandex_mapkit: ^3.3.3
 

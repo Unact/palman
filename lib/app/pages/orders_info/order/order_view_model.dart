@@ -10,7 +10,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   StreamSubscription<User>? userSubscription;
   StreamSubscription<List<OrderExResult>>? orderExListSubscription;
   StreamSubscription<List<OrderLineExResult>>? orderLineExListSubscription;
-  StreamSubscription<List<Buyer>>? buyersSubscription;
+  StreamSubscription<List<BuyerEx>>? buyersSubscription;
   StreamSubscription<List<Workdate>>? workdatesSubscription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
 
@@ -48,7 +48,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
       ));
     });
     buyersSubscription = partnersRepository.watchBuyers().listen((event) {
-      emit(state.copyWith(status: OrderStateStatus.dataLoaded, buyers: event));
+      emit(state.copyWith(status: OrderStateStatus.dataLoaded, buyerExList: event));
     });
     workdatesSubscription = appRepository.watchWorkdates().listen((event) {
       emit(state.copyWith(status: OrderStateStatus.dataLoaded, workdates: event));
