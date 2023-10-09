@@ -416,7 +416,7 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
 
     return Container(
       padding: const EdgeInsets.only(top: 8, bottom: 16),
-      child: BuyerField(buyerExList: vm.state.buyerExList, onSelect: vm.selectBuyer)
+      child: BuyerField(buyerExList: vm.state.buyerExList, onSelect: vm.selectBuyer, controller: buyerController)
     );
   }
 

@@ -3,10 +3,12 @@ part of 'widgets.dart';
 class BuyerField extends StatefulWidget {
   final List<BuyerEx> buyerExList;
   final void Function(Buyer?) onSelect;
+  final TextEditingController? controller;
 
   BuyerField({
     Key? key,
     required this.buyerExList,
+    this.controller,
     required this.onSelect
   }) : super(key: key);
 
@@ -15,7 +17,7 @@ class BuyerField extends StatefulWidget {
 }
 
 class _BuyerFieldState extends State<BuyerField> {
-  final TextEditingController buyerController = TextEditingController();
+  late final TextEditingController controller = widget.controller ?? TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -26,15 +28,15 @@ class _BuyerFieldState extends State<BuyerField> {
         maxLines: 1,
         cursorColor: theme.textSelectionTheme.selectionColor,
         autocorrect: false,
-        controller: buyerController,
+        controller: controller,
         style: Styles.formStyle,
         textInputAction: TextInputAction.search,
         decoration: InputDecoration(
           labelText: 'Клиент',
-          suffixIcon: buyerController.text == '' ? null : IconButton(
+          suffixIcon: controller.text == '' ? null : IconButton(
             tooltip: 'Очистить',
             onPressed: () {
-              buyerController.text = '';
+              controller.text = '';
               widget.onSelect(null);
             },
             icon: const Icon(Icons.clear)
@@ -71,7 +73,7 @@ class _BuyerFieldState extends State<BuyerField> {
         );
       },
       onSuggestionSelected: (BuyerEx suggestion) async {
-        buyerController.text = suggestion.buyer.fullname;
+        controller.text = suggestion.buyer.fullname;
         widget.onSelect(suggestion.buyer);
       }
     );

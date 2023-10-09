@@ -160,7 +160,7 @@ class _OrderViewState extends State<_OrderView> {
 
     if (!vm.state.isEditable) return Text(vm.state.orderEx.buyer?.fullname ?? '', style: Styles.formStyle);
 
-    return BuyerField(buyerExList: vm.state.buyerExList, onSelect: vm.updateBuyer);
+    return BuyerField(buyerExList: vm.state.buyerExList, onSelect: vm.updateBuyer, controller: buyerController);
   }
 
   List<Widget> buildOrderFields(BuildContext context) {

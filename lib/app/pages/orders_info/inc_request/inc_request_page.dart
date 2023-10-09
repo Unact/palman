@@ -148,6 +148,6 @@ class _IncRequestViewState extends State<_IncRequestView> {
 
     if (!vm.state.isEditable) return Text(vm.state.incRequestEx.buyer?.fullname ?? '', style: Styles.formStyle);
 
-    return BuyerField(buyerExList: vm.state.buyerExList, onSelect: vm.updateBuyer);
+    return BuyerField(buyerExList: vm.state.buyerExList, onSelect: vm.updateBuyer, controller: buyerController);
   }
 }
