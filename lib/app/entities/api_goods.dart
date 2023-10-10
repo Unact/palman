@@ -7,8 +7,6 @@ class ApiGoods extends Equatable {
   final String imageKey;
   final int categoryId;
   final String? manufacturer;
-  final bool isHit;
-  final bool isNew;
   final bool isLatest;
   final int pricelistSetId;
   final double cost;
@@ -33,8 +31,6 @@ class ApiGoods extends Equatable {
     required this.imageKey,
     required this.categoryId,
     this.manufacturer,
-    required this.isHit,
-    required this.isNew,
     required this.isLatest,
     required this.pricelistSetId,
     required this.cost,
@@ -61,8 +57,6 @@ class ApiGoods extends Equatable {
       imageKey: json['imageKey'],
       categoryId: json['categoryId'],
       manufacturer: json['manufacturer'],
-      isHit: json['isHit'],
-      isNew: json['isNew'],
       isLatest: json['isLatest'],
       pricelistSetId: json['pricelistSetId'],
       cost: Parsing.parseDouble(json['cost'])!,
@@ -90,8 +84,6 @@ class ApiGoods extends Equatable {
       imageKey: imageKey,
       categoryId: categoryId,
       manufacturer: manufacturer,
-      isHit: isHit,
-      isNew: isNew,
       isLatest: isLatest,
       pricelistSetId: pricelistSetId,
       cost: cost,
@@ -119,8 +111,6 @@ class ApiGoods extends Equatable {
     imageKey,
     categoryId,
     manufacturer,
-    isHit,
-    isNew,
     isLatest,
     pricelistSetId,
     cost,

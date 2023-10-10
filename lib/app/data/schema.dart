@@ -32,7 +32,6 @@ class Users extends Table {
 class Partners extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
-  BoolColumn get factpayment => boolean()();
 }
 
 class Buyers extends Table {
@@ -162,8 +161,6 @@ class AllGoods extends Table {
   TextColumn get imageKey => text()();
   IntColumn get categoryId => integer()();
   TextColumn get manufacturer => text().nullable()();
-  BoolColumn get isHit => boolean()();
-  BoolColumn get isNew => boolean()();
   BoolColumn get isLatest => boolean()();
   IntColumn get pricelistSetId => integer()();
   RealColumn get cost => real()();

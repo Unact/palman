@@ -925,20 +925,8 @@ class $PartnersTable extends Partners with TableInfo<$PartnersTable, Partner> {
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _factpaymentMeta =
-      const VerificationMeta('factpayment');
   @override
-  late final GeneratedColumn<bool> factpayment =
-      GeneratedColumn<bool>('factpayment', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("factpayment" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
-  @override
-  List<GeneratedColumn> get $columns => [id, name, factpayment];
+  List<GeneratedColumn> get $columns => [id, name];
   @override
   String get aliasedName => _alias ?? 'partners';
   @override
@@ -957,14 +945,6 @@ class $PartnersTable extends Partners with TableInfo<$PartnersTable, Partner> {
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('factpayment')) {
-      context.handle(
-          _factpaymentMeta,
-          factpayment.isAcceptableOrUnknown(
-              data['factpayment']!, _factpaymentMeta));
-    } else if (isInserting) {
-      context.missing(_factpaymentMeta);
-    }
     return context;
   }
 
@@ -978,8 +958,6 @@ class $PartnersTable extends Partners with TableInfo<$PartnersTable, Partner> {
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      factpayment: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}factpayment'])!,
     );
   }
 
@@ -992,15 +970,12 @@ class $PartnersTable extends Partners with TableInfo<$PartnersTable, Partner> {
 class Partner extends DataClass implements Insertable<Partner> {
   final int id;
   final String name;
-  final bool factpayment;
-  const Partner(
-      {required this.id, required this.name, required this.factpayment});
+  const Partner({required this.id, required this.name});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
-    map['factpayment'] = Variable<bool>(factpayment);
     return map;
   }
 
@@ -1008,7 +983,6 @@ class Partner extends DataClass implements Insertable<Partner> {
     return PartnersCompanion(
       id: Value(id),
       name: Value(name),
-      factpayment: Value(factpayment),
     );
   }
 
@@ -1018,7 +992,6 @@ class Partner extends DataClass implements Insertable<Partner> {
     return Partner(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      factpayment: serializer.fromJson<bool>(json['factpayment']),
     );
   }
   @override
@@ -1027,69 +1000,55 @@ class Partner extends DataClass implements Insertable<Partner> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
-      'factpayment': serializer.toJson<bool>(factpayment),
     };
   }
 
-  Partner copyWith({int? id, String? name, bool? factpayment}) => Partner(
+  Partner copyWith({int? id, String? name}) => Partner(
         id: id ?? this.id,
         name: name ?? this.name,
-        factpayment: factpayment ?? this.factpayment,
       );
   @override
   String toString() {
     return (StringBuffer('Partner(')
           ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('factpayment: $factpayment')
+          ..write('name: $name')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, factpayment);
+  int get hashCode => Object.hash(id, name);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Partner &&
-          other.id == this.id &&
-          other.name == this.name &&
-          other.factpayment == this.factpayment);
+      (other is Partner && other.id == this.id && other.name == this.name);
 }
 
 class PartnersCompanion extends UpdateCompanion<Partner> {
   final Value<int> id;
   final Value<String> name;
-  final Value<bool> factpayment;
   const PartnersCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
-    this.factpayment = const Value.absent(),
   });
   PartnersCompanion.insert({
     this.id = const Value.absent(),
     required String name,
-    required bool factpayment,
-  })  : name = Value(name),
-        factpayment = Value(factpayment);
+  }) : name = Value(name);
   static Insertable<Partner> custom({
     Expression<int>? id,
     Expression<String>? name,
-    Expression<bool>? factpayment,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (factpayment != null) 'factpayment': factpayment,
     });
   }
 
-  PartnersCompanion copyWith(
-      {Value<int>? id, Value<String>? name, Value<bool>? factpayment}) {
+  PartnersCompanion copyWith({Value<int>? id, Value<String>? name}) {
     return PartnersCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
-      factpayment: factpayment ?? this.factpayment,
     );
   }
 
@@ -1102,9 +1061,6 @@ class PartnersCompanion extends UpdateCompanion<Partner> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
-    if (factpayment.present) {
-      map['factpayment'] = Variable<bool>(factpayment.value);
-    }
     return map;
   }
 
@@ -1112,8 +1068,7 @@ class PartnersCompanion extends UpdateCompanion<Partner> {
   String toString() {
     return (StringBuffer('PartnersCompanion(')
           ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('factpayment: $factpayment')
+          ..write('name: $name')
           ..write(')'))
         .toString();
   }
@@ -6313,28 +6268,6 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
   late final GeneratedColumn<String> manufacturer = GeneratedColumn<String>(
       'manufacturer', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
-  static const VerificationMeta _isHitMeta = const VerificationMeta('isHit');
-  @override
-  late final GeneratedColumn<bool> isHit =
-      GeneratedColumn<bool>('is_hit', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_hit" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
-  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
-  @override
-  late final GeneratedColumn<bool> isNew =
-      GeneratedColumn<bool>('is_new', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
   static const VerificationMeta _isLatestMeta =
       const VerificationMeta('isLatest');
   @override
@@ -6447,8 +6380,6 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
         imageKey,
         categoryId,
         manufacturer,
-        isHit,
-        isNew,
         isLatest,
         pricelistSetId,
         cost,
@@ -6509,18 +6440,6 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           _manufacturerMeta,
           manufacturer.isAcceptableOrUnknown(
               data['manufacturer']!, _manufacturerMeta));
-    }
-    if (data.containsKey('is_hit')) {
-      context.handle(
-          _isHitMeta, isHit.isAcceptableOrUnknown(data['is_hit']!, _isHitMeta));
-    } else if (isInserting) {
-      context.missing(_isHitMeta);
-    }
-    if (data.containsKey('is_new')) {
-      context.handle(
-          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
-    } else if (isInserting) {
-      context.missing(_isNewMeta);
     }
     if (data.containsKey('is_latest')) {
       context.handle(_isLatestMeta,
@@ -6649,10 +6568,6 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           .read(DriftSqlType.int, data['${effectivePrefix}category_id'])!,
       manufacturer: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}manufacturer']),
-      isHit: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_hit'])!,
-      isNew: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       isLatest: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_latest'])!,
       pricelistSetId: attachedDatabase.typeMapping
@@ -6702,8 +6617,6 @@ class Goods extends DataClass implements Insertable<Goods> {
   final String imageKey;
   final int categoryId;
   final String? manufacturer;
-  final bool isHit;
-  final bool isNew;
   final bool isLatest;
   final int pricelistSetId;
   final double cost;
@@ -6727,8 +6640,6 @@ class Goods extends DataClass implements Insertable<Goods> {
       required this.imageKey,
       required this.categoryId,
       this.manufacturer,
-      required this.isHit,
-      required this.isNew,
       required this.isLatest,
       required this.pricelistSetId,
       required this.cost,
@@ -6756,8 +6667,6 @@ class Goods extends DataClass implements Insertable<Goods> {
     if (!nullToAbsent || manufacturer != null) {
       map['manufacturer'] = Variable<String>(manufacturer);
     }
-    map['is_hit'] = Variable<bool>(isHit);
-    map['is_new'] = Variable<bool>(isNew);
     map['is_latest'] = Variable<bool>(isLatest);
     map['pricelist_set_id'] = Variable<int>(pricelistSetId);
     map['cost'] = Variable<double>(cost);
@@ -6789,8 +6698,6 @@ class Goods extends DataClass implements Insertable<Goods> {
       manufacturer: manufacturer == null && nullToAbsent
           ? const Value.absent()
           : Value(manufacturer),
-      isHit: Value(isHit),
-      isNew: Value(isNew),
       isLatest: Value(isLatest),
       pricelistSetId: Value(pricelistSetId),
       cost: Value(cost),
@@ -6822,8 +6729,6 @@ class Goods extends DataClass implements Insertable<Goods> {
       imageKey: serializer.fromJson<String>(json['imageKey']),
       categoryId: serializer.fromJson<int>(json['categoryId']),
       manufacturer: serializer.fromJson<String?>(json['manufacturer']),
-      isHit: serializer.fromJson<bool>(json['isHit']),
-      isNew: serializer.fromJson<bool>(json['isNew']),
       isLatest: serializer.fromJson<bool>(json['isLatest']),
       pricelistSetId: serializer.fromJson<int>(json['pricelistSetId']),
       cost: serializer.fromJson<double>(json['cost']),
@@ -6853,8 +6758,6 @@ class Goods extends DataClass implements Insertable<Goods> {
       'imageKey': serializer.toJson<String>(imageKey),
       'categoryId': serializer.toJson<int>(categoryId),
       'manufacturer': serializer.toJson<String?>(manufacturer),
-      'isHit': serializer.toJson<bool>(isHit),
-      'isNew': serializer.toJson<bool>(isNew),
       'isLatest': serializer.toJson<bool>(isLatest),
       'pricelistSetId': serializer.toJson<int>(pricelistSetId),
       'cost': serializer.toJson<double>(cost),
@@ -6881,8 +6784,6 @@ class Goods extends DataClass implements Insertable<Goods> {
           String? imageKey,
           int? categoryId,
           Value<String?> manufacturer = const Value.absent(),
-          bool? isHit,
-          bool? isNew,
           bool? isLatest,
           int? pricelistSetId,
           double? cost,
@@ -6907,8 +6808,6 @@ class Goods extends DataClass implements Insertable<Goods> {
         categoryId: categoryId ?? this.categoryId,
         manufacturer:
             manufacturer.present ? manufacturer.value : this.manufacturer,
-        isHit: isHit ?? this.isHit,
-        isNew: isNew ?? this.isNew,
         isLatest: isLatest ?? this.isLatest,
         pricelistSetId: pricelistSetId ?? this.pricelistSetId,
         cost: cost ?? this.cost,
@@ -6936,8 +6835,6 @@ class Goods extends DataClass implements Insertable<Goods> {
           ..write('imageKey: $imageKey, ')
           ..write('categoryId: $categoryId, ')
           ..write('manufacturer: $manufacturer, ')
-          ..write('isHit: $isHit, ')
-          ..write('isNew: $isNew, ')
           ..write('isLatest: $isLatest, ')
           ..write('pricelistSetId: $pricelistSetId, ')
           ..write('cost: $cost, ')
@@ -6966,8 +6863,6 @@ class Goods extends DataClass implements Insertable<Goods> {
         imageKey,
         categoryId,
         manufacturer,
-        isHit,
-        isNew,
         isLatest,
         pricelistSetId,
         cost,
@@ -6995,8 +6890,6 @@ class Goods extends DataClass implements Insertable<Goods> {
           other.imageKey == this.imageKey &&
           other.categoryId == this.categoryId &&
           other.manufacturer == this.manufacturer &&
-          other.isHit == this.isHit &&
-          other.isNew == this.isNew &&
           other.isLatest == this.isLatest &&
           other.pricelistSetId == this.pricelistSetId &&
           other.cost == this.cost &&
@@ -7022,8 +6915,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   final Value<String> imageKey;
   final Value<int> categoryId;
   final Value<String?> manufacturer;
-  final Value<bool> isHit;
-  final Value<bool> isNew;
   final Value<bool> isLatest;
   final Value<int> pricelistSetId;
   final Value<double> cost;
@@ -7047,8 +6938,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     this.imageKey = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.manufacturer = const Value.absent(),
-    this.isHit = const Value.absent(),
-    this.isNew = const Value.absent(),
     this.isLatest = const Value.absent(),
     this.pricelistSetId = const Value.absent(),
     this.cost = const Value.absent(),
@@ -7073,8 +6962,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     required String imageKey,
     required int categoryId,
     this.manufacturer = const Value.absent(),
-    required bool isHit,
-    required bool isNew,
     required bool isLatest,
     required int pricelistSetId,
     required double cost,
@@ -7095,8 +6982,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
         imageUrl = Value(imageUrl),
         imageKey = Value(imageKey),
         categoryId = Value(categoryId),
-        isHit = Value(isHit),
-        isNew = Value(isNew),
         isLatest = Value(isLatest),
         pricelistSetId = Value(pricelistSetId),
         cost = Value(cost),
@@ -7119,8 +7004,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     Expression<String>? imageKey,
     Expression<int>? categoryId,
     Expression<String>? manufacturer,
-    Expression<bool>? isHit,
-    Expression<bool>? isNew,
     Expression<bool>? isLatest,
     Expression<int>? pricelistSetId,
     Expression<double>? cost,
@@ -7145,8 +7028,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       if (imageKey != null) 'image_key': imageKey,
       if (categoryId != null) 'category_id': categoryId,
       if (manufacturer != null) 'manufacturer': manufacturer,
-      if (isHit != null) 'is_hit': isHit,
-      if (isNew != null) 'is_new': isNew,
       if (isLatest != null) 'is_latest': isLatest,
       if (pricelistSetId != null) 'pricelist_set_id': pricelistSetId,
       if (cost != null) 'cost': cost,
@@ -7175,8 +7056,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       Value<String>? imageKey,
       Value<int>? categoryId,
       Value<String?>? manufacturer,
-      Value<bool>? isHit,
-      Value<bool>? isNew,
       Value<bool>? isLatest,
       Value<int>? pricelistSetId,
       Value<double>? cost,
@@ -7200,8 +7079,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       imageKey: imageKey ?? this.imageKey,
       categoryId: categoryId ?? this.categoryId,
       manufacturer: manufacturer ?? this.manufacturer,
-      isHit: isHit ?? this.isHit,
-      isNew: isNew ?? this.isNew,
       isLatest: isLatest ?? this.isLatest,
       pricelistSetId: pricelistSetId ?? this.pricelistSetId,
       cost: cost ?? this.cost,
@@ -7242,12 +7119,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     }
     if (manufacturer.present) {
       map['manufacturer'] = Variable<String>(manufacturer.value);
-    }
-    if (isHit.present) {
-      map['is_hit'] = Variable<bool>(isHit.value);
-    }
-    if (isNew.present) {
-      map['is_new'] = Variable<bool>(isNew.value);
     }
     if (isLatest.present) {
       map['is_latest'] = Variable<bool>(isLatest.value);
@@ -7310,8 +7181,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
           ..write('imageKey: $imageKey, ')
           ..write('categoryId: $categoryId, ')
           ..write('manufacturer: $manufacturer, ')
-          ..write('isHit: $isHit, ')
-          ..write('isNew: $isNew, ')
           ..write('isLatest: $isLatest, ')
           ..write('pricelistSetId: $pricelistSetId, ')
           ..write('cost: $cost, ')
@@ -15351,7 +15220,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_hit" AS "nested_0.is_hit", "goods"."is_new" AS "nested_0.is_new", "goods"."is_latest" AS "nested_0.is_latest", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."mc_vol" AS "nested_0.mc_vol", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date, (SELECT MAX(shipment_lines.price) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN (SELECT MAX(shipments.date) AS last_shipment_date, shipments.buyer_id FROM shipments GROUP BY shipments.buyer_id) AS sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_price FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
+        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."mc_vol" AS "nested_0.mc_vol", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date, (SELECT MAX(shipment_lines.price) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN (SELECT MAX(shipments.date) AS last_shipment_date, shipments.buyer_id FROM shipments GROUP BY shipments.buyer_id) AS sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_price FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
         variables: [
           Variable<int>(buyerId),
           for (var $ in goodsIds) Variable<int>($)

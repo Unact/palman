@@ -63,7 +63,7 @@ class _ShipmentViewState extends State<_ShipmentView> {
 
   Widget buildShipmentLineTile(BuildContext context, ShipmentLineEx shipmentLineEx) {
     return ListTile(
-      title: Text(shipmentLineEx.goods.name, style: Styles.tileTitleText),
+      title: Text(shipmentLineEx.goods?.name ?? 'Не удалось определить название товара', style: Styles.tileTitleText),
       subtitle: Text.rich(
         TextSpan(
           children: <TextSpan>[
