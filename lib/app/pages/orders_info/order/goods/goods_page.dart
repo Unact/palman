@@ -469,7 +469,11 @@ class _CategoriesViewState extends State<_CategoriesView> {
                 color: Colors.white,
                 icon: Icon(showOnlyActive ? Icons.access_time_filled : Icons.access_time),
                 tooltip: 'Показать актив',
-                onPressed: () => setState(() => groupedCategoriesActive[name] = !showOnlyActive)
+                onPressed: () => setState(() {
+                  groupedCategoriesActive[name] = !showOnlyActive;
+
+                  if (!groupedCategoriesActive[name]!) groupedCategoriesExpansion[name]?.currentState?.expand();
+                })
               ),
             title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             children: children
@@ -598,7 +602,11 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
                 color: Colors.white,
                 icon: Icon(showOnlyActive ? Icons.access_time_filled : Icons.access_time),
                 tooltip: 'Показать актив',
-                onPressed: () => setState(() => groupedGoodsActive[name] = !showOnlyActive)
+                onPressed: () => setState(() {
+                  groupedGoodsActive[name] = !showOnlyActive;
+
+                  if (!groupedGoodsActive[name]!) groupedGoodsExpansion[name]?.currentState?.expand();
+                })
               ),
             title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             children: children
