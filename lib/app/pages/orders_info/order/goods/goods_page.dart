@@ -472,7 +472,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
                 onPressed: () => setState(() {
                   groupedCategoriesActive[name] = !showOnlyActive;
 
-                  if (!groupedCategoriesActive[name]!) groupedCategoriesExpansion[name]?.currentState?.expand();
+                  groupedCategoriesExpansion[name]?.currentState?.expand();
                 })
               ),
             title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
@@ -605,7 +605,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
                 onPressed: () => setState(() {
                   groupedGoodsActive[name] = !showOnlyActive;
 
-                  if (!groupedGoodsActive[name]!) groupedGoodsExpansion[name]?.currentState?.expand();
+                  groupedGoodsExpansion[name]?.currentState?.expand();
                 })
               ),
             title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
