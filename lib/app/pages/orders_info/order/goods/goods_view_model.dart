@@ -144,16 +144,8 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   Future<void> toggleShowOnlyOrder() async {
     final newShowOnlyOrder = !state.showOnlyOrder;
 
-    emit(state.copyWith(
-      selectedCategory: const Optional.absent(),
-      selectedGoodsFilter: const Optional.absent(),
-      selectedBonusProgram: const Optional.absent(),
-      showOnlyActive: false,
-      showOnlyOrder: newShowOnlyOrder,
-      showOnlyLatest: false,
-      goodsNameSearch: const Optional.absent(),
-      goodsDetails: List.empty()
-    ));
+    await clearFilters();
+    emit(state.copyWith(showOnlyOrder: newShowOnlyOrder));
 
     if (newShowOnlyOrder) await searchGoods();
   }
