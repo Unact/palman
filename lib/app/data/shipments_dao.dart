@@ -106,20 +106,20 @@ class ShipmentsDao extends DatabaseAccessor<AppDataStore> with _$ShipmentsDaoMix
   Stream<List<ShipmentLineEx>> watchShipmentLineExList(int shipmentId) {
     final shipmentLinesQuery = select(shipmentLines)
       .join([
-        innerJoin(allGoods, allGoods.id.equalsExp(shipmentLines.goodsId)),
+        leftOuterJoin(allGoods, allGoods.id.equalsExp(shipmentLines.goodsId)),
       ])
       ..where(shipmentLines.shipmentId.equals(shipmentId))
       ..orderBy([OrderingTerm(expression: allGoods.name)]);
 
     return shipmentLinesQuery.map(
-      (lineRow) => ShipmentLineEx(lineRow.readTable(shipmentLines), lineRow.readTable(allGoods))
+      (lineRow) => ShipmentLineEx(lineRow.readTable(shipmentLines), lineRow.readTableOrNull(allGoods))
     ).watch();
   }
 }
 
 class ShipmentLineEx {
   final ShipmentLine line;
-  final Goods goods;
+  final Goods? goods;
 
   double get total => line.vol * line.price;
 
