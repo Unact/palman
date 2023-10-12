@@ -429,7 +429,7 @@ class OrdersRepository extends BaseRepository {
         isBonus: false,
         isPhysical: false,
         needInc: false,
-        needProcessing: true,
+        needProcessing: false,
         isEditable: true
       ));
       final goodsDetails = await getGoodsDetails(
