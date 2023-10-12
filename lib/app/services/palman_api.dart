@@ -41,6 +41,21 @@ extension PalmanApi on RenewApi {
     return ApiShipmentsData.fromJson(await get('v1/palman/shipments'));
   }
 
+  Future<ApiReturnActsData> getReturnActs() async {
+    return ApiReturnActsData.fromJson(await get('v1/palman/return_acts'));
+  }
+
+  Future<ApiReturnRemainsData> getReturnRemains({required int buyerId, required int returnActTypeId}) async {
+    final queryParameters = {
+      'buyerId': buyerId,
+      'returnActTypeId': returnActTypeId
+    };
+
+    return ApiReturnRemainsData.fromJson(
+      await get('v1/palman/return_acts/return_remains', queryParameters: queryParameters)
+    );
+  }
+
   Future<ApiPricesData> savePrices(Map<String, dynamic> prices) async {
     return ApiPricesData.fromJson(await post('v1/palman/prices/save', dataGenerator: () => prices));
   }
@@ -61,7 +76,11 @@ extension PalmanApi on RenewApi {
     return ApiShipmentsData.fromJson(await post('v1/palman/shipments/save', dataGenerator: () => shipments));
   }
 
+  Future<ApiReturnActsData> saveReturnActs(List<Map<String, dynamic>> returnActs) async {
+    return ApiReturnActsData.fromJson(await post('v1/palman/return_acts/save', dataGenerator: () => returnActs));
+  }
+
   Future<void> locations(List<Map<String, dynamic>> locations) async {
-    return await post('v1/palman/locations', dataGenerator: () => locations);
+    await post('v1/palman/locations', dataGenerator: () => locations);
   }
 }

@@ -10,6 +10,8 @@ class ApiDictionariesData extends Equatable {
   final List<ApiGoodsFilter> goodsFilters;
   final List<ApiPricelist> pricelists;
   final List<ApiPricelistSetCategory> pricelistSetCategories;
+  final List<ApiPartnersReturnActType> partnersReturnActTypes;
+  final List<ApiReturnActType> returnActTypes;
 
   const ApiDictionariesData({
     required this.buyers,
@@ -21,6 +23,8 @@ class ApiDictionariesData extends Equatable {
     required this.goodsFilters,
     required this.pricelists,
     required this.pricelistSetCategories,
+    required this.partnersReturnActTypes,
+    required this.returnActTypes,
   });
 
   factory ApiDictionariesData.fromJson(Map<String, dynamic> json) {
@@ -37,6 +41,10 @@ class ApiDictionariesData extends Equatable {
     List<ApiPricelist> pricelists = json['pricelists'].map<ApiPricelist>((e) => ApiPricelist.fromJson(e)).toList();
     List<ApiPricelistSetCategory> pricelistSetCategories = json['pricelistSetCategories']
       .map<ApiPricelistSetCategory>((e) => ApiPricelistSetCategory.fromJson(e)).toList();
+    List<ApiPartnersReturnActType> partnersReturnActTypes = json['partnersReturnActTypes']
+      .map<ApiPartnersReturnActType>((e) => ApiPartnersReturnActType.fromJson(e)).toList();
+    List<ApiReturnActType> returnActTypes = json['returnActTypes']
+      .map<ApiReturnActType>((e) => ApiReturnActType.fromJson(e)).toList();
 
     return ApiDictionariesData(
       buyers: buyers,
@@ -47,7 +55,9 @@ class ApiDictionariesData extends Equatable {
       shopDepartments: shopDepartments,
       goodsFilters: goodsFilters,
       pricelists: pricelists,
-      pricelistSetCategories: pricelistSetCategories
+      pricelistSetCategories: pricelistSetCategories,
+      partnersReturnActTypes: partnersReturnActTypes,
+      returnActTypes: returnActTypes
     );
   }
 
@@ -61,6 +71,8 @@ class ApiDictionariesData extends Equatable {
     shopDepartments,
     goodsFilters,
     pricelists,
-    pricelistSetCategories
+    pricelistSetCategories,
+    partnersReturnActTypes,
+    returnActTypes
   ];
 }

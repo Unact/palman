@@ -5,9 +5,9 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   final DebtsRepository debtsRepository;
   final LocationsRepository locationsRepository;
   final OrdersRepository ordersRepository;
-  final PartnersRepository partnersRepository;
   final PointsRepository pointsRepository;
   final PricesRepository pricesRepository;
+  final ReturnActsRepository returnActsRepository;
   final ShipmentsRepository shipmentsRepository;
   final UsersRepository usersRepository;
   StreamSubscription<Position>? positionSubscription;
@@ -20,9 +20,9 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     this.debtsRepository,
     this.locationsRepository,
     this.ordersRepository,
-    this.partnersRepository,
     this.pointsRepository,
     this.pricesRepository,
+    this.returnActsRepository,
     this.shipmentsRepository,
     this.usersRepository
   ) : super(InfoState());
@@ -85,7 +85,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       debtsRepository.syncChanges,
       ordersRepository.syncChanges,
       pricesRepository.syncChanges,
-      shipmentsRepository.syncChanges
+      shipmentsRepository.syncChanges,
+      returnActsRepository.syncChanges
     ];
 
     await usersRepository.refresh();
@@ -121,6 +122,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       ordersRepository.loadOrders,
       pricesRepository.loadPrices,
       shipmentsRepository.loadShipments,
+      returnActsRepository.loadReturnActs
     ];
 
     try {
@@ -279,7 +281,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       pricesRepository.regenerateGuid,
       pointsRepository.regenerateGuid,
       ordersRepository.regenerateGuid,
-      debtsRepository.regenerateGuid
+      debtsRepository.regenerateGuid,
+      returnActsRepository.regenerateGuid
     ];
 
     await Future.wait(futures.map((e) => e.call()));

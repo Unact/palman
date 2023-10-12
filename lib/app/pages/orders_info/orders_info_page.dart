@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
@@ -54,19 +53,6 @@ class _OrdersInfoView extends StatefulWidget {
 
 class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProviderStateMixin {
   final TextEditingController buyerController = TextEditingController();
-  late final ProgressDialog progressDialog = ProgressDialog(context: context);
-  Completer<IndicatorResult> refresherCompleter = Completer();
-
-  @override
-  void dispose() {
-    progressDialog.close();
-    super.dispose();
-  }
-
-  void closeRefresher(IndicatorResult result) {
-    refresherCompleter.complete(result);
-    refresherCompleter = Completer();
-  }
 
   Future<void> openIncRequestPage(IncRequestEx incRequestEx) async {
     await Navigator.push(

@@ -14,6 +14,20 @@ mixin Syncable on Table {
   Set<Column> get primaryKey => {guid};
 }
 
+class JsonListConverter extends TypeConverter<List<String>, String> {
+  const JsonListConverter();
+
+  @override
+  List<String> fromSql(String? fromDb) {
+    return (json.decode(fromDb!) as List).cast<String>();
+  }
+
+  @override
+  String toSql(List<String>? value) {
+    return json.encode(value);
+  }
+}
+
 class Prefs extends Table {
   BoolColumn get showLocalImage => boolean()();
   BoolColumn get showWithPrice => boolean()();
@@ -177,6 +191,7 @@ class AllGoods extends Table {
   BoolColumn get isFridge => boolean()();
   IntColumn get shelfLife => integer()();
   TextColumn get shelfLifeTypeName => text()();
+  TextColumn get barcodes => text().map(const JsonListConverter())();
 }
 
 class Workdates extends Table {
@@ -384,4 +399,55 @@ class PreOrderLines extends Table {
 
 class SeenPreOrders extends Table {
   IntColumn get id => integer().autoIncrement()();
+}
+
+class GoodsReturnStocks extends Table {
+  IntColumn get goodsId => integer()();
+  IntColumn get returnActTypeId => integer()();
+  IntColumn get buyerId => integer()();
+  RealColumn get vol => real()();
+  IntColumn get receptId => integer()();
+  IntColumn get receptSubid => integer()();
+  DateTimeColumn get receptDate => dateTime()();
+  TextColumn get receptNdoc => text()();
+
+  @override
+  Set<Column> get primaryKey => {goodsId, receptId, receptSubid, returnActTypeId};
+}
+
+class ReturnActs extends Table with Syncable {
+  IntColumn get id => integer().nullable()();
+
+  DateTimeColumn get date => dateTime().nullable()();
+  TextColumn get number => text().nullable()();
+  IntColumn get buyerId => integer().nullable()();
+  BoolColumn get needPickup => boolean()();
+  IntColumn get returnActTypeId => integer().nullable()();
+  IntColumn get receptId => integer().nullable()();
+  TextColumn get receptNdoc => text().nullable()();
+  DateTimeColumn get receptDate => dateTime().nullable()();
+}
+
+class ReturnActLines extends Table with Syncable {
+  IntColumn get id => integer().nullable()();
+
+  TextColumn get returnActGuid => text()
+    .references(ReturnActs, #guid, onUpdate: KeyAction.cascade, onDelete: KeyAction.cascade)();
+  IntColumn get goodsId => integer()();
+  RealColumn get vol => real()();
+  DateTimeColumn get productionDate => dateTime().nullable()();
+  BoolColumn get isBad => boolean().nullable()();
+}
+
+class ReturnActTypes extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+}
+
+class PartnersReturnActTypes extends Table {
+  IntColumn get returnActTypeId => integer()();
+  IntColumn get partnerId => integer()();
+
+  @override
+  Set<Column> get primaryKey => {returnActTypeId, partnerId};
 }

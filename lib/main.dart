@@ -19,6 +19,7 @@ import 'app/repositories/orders_repository.dart';
 import 'app/repositories/partners_repository.dart';
 import 'app/repositories/points_repository.dart';
 import 'app/repositories/prices_repository.dart';
+import 'app/repositories/return_acts_repository.dart';
 import 'app/repositories/shipments_repository.dart';
 import 'app/repositories/users_repository.dart';
 
@@ -39,6 +40,7 @@ void main() async {
     PartnersRepository partnersRepository = PartnersRepository(dataStore, api);
     PointsRepository pointsRepository = PointsRepository(dataStore, api);
     PricesRepository pricesRepository = PricesRepository(dataStore, api);
+    ReturnActsRepository returnActsRepository = ReturnActsRepository(dataStore, api);
     ShipmentsRepository shipmentsRepository = ShipmentsRepository(dataStore, api);
     UsersRepository usersRepository = UsersRepository(dataStore, api);
 
@@ -63,6 +65,7 @@ void main() async {
           RepositoryProvider.value(value: partnersRepository),
           RepositoryProvider.value(value: pointsRepository),
           RepositoryProvider.value(value: pricesRepository),
+          RepositoryProvider.value(value: returnActsRepository),
           RepositoryProvider.value(value: shipmentsRepository),
           RepositoryProvider.value(value: usersRepository)
         ],

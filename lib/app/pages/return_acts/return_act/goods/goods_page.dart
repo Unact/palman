@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:collection/collection.dart';
 import 'package:expansion_tile_group/expansion_tile_group.dart';
@@ -14,18 +13,16 @@ import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
-import 'bonus_programs/bonus_programs_page.dart';
-import 'goods_info/goods_info_page.dart';
-import 'hand_price_change/hand_price_change_page.dart';
+import '/app/repositories/return_acts_repository.dart';
 
 part 'goods_state.dart';
 part 'goods_view_model.dart';
 
 class GoodsPage extends StatelessWidget {
-  final OrderExResult orderEx;
+  final ReturnActExResult returnActEx;
 
   GoodsPage({
-    required this.orderEx,
+    required this.returnActEx,
     Key? key
   }) : super(key: key);
 
@@ -33,9 +30,10 @@ class GoodsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<GoodsViewModel>(
       create: (context) => GoodsViewModel(
-        orderEx: orderEx,
+        returnActEx: returnActEx,
         RepositoryProvider.of<AppRepository>(context),
-        RepositoryProvider.of<OrdersRepository>(context)
+        RepositoryProvider.of<OrdersRepository>(context),
+        RepositoryProvider.of<ReturnActsRepository>(context)
       ),
       child: _GoodsView(),
     );
@@ -51,52 +49,28 @@ class _GoodsViewState extends State<_GoodsView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
   final TextEditingController nameController = TextEditingController();
 
+  Future<void> showScanPage() async {
+    final vm = context.read<GoodsViewModel>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ScanView(
+        onRead: vm.changeBarcode,
+        showScanner: false,
+        barcodeMode: true,
+        child: Text('Отсканируйте штрих-код', style: Styles.formStyle.copyWith(fontSize: 18, color: Colors.white)),
+      ))
+    );
+  }
+
   @override
   void dispose() {
     progressDialog.close();
     super.dispose();
   }
 
-  Future<void> showBonusProgramSelectDialog([GoodsDetail? goodsDetail]) async {
-    final vm = context.read<GoodsViewModel>();
-    final result = await showDialog<FilteredBonusProgramsResult>(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return Dialog(
-          child: BonusProgramsPage(
-            date: vm.state.orderEx.order.date!,
-            buyer: vm.state.orderEx.buyer!,
-            category: vm.state.selectedCategory,
-            goodsEx: goodsDetail?.goodsEx
-          )
-        );
-      }
-    );
-
-    if (result != null) await vm.selectBonusProgram(result);
-  }
-
-  Future<void> showGoodsInfoDialog(GoodsDetail goodsDetail) async {
-    final vm = context.read<GoodsViewModel>();
-    final result = await Navigator.push<bool>(
-      context,
-      MaterialPageRoute(
-        builder: (BuildContext context) => GoodsInfoPage(
-          date: vm.state.orderEx.order.date!,
-          buyer: vm.state.orderEx.buyer!,
-          goodsEx: goodsDetail.goodsEx
-        ),
-        fullscreenDialog: false
-      )
-    ) ?? false;
-
-    if (result) await vm.updateGoodsPrices();
-  }
-
   Future<void> showCategorySelectDialog() async {
     final vm = context.read<GoodsViewModel>();
-    final result = await showDialog<CategoriesExResult>(
+    final result = await showDialog<Category>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext dialogContext) {
@@ -107,7 +81,7 @@ class _GoodsViewState extends State<_GoodsView> {
               appBar: AppBar(title: const Text('Выберите категорию')),
               body: buildCategoryView(
                 context,
-                (CategoriesExResult category) => Navigator.of(dialogContext).pop(category)
+                (Category category) => Navigator.of(dialogContext).pop(category)
               )
             )
           )
@@ -132,16 +106,15 @@ class _GoodsViewState extends State<_GoodsView> {
           appBar: AppBar(
             actions: [
               IconButton(
-                color: Colors.white,
-                icon: Icon(vm.state.showOnlyActive ? Icons.access_time_filled : Icons.access_time),
-                tooltip: 'Показать актив',
-                onPressed: vm.state.showOnlyOrder ? null : vm.toggleShowOnlyActive
+                icon: const Icon(Icons.camera_alt),
+                tooltip: 'Отсканировать ШК',
+                onPressed: vm.tryShowScan
               ),
               IconButton(
                 color: Colors.white,
                 icon: const Icon(Icons.checklist),
-                tooltip: 'Показать заказ',
-                onPressed: vm.toggleShowOnlyOrder,
+                tooltip: 'Показать акт',
+                onPressed: vm.toggleShowOnlyReturnAct,
               ),
               IconButton(
                 color: Colors.white,
@@ -179,6 +152,17 @@ class _GoodsViewState extends State<_GoodsView> {
       },
       listener: (context, state) async {
         switch (state.status) {
+          case GoodsStateStatus.scanSuccess:
+            Navigator.of(context).pop();
+            break;
+          case GoodsStateStatus.scanFailure:
+          case GoodsStateStatus.showScanFailure:
+            Misc.showMessage(context, state.message);
+            break;
+          case GoodsStateStatus.showScan:
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showScanPage();
+            });
           case GoodsStateStatus.searchStarted:
             await progressDialog.open();
             break;
@@ -193,32 +177,40 @@ class _GoodsViewState extends State<_GoodsView> {
 
   Widget buildGoodsView(BuildContext context, bool compactMode) {
     final vm = context.read<GoodsViewModel>();
-    final Map<String, List<GoodsDetail>> groupedGoods = {};
+    final Map<String, List<GoodsReturnDetail>> groupedGoods = {};
 
     if (vm.state.groupByManufacturer) {
       for (var e in vm.state.manufacturers) {
-        groupedGoods[e] = vm.state.filteredGoodsDetails.where((g) => g.goods.manufacturer == e).toList();
+        groupedGoods[e] = vm.state.goodsReturnDetails.where((g) => g.goods.manufacturer == e).toList();
       }
     } else {
       for (var e in vm.state.goodsFirstWords) {
-        groupedGoods[e] = vm.state.filteredGoodsDetails.where((g) => g.goods.name.split(' ').first == e).toList();
+        groupedGoods[e] = vm.state.goodsReturnDetails.where((g) => g.goods.name.split(' ').first == e).toList();
       }
     }
 
     return _GoodsGroupsView(
-      key: Key(vm.state.filteredGoodsDetails.fold(0, (prev, e) => prev + e.goods.hashCode).toString()),
+      key: Key(vm.state.goodsReturnDetails.fold(0, (prev, e) => prev + e.goods.hashCode).toString()),
       groupedGoods: groupedGoods,
-      showOnlyActive: vm.state.showOnlyActive,
       initiallyExpanded: vm.state.goodsListInitiallyExpanded,
-      showWithPrice: vm.state.showWithPrice,
       compactMode: compactMode,
+      showWithPrice: vm.state.showWithPrice,
       showGroupInfo: vm.state.showGroupInfo,
       showGoodsImage: vm.state.showGoodsImage,
-      onVolChange: vm.updateOrderLineVol,
-      orderEx: vm.state.orderEx,
-      linesExList: vm.state.filteredOrderLinesExList,
-      onBonusProgramTap: showBonusProgramSelectDialog,
-      onTap: showGoodsInfoDialog
+      returnActEx: vm.state.returnActEx,
+      linesExList: vm.state.filteredReturnActLinesExList,
+      onIsBadChange: (goodsReturnDetail, isBad) => vm.updateReturnActLine(
+        goodsReturnDetail,
+        isBad: Optional.fromNullable(isBad)
+      ),
+      onProductionDateChange: (goodsReturnDetail, productionDate) => vm.updateReturnActLine(
+        goodsReturnDetail,
+        productionDate: Optional.fromNullable(productionDate)
+      ),
+      onVolChange: (goodsReturnDetail, vol) => vm.updateReturnActLine(
+        goodsReturnDetail,
+        vol: Optional.fromNullable(vol)
+      )
     );
   }
 
@@ -261,28 +253,6 @@ class _GoodsViewState extends State<_GoodsView> {
                   autocorrect: false,
                   style: Styles.formStyle,
                   controller: nameController,
-                )
-              ),
-              const SizedBox(width: 4),
-              Flexible(
-                child: TextField(
-                  readOnly: true,
-                  decoration: InputDecoration(
-                    labelText: 'Акция',
-                    suffixIcon: vm.state.selectedBonusProgram == null ?
-                      IconButton(
-                        onPressed: showBonusProgramSelectDialog,
-                        icon: const Icon(Icons.arrow_drop_down),
-                        tooltip: 'Выбрать акцию',
-                      ) :
-                      IconButton(
-                        onPressed: () => vm.selectBonusProgram(null),
-                        icon: const Icon(Icons.delete),
-                        tooltip: 'Очистить фильтры',
-                      )
-                  ),
-                  controller: TextEditingController(text: vm.state.selectedBonusProgram?.name),
-                  style: Styles.formStyle
                 )
               )
             ],
@@ -346,16 +316,15 @@ class _GoodsViewState extends State<_GoodsView> {
             icon: vm.state.showGroupInfo ? const Icon(Icons.book) : const Icon(Icons.book_outlined),
             onPressed: vm.toggleShowGroupInfo,
             tooltip: 'Отобразить индекс'
-          ),
-          Flexible(child: Text('Сумма: ${Format.numberStr(vm.state.total)}', style: Styles.formStyle))
+          )
         ]
       )
     );
   }
 
-  Widget buildCategoryView(BuildContext context, void Function(CategoriesExResult) onCategoryTap) {
+  Widget buildCategoryView(BuildContext context, void Function(Category) onCategoryTap) {
     final vm = context.read<GoodsViewModel>();
-    final Map<String, List<CategoriesExResult>> groupedCategories = {};
+    final Map<String, List<Category>> groupedCategories = {};
 
     for (var e in vm.state.shopDepartments) {
       groupedCategories[e.name] = vm.state.visibleCategories.where((c) => c.shopDepartmentId == e.id).toList();
@@ -365,7 +334,6 @@ class _GoodsViewState extends State<_GoodsView> {
       key: Key(vm.state.visibleCategories.hashCode.toString()),
       selectedCategory: vm.state.selectedCategory,
       groupedCategories: groupedCategories,
-      showOnlyActive: vm.state.showOnlyActive,
       initiallyExpanded: vm.state.categoriesListInitiallyExpanded,
       onCategoryTap: onCategoryTap
     );
@@ -373,17 +341,15 @@ class _GoodsViewState extends State<_GoodsView> {
 }
 
 class _CategoriesView extends StatefulWidget {
-  final Map<String, List<CategoriesExResult>> groupedCategories;
-  final CategoriesExResult? selectedCategory;
-  final void Function(CategoriesExResult) onCategoryTap;
-  final bool showOnlyActive;
+  final Map<String, List<Category>> groupedCategories;
+  final Category? selectedCategory;
+  final void Function(Category) onCategoryTap;
   final bool initiallyExpanded;
 
   _CategoriesView({
     required this.selectedCategory,
     required this.groupedCategories,
     required this.onCategoryTap,
-    required this.showOnlyActive,
     required this.initiallyExpanded,
     Key? key
   }) : super(key: key);
@@ -394,7 +360,6 @@ class _CategoriesView extends StatefulWidget {
 
 class _CategoriesViewState extends State<_CategoriesView> {
   final Map<String, GlobalKey<ExpansionTileCustomState>> groupedCategoriesExpansion = {};
-  final Map<String, bool> groupedCategoriesActive = {};
   late final AutoScrollController categoriesController = AutoScrollController(
     keepScrollOffset: false,
     axis: Axis.vertical,
@@ -414,7 +379,6 @@ class _CategoriesViewState extends State<_CategoriesView> {
 
     widget.groupedCategories.entries.where((e) => e.value.isNotEmpty).forEachIndexed((index, e) {
       groupedCategoriesExpansion.putIfAbsent(e.key, () => GlobalKey());
-      groupedCategoriesActive.putIfAbsent(e.key, () => widget.showOnlyActive);
       children.add(buildCategorySelectGroup(context, index, e.key, e.value));
     });
 
@@ -435,12 +399,9 @@ class _CategoriesViewState extends State<_CategoriesView> {
     BuildContext context,
     int index,
     String name,
-    List<CategoriesExResult> groupCategories
+    List<Category> groupCategories
   ) {
-    final showOnlyActive = groupedCategoriesActive[name]!;
-    final children = groupCategories
-      .where((e) => widget.showOnlyActive ? e.lastShipmentDate != null || !showOnlyActive : true)
-      .map((e) => buildCategoryTile(e)).toList();
+    final children = groupCategories.map((e) => buildCategoryTile(e)).toList();
 
     return AutoScrollTag(
       controller: categoriesController,
@@ -463,18 +424,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
             },
             childrenPadding: EdgeInsets.zero,
             decoration: const BoxDecoration(),
-            trailing: !widget.showOnlyActive ?
-              Container(width: 0) :
-              IconButton(
-                color: Colors.white,
-                icon: Icon(showOnlyActive ? Icons.access_time_filled : Icons.access_time),
-                tooltip: 'Показать актив',
-                onPressed: () => setState(() {
-                  groupedCategoriesActive[name] = !showOnlyActive;
-
-                  groupedCategoriesExpansion[name]?.currentState?.expand();
-                })
-              ),
+            trailing: Container(width: 0),
             title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             children: children
           ),
@@ -483,7 +433,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
     );
   }
 
-  Widget buildCategoryTile(CategoriesExResult category) {
+  Widget buildCategoryTile(Category category) {
     return ListTile(
       title: buildCategoryTileTitle(category),
       tileColor: Colors.transparent,
@@ -492,59 +442,40 @@ class _CategoriesViewState extends State<_CategoriesView> {
     );
   }
 
-  Widget buildCategoryTileTitle(CategoriesExResult category) {
-    final daysDiff = category.lastShipmentDate != null ?
-      DateTime.now().difference(category.lastShipmentDate!) :
-      null;
-
+  Widget buildCategoryTileTitle(Category category) {
     return Row(
       children: [
-        Expanded(child: Text(category.name, style: Styles.tileTitleText.copyWith(fontWeight: FontWeight.w500))),
-        daysDiff == null ?
-          Container() :
-          Padding(
-            padding: const EdgeInsets.all(1),
-            child: Chip(
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              labelPadding: EdgeInsets.zero,
-              visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-              label: Text(daysDiff.inDays.toString(), style: Styles.chipStyle),
-              backgroundColor: Colors.green,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
-            )
-          )
+        Expanded(child: Text(category.name, style: Styles.tileTitleText.copyWith(fontWeight: FontWeight.w500)))
       ]
     );
   }
 }
 
 class _GoodsGroupsView extends StatefulWidget {
-  final Map<String, List<GoodsDetail>> groupedGoods;
-  final bool showOnlyActive;
+  final Map<String, List<GoodsReturnDetail>> groupedGoods;
   final bool initiallyExpanded;
   final bool showWithPrice;
   final bool showGroupInfo;
   final bool showGoodsImage;
   final bool compactMode;
-  final void Function(GoodsDetail) onTap;
-  final void Function(GoodsDetail) onBonusProgramTap;
-  final void Function(GoodsDetail goodsDetail, double? vol) onVolChange;
-  final OrderExResult orderEx;
-  final List<OrderLineExResult> linesExList;
+  final void Function(GoodsReturnDetail, bool) onIsBadChange;
+  final void Function(GoodsReturnDetail, DateTime?) onProductionDateChange;
+  final void Function(GoodsReturnDetail, double?) onVolChange;
+  final ReturnActExResult returnActEx;
+  final List<ReturnActLineExResult> linesExList;
 
   _GoodsGroupsView({
     required this.groupedGoods,
-    required this.showOnlyActive,
     required this.showWithPrice,
     required this.initiallyExpanded,
     required this.showGroupInfo,
     required this.showGoodsImage,
     required this.compactMode,
-    required this.onTap,
-    required this.onBonusProgramTap,
-    required this.onVolChange,
-    required this.orderEx,
+    required this.returnActEx,
     required this.linesExList,
+    required this.onIsBadChange,
+    required this.onProductionDateChange,
+    required this.onVolChange,
     Key? key
   }) : super(key: key);
 
@@ -553,14 +484,16 @@ class _GoodsGroupsView extends StatefulWidget {
 }
 
 class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
+  final endOfTime = DateTime(9999, 1, 1);
+  final startOfTime = DateTime(2015, 8, 1);
   final Map<String, GlobalKey<ExpansionTileCustomState>> groupedGoodsExpansion = {};
-  final Map<String, bool> groupedGoodsActive = {};
   late final AutoScrollController goodsController = AutoScrollController(
     keepScrollOffset: false,
     axis: Axis.vertical,
     viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
   );
-  final Map<GoodsDetail, TextEditingController> volControllers = {};
+  final Map<GoodsReturnDetail, TextEditingController> volControllers = {};
+  final Map<GoodsReturnDetail, TextEditingController> dateControllers = {};
 
   void _scrollToIndex(AutoScrollController controller, int index) {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -569,11 +502,8 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     });
   }
 
-  Widget buildGoodsViewGroup(BuildContext context, int index, String name, List<GoodsDetail> groupGoods) {
-    final showOnlyActive = groupedGoodsActive[name]!;
-    final children = groupGoods
-      .where((g) => widget.showOnlyActive ? g.hadShipment || !showOnlyActive : true)
-      .map((g) => buildGoodsTile(context, g)).toList();
+  Widget buildGoodsViewGroup(BuildContext context, int index, String name, List<GoodsReturnDetail> groupGoods) {
+    final children = groupGoods.map((g) => buildGoodsTile(context, g)).toList();
 
     return AutoScrollTag(
       controller: goodsController,
@@ -596,18 +526,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
             },
             childrenPadding: EdgeInsets.zero,
             decoration: const BoxDecoration(),
-            trailing: !widget.showOnlyActive ?
-              Container(width: 0) :
-              IconButton(
-                color: Colors.white,
-                icon: Icon(showOnlyActive ? Icons.access_time_filled : Icons.access_time),
-                tooltip: 'Показать актив',
-                onPressed: () => setState(() {
-                  groupedGoodsActive[name] = !showOnlyActive;
-
-                  groupedGoodsExpansion[name]?.currentState?.expand();
-                })
-              ),
+            trailing: Container(width: 0),
             title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
             children: children
           ),
@@ -623,7 +542,6 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
 
     items.where((e) => e.value.isNotEmpty).forEachIndexed((index, e) {
       groupedGoodsExpansion.putIfAbsent(e.key, () => GlobalKey());
-      groupedGoodsActive.putIfAbsent(e.key, () => widget.showOnlyActive);
       children.add(buildGoodsViewGroup(context, index, e.key, e.value));
     });
 
@@ -680,37 +598,14 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     );
   }
 
-  Widget buildGoodsTileTitle(BuildContext context, GoodsDetail goodsDetail) {
-    final goodsEx = goodsDetail.goodsEx;
-    final tags = goodsDetail.bonusPrograms;
-    final daysDiff = goodsDetail.hadShipment ? DateTime.now().difference(goodsEx.lastShipmentDate!) : null;
+  Widget buildGoodsTileTitle(BuildContext context, GoodsReturnDetail goodsReturnDetail) {
+    final goodsEx = goodsReturnDetail.goodsEx;
 
     return Text.rich(
       TextSpan(
         style: Styles.tileTitleText,
         children: <InlineSpan>[
-          TextSpan(
-            text: goodsEx.goods.name,
-            style: Styles.tileTitleText.copyWith(
-              color: goodsDetail.stock?.isVollow ?? false ? Colors.pink : Colors.black,
-            )
-          ),
-          daysDiff == null ?
-            const TextSpan() :
-            WidgetSpan(
-              alignment: PlaceholderAlignment.middle,
-              child: Padding(
-                padding: const EdgeInsets.all(1),
-                child: Chip(
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  labelPadding: EdgeInsets.zero,
-                  visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                  label: Text(daysDiff.inDays.toString(), style: Styles.chipStyle),
-                  backgroundColor: Colors.green,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
-                )
-              )
-            ),
+          TextSpan(text: goodsEx.goods.name),
           goodsEx.goods.extraLabel.isEmpty ?
             const TextSpan() :
             WidgetSpan(
@@ -743,27 +638,12 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
                 )
               )
             ),
-          ...tags.map((e) => WidgetSpan(
-            alignment: PlaceholderAlignment.middle,
-            child: Padding(
-              padding: const EdgeInsets.all(1),
-              child: ActionChip(
-                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                labelPadding: EdgeInsets.zero,
-                visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                label: Text(e.tagText, style: Styles.chipStyle),
-                backgroundColor: Colors.grey,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
-                onPressed: () => widget.onBonusProgramTap(goodsDetail)
-              )
-            ),
-          ))
         ]
       )
     );
   }
 
-  Widget buildGoodsImage(BuildContext context, GoodsDetail goodsDetail) {
+  Widget buildGoodsImage(BuildContext context, GoodsReturnDetail goodsReturnDetail) {
     final vm = context.read<GoodsViewModel>();
 
     if (!vm.state.showGoodsImage) return Container();
@@ -779,8 +659,8 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
                 RetryableImage(
                   color: Theme.of(context).colorScheme.primary,
                   cached: vm.state.showLocalImage,
-                  imageUrl: goodsDetail.goodsEx.goods.imageUrl,
-                  cacheKey: goodsDetail.goodsEx.goods.imageKey,
+                  imageUrl: goodsReturnDetail.goodsEx.goods.imageUrl,
+                  cacheKey: goodsReturnDetail.goodsEx.goods.imageKey,
                   cacheManager: OrdersRepository.goodsCacheManager,
                 )
               ],
@@ -794,56 +674,137 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
         width: widget.compactMode ? 150 : 300,
         color: Theme.of(context).colorScheme.primary,
         cached: vm.state.showLocalImage,
-        imageUrl: goodsDetail.goodsEx.goods.imageUrl,
-        cacheKey: goodsDetail.goodsEx.goods.imageKey,
+        imageUrl: goodsReturnDetail.goodsEx.goods.imageUrl,
+        cacheKey: goodsReturnDetail.goodsEx.goods.imageKey,
         cacheManager: OrdersRepository.goodsCacheManager,
       )
     );
   }
 
-  Widget buildGoodsTile(BuildContext context, GoodsDetail goodsDetail) {
-    final orderLineEx = widget.linesExList.firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goods.id);
-    final enabled = goodsDetail.price != 0 &&
-      !goodsDetail.goodsEx.restricted &&
-      widget.orderEx.order.isEditable;
+  Widget buildGoodsTile(BuildContext context, GoodsReturnDetail goodsReturnDetail) {
+    final returnActLineEx = widget.linesExList.firstWhereOrNull((e) => e.line.goodsId == goodsReturnDetail.goods.id);
 
     return Column(
       children: [
         ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
           tileColor: Colors.transparent,
-          trailing: buildGoodsTileTrailing(context, goodsDetail, orderLineEx, enabled),
-          title: buildGoodsTileTitle(context, goodsDetail),
-          onTap: !enabled ? null : () => widget.onTap(goodsDetail)
+          trailing: buildGoodsTileTrailing(context, goodsReturnDetail, returnActLineEx),
+          title: buildGoodsTileTitle(context, goodsReturnDetail)
+        ),
+        Padding(
+          padding: const EdgeInsets.only(left: 8, right: 8, bottom: 8),
+          child: buildGoodsTileSubtitle(context, goodsReturnDetail)
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: _GoodsSubtitle(goodsDetail, orderLineEx)
+          child: buildGoodsTileDetails(context, goodsReturnDetail, returnActLineEx)
         ),
-        buildGoodsImage(context, goodsDetail),
+        buildGoodsImage(context, goodsReturnDetail),
         Divider(height: 4, color: Theme.of(context).textTheme.displaySmall?.color)
       ]
     );
   }
 
+  Widget buildGoodsTileSubtitle(BuildContext context, GoodsReturnDetail goodsReturnDetail) {
+    return Row(
+      children: [
+        Text(
+        'Продано: ${goodsReturnDetail.returnStocks.fold(0, (prev, e) => prev + e.vol.toInt())}',
+        )
+      ]
+    );
+  }
+
+  Widget buildGoodsTileDetails(
+    BuildContext context,
+    GoodsReturnDetail goodsReturnDetail,
+    ReturnActLineExResult? returnActLineEx
+  ) {
+    final controller = dateControllers.putIfAbsent(
+      goodsReturnDetail,
+      () => TextEditingController(text: Format.dateStr(returnActLineEx?.line.productionDate))
+    );
+    final productionDateStr = Format.dateStr(returnActLineEx?.line.productionDate);
+
+    if (controller.text != productionDateStr) controller.text = productionDateStr;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Expanded(
+          child: DropdownButtonFormField(
+            isExpanded: true,
+            style: Theme.of(context).textTheme.titleMedium!.merge(Styles.formStyle).copyWith(
+              fontWeight: FontWeight.bold
+            ),
+            decoration: InputDecoration(
+              labelStyle: Theme.of(context).textTheme.bodyMedium,
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+              labelText: 'Состояние'
+            ),
+            items: <bool>[false, true].map((bool value) {
+              return DropdownMenuItem<bool>(
+                value: value,
+                child: Text(value ? 'Некондиция' : 'Кондиция'),
+              );
+            }).toList(),
+            value: returnActLineEx?.line.isBad,
+            onChanged: (bool? value) => widget.onIsBadChange(goodsReturnDetail, value!)
+          )
+        ),
+        Expanded(
+          child: TextFormField(
+            readOnly: true,
+            style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
+            textAlignVertical: TextAlignVertical.center,
+            controller: controller,
+            decoration: InputDecoration(
+              labelStyle: Theme.of(context).textTheme.bodyMedium,
+              contentPadding: EdgeInsets.zero,
+              border: InputBorder.none,
+              labelText: 'Дата производства',
+              suffixIcon: IconButton(
+                onPressed: () => showDateDialog(goodsReturnDetail, returnActLineEx),
+                tooltip: 'Указать дату',
+                icon: const Icon(Icons.calendar_month)
+              )
+            )
+          )
+        )
+      ]
+    );
+  }
+
+  Future<void> showDateDialog(GoodsReturnDetail goodsReturnDetail, ReturnActLineExResult? returnActLineEx) async {
+    DateTime? result = await showDatePicker(
+      context: context,
+      firstDate: startOfTime,
+      lastDate: endOfTime,
+      initialDate: returnActLineEx?.line.productionDate ?? DateTime.now()
+    );
+
+    widget.onProductionDateChange(goodsReturnDetail, result);
+  }
+
   Widget buildGoodsTileTrailing(
     BuildContext context,
-    GoodsDetail goodsDetail,
-    OrderLineExResult? orderLineEx,
-    bool enabled
+    GoodsReturnDetail goodsReturnDetail,
+    ReturnActLineExResult? returnActLineEx
   ) {
     final controller = volControllers.putIfAbsent(
-      goodsDetail,
-      () => TextEditingController(text: orderLineEx?.line.vol.toInt().toString())
+      goodsReturnDetail,
+      () => TextEditingController(text: returnActLineEx?.line.vol.toInt().toString())
     );
-    final volStr = orderLineEx?.line.vol.toInt().toString() ?? '';
+    final volStr = returnActLineEx?.line.vol.toInt().toString() ?? '';
 
     if (controller.text != volStr) controller.text = volStr;
 
     return SizedBox(
       width: 140,
       child: NumTextField(
-        enabled: enabled,
         textAlign: TextAlign.center,
         textAlignVertical: TextAlignVertical.center,
         decimal: false,
@@ -852,216 +813,19 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
         decoration: InputDecoration(
           fillColor: Colors.transparent,
           border: InputBorder.none,
-          suffixIcon: !enabled ? null : IconButton(
+          suffixIcon: IconButton(
             icon: const Icon(Icons.add),
             tooltip: 'Увеличить кол-во',
-            onPressed: () => widget.onVolChange(goodsDetail, (orderLineEx?.line.vol ?? 0) + goodsDetail.stockRel)
+            onPressed: () => widget.onVolChange(goodsReturnDetail, (returnActLineEx?.line.vol ?? 0) + 1)
           ),
-          prefixIcon: !enabled ? null : IconButton(
+          prefixIcon: IconButton(
             icon: const Icon(Icons.remove),
             tooltip: 'Уменьшить кол-во',
-            onPressed: () => widget.onVolChange(goodsDetail, (orderLineEx?.line.vol ?? 0) - goodsDetail.stockRel)
+            onPressed: () => widget.onVolChange(goodsReturnDetail, (returnActLineEx?.line.vol ?? 0) - 1)
           )
         ),
-        onTap: () => widget.onVolChange(goodsDetail, Parsing.parseDouble(controller.text))
+        onTap: () => widget.onVolChange(goodsReturnDetail, Parsing.parseDouble(controller.text))
       )
     );
-  }
-}
-
-class _GoodsSubtitle extends StatefulWidget {
-  final GoodsDetail goodsDetail;
-  final OrderLineExResult? orderLineEx;
-
-  _GoodsSubtitle(
-    this.goodsDetail,
-    this.orderLineEx,
-    {Key? key}
-  ) : super(key: key);
-
-  @override
-  _GoodsSubtitleState createState() => _GoodsSubtitleState();
-}
-
-class _GoodsSubtitleState extends State<_GoodsSubtitle> {
-  bool expanded = false;
-
-  Future<void> showPriceChangeDialog() async {
-    final vm = context.read<GoodsViewModel>();
-
-    final result = await showDialog<double?>(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) => HandPriceChangePage(
-        minHandPrice: widget.goodsDetail.goods.handPrice!,
-        handPrice: widget.orderLineEx!.line.price,
-      )
-    );
-
-    if (result != null) await vm.updateOrderLinePrice(widget.orderLineEx!, result);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final goodsEx = widget.goodsDetail.goodsEx;
-    final goods = goodsEx.goods;
-    final stock = widget.goodsDetail.stock;
-    final stockVol = stock?.vol ?? 0;
-    final price = widget.goodsDetail.pricelistPrice;
-    final minPrice = min(goods.handPrice ?? double.infinity, goods.minPrice);
-    final bonusPrice = widget.goodsDetail.price;
-    final effPrice = (bonusPrice - (widget.orderLineEx?.line.priceOriginal ?? price)).abs();
-    final linePrice = widget.orderLineEx?.line.price ?? bonusPrice;
-    final color = Theme.of(context).textTheme.displaySmall?.color;
-    List<Widget> children = [];
-
-    if (!expanded) {
-      children.addAll([
-        IconButton(
-          splashRadius: 24,
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          constraints: const BoxConstraints(maxHeight: 24),
-          icon: Icon(Icons.expand_circle_down, color: color),
-          onPressed: () => setState(() => expanded = true)
-        ),
-        Expanded(
-          child: Text.rich(
-            TextSpan(
-              style: Styles.tileText.copyWith(fontWeight: FontWeight.w500, color: color),
-              children: <InlineSpan>[
-                const TextSpan(text: 'Цена: '),
-                (goods.handPrice ?? 0) > 0 ?
-                  WidgetSpan(
-                    alignment: PlaceholderAlignment.middle,
-                    child: Padding(
-                      padding: const EdgeInsets.all(1),
-                      child: ActionChip(
-                        onPressed: widget.orderLineEx == null ? null : showPriceChangeDialog,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        labelPadding: EdgeInsets.zero,
-                        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                        label: Text(
-                          Format.numberStr(linePrice),
-                          style: Styles.chipStyle.copyWith(
-                            color: widget.orderLineEx == null ? Colors.black : Colors.white,
-                            fontWeight: FontWeight.w500
-                          )
-                        ),
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
-                      )
-                    )
-                  ) :
-                  TextSpan(text: Format.numberStr(linePrice)),
-                TextSpan(
-                  text: effPrice > 0 ? '(${Format.numberStr(price)})' : null,
-                  style: TextStyle(
-                    color: widget.goodsDetail.conditionalDiscount ? Colors.red : Colors.blue,
-                    decoration: TextDecoration.lineThrough
-                  )
-                ),
-                const TextSpan(text: ' руб.'),
-                TextSpan(text: widget.goodsDetail.rel == 1 ? ' ' : ' Вложение: ${widget.goodsDetail.rel} '),
-                TextSpan(text: 'Кратность: ${widget.goodsDetail.stockRel} '),
-                TextSpan(text: 'Остаток: ${stockVol != 0 ? '' : '0 шт.'}'),
-                TextSpan(text: stockVol~/goods.categoryPackageRel > 0 ?
-                  '${stockVol~/goods.categoryPackageRel} к. ' :
-                  null
-                  ),
-                TextSpan(text: stockVol%goods.categoryPackageRel > 0 ?
-                  '${(stockVol%goods.categoryPackageRel).toInt()} шт. ' :
-                  null
-                ),
-                TextSpan(
-                  text: widget.orderLineEx != null ?
-                    '\nСтоимость: ${Format.numberStr(widget.orderLineEx!.line.total)}' :
-                    null
-                ),
-              ]
-            )
-          )
-        )
-      ]);
-    } else {
-      children.addAll([
-        IconButton(
-          splashRadius: 24,
-          padding: const EdgeInsets.symmetric(horizontal: 4),
-          constraints: const BoxConstraints(maxHeight: 24),
-          icon: Transform.rotate(angle: pi, child: Icon(Icons.expand_circle_down, color: color)),
-          onPressed: () => setState(() => expanded = false)
-        ),
-        Expanded(
-          child: Text.rich(
-            TextSpan(
-              style: Styles.tileText.copyWith(fontWeight: FontWeight.w500, color: color),
-              children: <InlineSpan>[
-                TextSpan(
-                  text: (goodsEx.lastPrice ?? 0) > 0 && (goods.handPrice ?? 0) > 0 ?
-                    'Спец. цена: ${Format.numberStr(goodsEx.lastPrice)} ' :
-                    null,
-                  style: const TextStyle(fontWeight: FontWeight.bold)
-                ),
-                const TextSpan(text: 'Цена: '),
-                (goods.handPrice ?? 0) > 0 ?
-                  WidgetSpan(
-                    alignment: PlaceholderAlignment.middle,
-                    child: Padding(
-                      padding: const EdgeInsets.all(1),
-                      child: ActionChip(
-                        onPressed: widget.orderLineEx == null ? null : showPriceChangeDialog,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        labelPadding: EdgeInsets.zero,
-                        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                        label: Text(
-                          Format.numberStr(linePrice),
-                          style: Styles.chipStyle.copyWith(
-                            color: widget.orderLineEx == null ? Colors.black : Colors.white,
-                            fontWeight: FontWeight.w500
-                          )
-                        ),
-                        backgroundColor: Colors.black87,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
-                      )
-                    )
-                  ) :
-                  TextSpan(text: Format.numberStr(linePrice)),
-                TextSpan(
-                  text: effPrice > 0 ? '(${Format.numberStr(price)})' : null,
-                  style: TextStyle(
-                    color: widget.goodsDetail.conditionalDiscount ? Colors.red : Colors.blue,
-                    decoration: TextDecoration.lineThrough
-                  )
-                ),
-                TextSpan(
-                  text: ' руб.${goods.cost > 0 ? ' (${((linePrice - goods.cost)/goods.cost*100).round()}%)' : ''}'
-                ),
-                TextSpan(
-                  text: minPrice != 0 && minPrice < bonusPrice ? ' Мин. цена: ${Format.numberStr(minPrice)}\n' : '\n'
-                ),
-                TextSpan(text: widget.goodsDetail.rel == 1 ? '' : 'Вложение: ${widget.goodsDetail.rel} '),
-                TextSpan(text: 'Кратность: ${widget.goodsDetail.stockRel} '),
-                TextSpan(text: 'Остаток: ${stockVol != 0 ? '' : '0 шт.'}'),
-                TextSpan(text: stockVol~/goods.categoryPackageRel > 0 ?
-                  '${stockVol~/goods.categoryPackageRel} к. ' :
-                  null
-                ),
-                TextSpan(text: stockVol%goods.categoryPackageRel > 0 ?
-                  '${(stockVol%goods.categoryPackageRel).toInt()} шт. ' :
-                  null
-                ),
-                TextSpan(
-                  text: widget.orderLineEx != null ?
-                    '\nСтоимость: ${Format.numberStr(widget.orderLineEx!.line.total)}' :
-                    null
-                ),
-              ]
-            )
-          )
-        )
-      ]);
-    }
-
-    return Row(children: children);
   }
 }

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -19,9 +18,9 @@ import '/app/repositories/app_repository.dart';
 import '/app/repositories/debts_repository.dart';
 import '/app/repositories/locations_repository.dart';
 import '/app/repositories/orders_repository.dart';
-import '/app/repositories/partners_repository.dart';
 import '/app/repositories/points_repository.dart';
 import '/app/repositories/prices_repository.dart';
+import '/app/repositories/return_acts_repository.dart';
 import '/app/repositories/shipments_repository.dart';
 import '/app/repositories/users_repository.dart';
 import '/app/widgets/widgets.dart';
@@ -42,9 +41,9 @@ class InfoPage extends StatelessWidget {
         RepositoryProvider.of<DebtsRepository>(context),
         RepositoryProvider.of<LocationsRepository>(context),
         RepositoryProvider.of<OrdersRepository>(context),
-        RepositoryProvider.of<PartnersRepository>(context),
         RepositoryProvider.of<PointsRepository>(context),
         RepositoryProvider.of<PricesRepository>(context),
+        RepositoryProvider.of<ReturnActsRepository>(context),
         RepositoryProvider.of<ShipmentsRepository>(context),
         RepositoryProvider.of<UsersRepository>(context),
       ),
@@ -59,27 +58,6 @@ class _InfoView extends StatefulWidget {
 }
 
 class _InfoViewState extends State<_InfoView> {
-  final GlobalKey<RefreshIndicatorState> refreshIndicatorKey = GlobalKey<RefreshIndicatorState>();
-  late final ProgressDialog progressDialog = ProgressDialog(context: context);
-  Completer<IndicatorResult> refresherCompleter = Completer();
-
-  @override
-  void dispose() {
-    progressDialog.close();
-    super.dispose();
-  }
-
-  Future<void> openRefresher() async {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      refreshIndicatorKey.currentState!.show();
-    });
-  }
-
-  void closeRefresher(IndicatorResult result) {
-    refresherCompleter.complete(result);
-    refresherCompleter = Completer();
-  }
-
   void changePage(int index) {
     final homeVm = context.read<HomeViewModel>();
 
@@ -178,6 +156,7 @@ class _InfoViewState extends State<_InfoView> {
       buildPointsCard(context),
       buildDebtsCard(context),
       buildOrdersCard(context),
+      buildReturnActsCard(context),
       buildPreloadPointImagesCard(context),
       buildPreloadGoodsImagesCard(context),
       buildInfoCard(context),
@@ -296,6 +275,28 @@ class _InfoViewState extends State<_InfoView> {
               ),
               TextSpan(
                 text: 'Отгрузок: ${vm.state.shipmentsTotal}',
+                style: Styles.tileText
+              )
+            ]
+          )
+        )
+      )
+    );
+  }
+
+  Widget buildReturnActsCard(BuildContext context) {
+    final vm = context.read<InfoViewModel>();
+
+    return Card(
+      child: ListTile(
+        isThreeLine: true,
+        onTap: () => changePage(4),
+        title: const Text(Strings.returnActsPageName, style: Styles.tileTitleText),
+        subtitle: Text.rich(
+          TextSpan(
+            children: <TextSpan>[
+              TextSpan(
+                text: 'Актов: ${vm.state.returnActsTotal}\n',
                 style: Styles.tileText
               )
             ]

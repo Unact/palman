@@ -11,6 +11,7 @@ class Strings {
   static const pointsPageName = 'Точки';
   static const debtsInfoPageName = 'Долги';
   static const ordersInfoPageName = 'Заказы';
+  static const returnActsPageName = 'Возвраты';
 
   static const genericErrorMsg = 'Произошла непредвиденная ошибка';
   static const locationNotFound = 'Не удалось определить местоположение';
