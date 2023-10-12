@@ -10,6 +10,7 @@ enum GoodsInfoStateStatus {
 class GoodsInfoState {
   GoodsInfoState({
     this.status = GoodsInfoStateStatus.initial,
+    this.user,
     required this.date,
     required this.buyer,
     required this.goodsEx,
@@ -22,6 +23,7 @@ class GoodsInfoState {
 
   final GoodsInfoStateStatus status;
 
+  final User? user;
   final DateTime date;
   final Buyer buyer;
   final GoodsExResult goodsEx;
@@ -32,6 +34,7 @@ class GoodsInfoState {
   final AppInfoResult? appInfo;
 
   bool get showLocalImage => appInfo?.showLocalImage ?? true;
+  bool get preOrderMode => user?.preOrderMode ?? false;
 
   PartnersPricelist? get curPartnerPricelist => partnersPricelists.firstWhereOrNull(
     (e) => goodsPricelists.map((e) => e.id).contains(e.pricelistId)
@@ -45,6 +48,7 @@ class GoodsInfoState {
 
   GoodsInfoState copyWith({
     GoodsInfoStateStatus? status,
+    User? user,
     DateTime? date,
     Buyer? buyer,
     GoodsExResult? goodsEx,
@@ -56,6 +60,7 @@ class GoodsInfoState {
   }) {
     return GoodsInfoState(
       status: status ?? this.status,
+      user: user ?? this.user,
       date: date ?? this.date,
       buyer: buyer ?? this.buyer,
       goodsEx: goodsEx ?? this.goodsEx,

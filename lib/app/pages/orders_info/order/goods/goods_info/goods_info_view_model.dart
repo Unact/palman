@@ -4,6 +4,8 @@ class GoodsInfoViewModel extends PageViewModel<GoodsInfoState, GoodsInfoStateSta
   final AppRepository appRepository;
   final OrdersRepository ordersRepository;
   final PricesRepository pricesRepository;
+  final UsersRepository usersRepository;
+  StreamSubscription<User>? userSubscription;
   StreamSubscription<List<GoodsShipmentsResult>>? goodsShipmentsSubscription;
   StreamSubscription<List<GoodsPricelistsResult>>? goodsPricelistsSubscription;
   StreamSubscription<List<PartnersPricelist>>? partnersPricelistsSubscription;
@@ -14,6 +16,7 @@ class GoodsInfoViewModel extends PageViewModel<GoodsInfoState, GoodsInfoStateSta
     this.appRepository,
     this.ordersRepository,
     this.pricesRepository,
+    this.usersRepository,
     {
       required DateTime date,
       required Buyer buyer,
@@ -28,6 +31,9 @@ class GoodsInfoViewModel extends PageViewModel<GoodsInfoState, GoodsInfoStateSta
   Future<void> initViewModel() async {
     await super.initViewModel();
 
+    userSubscription = usersRepository.watchUser().listen((event) {
+      emit(state.copyWith(status: GoodsInfoStateStatus.dataLoaded, user: event));
+    });
     goodsShipmentsSubscription = ordersRepository.watchGoodsShipments(
       buyerId: state.buyer.id,
       goodsId: state.goodsEx.goods.id
@@ -61,6 +67,7 @@ class GoodsInfoViewModel extends PageViewModel<GoodsInfoState, GoodsInfoStateSta
   Future<void> close() async {
     await super.close();
 
+    await userSubscription?.cancel();
     await goodsShipmentsSubscription?.cancel();
     await goodsPricelistsSubscription?.cancel();
     await partnersPricelistsSubscription?.cancel();
