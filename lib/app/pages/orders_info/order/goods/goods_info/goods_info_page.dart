@@ -12,6 +12,7 @@ import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/prices_repository.dart';
+import '/app/repositories/users_repository.dart';
 import 'price_change/price_change_page.dart';
 
 part 'goods_info_state.dart';
@@ -39,6 +40,7 @@ class GoodsInfoPage extends StatelessWidget {
         RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<OrdersRepository>(context),
         RepositoryProvider.of<PricesRepository>(context),
+        RepositoryProvider.of<UsersRepository>(context),
       ),
       child: _GoodsInfoView(),
     );
@@ -89,7 +91,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
                   color: Colors.white,
                   icon: const Icon(Icons.price_change),
                   tooltip: 'Показать актив',
-                  onPressed: state.curGoodsPricelist != null ? showPriceChangeDialog : null
+                  onPressed: state.curGoodsPricelist != null && !state.preOrderMode ? showPriceChangeDialog : null
                 ),
               ]
             ),
@@ -223,7 +225,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
   Widget buildGoodsPricelistTile(BuildContext context, GoodsPricelistsResult goodsPricelist) {
     final vm = context.read<GoodsInfoViewModel>();
     final active = vm.state.partnersPricelists.any((e) => e.pricelistId == goodsPricelist.id);
-    final permitted = goodsPricelist.permit;
+    final permitted = goodsPricelist.permit && !vm.state.preOrderMode;
 
     return ListTile(
       trailing: active ? const Icon(Icons.check) : null,
