@@ -70,7 +70,7 @@ class PointsRepository extends BaseRepository {
     if (await pointImagesCacheManager.getFileFromCache(pointImage.imageKey) != null) return true;
 
     try {
-      await pointImagesCacheManager.downloadFile(pointImage.imageUrl, key: pointImage.imageKey);
+      await pointImagesCacheManager.downloadFile(pointImage.imageUrl, key: pointImage.imageKey, force: true);
     } on HttpException catch(e) {
       throw AppError('Ошибка загрузки: ${e.message}');
     } on ClientException catch(e) {
