@@ -197,7 +197,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
           loadedPointImages: state.loadedPointImages + 1
         ));
       } on AppError catch(e) {
-        lastErrorMsg = e.message;
+        lastErrorMsg = '${e.message} Точка: ${pointImage.guid}';
       }
     }
     await pointsRepository.clearFiles(pointImages.map((e) => e.imageKey).toSet());
@@ -251,7 +251,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
           loadedGoodsImages: state.loadedGoodsImages + 1
         ));
       } on AppError catch(e) {
-        lastErrorMsg = e.message;
+        lastErrorMsg = '${e.message} Товар: ${goodsImage.name}';
       }
     }
     await ordersRepository.clearFiles(goodsWithImage.map((e) => e.imageKey).toSet());

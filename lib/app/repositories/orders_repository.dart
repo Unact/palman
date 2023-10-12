@@ -110,7 +110,7 @@ class OrdersRepository extends BaseRepository {
     if (await goodsCacheManager.getFileFromCache(goods.imageKey) != null) return true;
 
     try {
-      await goodsCacheManager.downloadFile(goods.imageUrl, key: goods.imageKey);
+      await goodsCacheManager.downloadFile(goods.imageUrl, key: goods.imageKey, force: true);
     } on HttpException catch(e) {
       throw AppError('Ошибка загрузки: ${e.message}');
     } on ClientException catch(e) {
