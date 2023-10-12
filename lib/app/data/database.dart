@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:collection/collection.dart';
@@ -23,6 +24,7 @@ part 'partners_dao.dart';
 part 'points_dao.dart';
 part 'prices_dao.dart';
 part 'shipments_dao.dart';
+part 'return_acts_dao.dart';
 part 'users_dao.dart';
 
 @DriftDatabase(
@@ -65,7 +67,12 @@ part 'users_dao.dart';
     PartnersPricelists,
     GoodsRestrictions,
     GoodsStocks,
-    GoodsPartnersPricelists
+    GoodsPartnersPricelists,
+    GoodsReturnStocks,
+    ReturnActs,
+    ReturnActLines,
+    ReturnActTypes,
+    PartnersReturnActTypes
   ],
   daos: [
     BonusProgramsDao,
@@ -75,6 +82,7 @@ part 'users_dao.dart';
     PointsDao,
     PricesDao,
     ShipmentsDao,
+    ReturnActsDao,
     UsersDao
   ],
   queries: {
@@ -96,6 +104,13 @@ part 'users_dao.dart';
           FROM orders
           WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM order_lines WHERE order_guid = orders.guid AND need_sync = 1)
         ) AS "orders_to_sync",
+        (
+          SELECT COUNT(*)
+          FROM return_acts
+          WHERE
+            need_sync = 1 OR
+            EXISTS(SELECT 1 FROM return_act_lines WHERE return_act_guid = return_acts.guid AND need_sync = 1)
+        ) AS "return_acts_to_sync",
         (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS "inc_requests_to_sync",
         (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS "partner_prices_to_sync",
         (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS "partners_pricelists_to_sync",
@@ -103,7 +118,8 @@ part 'users_dao.dart';
         (SELECT COUNT(*) FROM encashments) AS "encashments_total",
         (SELECT COUNT(*) FROM shipments) AS "shipments_total",
         (SELECT COUNT(*) FROM orders) AS "orders_total",
-        (SELECT COUNT(*) FROM pre_orders) AS "pre_orders_total"
+        (SELECT COUNT(*) FROM pre_orders) AS "pre_orders_total",
+        (SELECT COUNT(*) FROM return_acts) AS "return_acts_total"
       FROM prefs
     '''
   },
@@ -210,7 +226,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -269,6 +285,14 @@ class AppDataStore extends _$AppDataStore {
       await m.createIndex(Index(
         'pre_order_lines_pre_order_idx',
         'CREATE INDEX pre_order_lines_pre_order_idx ON pre_order_lines(pre_order_id)'
+      ));
+      await m.createIndex(Index(
+        'return_act_lines_goods_idx',
+        'CREATE INDEX return_act_lines_goods_idx ON return_act_lines(goods_id)'
+      ));
+      await m.createIndex(Index(
+        'return_act_lines_return_act_idx',
+        'CREATE INDEX return_act_lines_return_act_idx ON return_act_lines(return_act_guid)'
       ));
       await m.createIndex(Index(
         'goods_bonus_programs_goods_idx',
@@ -331,6 +355,10 @@ extension OrderLineX on OrderLine {
 
 extension PreOrderLineX on PreOrderLine {
   double get total => vol * price * rel;
+}
+
+extension ReturnActX on ReturnAct {
+  String? get receptName => receptId != null ? '${receptNdoc!} от ${Format.dateStr(receptDate!)}' : null;
 }
 
 extension UserX on User {

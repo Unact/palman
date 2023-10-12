@@ -84,7 +84,6 @@ class _RefreshableState extends State<Refreshable> {
           return refreshed ? IndicatorResult.success : IndicatorResult.fail;
         } on AppError catch(e) {
           setState(() => failedText = e.message);
-        } catch (e) {
           return IndicatorResult.fail;
         }
       },

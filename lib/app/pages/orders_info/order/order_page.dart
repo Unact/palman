@@ -50,14 +50,7 @@ class _OrderView extends StatefulWidget {
 }
 
 class _OrderViewState extends State<_OrderView> {
-  late final ProgressDialog progressDialog = ProgressDialog(context: context);
   TextEditingController? buyerController;
-
-  @override
-  void dispose() {
-    progressDialog.close();
-    super.dispose();
-  }
 
   Future<void> showDateDialog() async {
     final vm = context.read<OrderViewModel>();

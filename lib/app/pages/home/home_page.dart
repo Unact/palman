@@ -9,6 +9,7 @@ import '/app/pages/debts_info/debts_info_page.dart';
 import '/app/pages/info/info_page.dart';
 import '/app/pages/orders_info/orders_info_page.dart';
 import '/app/pages/points/points_page.dart';
+import '/app/pages/return_acts/return_acts_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 
 part 'home_state.dart';
@@ -85,7 +86,8 @@ class _HomeViewState extends State<_HomeView> with WidgetsBindingObserver {
               InfoPage(),
               PointsPage(),
               DebtsInfoPage(),
-              OrdersInfoPage()
+              OrdersInfoPage(),
+              ReturnActsPage()
             ],
           ),
         );
@@ -106,7 +108,8 @@ class _HomeViewState extends State<_HomeView> with WidgetsBindingObserver {
         BottomNavigationBarItem(icon: Icon(Icons.home), label: Strings.infoPageName),
         BottomNavigationBarItem(icon: Icon(Icons.point_of_sale), label: Strings.pointsPageName),
         BottomNavigationBarItem(icon: Icon(Icons.currency_ruble), label: Strings.debtsInfoPageName),
-        BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: Strings.ordersInfoPageName)
+        BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: Strings.ordersInfoPageName),
+        BottomNavigationBarItem(icon: Icon(Icons.assignment), label: Strings.returnActsPageName)
       ],
     );
   }

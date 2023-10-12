@@ -55,10 +55,12 @@ class InfoState {
     appInfo!.ordersToSync +
     appInfo!.incRequestsToSync +
     appInfo!.partnerPricesToSync +
-    appInfo!.partnersPricelistsToSync;
+    appInfo!.partnersPricelistsToSync +
+    appInfo!.returnActsToSync;
 
   int get encashmentsTotal => appInfo == null ? 0 : appInfo!.encashmentsTotal;
   int get ordersTotal => appInfo == null ? 0 : appInfo!.ordersTotal;
+  int get returnActsTotal => appInfo == null ? 0 : appInfo!.returnActsTotal;
   int get preOrdersTotal => appInfo == null ? 0 : appInfo!.preOrdersTotal;
   int get shipmentsTotal => appInfo == null ? 0 : appInfo!.shipmentsTotal;
   int get pointsTotal => appInfo == null ? 0 : appInfo!.pointsTotal;

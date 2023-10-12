@@ -23,6 +23,7 @@ class ApiGoods extends Equatable {
   final bool isFridge;
   final int shelfLife;
   final String shelfLifeTypeName;
+  final List<String> barcodes;
 
   const ApiGoods({
     required this.id,
@@ -46,7 +47,8 @@ class ApiGoods extends Equatable {
     required this.mcVol,
     required this.isFridge,
     required this.shelfLife,
-    required this.shelfLifeTypeName
+    required this.shelfLifeTypeName,
+    required this.barcodes
   });
 
   factory ApiGoods.fromJson(dynamic json) {
@@ -72,7 +74,8 @@ class ApiGoods extends Equatable {
       mcVol: Parsing.parseDouble(json['mcVol'])!,
       isFridge: json['isFridge'],
       shelfLife: json['shelfLife'],
-      shelfLifeTypeName: json['shelfLifeTypeName']
+      shelfLifeTypeName: json['shelfLifeTypeName'],
+      barcodes: json['barcodes'].cast<String>()
     );
   }
 
@@ -99,7 +102,8 @@ class ApiGoods extends Equatable {
       mcVol: mcVol,
       isFridge: isFridge,
       shelfLife: shelfLife,
-      shelfLifeTypeName: shelfLifeTypeName
+      shelfLifeTypeName: shelfLifeTypeName,
+      barcodes: barcodes
     );
   }
 
@@ -126,6 +130,7 @@ class ApiGoods extends Equatable {
     mcVol,
     isFridge,
     shelfLife,
-    shelfLifeTypeName
+    shelfLifeTypeName,
+    barcodes
   ];
 }

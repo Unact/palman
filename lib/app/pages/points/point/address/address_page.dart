@@ -96,6 +96,7 @@ class AddressViewState extends State<_AddressView> {
                     Align(
                       alignment: Alignment.bottomRight,
                       child: FloatingActionButton(
+                        heroTag: null,
                         onPressed: vm.changeCoordsToMyPosition,
                         child: const Icon(Icons.my_location_sharp),
                       )

@@ -6372,6 +6372,13 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
   late final GeneratedColumn<String> shelfLifeTypeName =
       GeneratedColumn<String>('shelf_life_type_name', aliasedName, false,
           type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _barcodesMeta =
+      const VerificationMeta('barcodes');
+  @override
+  late final GeneratedColumnWithTypeConverter<List<String>, String> barcodes =
+      GeneratedColumn<String>('barcodes', aliasedName, false,
+              type: DriftSqlType.string, requiredDuringInsert: true)
+          .withConverter<List<String>>($AllGoodsTable.$converterbarcodes);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -6395,7 +6402,8 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
         mcVol,
         isFridge,
         shelfLife,
-        shelfLifeTypeName
+        shelfLifeTypeName,
+        barcodes
       ];
   @override
   String get aliasedName => _alias ?? 'goods';
@@ -6547,6 +6555,7 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
     } else if (isInserting) {
       context.missing(_shelfLifeTypeNameMeta);
     }
+    context.handle(_barcodesMeta, const VerificationResult.success());
     return context;
   }
 
@@ -6601,6 +6610,9 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           .read(DriftSqlType.int, data['${effectivePrefix}shelf_life'])!,
       shelfLifeTypeName: attachedDatabase.typeMapping.read(
           DriftSqlType.string, data['${effectivePrefix}shelf_life_type_name'])!,
+      barcodes: $AllGoodsTable.$converterbarcodes.fromSql(attachedDatabase
+          .typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}barcodes'])!),
     );
   }
 
@@ -6608,6 +6620,9 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
   $AllGoodsTable createAlias(String alias) {
     return $AllGoodsTable(attachedDatabase, alias);
   }
+
+  static TypeConverter<List<String>, String> $converterbarcodes =
+      const JsonListConverter();
 }
 
 class Goods extends DataClass implements Insertable<Goods> {
@@ -6633,6 +6648,7 @@ class Goods extends DataClass implements Insertable<Goods> {
   final bool isFridge;
   final int shelfLife;
   final String shelfLifeTypeName;
+  final List<String> barcodes;
   const Goods(
       {required this.id,
       required this.name,
@@ -6655,7 +6671,8 @@ class Goods extends DataClass implements Insertable<Goods> {
       required this.mcVol,
       required this.isFridge,
       required this.shelfLife,
-      required this.shelfLifeTypeName});
+      required this.shelfLifeTypeName,
+      required this.barcodes});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -6685,6 +6702,10 @@ class Goods extends DataClass implements Insertable<Goods> {
     map['is_fridge'] = Variable<bool>(isFridge);
     map['shelf_life'] = Variable<int>(shelfLife);
     map['shelf_life_type_name'] = Variable<String>(shelfLifeTypeName);
+    {
+      final converter = $AllGoodsTable.$converterbarcodes;
+      map['barcodes'] = Variable<String>(converter.toSql(barcodes));
+    }
     return map;
   }
 
@@ -6716,6 +6737,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       isFridge: Value(isFridge),
       shelfLife: Value(shelfLife),
       shelfLifeTypeName: Value(shelfLifeTypeName),
+      barcodes: Value(barcodes),
     );
   }
 
@@ -6746,6 +6768,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       isFridge: serializer.fromJson<bool>(json['isFridge']),
       shelfLife: serializer.fromJson<int>(json['shelfLife']),
       shelfLifeTypeName: serializer.fromJson<String>(json['shelfLifeTypeName']),
+      barcodes: serializer.fromJson<List<String>>(json['barcodes']),
     );
   }
   @override
@@ -6774,6 +6797,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       'isFridge': serializer.toJson<bool>(isFridge),
       'shelfLife': serializer.toJson<int>(shelfLife),
       'shelfLifeTypeName': serializer.toJson<String>(shelfLifeTypeName),
+      'barcodes': serializer.toJson<List<String>>(barcodes),
     };
   }
 
@@ -6799,7 +6823,8 @@ class Goods extends DataClass implements Insertable<Goods> {
           double? mcVol,
           bool? isFridge,
           int? shelfLife,
-          String? shelfLifeTypeName}) =>
+          String? shelfLifeTypeName,
+          List<String>? barcodes}) =>
       Goods(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -6825,6 +6850,7 @@ class Goods extends DataClass implements Insertable<Goods> {
         isFridge: isFridge ?? this.isFridge,
         shelfLife: shelfLife ?? this.shelfLife,
         shelfLifeTypeName: shelfLifeTypeName ?? this.shelfLifeTypeName,
+        barcodes: barcodes ?? this.barcodes,
       );
   @override
   String toString() {
@@ -6850,7 +6876,8 @@ class Goods extends DataClass implements Insertable<Goods> {
           ..write('mcVol: $mcVol, ')
           ..write('isFridge: $isFridge, ')
           ..write('shelfLife: $shelfLife, ')
-          ..write('shelfLifeTypeName: $shelfLifeTypeName')
+          ..write('shelfLifeTypeName: $shelfLifeTypeName, ')
+          ..write('barcodes: $barcodes')
           ..write(')'))
         .toString();
   }
@@ -6878,7 +6905,8 @@ class Goods extends DataClass implements Insertable<Goods> {
         mcVol,
         isFridge,
         shelfLife,
-        shelfLifeTypeName
+        shelfLifeTypeName,
+        barcodes
       ]);
   @override
   bool operator ==(Object other) =>
@@ -6905,7 +6933,8 @@ class Goods extends DataClass implements Insertable<Goods> {
           other.mcVol == this.mcVol &&
           other.isFridge == this.isFridge &&
           other.shelfLife == this.shelfLife &&
-          other.shelfLifeTypeName == this.shelfLifeTypeName);
+          other.shelfLifeTypeName == this.shelfLifeTypeName &&
+          other.barcodes == this.barcodes);
 }
 
 class AllGoodsCompanion extends UpdateCompanion<Goods> {
@@ -6931,6 +6960,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   final Value<bool> isFridge;
   final Value<int> shelfLife;
   final Value<String> shelfLifeTypeName;
+  final Value<List<String>> barcodes;
   const AllGoodsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -6954,6 +6984,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     this.isFridge = const Value.absent(),
     this.shelfLife = const Value.absent(),
     this.shelfLifeTypeName = const Value.absent(),
+    this.barcodes = const Value.absent(),
   });
   AllGoodsCompanion.insert({
     this.id = const Value.absent(),
@@ -6978,6 +7009,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     required bool isFridge,
     required int shelfLife,
     required String shelfLifeTypeName,
+    required List<String> barcodes,
   })  : name = Value(name),
         imageUrl = Value(imageUrl),
         imageKey = Value(imageKey),
@@ -6996,7 +7028,8 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
         mcVol = Value(mcVol),
         isFridge = Value(isFridge),
         shelfLife = Value(shelfLife),
-        shelfLifeTypeName = Value(shelfLifeTypeName);
+        shelfLifeTypeName = Value(shelfLifeTypeName),
+        barcodes = Value(barcodes);
   static Insertable<Goods> custom({
     Expression<int>? id,
     Expression<String>? name,
@@ -7020,6 +7053,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     Expression<bool>? isFridge,
     Expression<int>? shelfLife,
     Expression<String>? shelfLifeTypeName,
+    Expression<String>? barcodes,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -7046,6 +7080,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       if (isFridge != null) 'is_fridge': isFridge,
       if (shelfLife != null) 'shelf_life': shelfLife,
       if (shelfLifeTypeName != null) 'shelf_life_type_name': shelfLifeTypeName,
+      if (barcodes != null) 'barcodes': barcodes,
     });
   }
 
@@ -7071,7 +7106,8 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       Value<double>? mcVol,
       Value<bool>? isFridge,
       Value<int>? shelfLife,
-      Value<String>? shelfLifeTypeName}) {
+      Value<String>? shelfLifeTypeName,
+      Value<List<String>>? barcodes}) {
     return AllGoodsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -7096,6 +7132,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       isFridge: isFridge ?? this.isFridge,
       shelfLife: shelfLife ?? this.shelfLife,
       shelfLifeTypeName: shelfLifeTypeName ?? this.shelfLifeTypeName,
+      barcodes: barcodes ?? this.barcodes,
     );
   }
 
@@ -7169,6 +7206,10 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     if (shelfLifeTypeName.present) {
       map['shelf_life_type_name'] = Variable<String>(shelfLifeTypeName.value);
     }
+    if (barcodes.present) {
+      final converter = $AllGoodsTable.$converterbarcodes;
+      map['barcodes'] = Variable<String>(converter.toSql(barcodes.value));
+    }
     return map;
   }
 
@@ -7196,7 +7237,8 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
           ..write('mcVol: $mcVol, ')
           ..write('isFridge: $isFridge, ')
           ..write('shelfLife: $shelfLife, ')
-          ..write('shelfLifeTypeName: $shelfLifeTypeName')
+          ..write('shelfLifeTypeName: $shelfLifeTypeName, ')
+          ..write('barcodes: $barcodes')
           ..write(')'))
         .toString();
   }
@@ -14778,6 +14820,2143 @@ class GoodsPartnersPricelistsCompanion
   }
 }
 
+class $GoodsReturnStocksTable extends GoodsReturnStocks
+    with TableInfo<$GoodsReturnStocksTable, GoodsReturnStock> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoodsReturnStocksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _goodsIdMeta =
+      const VerificationMeta('goodsId');
+  @override
+  late final GeneratedColumn<int> goodsId = GeneratedColumn<int>(
+      'goods_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _returnActTypeIdMeta =
+      const VerificationMeta('returnActTypeId');
+  @override
+  late final GeneratedColumn<int> returnActTypeId = GeneratedColumn<int>(
+      'return_act_type_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _buyerIdMeta =
+      const VerificationMeta('buyerId');
+  @override
+  late final GeneratedColumn<int> buyerId = GeneratedColumn<int>(
+      'buyer_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _volMeta = const VerificationMeta('vol');
+  @override
+  late final GeneratedColumn<double> vol = GeneratedColumn<double>(
+      'vol', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _receptIdMeta =
+      const VerificationMeta('receptId');
+  @override
+  late final GeneratedColumn<int> receptId = GeneratedColumn<int>(
+      'recept_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _receptSubidMeta =
+      const VerificationMeta('receptSubid');
+  @override
+  late final GeneratedColumn<int> receptSubid = GeneratedColumn<int>(
+      'recept_subid', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _receptDateMeta =
+      const VerificationMeta('receptDate');
+  @override
+  late final GeneratedColumn<DateTime> receptDate = GeneratedColumn<DateTime>(
+      'recept_date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _receptNdocMeta =
+      const VerificationMeta('receptNdoc');
+  @override
+  late final GeneratedColumn<String> receptNdoc = GeneratedColumn<String>(
+      'recept_ndoc', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        goodsId,
+        returnActTypeId,
+        buyerId,
+        vol,
+        receptId,
+        receptSubid,
+        receptDate,
+        receptNdoc
+      ];
+  @override
+  String get aliasedName => _alias ?? 'goods_return_stocks';
+  @override
+  String get actualTableName => 'goods_return_stocks';
+  @override
+  VerificationContext validateIntegrity(Insertable<GoodsReturnStock> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('goods_id')) {
+      context.handle(_goodsIdMeta,
+          goodsId.isAcceptableOrUnknown(data['goods_id']!, _goodsIdMeta));
+    } else if (isInserting) {
+      context.missing(_goodsIdMeta);
+    }
+    if (data.containsKey('return_act_type_id')) {
+      context.handle(
+          _returnActTypeIdMeta,
+          returnActTypeId.isAcceptableOrUnknown(
+              data['return_act_type_id']!, _returnActTypeIdMeta));
+    } else if (isInserting) {
+      context.missing(_returnActTypeIdMeta);
+    }
+    if (data.containsKey('buyer_id')) {
+      context.handle(_buyerIdMeta,
+          buyerId.isAcceptableOrUnknown(data['buyer_id']!, _buyerIdMeta));
+    } else if (isInserting) {
+      context.missing(_buyerIdMeta);
+    }
+    if (data.containsKey('vol')) {
+      context.handle(
+          _volMeta, vol.isAcceptableOrUnknown(data['vol']!, _volMeta));
+    } else if (isInserting) {
+      context.missing(_volMeta);
+    }
+    if (data.containsKey('recept_id')) {
+      context.handle(_receptIdMeta,
+          receptId.isAcceptableOrUnknown(data['recept_id']!, _receptIdMeta));
+    } else if (isInserting) {
+      context.missing(_receptIdMeta);
+    }
+    if (data.containsKey('recept_subid')) {
+      context.handle(
+          _receptSubidMeta,
+          receptSubid.isAcceptableOrUnknown(
+              data['recept_subid']!, _receptSubidMeta));
+    } else if (isInserting) {
+      context.missing(_receptSubidMeta);
+    }
+    if (data.containsKey('recept_date')) {
+      context.handle(
+          _receptDateMeta,
+          receptDate.isAcceptableOrUnknown(
+              data['recept_date']!, _receptDateMeta));
+    } else if (isInserting) {
+      context.missing(_receptDateMeta);
+    }
+    if (data.containsKey('recept_ndoc')) {
+      context.handle(
+          _receptNdocMeta,
+          receptNdoc.isAcceptableOrUnknown(
+              data['recept_ndoc']!, _receptNdocMeta));
+    } else if (isInserting) {
+      context.missing(_receptNdocMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey =>
+      {goodsId, receptId, receptSubid, returnActTypeId};
+  @override
+  GoodsReturnStock map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GoodsReturnStock(
+      goodsId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}goods_id'])!,
+      returnActTypeId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}return_act_type_id'])!,
+      buyerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}buyer_id'])!,
+      vol: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}vol'])!,
+      receptId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}recept_id'])!,
+      receptSubid: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}recept_subid'])!,
+      receptDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}recept_date'])!,
+      receptNdoc: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}recept_ndoc'])!,
+    );
+  }
+
+  @override
+  $GoodsReturnStocksTable createAlias(String alias) {
+    return $GoodsReturnStocksTable(attachedDatabase, alias);
+  }
+}
+
+class GoodsReturnStock extends DataClass
+    implements Insertable<GoodsReturnStock> {
+  final int goodsId;
+  final int returnActTypeId;
+  final int buyerId;
+  final double vol;
+  final int receptId;
+  final int receptSubid;
+  final DateTime receptDate;
+  final String receptNdoc;
+  const GoodsReturnStock(
+      {required this.goodsId,
+      required this.returnActTypeId,
+      required this.buyerId,
+      required this.vol,
+      required this.receptId,
+      required this.receptSubid,
+      required this.receptDate,
+      required this.receptNdoc});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['goods_id'] = Variable<int>(goodsId);
+    map['return_act_type_id'] = Variable<int>(returnActTypeId);
+    map['buyer_id'] = Variable<int>(buyerId);
+    map['vol'] = Variable<double>(vol);
+    map['recept_id'] = Variable<int>(receptId);
+    map['recept_subid'] = Variable<int>(receptSubid);
+    map['recept_date'] = Variable<DateTime>(receptDate);
+    map['recept_ndoc'] = Variable<String>(receptNdoc);
+    return map;
+  }
+
+  GoodsReturnStocksCompanion toCompanion(bool nullToAbsent) {
+    return GoodsReturnStocksCompanion(
+      goodsId: Value(goodsId),
+      returnActTypeId: Value(returnActTypeId),
+      buyerId: Value(buyerId),
+      vol: Value(vol),
+      receptId: Value(receptId),
+      receptSubid: Value(receptSubid),
+      receptDate: Value(receptDate),
+      receptNdoc: Value(receptNdoc),
+    );
+  }
+
+  factory GoodsReturnStock.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GoodsReturnStock(
+      goodsId: serializer.fromJson<int>(json['goodsId']),
+      returnActTypeId: serializer.fromJson<int>(json['returnActTypeId']),
+      buyerId: serializer.fromJson<int>(json['buyerId']),
+      vol: serializer.fromJson<double>(json['vol']),
+      receptId: serializer.fromJson<int>(json['receptId']),
+      receptSubid: serializer.fromJson<int>(json['receptSubid']),
+      receptDate: serializer.fromJson<DateTime>(json['receptDate']),
+      receptNdoc: serializer.fromJson<String>(json['receptNdoc']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'goodsId': serializer.toJson<int>(goodsId),
+      'returnActTypeId': serializer.toJson<int>(returnActTypeId),
+      'buyerId': serializer.toJson<int>(buyerId),
+      'vol': serializer.toJson<double>(vol),
+      'receptId': serializer.toJson<int>(receptId),
+      'receptSubid': serializer.toJson<int>(receptSubid),
+      'receptDate': serializer.toJson<DateTime>(receptDate),
+      'receptNdoc': serializer.toJson<String>(receptNdoc),
+    };
+  }
+
+  GoodsReturnStock copyWith(
+          {int? goodsId,
+          int? returnActTypeId,
+          int? buyerId,
+          double? vol,
+          int? receptId,
+          int? receptSubid,
+          DateTime? receptDate,
+          String? receptNdoc}) =>
+      GoodsReturnStock(
+        goodsId: goodsId ?? this.goodsId,
+        returnActTypeId: returnActTypeId ?? this.returnActTypeId,
+        buyerId: buyerId ?? this.buyerId,
+        vol: vol ?? this.vol,
+        receptId: receptId ?? this.receptId,
+        receptSubid: receptSubid ?? this.receptSubid,
+        receptDate: receptDate ?? this.receptDate,
+        receptNdoc: receptNdoc ?? this.receptNdoc,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('GoodsReturnStock(')
+          ..write('goodsId: $goodsId, ')
+          ..write('returnActTypeId: $returnActTypeId, ')
+          ..write('buyerId: $buyerId, ')
+          ..write('vol: $vol, ')
+          ..write('receptId: $receptId, ')
+          ..write('receptSubid: $receptSubid, ')
+          ..write('receptDate: $receptDate, ')
+          ..write('receptNdoc: $receptNdoc')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(goodsId, returnActTypeId, buyerId, vol,
+      receptId, receptSubid, receptDate, receptNdoc);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GoodsReturnStock &&
+          other.goodsId == this.goodsId &&
+          other.returnActTypeId == this.returnActTypeId &&
+          other.buyerId == this.buyerId &&
+          other.vol == this.vol &&
+          other.receptId == this.receptId &&
+          other.receptSubid == this.receptSubid &&
+          other.receptDate == this.receptDate &&
+          other.receptNdoc == this.receptNdoc);
+}
+
+class GoodsReturnStocksCompanion extends UpdateCompanion<GoodsReturnStock> {
+  final Value<int> goodsId;
+  final Value<int> returnActTypeId;
+  final Value<int> buyerId;
+  final Value<double> vol;
+  final Value<int> receptId;
+  final Value<int> receptSubid;
+  final Value<DateTime> receptDate;
+  final Value<String> receptNdoc;
+  final Value<int> rowid;
+  const GoodsReturnStocksCompanion({
+    this.goodsId = const Value.absent(),
+    this.returnActTypeId = const Value.absent(),
+    this.buyerId = const Value.absent(),
+    this.vol = const Value.absent(),
+    this.receptId = const Value.absent(),
+    this.receptSubid = const Value.absent(),
+    this.receptDate = const Value.absent(),
+    this.receptNdoc = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GoodsReturnStocksCompanion.insert({
+    required int goodsId,
+    required int returnActTypeId,
+    required int buyerId,
+    required double vol,
+    required int receptId,
+    required int receptSubid,
+    required DateTime receptDate,
+    required String receptNdoc,
+    this.rowid = const Value.absent(),
+  })  : goodsId = Value(goodsId),
+        returnActTypeId = Value(returnActTypeId),
+        buyerId = Value(buyerId),
+        vol = Value(vol),
+        receptId = Value(receptId),
+        receptSubid = Value(receptSubid),
+        receptDate = Value(receptDate),
+        receptNdoc = Value(receptNdoc);
+  static Insertable<GoodsReturnStock> custom({
+    Expression<int>? goodsId,
+    Expression<int>? returnActTypeId,
+    Expression<int>? buyerId,
+    Expression<double>? vol,
+    Expression<int>? receptId,
+    Expression<int>? receptSubid,
+    Expression<DateTime>? receptDate,
+    Expression<String>? receptNdoc,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (goodsId != null) 'goods_id': goodsId,
+      if (returnActTypeId != null) 'return_act_type_id': returnActTypeId,
+      if (buyerId != null) 'buyer_id': buyerId,
+      if (vol != null) 'vol': vol,
+      if (receptId != null) 'recept_id': receptId,
+      if (receptSubid != null) 'recept_subid': receptSubid,
+      if (receptDate != null) 'recept_date': receptDate,
+      if (receptNdoc != null) 'recept_ndoc': receptNdoc,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GoodsReturnStocksCompanion copyWith(
+      {Value<int>? goodsId,
+      Value<int>? returnActTypeId,
+      Value<int>? buyerId,
+      Value<double>? vol,
+      Value<int>? receptId,
+      Value<int>? receptSubid,
+      Value<DateTime>? receptDate,
+      Value<String>? receptNdoc,
+      Value<int>? rowid}) {
+    return GoodsReturnStocksCompanion(
+      goodsId: goodsId ?? this.goodsId,
+      returnActTypeId: returnActTypeId ?? this.returnActTypeId,
+      buyerId: buyerId ?? this.buyerId,
+      vol: vol ?? this.vol,
+      receptId: receptId ?? this.receptId,
+      receptSubid: receptSubid ?? this.receptSubid,
+      receptDate: receptDate ?? this.receptDate,
+      receptNdoc: receptNdoc ?? this.receptNdoc,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (goodsId.present) {
+      map['goods_id'] = Variable<int>(goodsId.value);
+    }
+    if (returnActTypeId.present) {
+      map['return_act_type_id'] = Variable<int>(returnActTypeId.value);
+    }
+    if (buyerId.present) {
+      map['buyer_id'] = Variable<int>(buyerId.value);
+    }
+    if (vol.present) {
+      map['vol'] = Variable<double>(vol.value);
+    }
+    if (receptId.present) {
+      map['recept_id'] = Variable<int>(receptId.value);
+    }
+    if (receptSubid.present) {
+      map['recept_subid'] = Variable<int>(receptSubid.value);
+    }
+    if (receptDate.present) {
+      map['recept_date'] = Variable<DateTime>(receptDate.value);
+    }
+    if (receptNdoc.present) {
+      map['recept_ndoc'] = Variable<String>(receptNdoc.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoodsReturnStocksCompanion(')
+          ..write('goodsId: $goodsId, ')
+          ..write('returnActTypeId: $returnActTypeId, ')
+          ..write('buyerId: $buyerId, ')
+          ..write('vol: $vol, ')
+          ..write('receptId: $receptId, ')
+          ..write('receptSubid: $receptSubid, ')
+          ..write('receptDate: $receptDate, ')
+          ..write('receptNdoc: $receptNdoc, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ReturnActsTable extends ReturnActs
+    with TableInfo<$ReturnActsTable, ReturnAct> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReturnActsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _guidMeta = const VerificationMeta('guid');
+  @override
+  late final GeneratedColumn<String> guid = GeneratedColumn<String>(
+      'guid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isDeletedMeta =
+      const VerificationMeta('isDeleted');
+  @override
+  late final GeneratedColumn<bool> isDeleted =
+      GeneratedColumn<bool>('is_deleted', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }),
+          defaultValue: const Constant(false));
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _currentTimestampMeta =
+      const VerificationMeta('currentTimestamp');
+  @override
+  late final GeneratedColumn<DateTime> currentTimestamp =
+      GeneratedColumn<DateTime>('current_timestamp', aliasedName, false,
+          type: DriftSqlType.dateTime,
+          requiredDuringInsert: false,
+          defaultValue: currentDateAndTime);
+  static const VerificationMeta _lastSyncTimeMeta =
+      const VerificationMeta('lastSyncTime');
+  @override
+  late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
+      'last_sync_time', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          (isNew & isDeleted.not()) |
+              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
+          true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
+        SqlDialect.mysql: '',
+        SqlDialect.postgres: '',
+      }));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew =
+      GeneratedColumn<bool>('is_new', aliasedName, false,
+          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+      'date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _numberMeta = const VerificationMeta('number');
+  @override
+  late final GeneratedColumn<String> number = GeneratedColumn<String>(
+      'number', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _buyerIdMeta =
+      const VerificationMeta('buyerId');
+  @override
+  late final GeneratedColumn<int> buyerId = GeneratedColumn<int>(
+      'buyer_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _needPickupMeta =
+      const VerificationMeta('needPickup');
+  @override
+  late final GeneratedColumn<bool> needPickup =
+      GeneratedColumn<bool>('need_pickup', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: true,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("need_pickup" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
+  static const VerificationMeta _returnActTypeIdMeta =
+      const VerificationMeta('returnActTypeId');
+  @override
+  late final GeneratedColumn<int> returnActTypeId = GeneratedColumn<int>(
+      'return_act_type_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _receptIdMeta =
+      const VerificationMeta('receptId');
+  @override
+  late final GeneratedColumn<int> receptId = GeneratedColumn<int>(
+      'recept_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _receptNdocMeta =
+      const VerificationMeta('receptNdoc');
+  @override
+  late final GeneratedColumn<String> receptNdoc = GeneratedColumn<String>(
+      'recept_ndoc', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _receptDateMeta =
+      const VerificationMeta('receptDate');
+  @override
+  late final GeneratedColumn<DateTime> receptDate = GeneratedColumn<DateTime>(
+      'recept_date', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        guid,
+        isDeleted,
+        timestamp,
+        currentTimestamp,
+        lastSyncTime,
+        needSync,
+        isNew,
+        id,
+        date,
+        number,
+        buyerId,
+        needPickup,
+        returnActTypeId,
+        receptId,
+        receptNdoc,
+        receptDate
+      ];
+  @override
+  String get aliasedName => _alias ?? 'return_acts';
+  @override
+  String get actualTableName => 'return_acts';
+  @override
+  VerificationContext validateIntegrity(Insertable<ReturnAct> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('guid')) {
+      context.handle(
+          _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(_isDeletedMeta,
+          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('current_timestamp')) {
+      context.handle(
+          _currentTimestampMeta,
+          currentTimestamp.isAcceptableOrUnknown(
+              data['current_timestamp']!, _currentTimestampMeta));
+    }
+    if (data.containsKey('last_sync_time')) {
+      context.handle(
+          _lastSyncTimeMeta,
+          lastSyncTime.isAcceptableOrUnknown(
+              data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    }
+    if (data.containsKey('number')) {
+      context.handle(_numberMeta,
+          number.isAcceptableOrUnknown(data['number']!, _numberMeta));
+    }
+    if (data.containsKey('buyer_id')) {
+      context.handle(_buyerIdMeta,
+          buyerId.isAcceptableOrUnknown(data['buyer_id']!, _buyerIdMeta));
+    }
+    if (data.containsKey('need_pickup')) {
+      context.handle(
+          _needPickupMeta,
+          needPickup.isAcceptableOrUnknown(
+              data['need_pickup']!, _needPickupMeta));
+    } else if (isInserting) {
+      context.missing(_needPickupMeta);
+    }
+    if (data.containsKey('return_act_type_id')) {
+      context.handle(
+          _returnActTypeIdMeta,
+          returnActTypeId.isAcceptableOrUnknown(
+              data['return_act_type_id']!, _returnActTypeIdMeta));
+    }
+    if (data.containsKey('recept_id')) {
+      context.handle(_receptIdMeta,
+          receptId.isAcceptableOrUnknown(data['recept_id']!, _receptIdMeta));
+    }
+    if (data.containsKey('recept_ndoc')) {
+      context.handle(
+          _receptNdocMeta,
+          receptNdoc.isAcceptableOrUnknown(
+              data['recept_ndoc']!, _receptNdocMeta));
+    }
+    if (data.containsKey('recept_date')) {
+      context.handle(
+          _receptDateMeta,
+          receptDate.isAcceptableOrUnknown(
+              data['recept_date']!, _receptDateMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {guid};
+  @override
+  ReturnAct map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReturnAct(
+      guid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}guid'])!,
+      isDeleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      currentTimestamp: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
+      lastSyncTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id']),
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date']),
+      number: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}number']),
+      buyerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}buyer_id']),
+      needPickup: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_pickup'])!,
+      returnActTypeId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}return_act_type_id']),
+      receptId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}recept_id']),
+      receptNdoc: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}recept_ndoc']),
+      receptDate: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}recept_date']),
+    );
+  }
+
+  @override
+  $ReturnActsTable createAlias(String alias) {
+    return $ReturnActsTable(attachedDatabase, alias);
+  }
+}
+
+class ReturnAct extends DataClass implements Insertable<ReturnAct> {
+  final String guid;
+  final bool isDeleted;
+  final DateTime timestamp;
+  final DateTime currentTimestamp;
+  final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
+  final int? id;
+  final DateTime? date;
+  final String? number;
+  final int? buyerId;
+  final bool needPickup;
+  final int? returnActTypeId;
+  final int? receptId;
+  final String? receptNdoc;
+  final DateTime? receptDate;
+  const ReturnAct(
+      {required this.guid,
+      required this.isDeleted,
+      required this.timestamp,
+      required this.currentTimestamp,
+      this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
+      this.id,
+      this.date,
+      this.number,
+      this.buyerId,
+      required this.needPickup,
+      this.returnActTypeId,
+      this.receptId,
+      this.receptNdoc,
+      this.receptDate});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['guid'] = Variable<String>(guid);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['current_timestamp'] = Variable<DateTime>(currentTimestamp);
+    if (!nullToAbsent || lastSyncTime != null) {
+      map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
+    }
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    if (!nullToAbsent || date != null) {
+      map['date'] = Variable<DateTime>(date);
+    }
+    if (!nullToAbsent || number != null) {
+      map['number'] = Variable<String>(number);
+    }
+    if (!nullToAbsent || buyerId != null) {
+      map['buyer_id'] = Variable<int>(buyerId);
+    }
+    map['need_pickup'] = Variable<bool>(needPickup);
+    if (!nullToAbsent || returnActTypeId != null) {
+      map['return_act_type_id'] = Variable<int>(returnActTypeId);
+    }
+    if (!nullToAbsent || receptId != null) {
+      map['recept_id'] = Variable<int>(receptId);
+    }
+    if (!nullToAbsent || receptNdoc != null) {
+      map['recept_ndoc'] = Variable<String>(receptNdoc);
+    }
+    if (!nullToAbsent || receptDate != null) {
+      map['recept_date'] = Variable<DateTime>(receptDate);
+    }
+    return map;
+  }
+
+  ReturnActsCompanion toCompanion(bool nullToAbsent) {
+    return ReturnActsCompanion(
+      guid: Value(guid),
+      isDeleted: Value(isDeleted),
+      timestamp: Value(timestamp),
+      currentTimestamp: Value(currentTimestamp),
+      lastSyncTime: lastSyncTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncTime),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      date: date == null && nullToAbsent ? const Value.absent() : Value(date),
+      number:
+          number == null && nullToAbsent ? const Value.absent() : Value(number),
+      buyerId: buyerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(buyerId),
+      needPickup: Value(needPickup),
+      returnActTypeId: returnActTypeId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(returnActTypeId),
+      receptId: receptId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(receptId),
+      receptNdoc: receptNdoc == null && nullToAbsent
+          ? const Value.absent()
+          : Value(receptNdoc),
+      receptDate: receptDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(receptDate),
+    );
+  }
+
+  factory ReturnAct.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReturnAct(
+      guid: serializer.fromJson<String>(json['guid']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
+      lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
+      id: serializer.fromJson<int?>(json['id']),
+      date: serializer.fromJson<DateTime?>(json['date']),
+      number: serializer.fromJson<String?>(json['number']),
+      buyerId: serializer.fromJson<int?>(json['buyerId']),
+      needPickup: serializer.fromJson<bool>(json['needPickup']),
+      returnActTypeId: serializer.fromJson<int?>(json['returnActTypeId']),
+      receptId: serializer.fromJson<int?>(json['receptId']),
+      receptNdoc: serializer.fromJson<String?>(json['receptNdoc']),
+      receptDate: serializer.fromJson<DateTime?>(json['receptDate']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'guid': serializer.toJson<String>(guid),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
+      'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
+      'id': serializer.toJson<int?>(id),
+      'date': serializer.toJson<DateTime?>(date),
+      'number': serializer.toJson<String?>(number),
+      'buyerId': serializer.toJson<int?>(buyerId),
+      'needPickup': serializer.toJson<bool>(needPickup),
+      'returnActTypeId': serializer.toJson<int?>(returnActTypeId),
+      'receptId': serializer.toJson<int?>(receptId),
+      'receptNdoc': serializer.toJson<String?>(receptNdoc),
+      'receptDate': serializer.toJson<DateTime?>(receptDate),
+    };
+  }
+
+  ReturnAct copyWith(
+          {String? guid,
+          bool? isDeleted,
+          DateTime? timestamp,
+          DateTime? currentTimestamp,
+          Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
+          Value<int?> id = const Value.absent(),
+          Value<DateTime?> date = const Value.absent(),
+          Value<String?> number = const Value.absent(),
+          Value<int?> buyerId = const Value.absent(),
+          bool? needPickup,
+          Value<int?> returnActTypeId = const Value.absent(),
+          Value<int?> receptId = const Value.absent(),
+          Value<String?> receptNdoc = const Value.absent(),
+          Value<DateTime?> receptDate = const Value.absent()}) =>
+      ReturnAct(
+        guid: guid ?? this.guid,
+        isDeleted: isDeleted ?? this.isDeleted,
+        timestamp: timestamp ?? this.timestamp,
+        currentTimestamp: currentTimestamp ?? this.currentTimestamp,
+        lastSyncTime:
+            lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
+        id: id.present ? id.value : this.id,
+        date: date.present ? date.value : this.date,
+        number: number.present ? number.value : this.number,
+        buyerId: buyerId.present ? buyerId.value : this.buyerId,
+        needPickup: needPickup ?? this.needPickup,
+        returnActTypeId: returnActTypeId.present
+            ? returnActTypeId.value
+            : this.returnActTypeId,
+        receptId: receptId.present ? receptId.value : this.receptId,
+        receptNdoc: receptNdoc.present ? receptNdoc.value : this.receptNdoc,
+        receptDate: receptDate.present ? receptDate.value : this.receptDate,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ReturnAct(')
+          ..write('guid: $guid, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('currentTimestamp: $currentTimestamp, ')
+          ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
+          ..write('id: $id, ')
+          ..write('date: $date, ')
+          ..write('number: $number, ')
+          ..write('buyerId: $buyerId, ')
+          ..write('needPickup: $needPickup, ')
+          ..write('returnActTypeId: $returnActTypeId, ')
+          ..write('receptId: $receptId, ')
+          ..write('receptNdoc: $receptNdoc, ')
+          ..write('receptDate: $receptDate')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      guid,
+      isDeleted,
+      timestamp,
+      currentTimestamp,
+      lastSyncTime,
+      needSync,
+      isNew,
+      id,
+      date,
+      number,
+      buyerId,
+      needPickup,
+      returnActTypeId,
+      receptId,
+      receptNdoc,
+      receptDate);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReturnAct &&
+          other.guid == this.guid &&
+          other.isDeleted == this.isDeleted &&
+          other.timestamp == this.timestamp &&
+          other.currentTimestamp == this.currentTimestamp &&
+          other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
+          other.id == this.id &&
+          other.date == this.date &&
+          other.number == this.number &&
+          other.buyerId == this.buyerId &&
+          other.needPickup == this.needPickup &&
+          other.returnActTypeId == this.returnActTypeId &&
+          other.receptId == this.receptId &&
+          other.receptNdoc == this.receptNdoc &&
+          other.receptDate == this.receptDate);
+}
+
+class ReturnActsCompanion extends UpdateCompanion<ReturnAct> {
+  final Value<String> guid;
+  final Value<bool> isDeleted;
+  final Value<DateTime> timestamp;
+  final Value<DateTime> currentTimestamp;
+  final Value<DateTime?> lastSyncTime;
+  final Value<int?> id;
+  final Value<DateTime?> date;
+  final Value<String?> number;
+  final Value<int?> buyerId;
+  final Value<bool> needPickup;
+  final Value<int?> returnActTypeId;
+  final Value<int?> receptId;
+  final Value<String?> receptNdoc;
+  final Value<DateTime?> receptDate;
+  final Value<int> rowid;
+  const ReturnActsCompanion({
+    this.guid = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.currentTimestamp = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
+    this.id = const Value.absent(),
+    this.date = const Value.absent(),
+    this.number = const Value.absent(),
+    this.buyerId = const Value.absent(),
+    this.needPickup = const Value.absent(),
+    this.returnActTypeId = const Value.absent(),
+    this.receptId = const Value.absent(),
+    this.receptNdoc = const Value.absent(),
+    this.receptDate = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReturnActsCompanion.insert({
+    required String guid,
+    this.isDeleted = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.currentTimestamp = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
+    this.id = const Value.absent(),
+    this.date = const Value.absent(),
+    this.number = const Value.absent(),
+    this.buyerId = const Value.absent(),
+    required bool needPickup,
+    this.returnActTypeId = const Value.absent(),
+    this.receptId = const Value.absent(),
+    this.receptNdoc = const Value.absent(),
+    this.receptDate = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : guid = Value(guid),
+        needPickup = Value(needPickup);
+  static Insertable<ReturnAct> custom({
+    Expression<String>? guid,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? timestamp,
+    Expression<DateTime>? currentTimestamp,
+    Expression<DateTime>? lastSyncTime,
+    Expression<int>? id,
+    Expression<DateTime>? date,
+    Expression<String>? number,
+    Expression<int>? buyerId,
+    Expression<bool>? needPickup,
+    Expression<int>? returnActTypeId,
+    Expression<int>? receptId,
+    Expression<String>? receptNdoc,
+    Expression<DateTime>? receptDate,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (guid != null) 'guid': guid,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (currentTimestamp != null) 'current_timestamp': currentTimestamp,
+      if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
+      if (id != null) 'id': id,
+      if (date != null) 'date': date,
+      if (number != null) 'number': number,
+      if (buyerId != null) 'buyer_id': buyerId,
+      if (needPickup != null) 'need_pickup': needPickup,
+      if (returnActTypeId != null) 'return_act_type_id': returnActTypeId,
+      if (receptId != null) 'recept_id': receptId,
+      if (receptNdoc != null) 'recept_ndoc': receptNdoc,
+      if (receptDate != null) 'recept_date': receptDate,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReturnActsCompanion copyWith(
+      {Value<String>? guid,
+      Value<bool>? isDeleted,
+      Value<DateTime>? timestamp,
+      Value<DateTime>? currentTimestamp,
+      Value<DateTime?>? lastSyncTime,
+      Value<int?>? id,
+      Value<DateTime?>? date,
+      Value<String?>? number,
+      Value<int?>? buyerId,
+      Value<bool>? needPickup,
+      Value<int?>? returnActTypeId,
+      Value<int?>? receptId,
+      Value<String?>? receptNdoc,
+      Value<DateTime?>? receptDate,
+      Value<int>? rowid}) {
+    return ReturnActsCompanion(
+      guid: guid ?? this.guid,
+      isDeleted: isDeleted ?? this.isDeleted,
+      timestamp: timestamp ?? this.timestamp,
+      currentTimestamp: currentTimestamp ?? this.currentTimestamp,
+      lastSyncTime: lastSyncTime ?? this.lastSyncTime,
+      id: id ?? this.id,
+      date: date ?? this.date,
+      number: number ?? this.number,
+      buyerId: buyerId ?? this.buyerId,
+      needPickup: needPickup ?? this.needPickup,
+      returnActTypeId: returnActTypeId ?? this.returnActTypeId,
+      receptId: receptId ?? this.receptId,
+      receptNdoc: receptNdoc ?? this.receptNdoc,
+      receptDate: receptDate ?? this.receptDate,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (guid.present) {
+      map['guid'] = Variable<String>(guid.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (currentTimestamp.present) {
+      map['current_timestamp'] = Variable<DateTime>(currentTimestamp.value);
+    }
+    if (lastSyncTime.present) {
+      map['last_sync_time'] = Variable<DateTime>(lastSyncTime.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (number.present) {
+      map['number'] = Variable<String>(number.value);
+    }
+    if (buyerId.present) {
+      map['buyer_id'] = Variable<int>(buyerId.value);
+    }
+    if (needPickup.present) {
+      map['need_pickup'] = Variable<bool>(needPickup.value);
+    }
+    if (returnActTypeId.present) {
+      map['return_act_type_id'] = Variable<int>(returnActTypeId.value);
+    }
+    if (receptId.present) {
+      map['recept_id'] = Variable<int>(receptId.value);
+    }
+    if (receptNdoc.present) {
+      map['recept_ndoc'] = Variable<String>(receptNdoc.value);
+    }
+    if (receptDate.present) {
+      map['recept_date'] = Variable<DateTime>(receptDate.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReturnActsCompanion(')
+          ..write('guid: $guid, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('currentTimestamp: $currentTimestamp, ')
+          ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('id: $id, ')
+          ..write('date: $date, ')
+          ..write('number: $number, ')
+          ..write('buyerId: $buyerId, ')
+          ..write('needPickup: $needPickup, ')
+          ..write('returnActTypeId: $returnActTypeId, ')
+          ..write('receptId: $receptId, ')
+          ..write('receptNdoc: $receptNdoc, ')
+          ..write('receptDate: $receptDate, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ReturnActLinesTable extends ReturnActLines
+    with TableInfo<$ReturnActLinesTable, ReturnActLine> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReturnActLinesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _guidMeta = const VerificationMeta('guid');
+  @override
+  late final GeneratedColumn<String> guid = GeneratedColumn<String>(
+      'guid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isDeletedMeta =
+      const VerificationMeta('isDeleted');
+  @override
+  late final GeneratedColumn<bool> isDeleted =
+      GeneratedColumn<bool>('is_deleted', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }),
+          defaultValue: const Constant(false));
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _currentTimestampMeta =
+      const VerificationMeta('currentTimestamp');
+  @override
+  late final GeneratedColumn<DateTime> currentTimestamp =
+      GeneratedColumn<DateTime>('current_timestamp', aliasedName, false,
+          type: DriftSqlType.dateTime,
+          requiredDuringInsert: false,
+          defaultValue: currentDateAndTime);
+  static const VerificationMeta _lastSyncTimeMeta =
+      const VerificationMeta('lastSyncTime');
+  @override
+  late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
+      'last_sync_time', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          (isNew & isDeleted.not()) |
+              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
+          true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
+        SqlDialect.mysql: '',
+        SqlDialect.postgres: '',
+      }));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew =
+      GeneratedColumn<bool>('is_new', aliasedName, false,
+          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _returnActGuidMeta =
+      const VerificationMeta('returnActGuid');
+  @override
+  late final GeneratedColumn<String> returnActGuid = GeneratedColumn<String>(
+      'return_act_guid', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES return_acts (guid) ON UPDATE CASCADE ON DELETE CASCADE'));
+  static const VerificationMeta _goodsIdMeta =
+      const VerificationMeta('goodsId');
+  @override
+  late final GeneratedColumn<int> goodsId = GeneratedColumn<int>(
+      'goods_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _volMeta = const VerificationMeta('vol');
+  @override
+  late final GeneratedColumn<double> vol = GeneratedColumn<double>(
+      'vol', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _productionDateMeta =
+      const VerificationMeta('productionDate');
+  @override
+  late final GeneratedColumn<DateTime> productionDate =
+      GeneratedColumn<DateTime>('production_date', aliasedName, true,
+          type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _isBadMeta = const VerificationMeta('isBad');
+  @override
+  late final GeneratedColumn<bool> isBad =
+      GeneratedColumn<bool>('is_bad', aliasedName, true,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: false,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_bad" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
+  @override
+  List<GeneratedColumn> get $columns => [
+        guid,
+        isDeleted,
+        timestamp,
+        currentTimestamp,
+        lastSyncTime,
+        needSync,
+        isNew,
+        id,
+        returnActGuid,
+        goodsId,
+        vol,
+        productionDate,
+        isBad
+      ];
+  @override
+  String get aliasedName => _alias ?? 'return_act_lines';
+  @override
+  String get actualTableName => 'return_act_lines';
+  @override
+  VerificationContext validateIntegrity(Insertable<ReturnActLine> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('guid')) {
+      context.handle(
+          _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(_isDeletedMeta,
+          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('current_timestamp')) {
+      context.handle(
+          _currentTimestampMeta,
+          currentTimestamp.isAcceptableOrUnknown(
+              data['current_timestamp']!, _currentTimestampMeta));
+    }
+    if (data.containsKey('last_sync_time')) {
+      context.handle(
+          _lastSyncTimeMeta,
+          lastSyncTime.isAcceptableOrUnknown(
+              data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('return_act_guid')) {
+      context.handle(
+          _returnActGuidMeta,
+          returnActGuid.isAcceptableOrUnknown(
+              data['return_act_guid']!, _returnActGuidMeta));
+    } else if (isInserting) {
+      context.missing(_returnActGuidMeta);
+    }
+    if (data.containsKey('goods_id')) {
+      context.handle(_goodsIdMeta,
+          goodsId.isAcceptableOrUnknown(data['goods_id']!, _goodsIdMeta));
+    } else if (isInserting) {
+      context.missing(_goodsIdMeta);
+    }
+    if (data.containsKey('vol')) {
+      context.handle(
+          _volMeta, vol.isAcceptableOrUnknown(data['vol']!, _volMeta));
+    } else if (isInserting) {
+      context.missing(_volMeta);
+    }
+    if (data.containsKey('production_date')) {
+      context.handle(
+          _productionDateMeta,
+          productionDate.isAcceptableOrUnknown(
+              data['production_date']!, _productionDateMeta));
+    }
+    if (data.containsKey('is_bad')) {
+      context.handle(
+          _isBadMeta, isBad.isAcceptableOrUnknown(data['is_bad']!, _isBadMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {guid};
+  @override
+  ReturnActLine map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReturnActLine(
+      guid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}guid'])!,
+      isDeleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      currentTimestamp: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
+      lastSyncTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id']),
+      returnActGuid: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}return_act_guid'])!,
+      goodsId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}goods_id'])!,
+      vol: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}vol'])!,
+      productionDate: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}production_date']),
+      isBad: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_bad']),
+    );
+  }
+
+  @override
+  $ReturnActLinesTable createAlias(String alias) {
+    return $ReturnActLinesTable(attachedDatabase, alias);
+  }
+}
+
+class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
+  final String guid;
+  final bool isDeleted;
+  final DateTime timestamp;
+  final DateTime currentTimestamp;
+  final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
+  final int? id;
+  final String returnActGuid;
+  final int goodsId;
+  final double vol;
+  final DateTime? productionDate;
+  final bool? isBad;
+  const ReturnActLine(
+      {required this.guid,
+      required this.isDeleted,
+      required this.timestamp,
+      required this.currentTimestamp,
+      this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
+      this.id,
+      required this.returnActGuid,
+      required this.goodsId,
+      required this.vol,
+      this.productionDate,
+      this.isBad});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['guid'] = Variable<String>(guid);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['current_timestamp'] = Variable<DateTime>(currentTimestamp);
+    if (!nullToAbsent || lastSyncTime != null) {
+      map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
+    }
+    if (!nullToAbsent || id != null) {
+      map['id'] = Variable<int>(id);
+    }
+    map['return_act_guid'] = Variable<String>(returnActGuid);
+    map['goods_id'] = Variable<int>(goodsId);
+    map['vol'] = Variable<double>(vol);
+    if (!nullToAbsent || productionDate != null) {
+      map['production_date'] = Variable<DateTime>(productionDate);
+    }
+    if (!nullToAbsent || isBad != null) {
+      map['is_bad'] = Variable<bool>(isBad);
+    }
+    return map;
+  }
+
+  ReturnActLinesCompanion toCompanion(bool nullToAbsent) {
+    return ReturnActLinesCompanion(
+      guid: Value(guid),
+      isDeleted: Value(isDeleted),
+      timestamp: Value(timestamp),
+      currentTimestamp: Value(currentTimestamp),
+      lastSyncTime: lastSyncTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncTime),
+      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
+      returnActGuid: Value(returnActGuid),
+      goodsId: Value(goodsId),
+      vol: Value(vol),
+      productionDate: productionDate == null && nullToAbsent
+          ? const Value.absent()
+          : Value(productionDate),
+      isBad:
+          isBad == null && nullToAbsent ? const Value.absent() : Value(isBad),
+    );
+  }
+
+  factory ReturnActLine.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReturnActLine(
+      guid: serializer.fromJson<String>(json['guid']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
+      lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
+      id: serializer.fromJson<int?>(json['id']),
+      returnActGuid: serializer.fromJson<String>(json['returnActGuid']),
+      goodsId: serializer.fromJson<int>(json['goodsId']),
+      vol: serializer.fromJson<double>(json['vol']),
+      productionDate: serializer.fromJson<DateTime?>(json['productionDate']),
+      isBad: serializer.fromJson<bool?>(json['isBad']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'guid': serializer.toJson<String>(guid),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
+      'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
+      'id': serializer.toJson<int?>(id),
+      'returnActGuid': serializer.toJson<String>(returnActGuid),
+      'goodsId': serializer.toJson<int>(goodsId),
+      'vol': serializer.toJson<double>(vol),
+      'productionDate': serializer.toJson<DateTime?>(productionDate),
+      'isBad': serializer.toJson<bool?>(isBad),
+    };
+  }
+
+  ReturnActLine copyWith(
+          {String? guid,
+          bool? isDeleted,
+          DateTime? timestamp,
+          DateTime? currentTimestamp,
+          Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
+          Value<int?> id = const Value.absent(),
+          String? returnActGuid,
+          int? goodsId,
+          double? vol,
+          Value<DateTime?> productionDate = const Value.absent(),
+          Value<bool?> isBad = const Value.absent()}) =>
+      ReturnActLine(
+        guid: guid ?? this.guid,
+        isDeleted: isDeleted ?? this.isDeleted,
+        timestamp: timestamp ?? this.timestamp,
+        currentTimestamp: currentTimestamp ?? this.currentTimestamp,
+        lastSyncTime:
+            lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
+        id: id.present ? id.value : this.id,
+        returnActGuid: returnActGuid ?? this.returnActGuid,
+        goodsId: goodsId ?? this.goodsId,
+        vol: vol ?? this.vol,
+        productionDate:
+            productionDate.present ? productionDate.value : this.productionDate,
+        isBad: isBad.present ? isBad.value : this.isBad,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ReturnActLine(')
+          ..write('guid: $guid, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('currentTimestamp: $currentTimestamp, ')
+          ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
+          ..write('id: $id, ')
+          ..write('returnActGuid: $returnActGuid, ')
+          ..write('goodsId: $goodsId, ')
+          ..write('vol: $vol, ')
+          ..write('productionDate: $productionDate, ')
+          ..write('isBad: $isBad')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      guid,
+      isDeleted,
+      timestamp,
+      currentTimestamp,
+      lastSyncTime,
+      needSync,
+      isNew,
+      id,
+      returnActGuid,
+      goodsId,
+      vol,
+      productionDate,
+      isBad);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReturnActLine &&
+          other.guid == this.guid &&
+          other.isDeleted == this.isDeleted &&
+          other.timestamp == this.timestamp &&
+          other.currentTimestamp == this.currentTimestamp &&
+          other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
+          other.id == this.id &&
+          other.returnActGuid == this.returnActGuid &&
+          other.goodsId == this.goodsId &&
+          other.vol == this.vol &&
+          other.productionDate == this.productionDate &&
+          other.isBad == this.isBad);
+}
+
+class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
+  final Value<String> guid;
+  final Value<bool> isDeleted;
+  final Value<DateTime> timestamp;
+  final Value<DateTime> currentTimestamp;
+  final Value<DateTime?> lastSyncTime;
+  final Value<int?> id;
+  final Value<String> returnActGuid;
+  final Value<int> goodsId;
+  final Value<double> vol;
+  final Value<DateTime?> productionDate;
+  final Value<bool?> isBad;
+  final Value<int> rowid;
+  const ReturnActLinesCompanion({
+    this.guid = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.currentTimestamp = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
+    this.id = const Value.absent(),
+    this.returnActGuid = const Value.absent(),
+    this.goodsId = const Value.absent(),
+    this.vol = const Value.absent(),
+    this.productionDate = const Value.absent(),
+    this.isBad = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ReturnActLinesCompanion.insert({
+    required String guid,
+    this.isDeleted = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.currentTimestamp = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
+    this.id = const Value.absent(),
+    required String returnActGuid,
+    required int goodsId,
+    required double vol,
+    this.productionDate = const Value.absent(),
+    this.isBad = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : guid = Value(guid),
+        returnActGuid = Value(returnActGuid),
+        goodsId = Value(goodsId),
+        vol = Value(vol);
+  static Insertable<ReturnActLine> custom({
+    Expression<String>? guid,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? timestamp,
+    Expression<DateTime>? currentTimestamp,
+    Expression<DateTime>? lastSyncTime,
+    Expression<int>? id,
+    Expression<String>? returnActGuid,
+    Expression<int>? goodsId,
+    Expression<double>? vol,
+    Expression<DateTime>? productionDate,
+    Expression<bool>? isBad,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (guid != null) 'guid': guid,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (currentTimestamp != null) 'current_timestamp': currentTimestamp,
+      if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
+      if (id != null) 'id': id,
+      if (returnActGuid != null) 'return_act_guid': returnActGuid,
+      if (goodsId != null) 'goods_id': goodsId,
+      if (vol != null) 'vol': vol,
+      if (productionDate != null) 'production_date': productionDate,
+      if (isBad != null) 'is_bad': isBad,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ReturnActLinesCompanion copyWith(
+      {Value<String>? guid,
+      Value<bool>? isDeleted,
+      Value<DateTime>? timestamp,
+      Value<DateTime>? currentTimestamp,
+      Value<DateTime?>? lastSyncTime,
+      Value<int?>? id,
+      Value<String>? returnActGuid,
+      Value<int>? goodsId,
+      Value<double>? vol,
+      Value<DateTime?>? productionDate,
+      Value<bool?>? isBad,
+      Value<int>? rowid}) {
+    return ReturnActLinesCompanion(
+      guid: guid ?? this.guid,
+      isDeleted: isDeleted ?? this.isDeleted,
+      timestamp: timestamp ?? this.timestamp,
+      currentTimestamp: currentTimestamp ?? this.currentTimestamp,
+      lastSyncTime: lastSyncTime ?? this.lastSyncTime,
+      id: id ?? this.id,
+      returnActGuid: returnActGuid ?? this.returnActGuid,
+      goodsId: goodsId ?? this.goodsId,
+      vol: vol ?? this.vol,
+      productionDate: productionDate ?? this.productionDate,
+      isBad: isBad ?? this.isBad,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (guid.present) {
+      map['guid'] = Variable<String>(guid.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (currentTimestamp.present) {
+      map['current_timestamp'] = Variable<DateTime>(currentTimestamp.value);
+    }
+    if (lastSyncTime.present) {
+      map['last_sync_time'] = Variable<DateTime>(lastSyncTime.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (returnActGuid.present) {
+      map['return_act_guid'] = Variable<String>(returnActGuid.value);
+    }
+    if (goodsId.present) {
+      map['goods_id'] = Variable<int>(goodsId.value);
+    }
+    if (vol.present) {
+      map['vol'] = Variable<double>(vol.value);
+    }
+    if (productionDate.present) {
+      map['production_date'] = Variable<DateTime>(productionDate.value);
+    }
+    if (isBad.present) {
+      map['is_bad'] = Variable<bool>(isBad.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReturnActLinesCompanion(')
+          ..write('guid: $guid, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('currentTimestamp: $currentTimestamp, ')
+          ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('id: $id, ')
+          ..write('returnActGuid: $returnActGuid, ')
+          ..write('goodsId: $goodsId, ')
+          ..write('vol: $vol, ')
+          ..write('productionDate: $productionDate, ')
+          ..write('isBad: $isBad, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $ReturnActTypesTable extends ReturnActTypes
+    with TableInfo<$ReturnActTypesTable, ReturnActType> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $ReturnActTypesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, name];
+  @override
+  String get aliasedName => _alias ?? 'return_act_types';
+  @override
+  String get actualTableName => 'return_act_types';
+  @override
+  VerificationContext validateIntegrity(Insertable<ReturnActType> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  ReturnActType map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ReturnActType(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+    );
+  }
+
+  @override
+  $ReturnActTypesTable createAlias(String alias) {
+    return $ReturnActTypesTable(attachedDatabase, alias);
+  }
+}
+
+class ReturnActType extends DataClass implements Insertable<ReturnActType> {
+  final int id;
+  final String name;
+  const ReturnActType({required this.id, required this.name});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    return map;
+  }
+
+  ReturnActTypesCompanion toCompanion(bool nullToAbsent) {
+    return ReturnActTypesCompanion(
+      id: Value(id),
+      name: Value(name),
+    );
+  }
+
+  factory ReturnActType.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ReturnActType(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+    };
+  }
+
+  ReturnActType copyWith({int? id, String? name}) => ReturnActType(
+        id: id ?? this.id,
+        name: name ?? this.name,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('ReturnActType(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ReturnActType &&
+          other.id == this.id &&
+          other.name == this.name);
+}
+
+class ReturnActTypesCompanion extends UpdateCompanion<ReturnActType> {
+  final Value<int> id;
+  final Value<String> name;
+  const ReturnActTypesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+  });
+  ReturnActTypesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+  }) : name = Value(name);
+  static Insertable<ReturnActType> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+    });
+  }
+
+  ReturnActTypesCompanion copyWith({Value<int>? id, Value<String>? name}) {
+    return ReturnActTypesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ReturnActTypesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PartnersReturnActTypesTable extends PartnersReturnActTypes
+    with TableInfo<$PartnersReturnActTypesTable, PartnersReturnActType> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PartnersReturnActTypesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _returnActTypeIdMeta =
+      const VerificationMeta('returnActTypeId');
+  @override
+  late final GeneratedColumn<int> returnActTypeId = GeneratedColumn<int>(
+      'return_act_type_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _partnerIdMeta =
+      const VerificationMeta('partnerId');
+  @override
+  late final GeneratedColumn<int> partnerId = GeneratedColumn<int>(
+      'partner_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [returnActTypeId, partnerId];
+  @override
+  String get aliasedName => _alias ?? 'partners_return_act_types';
+  @override
+  String get actualTableName => 'partners_return_act_types';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<PartnersReturnActType> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('return_act_type_id')) {
+      context.handle(
+          _returnActTypeIdMeta,
+          returnActTypeId.isAcceptableOrUnknown(
+              data['return_act_type_id']!, _returnActTypeIdMeta));
+    } else if (isInserting) {
+      context.missing(_returnActTypeIdMeta);
+    }
+    if (data.containsKey('partner_id')) {
+      context.handle(_partnerIdMeta,
+          partnerId.isAcceptableOrUnknown(data['partner_id']!, _partnerIdMeta));
+    } else if (isInserting) {
+      context.missing(_partnerIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {returnActTypeId, partnerId};
+  @override
+  PartnersReturnActType map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PartnersReturnActType(
+      returnActTypeId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}return_act_type_id'])!,
+      partnerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}partner_id'])!,
+    );
+  }
+
+  @override
+  $PartnersReturnActTypesTable createAlias(String alias) {
+    return $PartnersReturnActTypesTable(attachedDatabase, alias);
+  }
+}
+
+class PartnersReturnActType extends DataClass
+    implements Insertable<PartnersReturnActType> {
+  final int returnActTypeId;
+  final int partnerId;
+  const PartnersReturnActType(
+      {required this.returnActTypeId, required this.partnerId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['return_act_type_id'] = Variable<int>(returnActTypeId);
+    map['partner_id'] = Variable<int>(partnerId);
+    return map;
+  }
+
+  PartnersReturnActTypesCompanion toCompanion(bool nullToAbsent) {
+    return PartnersReturnActTypesCompanion(
+      returnActTypeId: Value(returnActTypeId),
+      partnerId: Value(partnerId),
+    );
+  }
+
+  factory PartnersReturnActType.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PartnersReturnActType(
+      returnActTypeId: serializer.fromJson<int>(json['returnActTypeId']),
+      partnerId: serializer.fromJson<int>(json['partnerId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'returnActTypeId': serializer.toJson<int>(returnActTypeId),
+      'partnerId': serializer.toJson<int>(partnerId),
+    };
+  }
+
+  PartnersReturnActType copyWith({int? returnActTypeId, int? partnerId}) =>
+      PartnersReturnActType(
+        returnActTypeId: returnActTypeId ?? this.returnActTypeId,
+        partnerId: partnerId ?? this.partnerId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('PartnersReturnActType(')
+          ..write('returnActTypeId: $returnActTypeId, ')
+          ..write('partnerId: $partnerId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(returnActTypeId, partnerId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PartnersReturnActType &&
+          other.returnActTypeId == this.returnActTypeId &&
+          other.partnerId == this.partnerId);
+}
+
+class PartnersReturnActTypesCompanion
+    extends UpdateCompanion<PartnersReturnActType> {
+  final Value<int> returnActTypeId;
+  final Value<int> partnerId;
+  final Value<int> rowid;
+  const PartnersReturnActTypesCompanion({
+    this.returnActTypeId = const Value.absent(),
+    this.partnerId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PartnersReturnActTypesCompanion.insert({
+    required int returnActTypeId,
+    required int partnerId,
+    this.rowid = const Value.absent(),
+  })  : returnActTypeId = Value(returnActTypeId),
+        partnerId = Value(partnerId);
+  static Insertable<PartnersReturnActType> custom({
+    Expression<int>? returnActTypeId,
+    Expression<int>? partnerId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (returnActTypeId != null) 'return_act_type_id': returnActTypeId,
+      if (partnerId != null) 'partner_id': partnerId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PartnersReturnActTypesCompanion copyWith(
+      {Value<int>? returnActTypeId, Value<int>? partnerId, Value<int>? rowid}) {
+    return PartnersReturnActTypesCompanion(
+      returnActTypeId: returnActTypeId ?? this.returnActTypeId,
+      partnerId: partnerId ?? this.partnerId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (returnActTypeId.present) {
+      map['return_act_type_id'] = Variable<int>(returnActTypeId.value);
+    }
+    if (partnerId.present) {
+      map['partner_id'] = Variable<int>(partnerId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PartnersReturnActTypesCompanion(')
+          ..write('returnActTypeId: $returnActTypeId, ')
+          ..write('partnerId: $partnerId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDataStore extends GeneratedDatabase {
   _$AppDataStore(QueryExecutor e) : super(e);
   late final $UsersTable users = $UsersTable(this);
@@ -14830,6 +17009,13 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final $GoodsStocksTable goodsStocks = $GoodsStocksTable(this);
   late final $GoodsPartnersPricelistsTable goodsPartnersPricelists =
       $GoodsPartnersPricelistsTable(this);
+  late final $GoodsReturnStocksTable goodsReturnStocks =
+      $GoodsReturnStocksTable(this);
+  late final $ReturnActsTable returnActs = $ReturnActsTable(this);
+  late final $ReturnActLinesTable returnActLines = $ReturnActLinesTable(this);
+  late final $ReturnActTypesTable returnActTypes = $ReturnActTypesTable(this);
+  late final $PartnersReturnActTypesTable partnersReturnActTypes =
+      $PartnersReturnActTypesTable(this);
   late final BonusProgramsDao bonusProgramsDao =
       BonusProgramsDao(this as AppDataStore);
   late final DebtsDao debtsDao = DebtsDao(this as AppDataStore);
@@ -14838,10 +17024,11 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final PointsDao pointsDao = PointsDao(this as AppDataStore);
   late final PricesDao pricesDao = PricesDao(this as AppDataStore);
   late final ShipmentsDao shipmentsDao = ShipmentsDao(this as AppDataStore);
+  late final ReturnActsDao returnActsDao = ReturnActsDao(this as AppDataStore);
   late final UsersDao usersDao = UsersDao(this as AppDataStore);
   Selectable<AppInfoResult> appInfo() {
     return customSelect(
-        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_guid = points.guid AND need_sync = 1)) AS points_to_sync, (SELECT COUNT(*) FROM deposits WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM encashments WHERE deposit_guid = deposits.guid AND need_sync = 1)) AS deposits_to_sync, (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_guid = orders.guid AND need_sync = 1)) AS orders_to_sync, (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS inc_requests_to_sync, (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS partner_prices_to_sync, (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS partners_pricelists_to_sync, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM encashments) AS encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total FROM prefs',
+        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_guid = points.guid AND need_sync = 1)) AS points_to_sync, (SELECT COUNT(*) FROM deposits WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM encashments WHERE deposit_guid = deposits.guid AND need_sync = 1)) AS deposits_to_sync, (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_guid = orders.guid AND need_sync = 1)) AS orders_to_sync, (SELECT COUNT(*) FROM return_acts WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM return_act_lines WHERE return_act_guid = return_acts.guid AND need_sync = 1)) AS return_acts_to_sync, (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS inc_requests_to_sync, (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS partner_prices_to_sync, (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS partners_pricelists_to_sync, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM encashments) AS encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total, (SELECT COUNT(*) FROM return_acts) AS return_acts_total FROM prefs',
         variables: [],
         readsFrom: {
           points,
@@ -14850,6 +17037,8 @@ abstract class _$AppDataStore extends GeneratedDatabase {
           encashments,
           orders,
           orderLines,
+          returnActs,
+          returnActLines,
           incRequests,
           partnersPrices,
           partnersPricelists,
@@ -14864,6 +17053,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         pointsToSync: row.read<int>('points_to_sync'),
         depositsToSync: row.read<int>('deposits_to_sync'),
         ordersToSync: row.read<int>('orders_to_sync'),
+        returnActsToSync: row.read<int>('return_acts_to_sync'),
         incRequestsToSync: row.read<int>('inc_requests_to_sync'),
         partnerPricesToSync: row.read<int>('partner_prices_to_sync'),
         partnersPricelistsToSync: row.read<int>('partners_pricelists_to_sync'),
@@ -14872,6 +17062,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         shipmentsTotal: row.read<int>('shipments_total'),
         ordersTotal: row.read<int>('orders_total'),
         preOrdersTotal: row.read<int>('pre_orders_total'),
+        returnActsTotal: row.read<int>('return_acts_total'),
       );
     });
   }
@@ -14919,7 +17110,12 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         partnersPricelists,
         goodsRestrictions,
         goodsStocks,
-        goodsPartnersPricelists
+        goodsPartnersPricelists,
+        goodsReturnStocks,
+        returnActs,
+        returnActLines,
+        returnActTypes,
+        partnersReturnActTypes
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -14966,6 +17162,20 @@ abstract class _$AppDataStore extends GeneratedDatabase {
               TableUpdate('order_lines', kind: UpdateKind.update),
             ],
           ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('return_acts',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('return_act_lines', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('return_acts',
+                limitUpdateKind: UpdateKind.update),
+            result: [
+              TableUpdate('return_act_lines', kind: UpdateKind.update),
+            ],
+          ),
         ],
       );
 }
@@ -14977,6 +17187,7 @@ class AppInfoResult {
   final int pointsToSync;
   final int depositsToSync;
   final int ordersToSync;
+  final int returnActsToSync;
   final int incRequestsToSync;
   final int partnerPricesToSync;
   final int partnersPricelistsToSync;
@@ -14985,6 +17196,7 @@ class AppInfoResult {
   final int shipmentsTotal;
   final int ordersTotal;
   final int preOrdersTotal;
+  final int returnActsTotal;
   AppInfoResult({
     required this.showLocalImage,
     required this.showWithPrice,
@@ -14992,6 +17204,7 @@ class AppInfoResult {
     required this.pointsToSync,
     required this.depositsToSync,
     required this.ordersToSync,
+    required this.returnActsToSync,
     required this.incRequestsToSync,
     required this.partnerPricesToSync,
     required this.partnersPricelistsToSync,
@@ -15000,6 +17213,7 @@ class AppInfoResult {
     required this.shipmentsTotal,
     required this.ordersTotal,
     required this.preOrdersTotal,
+    required this.returnActsTotal,
   });
 }
 
@@ -15220,7 +17434,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."mc_vol" AS "nested_0.mc_vol", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date, (SELECT MAX(shipment_lines.price) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN (SELECT MAX(shipments.date) AS last_shipment_date, shipments.buyer_id FROM shipments GROUP BY shipments.buyer_id) AS sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_price FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
+        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."mc_vol" AS "nested_0.mc_vol", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date, (SELECT MAX(shipment_lines.price) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN (SELECT MAX(shipments.date) AS last_shipment_date, shipments.buyer_id FROM shipments GROUP BY shipments.buyer_id) AS sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_price FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
         variables: [
           Variable<int>(buyerId),
           for (var $ in goodsIds) Variable<int>($)
@@ -15521,6 +17735,108 @@ class GoodsShipmentsResult {
     required this.date,
     required this.vol,
     required this.price,
+  });
+}
+
+mixin _$ReturnActsDaoMixin on DatabaseAccessor<AppDataStore> {
+  $CategoriesTable get categories => attachedDatabase.categories;
+  $BuyersTable get buyers => attachedDatabase.buyers;
+  $AllGoodsTable get allGoods => attachedDatabase.allGoods;
+  $GoodsReturnStocksTable get goodsReturnStocks =>
+      attachedDatabase.goodsReturnStocks;
+  $ReturnActsTable get returnActs => attachedDatabase.returnActs;
+  $ReturnActLinesTable get returnActLines => attachedDatabase.returnActLines;
+  $ReturnActTypesTable get returnActTypes => attachedDatabase.returnActTypes;
+  $PartnersReturnActTypesTable get partnersReturnActTypes =>
+      attachedDatabase.partnersReturnActTypes;
+  Selectable<ReturnActExResult> returnActEx() {
+    return customSelect(
+        'SELECT"return_acts"."guid" AS "nested_0.guid", "return_acts"."is_deleted" AS "nested_0.is_deleted", "return_acts"."timestamp" AS "nested_0.timestamp", "return_acts"."current_timestamp" AS "nested_0.current_timestamp", "return_acts"."last_sync_time" AS "nested_0.last_sync_time", "return_acts"."need_sync" AS "nested_0.need_sync", "return_acts"."is_new" AS "nested_0.is_new", "return_acts"."id" AS "nested_0.id", "return_acts"."date" AS "nested_0.date", "return_acts"."number" AS "nested_0.number", "return_acts"."buyer_id" AS "nested_0.buyer_id", "return_acts"."need_pickup" AS "nested_0.need_pickup", "return_acts"."return_act_type_id" AS "nested_0.return_act_type_id", "return_acts"."recept_id" AS "nested_0.recept_id", "return_acts"."recept_ndoc" AS "nested_0.recept_ndoc", "return_acts"."recept_date" AS "nested_0.recept_date", COALESCE((SELECT name FROM return_act_types WHERE id = return_acts.return_act_type_id), \'Не указан\') AS return_act_type_name,"buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", (SELECT COUNT(*) FROM return_act_lines WHERE return_act_guid = return_acts.guid AND return_act_lines.is_deleted = 0) AS lines_count, COALESCE((SELECT MAX(need_sync) FROM return_act_lines WHERE return_act_guid = return_acts.guid), 0) AS lines_need_sync FROM return_acts LEFT JOIN buyers ON buyers.id = return_acts.buyer_id ORDER BY return_acts.date DESC, buyers.name',
+        variables: [],
+        readsFrom: {
+          returnActTypes,
+          returnActs,
+          returnActLines,
+          buyers,
+        }).asyncMap((QueryRow row) async {
+      return ReturnActExResult(
+        returnAct: await returnActs.mapFromRow(row, tablePrefix: 'nested_0'),
+        returnActTypeName: row.read<String>('return_act_type_name'),
+        buyer: await buyers.mapFromRowOrNull(row, tablePrefix: 'nested_1'),
+        linesCount: row.read<int>('lines_count'),
+        linesNeedSync: row.read<bool>('lines_need_sync'),
+      );
+    });
+  }
+
+  Selectable<ReturnActLineExResult> returnActLineEx(String returnActGuid) {
+    return customSelect(
+        'SELECT"return_act_lines"."guid" AS "nested_0.guid", "return_act_lines"."is_deleted" AS "nested_0.is_deleted", "return_act_lines"."timestamp" AS "nested_0.timestamp", "return_act_lines"."current_timestamp" AS "nested_0.current_timestamp", "return_act_lines"."last_sync_time" AS "nested_0.last_sync_time", "return_act_lines"."need_sync" AS "nested_0.need_sync", "return_act_lines"."is_new" AS "nested_0.is_new", "return_act_lines"."id" AS "nested_0.id", "return_act_lines"."return_act_guid" AS "nested_0.return_act_guid", "return_act_lines"."goods_id" AS "nested_0.goods_id", "return_act_lines"."vol" AS "nested_0.vol", "return_act_lines"."production_date" AS "nested_0.production_date", "return_act_lines"."is_bad" AS "nested_0.is_bad", goods.name AS goods_name FROM return_act_lines JOIN goods ON goods.id = return_act_lines.goods_id WHERE return_act_lines.return_act_guid = ?1 ORDER BY goods.name',
+        variables: [
+          Variable<String>(returnActGuid)
+        ],
+        readsFrom: {
+          allGoods,
+          returnActLines,
+        }).asyncMap((QueryRow row) async {
+      return ReturnActLineExResult(
+        line: await returnActLines.mapFromRow(row, tablePrefix: 'nested_0'),
+        goodsName: row.read<String>('goods_name'),
+      );
+    });
+  }
+
+  Selectable<ReceptExResult> receptEx(int buyerId, int returnActTypeId) {
+    return customSelect(
+        'SELECT goods_return_stocks.recept_id AS id, goods_return_stocks.recept_date AS date, goods_return_stocks.recept_ndoc AS ndoc FROM goods_return_stocks WHERE goods_return_stocks.buyer_id = ?1 AND goods_return_stocks.return_act_type_id = ?2 GROUP BY recept_id, recept_date, recept_ndoc ORDER BY recept_ndoc, recept_date DESC',
+        variables: [
+          Variable<int>(buyerId),
+          Variable<int>(returnActTypeId)
+        ],
+        readsFrom: {
+          goodsReturnStocks,
+        }).map((QueryRow row) {
+      return ReceptExResult(
+        id: row.read<int>('id'),
+        date: row.read<DateTime>('date'),
+        ndoc: row.read<String>('ndoc'),
+      );
+    });
+  }
+}
+
+class ReturnActExResult {
+  final ReturnAct returnAct;
+  final String returnActTypeName;
+  final Buyer? buyer;
+  final int linesCount;
+  final bool linesNeedSync;
+  ReturnActExResult({
+    required this.returnAct,
+    required this.returnActTypeName,
+    this.buyer,
+    required this.linesCount,
+    required this.linesNeedSync,
+  });
+}
+
+class ReturnActLineExResult {
+  final ReturnActLine line;
+  final String goodsName;
+  ReturnActLineExResult({
+    required this.line,
+    required this.goodsName,
+  });
+}
+
+class ReceptExResult {
+  final int id;
+  final DateTime date;
+  final String ndoc;
+  ReceptExResult({
+    required this.id,
+    required this.date,
+    required this.ndoc,
   });
 }
 

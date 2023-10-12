@@ -47,18 +47,11 @@ class _PointView extends StatefulWidget {
 }
 
 class _PointViewState extends State<_PointView> {
-  late final ProgressDialog progressDialog = ProgressDialog(context: context);
   TextEditingController? numberOfCdesksController;
   TextEditingController? maxDebtController;
   TextEditingController? nds10Controller;
   TextEditingController? nds20Controller;
   TextEditingController? plongController;
-
-  @override
-  void dispose() {
-    progressDialog.close();
-    super.dispose();
-  }
 
   Future<void> showAddressDialog() async {
     final vm = context.read<PointViewModel>();
@@ -123,6 +116,7 @@ class _PointViewState extends State<_PointView> {
             )
           ),
           floatingActionButton: FloatingActionButton(
+            heroTag: null,
             onPressed: vm.tryTakePicture,
             child: const Icon(Icons.camera),
           ),

@@ -65,6 +65,7 @@ class _PointsViewState extends State<_PointsView> {
             ],
           ),
           floatingActionButton: FloatingActionButton(
+            heroTag: null,
             onPressed: vm.addNewPoint,
             child: const Icon(Icons.add),
           ),
