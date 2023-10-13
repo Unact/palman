@@ -206,7 +206,6 @@ class _GoodsViewState extends State<_GoodsView> {
     }
 
     return _GoodsGroupsView(
-      key: Key(vm.state.filteredGoodsDetails.fold(0, (prev, e) => prev + e.goods.hashCode).toString()),
       groupedGoods: groupedGoods,
       showOnlyActive: vm.state.showOnlyActive,
       initiallyExpanded: vm.state.goodsListInitiallyExpanded,
@@ -362,7 +361,6 @@ class _GoodsViewState extends State<_GoodsView> {
     }
 
     return _CategoriesView(
-      key: Key(vm.state.visibleCategories.hashCode.toString()),
       selectedCategory: vm.state.selectedCategory,
       groupedCategories: groupedCategories,
       showOnlyActive: vm.state.showOnlyActive,
