@@ -80,16 +80,18 @@ class _HomeViewState extends State<_HomeView> with WidgetsBindingObserver {
 
         return Scaffold(
           bottomNavigationBar: buildBottomNavigationBar(context),
-          body: IndexedStack(
-            index: state.currentIndex,
-            children: <Widget>[
-              InfoPage(),
-              PointsPage(),
-              DebtsInfoPage(),
-              OrdersInfoPage(),
-              ReturnActsPage()
-            ],
-          ),
+          body: ScaffoldMessenger(
+            child: IndexedStack(
+              index: state.currentIndex,
+              children: <Widget>[
+                InfoPage(),
+                PointsPage(),
+                DebtsInfoPage(),
+                OrdersInfoPage(),
+                ReturnActsPage()
+              ]
+            )
+          )
         );
       }
     );

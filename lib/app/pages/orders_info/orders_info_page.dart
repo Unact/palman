@@ -53,6 +53,19 @@ class _OrdersInfoView extends StatefulWidget {
 
 class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProviderStateMixin {
   final TextEditingController buyerController = TextEditingController();
+  late TabController tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    tabController = TabController(vsync: this, length: 4);
+  }
+
+  @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
+  }
 
   Future<void> openIncRequestPage(IncRequestEx incRequestEx) async {
     await Navigator.push(
@@ -100,48 +113,53 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       builder: (context, state) {
         final vm = context.read<OrdersInfoViewModel>();
 
-        return DefaultTabController(
-          length: 4,
-          child: Scaffold(
-            appBar: AppBar(
-              title: const Text(Strings.ordersInfoPageName),
-              bottom: TabBar(
-                tabs: [
-                  const Tab(child: Text('Заказы', style: Styles.tabStyle, softWrap: false)),
-                  const Tab(child: Text('Заявки', style: Styles.tabStyle, softWrap: false)),
-                  const Tab(child: Text('Отгрузки', style: Styles.tabStyle, softWrap: false)),
-                  Tab(
-                    child: Badge(
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                      label: Text(state.notSeenCnt.toString()),
-                      isLabelVisible: state.notSeenCnt != 0,
-                      offset: const Offset(12, -12),
-                      child: const Text('Предзаказы других ТП', style: Styles.tabStyle, softWrap: false),
-                    )
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text(Strings.ordersInfoPageName),
+            bottom: TabBar(
+              onTap: (_) => setState(() {}),
+              controller: tabController,
+              tabs: [
+                const Tab(child: Text('Заказы', style: Styles.tabStyle, softWrap: false)),
+                const Tab(child: Text('Заявки', style: Styles.tabStyle, softWrap: false)),
+                const Tab(child: Text('Отгрузки', style: Styles.tabStyle, softWrap: false)),
+                Tab(
+                  child: Badge(
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                    label: Text(state.notSeenCnt.toString()),
+                    isLabelVisible: state.notSeenCnt != 0,
+                    offset: const Offset(12, -12),
+                    child: const Text('Предзаказы других ТП', style: Styles.tabStyle, softWrap: false),
                   )
-                ]
-              ),
-              actions: <Widget>[
-                SaveButton(
-                  onSave: state.isLoading ? null : vm.syncChanges,
-                  pendingChanges: vm.state.pendingChanges,
-                ),
+                )
               ]
             ),
-            body: Refreshable(
-              pendingChanges: vm.state.pendingChanges,
-              onRefresh: vm.getData,
-              childBuilder: (context, physics) {
-                return TabBarView(
-                  children: [
-                    buildOrdersView(context, physics),
-                    buildIncRequestsView(context, physics),
-                    buildShipmentsView(context, physics),
-                    buildPreOrdersView(context, physics),
-                  ]
-                );
-              }
-            )
+            actions: <Widget>[
+              SaveButton(
+                onSave: state.isLoading ? null : vm.syncChanges,
+                pendingChanges: vm.state.pendingChanges,
+              ),
+            ]
+          ),
+          floatingActionButton: [0, 1].contains(tabController.index) ? FloatingActionButton(
+            heroTag: null,
+            onPressed: tabController.index == 0 ? vm.addNewOrder : vm.addNewIncRequest,
+            child: const Icon(Icons.add)
+          ) : null,
+          body: Refreshable(
+            pendingChanges: vm.state.pendingChanges,
+            onRefresh: vm.getData,
+            childBuilder: (context, physics) {
+              return TabBarView(
+                controller: tabController,
+                children: [
+                  buildOrdersView(context, physics),
+                  buildIncRequestsView(context, physics),
+                  buildShipmentsView(context, physics),
+                  buildPreOrdersView(context, physics),
+                ]
+              );
+            }
           )
         );
       },
@@ -172,20 +190,13 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
       (a, b) => a == null ? -1 : b == null ? 1 : b.compareTo(a)
     );
 
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        heroTag: null,
-        onPressed: vm.addNewOrder,
-        child: const Icon(Icons.add)
-      ),
-      body: ListView.builder(
-        physics: physics,
-        itemCount: orderDateList.length,
-        itemBuilder: (context, idx) => buildOrderDateTile(
-          context,
-          orderDateList[idx].key,
-          orderDateList[idx].value
-        )
+    return ListView.builder(
+      physics: physics,
+      itemCount: orderDateList.length,
+      itemBuilder: (context, idx) => buildOrderDateTile(
+        context,
+        orderDateList[idx].key,
+        orderDateList[idx].value
       )
     );
   }
@@ -193,29 +204,20 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
   Widget buildIncRequestsView(BuildContext context, ScrollPhysics physics) {
     final vm = context.read<OrdersInfoViewModel>();
 
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        heroTag: null,
-        onPressed: vm.addNewIncRequest,
-        child: const Icon(Icons.add)
-      ),
-      body: ListView(
-        physics: physics,
-        padding: const EdgeInsets.only(top: 16),
-        children: vm.state.filteredIncRequestExList.map((e) => buildIncRequestTile(context, e)).toList()
-      )
+    return ListView(
+      physics: physics,
+      padding: const EdgeInsets.only(top: 16),
+      children: vm.state.filteredIncRequestExList.map((e) => buildIncRequestTile(context, e)).toList()
     );
   }
 
   Widget buildPreOrdersView(BuildContext context, ScrollPhysics physics) {
     final vm = context.read<OrdersInfoViewModel>();
 
-    return Scaffold(
-      body: ListView(
-        physics: physics,
-        padding: const EdgeInsets.only(top: 16),
-        children: vm.state.preOrderExList.map((e) => buildPreOrderTile(context, e)).toList()
-      )
+    return ListView(
+      physics: physics,
+      padding: const EdgeInsets.only(top: 16),
+      children: vm.state.preOrderExList.map((e) => buildPreOrderTile(context, e)).toList()
     );
   }
 
