@@ -194,6 +194,15 @@ class _GoodsViewState extends State<_GoodsView> {
   Widget buildGoodsView(BuildContext context, bool compactMode) {
     final vm = context.read<GoodsViewModel>();
     final Map<String, List<GoodsDetail>> groupedGoods = {};
+    final keyStr = Object.hashAll([
+      vm.state.selectedCategory,
+      vm.state.selectedGoodsFilter,
+      vm.state.selectedBonusProgram,
+      vm.state.showOnlyOrder,
+      vm.state.showOnlyActive,
+      vm.state.showOnlyLatest,
+      vm.state.goodsNameSearch
+    ]).toString();
 
     if (vm.state.groupByManufacturer) {
       for (var e in vm.state.manufacturers) {
@@ -206,6 +215,7 @@ class _GoodsViewState extends State<_GoodsView> {
     }
 
     return _GoodsGroupsView(
+      key: Key(keyStr),
       groupedGoods: groupedGoods,
       showOnlyActive: vm.state.showOnlyActive,
       initiallyExpanded: vm.state.goodsListInitiallyExpanded,
@@ -355,12 +365,21 @@ class _GoodsViewState extends State<_GoodsView> {
   Widget buildCategoryView(BuildContext context, void Function(CategoriesExResult) onCategoryTap) {
     final vm = context.read<GoodsViewModel>();
     final Map<String, List<CategoriesExResult>> groupedCategories = {};
+    final keyStr = Object.hashAll([
+      vm.state.selectedGoodsFilter,
+      vm.state.selectedBonusProgram,
+      vm.state.showOnlyOrder,
+      vm.state.showOnlyActive,
+      vm.state.showOnlyLatest,
+      vm.state.goodsNameSearch
+    ]).toString();
 
     for (var e in vm.state.shopDepartments) {
       groupedCategories[e.name] = vm.state.visibleCategories.where((c) => c.shopDepartmentId == e.id).toList();
     }
 
     return _CategoriesView(
+      key: Key(keyStr),
       selectedCategory: vm.state.selectedCategory,
       groupedCategories: groupedCategories,
       showOnlyActive: vm.state.showOnlyActive,
