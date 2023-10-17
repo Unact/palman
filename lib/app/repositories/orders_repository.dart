@@ -368,7 +368,7 @@ class OrdersRepository extends BaseRepository {
     await dataStore.ordersDao.updateOrder(order.guid, const OrdersCompanion(isDeleted: Value(true)));
   }
 
-  Future<void> addOrderLine(Order order, {
+  Future<OrderLineExResult> addOrderLine(Order order, {
     required int goodsId,
     required double vol,
     required double price,
@@ -389,6 +389,7 @@ class OrdersRepository extends BaseRepository {
         package: package
       )
     );
+    return dataStore.ordersDao.getOrderLineEx(guid);
   }
 
   Future<void> updateOrderLine(OrderLine orderLine, {

@@ -186,8 +186,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> updateOrderLineVol(GoodsDetail goodsDetail, double? vol) async {
-    final orderLineEx = (await ordersRepository.getOrderLineExList(state.orderEx.order.guid))
-      .firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goodsEx.goods.id);
+    final orderLineEx = state.linesExList.firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goodsEx.goods.id);
 
     if (vol == null || vol <= 0) {
       if (orderLineEx != null) await ordersRepository.deleteOrderLine(orderLineEx.line);
@@ -201,7 +200,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       return;
     }
 
-    await ordersRepository.addOrderLine(
+    final newOrderLineEx = await ordersRepository.addOrderLine(
       state.orderEx.order,
       goodsId: goodsDetail.goods.id,
       vol: vol,
@@ -210,6 +209,10 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       rel: goodsDetail.rel,
       package: goodsDetail.package
     );
+
+    emit(state.copyWith(
+      linesExList: state.linesExList..add(newOrderLineEx)
+    ));
   }
 
   Future<void> updateOrderLinePrice(OrderLineExResult orderLineEx, double price) async {

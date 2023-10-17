@@ -17381,9 +17381,9 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     });
   }
 
-  Selectable<OrderLineExResult> orderLineEx(String orderGuid) {
+  Selectable<OrderLineExResult> orderLineEx(String? orderGuid) {
     return customSelect(
-        'SELECT"order_lines"."guid" AS "nested_0.guid", "order_lines"."is_deleted" AS "nested_0.is_deleted", "order_lines"."timestamp" AS "nested_0.timestamp", "order_lines"."current_timestamp" AS "nested_0.current_timestamp", "order_lines"."last_sync_time" AS "nested_0.last_sync_time", "order_lines"."need_sync" AS "nested_0.need_sync", "order_lines"."is_new" AS "nested_0.is_new", "order_lines"."id" AS "nested_0.id", "order_lines"."order_guid" AS "nested_0.order_guid", "order_lines"."goods_id" AS "nested_0.goods_id", "order_lines"."vol" AS "nested_0.vol", "order_lines"."price" AS "nested_0.price", "order_lines"."price_original" AS "nested_0.price_original", "order_lines"."package" AS "nested_0.package", "order_lines"."rel" AS "nested_0.rel", goods.name AS goods_name FROM order_lines JOIN goods ON goods.id = order_lines.goods_id WHERE order_lines.order_guid = ?1 ORDER BY goods.name',
+        'SELECT"order_lines"."guid" AS "nested_0.guid", "order_lines"."is_deleted" AS "nested_0.is_deleted", "order_lines"."timestamp" AS "nested_0.timestamp", "order_lines"."current_timestamp" AS "nested_0.current_timestamp", "order_lines"."last_sync_time" AS "nested_0.last_sync_time", "order_lines"."need_sync" AS "nested_0.need_sync", "order_lines"."is_new" AS "nested_0.is_new", "order_lines"."id" AS "nested_0.id", "order_lines"."order_guid" AS "nested_0.order_guid", "order_lines"."goods_id" AS "nested_0.goods_id", "order_lines"."vol" AS "nested_0.vol", "order_lines"."price" AS "nested_0.price", "order_lines"."price_original" AS "nested_0.price_original", "order_lines"."package" AS "nested_0.package", "order_lines"."rel" AS "nested_0.rel", goods.name AS goods_name FROM order_lines JOIN goods ON goods.id = order_lines.goods_id WHERE order_lines.order_guid = ?1 OR ?1 IS NULL ORDER BY goods.name',
         variables: [
           Variable<String>(orderGuid)
         ],
