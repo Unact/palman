@@ -9233,6 +9233,10 @@ class $OrderLinesTable extends OrderLines
   @override
   Set<GeneratedColumn> get $primaryKey => {guid};
   @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+        {orderGuid, goodsId},
+      ];
+  @override
   OrderLine map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return OrderLine(
@@ -16193,6 +16197,10 @@ class $ReturnActLinesTable extends ReturnActLines
 
   @override
   Set<GeneratedColumn> get $primaryKey => {guid};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+        {returnActGuid, goodsId},
+      ];
   @override
   ReturnActLine map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
