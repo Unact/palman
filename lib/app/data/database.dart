@@ -231,93 +231,11 @@ class AppDataStore extends _$AppDataStore {
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
-      for (final table in allTables) {
-        await m.deleteTable(table.actualTableName);
-        await m.createTable(table);
-
-        if (table is Syncable) {
-          final name = table.entityName;
-          final triggerName = 'syncable_$name';
-          final systemColumns = ['last_sync_time', 'timestamp', 'current_timestamp'];
-          final updateableColumns = table.columnsByName.keys.whereNot((e) => systemColumns.contains(e));
-
-          m.createTrigger(Trigger(
-            '''
-              CREATE TRIGGER $triggerName
-              AFTER UPDATE OF ${updateableColumns.join(',')} ON $name
-              BEGIN
-                UPDATE $name SET timestamp = CAST(STRFTIME('%s', CURRENT_TIMESTAMP) AS INTEGER) WHERE guid = OLD.guid;
-              END;
-            ''',
-            triggerName
-          ));
-        }
+      for (final entity in allSchemaEntities.reversed) {
+        await m.drop(entity);
       }
 
-      await m.createIndex(Index(
-        'goods_partners_pricelists_idx',
-        'CREATE INDEX goods_partners_pricelists_idx ON goods_partners_pricelists(partner_pricelist_id, goods_id)'
-      ));
-      await m.createIndex(Index(
-        'partners_pricelists_idx',
-        'CREATE INDEX partners_pricelists_idx ON partners_pricelists(partner_id, pricelist_id)'
-      ));
-      await m.createIndex(Index(
-        'shipment_lines_goods_idx',
-        'CREATE INDEX shipment_lines_goods_idx ON shipment_lines(goods_id)'
-      ));
-      await m.createIndex(Index(
-        'shipment_lines_shipment_id_idx',
-        'CREATE INDEX shipment_lines_shipment_idx ON shipment_lines(shipment_id)'
-      ));
-      await m.createIndex(Index(
-        'order_lines_goods_idx',
-        'CREATE INDEX order_lines_goods_idx ON order_lines(goods_id)'
-      ));
-      await m.createIndex(Index(
-        'order_lines_order_idx',
-        'CREATE INDEX order_lines_order_idx ON order_lines(order_guid)'
-      ));
-      await m.createIndex(Index(
-        'pre_order_lines_goods_idx',
-        'CREATE INDEX pre_order_lines_goods_idx ON pre_order_lines(goods_id)'
-      ));
-      await m.createIndex(Index(
-        'pre_order_lines_pre_order_idx',
-        'CREATE INDEX pre_order_lines_pre_order_idx ON pre_order_lines(pre_order_id)'
-      ));
-      await m.createIndex(Index(
-        'return_act_lines_goods_idx',
-        'CREATE INDEX return_act_lines_goods_idx ON return_act_lines(goods_id)'
-      ));
-      await m.createIndex(Index(
-        'return_act_lines_return_act_idx',
-        'CREATE INDEX return_act_lines_return_act_idx ON return_act_lines(return_act_guid)'
-      ));
-      await m.createIndex(Index(
-        'goods_bonus_programs_goods_idx',
-        'CREATE INDEX goods_bonus_programs_goods_idx ON goods_bonus_programs(goods_id)'
-      ));
-      await m.createIndex(Index(
-        'goods_bonus_programs_bonus_program_idx',
-        'CREATE INDEX goods_bonus_programs_bonus_program_idx ON goods_bonus_programs(bonus_program_id)'
-      ));
-      await m.createIndex(Index(
-        'pricelist_prices_idx',
-        'CREATE INDEX pricelist_prices_idx ON pricelist_prices(goods_id, pricelist_id)'
-      ));
-      await m.createIndex(Index(
-        'point_images_point_idx',
-        'CREATE INDEX point_images_point_idx ON point_images(point_guid)'
-      ));
-      await m.createIndex(Index(
-        'goods_category_idx',
-        'CREATE INDEX goods_category_idx ON goods(category_id)'
-      ));
-      await m.createIndex(Index(
-        'encashments_deposit_idx',
-        'CREATE INDEX encashments_deposit_idx ON encashments(deposit_guid)'
-      ));
+      await m.createAll();
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
@@ -325,6 +243,60 @@ class AppDataStore extends _$AppDataStore {
       if (details.hadUpgrade || details.wasCreated) await _populateData();
     },
   );
+
+  @override
+  List<DatabaseSchemaEntity> get allSchemaEntities {
+    final result = super.allSchemaEntities;
+
+    for (final table in result.whereType<TableInfo>().toList()) {
+      if (table is !Syncable) continue;
+
+      final name = table.entityName;
+      final triggerName = 'syncable_$name';
+      final systemColumns = ['last_sync_time', 'timestamp', 'current_timestamp'];
+      final updateableColumns = table.columnsByName.keys.whereNot((e) => systemColumns.contains(e));
+
+      result.add(Trigger(
+        '''
+          CREATE TRIGGER IF NOT EXISTS "$triggerName"
+          AFTER UPDATE OF ${updateableColumns.join(',')} ON $name
+          BEGIN
+            UPDATE $name SET timestamp = CAST(STRFTIME('%s', CURRENT_TIMESTAMP) AS INTEGER) WHERE guid = OLD.guid;
+          END;
+        ''',
+        triggerName
+      ));
+    }
+
+    final List<(TableInfo, List<String>)> indices = [
+      (goodsPartnersPricelists, ['partner_pricelist_id', 'goods_id']),
+      (partnersPricelists, ['partner_id', 'pricelist_id']),
+      (shipmentLines, ['goods_id']),
+      (shipmentLines, ['shipment_id']),
+      (orderLines, ['goods_id']),
+      (orderLines, ['order_guid']),
+      (preOrderLines, ['goods_id']),
+      (preOrderLines, ['pre_order_id']),
+      (returnActLines, ['goods_id']),
+      (returnActLines, ['return_act_guid']),
+      (goodsBonusPrograms, ['goods_id']),
+      (goodsBonusPrograms, ['bonus_program_id']),
+      (pricelistPrices, ['goods_id', 'pricelist_id']),
+      (pointImages, ['point_guid']),
+      (allGoods, ['category_id']),
+      (encashments, ['deposit_guid'])
+    ];
+
+    for (final index in indices) {
+      final name = index.$1.entityName;
+      final List<String> columns = index.$2;
+      final indexName = '${name}_${columns.join('_')}';
+
+      result.add(Index(indexName, 'CREATE INDEX IF NOT EXISTS "$indexName" ON $name(${columns.join(',')});'));
+    }
+
+    return result;
+  }
 }
 
 LazyDatabase _openConnection(bool logStatements) {
