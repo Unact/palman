@@ -229,7 +229,8 @@ class ReturnActsRepository extends BaseRepository {
     Optional<int?>? returnActTypeId,
     Optional<int?>? receptId,
     Optional<String?>? receptNdoc,
-    Optional<DateTime?>? receptDate
+    Optional<DateTime?>? receptDate,
+    bool restoreDeleted = true
   }) async {
     final updatedReturnAct = ReturnActsCompanion(
       date: date == null ? const Value.absent() : Value(date.orNull),
@@ -239,7 +240,7 @@ class ReturnActsRepository extends BaseRepository {
       receptId: receptId == null ? const Value.absent() : Value(receptId.orNull),
       receptNdoc: receptNdoc == null ? const Value.absent() : Value(receptNdoc.orNull),
       receptDate: receptDate == null ? const Value.absent() : Value(receptDate.orNull),
-      isDeleted: const Value(false)
+      isDeleted: restoreDeleted ? const Value(false) : const Value.absent()
     );
 
     await dataStore.returnActsDao.updateReturnAct(returnAct.guid, updatedReturnAct);
@@ -250,13 +251,14 @@ class ReturnActsRepository extends BaseRepository {
     Optional<double>? vol,
     Optional<DateTime?>? productionDate,
     Optional<bool?>? isBad,
+    bool restoreDeleted = true
   }) async {
     final updatedReturnActLine = ReturnActLinesCompanion(
       goodsId: goodsId == null ? const Value.absent() : Value(goodsId.value),
       vol: vol == null ? const Value.absent() : Value(vol.value),
       productionDate: productionDate == null ? const Value.absent() : Value(productionDate.orNull),
       isBad: isBad == null ? const Value.absent() : Value(isBad.orNull),
-      isDeleted: const Value(false)
+      isDeleted: restoreDeleted ? const Value(false) : const Value.absent()
     );
 
     await dataStore.returnActsDao.updateReturnActLine(returnActLine.guid, updatedReturnActLine);

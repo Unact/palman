@@ -346,7 +346,8 @@ class OrdersRepository extends BaseRepository {
     Optional<bool>? needInc,
     Optional<bool>? isBonus,
     Optional<bool>? isPhysical,
-    Optional<bool>? needProcessing
+    Optional<bool>? needProcessing,
+    bool restoreDeleted = true
   }) async {
     final updatedOrder = OrdersCompanion(
       status: status == null ? const Value.absent() : Value(status.value),
@@ -358,7 +359,7 @@ class OrdersRepository extends BaseRepository {
       isBonus: isBonus == null ? const Value.absent() : Value(isBonus.value),
       isPhysical: isPhysical == null ? const Value.absent() : Value(isPhysical.value),
       needProcessing: needProcessing == null ? const Value.absent() : Value(needProcessing.value),
-      isDeleted: const Value(false)
+      isDeleted: restoreDeleted ? const Value(false) : const Value.absent()
     );
 
     await dataStore.ordersDao.updateOrder(order.guid, updatedOrder);
@@ -398,7 +399,8 @@ class OrdersRepository extends BaseRepository {
     Optional<double>? price,
     Optional<double>? priceOriginal,
     Optional<int>? package,
-    Optional<int>? rel
+    Optional<int>? rel,
+    bool restoreDeleted = true
   }) async {
     final updatedOrderLine = OrderLinesCompanion(
       goodsId: goodsId == null ? const Value.absent() : Value(goodsId.value),
@@ -407,7 +409,7 @@ class OrdersRepository extends BaseRepository {
       priceOriginal: priceOriginal == null ? const Value.absent() : Value(priceOriginal.value),
       package: package == null ? const Value.absent() : Value(package.value),
       rel: rel == null ? const Value.absent() : Value(rel.value),
-      isDeleted: const Value(false)
+      isDeleted: restoreDeleted ? const Value(false) : const Value.absent()
     );
 
     await dataStore.ordersDao.updateOrderLine(orderLine.guid, updatedOrderLine);

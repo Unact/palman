@@ -14,6 +14,7 @@ import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/return_acts_repository.dart';
+import '/app/widgets/widgets.dart';
 
 part 'goods_state.dart';
 part 'goods_view_model.dart';
@@ -198,7 +199,7 @@ class _GoodsViewState extends State<_GoodsView> {
       showGroupInfo: vm.state.showGroupInfo,
       showGoodsImage: vm.state.showGoodsImage,
       returnActEx: vm.state.returnActEx,
-      linesExList: vm.state.filteredReturnActLinesExList,
+      linesExList: vm.state.linesExList,
       onIsBadChange: (goodsReturnDetail, isBad) => vm.updateReturnActLine(
         goodsReturnDetail,
         isBad: Optional.fromNullable(isBad)
@@ -492,7 +493,6 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     axis: Axis.vertical,
     viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
   );
-  final Map<GoodsReturnDetail, TextEditingController> volControllers = {};
   final Map<GoodsReturnDetail, TextEditingController> dateControllers = {};
 
   void _scrollToIndex(AutoScrollController controller, int index) {
@@ -794,37 +794,13 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     GoodsReturnDetail goodsReturnDetail,
     ReturnActLineExResult? returnActLineEx
   ) {
-    final controller = volControllers.putIfAbsent(
-      goodsReturnDetail,
-      () => TextEditingController(text: returnActLineEx?.line.vol.toInt().toString())
-    );
-    final volStr = returnActLineEx?.line.vol.toInt().toString() ?? '';
-
-    if (controller.text != volStr) controller.text = volStr;
-
     return SizedBox(
       width: 140,
-      child: NumTextField(
-        textAlign: TextAlign.center,
-        textAlignVertical: TextAlignVertical.center,
-        decimal: false,
-        controller: controller,
+      child: VolField(
+        minValue: 0,
+        vol: returnActLineEx?.line.vol,
         style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
-        decoration: InputDecoration(
-          fillColor: Colors.transparent,
-          border: InputBorder.none,
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'Увеличить кол-во',
-            onPressed: () => widget.onVolChange(goodsReturnDetail, (returnActLineEx?.line.vol ?? 0) + 1)
-          ),
-          prefixIcon: IconButton(
-            icon: const Icon(Icons.remove),
-            tooltip: 'Уменьшить кол-во',
-            onPressed: () => widget.onVolChange(goodsReturnDetail, (returnActLineEx?.line.vol ?? 0) - 1)
-          )
-        ),
-        onTap: () => widget.onVolChange(goodsReturnDetail, Parsing.parseDouble(controller.text))
+        onVolChange: (vol) => widget.onVolChange(goodsReturnDetail, vol)
       )
     );
   }

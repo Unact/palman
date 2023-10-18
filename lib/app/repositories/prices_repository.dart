@@ -136,14 +136,15 @@ class PricesRepository extends BaseRepository {
     Optional<int>? partnerId,
     Optional<int>? pricelistId,
     Optional<int>? pricelistSetId,
-    Optional<double>? discount
+    Optional<double>? discount,
+    bool restoreDeleted = true
   }) async {
     final updatedPartnersPricelist = PartnersPricelistsCompanion(
       partnerId: partnerId == null ? const Value.absent() : Value(partnerId.value),
       pricelistId: pricelistId == null ? const Value.absent() : Value(pricelistId.value),
       pricelistSetId: pricelistSetId == null ? const Value.absent() : Value(pricelistSetId.value),
       discount: discount == null ? const Value.absent() : Value(discount.value),
-      isDeleted: const Value(false)
+      isDeleted: restoreDeleted ? const Value(false) : const Value.absent()
     );
 
     await dataStore.pricesDao.updatePartnersPricelist(partnersPricelist.guid, updatedPartnersPricelist);
@@ -174,7 +175,8 @@ class PricesRepository extends BaseRepository {
     Optional<int>? partnerId,
     Optional<double>? price,
     Optional<DateTime>? dateFrom,
-    Optional<DateTime>? dateTo
+    Optional<DateTime>? dateTo,
+    bool restoreDeleted = true
   }) async {
     final updatedPartnersPrice = PartnersPricesCompanion(
       goodsId: goodsId == null ? const Value.absent() : Value(goodsId.value),
@@ -182,7 +184,7 @@ class PricesRepository extends BaseRepository {
       price: price == null ? const Value.absent() : Value(price.value),
       dateFrom: dateFrom == null ? const Value.absent() : Value(dateFrom.value),
       dateTo: dateTo == null ? const Value.absent() : Value(dateTo.value),
-      isDeleted: const Value(false)
+      isDeleted: restoreDeleted ? const Value(false) : const Value.absent()
     );
 
     await dataStore.pricesDao.updatePartnersPrice(partnersPrice.guid, updatedPartnersPrice);

@@ -14,6 +14,7 @@ import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
+import '/app/widgets/widgets.dart';
 import 'bonus_programs/bonus_programs_page.dart';
 import 'goods_info/goods_info_page.dart';
 import 'hand_price_change/hand_price_change_page.dart';
@@ -577,7 +578,6 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     axis: Axis.vertical,
     viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
   );
-  final Map<GoodsDetail, TextEditingController> volControllers = {};
 
   void _scrollToIndex(AutoScrollController controller, int index) {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -849,38 +849,15 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     OrderLineExResult? orderLineEx,
     bool enabled
   ) {
-    final controller = volControllers.putIfAbsent(
-      goodsDetail,
-      () => TextEditingController(text: orderLineEx?.line.vol.toInt().toString())
-    );
-    final volStr = orderLineEx?.line.vol.toInt().toString() ?? '';
-
-    if (controller.text != volStr) controller.text = volStr;
-
     return SizedBox(
       width: 140,
-      child: NumTextField(
+      child: VolField(
         enabled: enabled,
-        textAlign: TextAlign.center,
-        textAlignVertical: TextAlignVertical.center,
-        decimal: false,
-        controller: controller,
+        minValue: 0,
+        vol: orderLineEx?.line.vol,
+        step: goodsDetail.stockRel,
         style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
-        decoration: InputDecoration(
-          fillColor: Colors.transparent,
-          border: InputBorder.none,
-          suffixIcon: !enabled ? null : IconButton(
-            icon: const Icon(Icons.add),
-            tooltip: 'Увеличить кол-во',
-            onPressed: () => widget.onVolChange(goodsDetail, (orderLineEx?.line.vol ?? 0) + goodsDetail.stockRel)
-          ),
-          prefixIcon: !enabled ? null : IconButton(
-            icon: const Icon(Icons.remove),
-            tooltip: 'Уменьшить кол-во',
-            onPressed: () => widget.onVolChange(goodsDetail, (orderLineEx?.line.vol ?? 0) - goodsDetail.stockRel)
-          )
-        ),
-        onTap: () => widget.onVolChange(goodsDetail, Parsing.parseDouble(controller.text))
+        onVolChange: (vol) => widget.onVolChange(goodsDetail, vol)
       )
     );
   }

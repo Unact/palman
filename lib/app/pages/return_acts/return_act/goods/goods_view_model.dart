@@ -214,11 +214,18 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     Optional<DateTime?>? productionDate,
     Optional<bool?>? isBad
   }) async {
-    final returnActLineEx = (await returnActsRepository.getReturnActLineExList(state.returnActEx.returnAct.guid))
+    final returnActLineEx = state.linesExList
       .firstWhereOrNull((e) => e.line.goodsId == goodsReturnDetail.goodsEx.goods.id);
 
-    if (vol != null && vol.value <= 0 && returnActLineEx != null) {
+    if (vol != null && (vol.orNull ?? 0) <= 0 && returnActLineEx != null) {
       await returnActsRepository.deleteReturnActLine(returnActLineEx.line);
+      await returnActsRepository.updateReturnActLine(
+        returnActLineEx.line,
+        vol: Optional.of(0),
+        productionDate: const Optional.absent(),
+        isBad: const Optional.absent(),
+        restoreDeleted: false
+      );
 
       return;
     }

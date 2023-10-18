@@ -138,7 +138,8 @@ class PointsRepository extends BaseRepository {
     Optional<int?>? plong,
     Optional<int?>? maxdebt,
     Optional<int?>? nds10,
-    Optional<int?>? nds20
+    Optional<int?>? nds20,
+    bool restoreDeleted = true
   }) async {
     final newPoint = PointsCompanion(
       name: name == null ? const Value.absent() : Value(name.value),
@@ -158,7 +159,7 @@ class PointsRepository extends BaseRepository {
       maxdebt: maxdebt == null ? const Value.absent() : Value(maxdebt.orNull),
       nds10: nds10 == null ? const Value.absent() : Value(nds10.orNull),
       nds20: nds20 == null ? const Value.absent() : Value(nds20.orNull),
-      isDeleted: const Value(false)
+      isDeleted: restoreDeleted ? const Value(false) : const Value.absent()
     );
 
     await dataStore.pointsDao.updatePoint(point.guid, newPoint);

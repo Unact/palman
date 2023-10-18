@@ -189,7 +189,10 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     final orderLineEx = state.linesExList.firstWhereOrNull((e) => e.line.goodsId == goodsDetail.goodsEx.goods.id);
 
     if (vol == null || vol <= 0) {
-      if (orderLineEx != null) await ordersRepository.deleteOrderLine(orderLineEx.line);
+      if (orderLineEx != null) {
+        await ordersRepository.deleteOrderLine(orderLineEx.line);
+        await ordersRepository.updateOrderLine(orderLineEx.line, vol: Optional.of(0), restoreDeleted: false);
+      }
 
       return;
     }

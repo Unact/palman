@@ -151,11 +151,12 @@ class DebtsRepository extends BaseRepository {
   }
 
   Future<void> updateEncashment(Encashment encashment, {
-    Optional<double?>? encSum
+    Optional<double?>? encSum,
+    bool restoreDeleted = true
   }) async {
     final newEncashment = EncashmentsCompanion(
       encSum: encSum == null ? const Value.absent() : Value(encSum.orNull),
-      isDeleted: const Value(false)
+      isDeleted: restoreDeleted ? const Value(false) : const Value.absent()
     );
 
     await dataStore.debtsDao.updateEncashment(encashment.guid, newEncashment);
