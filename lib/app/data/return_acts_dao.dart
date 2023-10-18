@@ -43,7 +43,7 @@ part of 'database.dart';
         goods.name AS "goods_name"
       FROM return_act_lines
       JOIN goods ON goods.id = return_act_lines.goods_id
-      WHERE return_act_lines.return_act_guid = :return_act_guid
+      WHERE return_act_lines.return_act_guid = :return_act_guid OR :return_act_guid IS NULL
       ORDER BY goods.name
     ''',
     'receptEx': '''
@@ -150,6 +150,10 @@ class ReturnActsDao extends DatabaseAccessor<AppDataStore> with _$ReturnActsDaoM
 
   Stream<List<ReturnActLineExResult>> watchReturnActLineExList(String returnActGuid) {
     return returnActLineEx(returnActGuid).watch();
+  }
+
+  Future<ReturnActLineExResult> getReturnActLineEx(String returnActLineGuid) async {
+    return (await returnActLineEx(null).get()).firstWhere((e) => e.line.guid == returnActLineGuid);
   }
 
   Future<List<ReturnActType>> getReturnActTypes({required int buyerId}) {

@@ -17777,9 +17777,9 @@ mixin _$ReturnActsDaoMixin on DatabaseAccessor<AppDataStore> {
     });
   }
 
-  Selectable<ReturnActLineExResult> returnActLineEx(String returnActGuid) {
+  Selectable<ReturnActLineExResult> returnActLineEx(String? returnActGuid) {
     return customSelect(
-        'SELECT"return_act_lines"."guid" AS "nested_0.guid", "return_act_lines"."is_deleted" AS "nested_0.is_deleted", "return_act_lines"."timestamp" AS "nested_0.timestamp", "return_act_lines"."current_timestamp" AS "nested_0.current_timestamp", "return_act_lines"."last_sync_time" AS "nested_0.last_sync_time", "return_act_lines"."need_sync" AS "nested_0.need_sync", "return_act_lines"."is_new" AS "nested_0.is_new", "return_act_lines"."id" AS "nested_0.id", "return_act_lines"."return_act_guid" AS "nested_0.return_act_guid", "return_act_lines"."goods_id" AS "nested_0.goods_id", "return_act_lines"."vol" AS "nested_0.vol", "return_act_lines"."production_date" AS "nested_0.production_date", "return_act_lines"."is_bad" AS "nested_0.is_bad", goods.name AS goods_name FROM return_act_lines JOIN goods ON goods.id = return_act_lines.goods_id WHERE return_act_lines.return_act_guid = ?1 ORDER BY goods.name',
+        'SELECT"return_act_lines"."guid" AS "nested_0.guid", "return_act_lines"."is_deleted" AS "nested_0.is_deleted", "return_act_lines"."timestamp" AS "nested_0.timestamp", "return_act_lines"."current_timestamp" AS "nested_0.current_timestamp", "return_act_lines"."last_sync_time" AS "nested_0.last_sync_time", "return_act_lines"."need_sync" AS "nested_0.need_sync", "return_act_lines"."is_new" AS "nested_0.is_new", "return_act_lines"."id" AS "nested_0.id", "return_act_lines"."return_act_guid" AS "nested_0.return_act_guid", "return_act_lines"."goods_id" AS "nested_0.goods_id", "return_act_lines"."vol" AS "nested_0.vol", "return_act_lines"."production_date" AS "nested_0.production_date", "return_act_lines"."is_bad" AS "nested_0.is_bad", goods.name AS goods_name FROM return_act_lines JOIN goods ON goods.id = return_act_lines.goods_id WHERE return_act_lines.return_act_guid = ?1 OR ?1 IS NULL ORDER BY goods.name',
         variables: [
           Variable<String>(returnActGuid)
         ],

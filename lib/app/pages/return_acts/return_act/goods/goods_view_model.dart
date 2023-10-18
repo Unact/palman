@@ -241,12 +241,16 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       return;
     }
 
-    await returnActsRepository.addReturnActLine(
+    final newReturnActLineEx = await returnActsRepository.addReturnActLine(
       state.returnActEx.returnAct,
       goodsId: goodsReturnDetail.goods.id,
       vol: vol?.value ?? 1,
       productionDate: productionDate?.orNull,
       isBad: isBad?.orNull
     );
+
+    emit(state.copyWith(
+      linesExList: state.linesExList..add(newReturnActLineEx)
+    ));
   }
 }
