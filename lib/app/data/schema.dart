@@ -375,6 +375,9 @@ class OrderLines extends Table with Syncable {
   RealColumn get priceOriginal => real()();
   IntColumn get package => integer()();
   IntColumn get rel => integer()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [{orderGuid, goodsId}];
 }
 
 class PreOrders extends Table {
@@ -437,6 +440,9 @@ class ReturnActLines extends Table with Syncable {
   RealColumn get vol => real()();
   DateTimeColumn get productionDate => dateTime().nullable()();
   BoolColumn get isBad => boolean().nullable()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [{returnActGuid, goodsId}];
 }
 
 class ReturnActTypes extends Table {

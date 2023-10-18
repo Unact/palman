@@ -33,6 +33,7 @@ dependencies:
   path_provider: ^2.0.9
   provider: ^6.0.5
   pub_semver: ^2.1.1
+  queue: ^3.1.0+2
   quiver: ^3.0.1
   rxdart: ^0.27.7
   scroll_to_index: ^3.0.1

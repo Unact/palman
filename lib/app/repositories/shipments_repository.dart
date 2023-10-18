@@ -105,14 +105,15 @@ class ShipmentsRepository extends BaseRepository {
     Optional<int?>? buyerId,
     Optional<DateTime?>? date,
     Optional<String?>? info,
-    Optional<double?>? incSum
+    Optional<double?>? incSum,
+    bool restoreDeleted = true
   }) async {
     final updatedIncRequest = IncRequestsCompanion(
       buyerId: buyerId == null ? const Value.absent() : Value(buyerId.orNull),
       date: date == null ? const Value.absent() : Value(date.orNull),
       info: info == null ? const Value.absent() : Value(info.orNull),
       incSum: incSum == null ? const Value.absent() : Value(incSum.orNull),
-      isDeleted: const Value(false)
+      isDeleted: restoreDeleted ? const Value(false) : const Value.absent()
     );
 
     await dataStore.shipmentsDao.updateIncRequest(incRequest.guid, updatedIncRequest);
