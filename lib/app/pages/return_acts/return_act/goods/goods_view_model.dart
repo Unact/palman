@@ -214,7 +214,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     Optional<DateTime?>? productionDate,
     Optional<bool?>? isBad
   }) async {
-    final returnActLineEx = state.linesExList
+    final returnActLineEx = (await returnActsRepository.getReturnActLineExList(state.returnActEx.returnAct.guid))
       .firstWhereOrNull((e) => e.line.goodsId == goodsReturnDetail.goodsEx.goods.id);
 
     if (vol != null && (vol.orNull ?? 0) <= 0 && returnActLineEx != null) {
@@ -241,16 +241,12 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       return;
     }
 
-    final newReturnActLineEx = await returnActsRepository.addReturnActLine(
+    await returnActsRepository.addReturnActLine(
       state.returnActEx.returnAct,
       goodsId: goodsReturnDetail.goods.id,
       vol: vol?.value ?? 1,
       productionDate: productionDate?.orNull,
       isBad: isBad?.orNull
     );
-
-    emit(state.copyWith(
-      linesExList: state.linesExList..add(newReturnActLineEx)
-    ));
   }
 }
