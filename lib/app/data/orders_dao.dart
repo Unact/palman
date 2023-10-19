@@ -54,7 +54,7 @@ part of 'database.dart';
         goods.name AS "goods_name"
       FROM order_lines
       JOIN goods ON goods.id = order_lines.goods_id
-      WHERE order_lines.order_guid = :order_guid OR :order_guid IS NULL
+      WHERE order_lines.order_guid = :order_guid
       ORDER BY goods.name
     ''',
     'preOrderEx': '''
@@ -323,10 +323,6 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
 
   Stream<List<OrderLineExResult>> watchOrderLineExList(String orderGuid) {
     return orderLineEx(orderGuid).watch();
-  }
-
-  Future<OrderLineExResult> getOrderLineEx(String orderLineGuid) async {
-    return (await orderLineEx(null).get()).firstWhere((e) => e.line.guid == orderLineGuid);
   }
 
   Stream<List<PreOrderExResult>> watchPreOrderExList() {

@@ -202,7 +202,7 @@ class ReturnActsRepository extends BaseRepository {
     return returnActEx;
   }
 
-  Future<ReturnActLineExResult> addReturnActLine(ReturnAct returnAct, {
+  Future<void> addReturnActLine(ReturnAct returnAct, {
     required int goodsId,
     required double vol,
     required DateTime? productionDate,
@@ -219,8 +219,6 @@ class ReturnActsRepository extends BaseRepository {
         isBad: Value(isBad)
       )
     );
-
-    return dataStore.returnActsDao.getReturnActLineEx(guid);
   }
 
   Future<void> updateReturnAct(ReturnAct returnAct, {
