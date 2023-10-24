@@ -176,6 +176,7 @@ class AllGoods extends Table {
   IntColumn get categoryId => integer()();
   TextColumn get manufacturer => text().nullable()();
   BoolColumn get isLatest => boolean()();
+  BoolColumn get isOrderable => boolean()();
   IntColumn get pricelistSetId => integer()();
   RealColumn get cost => real()();
   RealColumn get minPrice => real()();

@@ -273,7 +273,8 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
       ..where(bonusProgramId != null ? (tbl) => hasBonusProgram : (tbl) => const Constant(true))
       ..where((tbl) => hasStock)
       ..where(goodsIds != null ? (tbl) => tbl.id.isIn(goodsIds) : (tbl) => const Constant(true))
-      ..where(onlyLatest ? (tbl) => tbl.isLatest.equals(true) : (tbl) => const Constant(true));
+      ..where(onlyLatest ? (tbl) => tbl.isLatest.equals(true) : (tbl) => const Constant(true))
+      ..where((tbl) => tbl.isOrderable.equals(true));
 
     return query.get();
   }
