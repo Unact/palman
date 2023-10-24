@@ -6280,6 +6280,18 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
             SqlDialect.mysql: '',
             SqlDialect.postgres: '',
           }));
+  static const VerificationMeta _isOrderableMeta =
+      const VerificationMeta('isOrderable');
+  @override
+  late final GeneratedColumn<bool> isOrderable =
+      GeneratedColumn<bool>('is_orderable', aliasedName, false,
+          type: DriftSqlType.bool,
+          requiredDuringInsert: true,
+          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
+            SqlDialect.sqlite: 'CHECK ("is_orderable" IN (0, 1))',
+            SqlDialect.mysql: '',
+            SqlDialect.postgres: '',
+          }));
   static const VerificationMeta _pricelistSetIdMeta =
       const VerificationMeta('pricelistSetId');
   @override
@@ -6388,6 +6400,7 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
         categoryId,
         manufacturer,
         isLatest,
+        isOrderable,
         pricelistSetId,
         cost,
         minPrice,
@@ -6454,6 +6467,14 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           isLatest.isAcceptableOrUnknown(data['is_latest']!, _isLatestMeta));
     } else if (isInserting) {
       context.missing(_isLatestMeta);
+    }
+    if (data.containsKey('is_orderable')) {
+      context.handle(
+          _isOrderableMeta,
+          isOrderable.isAcceptableOrUnknown(
+              data['is_orderable']!, _isOrderableMeta));
+    } else if (isInserting) {
+      context.missing(_isOrderableMeta);
     }
     if (data.containsKey('pricelist_set_id')) {
       context.handle(
@@ -6579,6 +6600,8 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           .read(DriftSqlType.string, data['${effectivePrefix}manufacturer']),
       isLatest: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_latest'])!,
+      isOrderable: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_orderable'])!,
       pricelistSetId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}pricelist_set_id'])!,
       cost: attachedDatabase.typeMapping
@@ -6633,6 +6656,7 @@ class Goods extends DataClass implements Insertable<Goods> {
   final int categoryId;
   final String? manufacturer;
   final bool isLatest;
+  final bool isOrderable;
   final int pricelistSetId;
   final double cost;
   final double minPrice;
@@ -6657,6 +6681,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       required this.categoryId,
       this.manufacturer,
       required this.isLatest,
+      required this.isOrderable,
       required this.pricelistSetId,
       required this.cost,
       required this.minPrice,
@@ -6685,6 +6710,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       map['manufacturer'] = Variable<String>(manufacturer);
     }
     map['is_latest'] = Variable<bool>(isLatest);
+    map['is_orderable'] = Variable<bool>(isOrderable);
     map['pricelist_set_id'] = Variable<int>(pricelistSetId);
     map['cost'] = Variable<double>(cost);
     map['min_price'] = Variable<double>(minPrice);
@@ -6720,6 +6746,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           ? const Value.absent()
           : Value(manufacturer),
       isLatest: Value(isLatest),
+      isOrderable: Value(isOrderable),
       pricelistSetId: Value(pricelistSetId),
       cost: Value(cost),
       minPrice: Value(minPrice),
@@ -6752,6 +6779,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       categoryId: serializer.fromJson<int>(json['categoryId']),
       manufacturer: serializer.fromJson<String?>(json['manufacturer']),
       isLatest: serializer.fromJson<bool>(json['isLatest']),
+      isOrderable: serializer.fromJson<bool>(json['isOrderable']),
       pricelistSetId: serializer.fromJson<int>(json['pricelistSetId']),
       cost: serializer.fromJson<double>(json['cost']),
       minPrice: serializer.fromJson<double>(json['minPrice']),
@@ -6782,6 +6810,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       'categoryId': serializer.toJson<int>(categoryId),
       'manufacturer': serializer.toJson<String?>(manufacturer),
       'isLatest': serializer.toJson<bool>(isLatest),
+      'isOrderable': serializer.toJson<bool>(isOrderable),
       'pricelistSetId': serializer.toJson<int>(pricelistSetId),
       'cost': serializer.toJson<double>(cost),
       'minPrice': serializer.toJson<double>(minPrice),
@@ -6809,6 +6838,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           int? categoryId,
           Value<String?> manufacturer = const Value.absent(),
           bool? isLatest,
+          bool? isOrderable,
           int? pricelistSetId,
           double? cost,
           double? minPrice,
@@ -6834,6 +6864,7 @@ class Goods extends DataClass implements Insertable<Goods> {
         manufacturer:
             manufacturer.present ? manufacturer.value : this.manufacturer,
         isLatest: isLatest ?? this.isLatest,
+        isOrderable: isOrderable ?? this.isOrderable,
         pricelistSetId: pricelistSetId ?? this.pricelistSetId,
         cost: cost ?? this.cost,
         minPrice: minPrice ?? this.minPrice,
@@ -6862,6 +6893,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           ..write('categoryId: $categoryId, ')
           ..write('manufacturer: $manufacturer, ')
           ..write('isLatest: $isLatest, ')
+          ..write('isOrderable: $isOrderable, ')
           ..write('pricelistSetId: $pricelistSetId, ')
           ..write('cost: $cost, ')
           ..write('minPrice: $minPrice, ')
@@ -6891,6 +6923,7 @@ class Goods extends DataClass implements Insertable<Goods> {
         categoryId,
         manufacturer,
         isLatest,
+        isOrderable,
         pricelistSetId,
         cost,
         minPrice,
@@ -6919,6 +6952,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           other.categoryId == this.categoryId &&
           other.manufacturer == this.manufacturer &&
           other.isLatest == this.isLatest &&
+          other.isOrderable == this.isOrderable &&
           other.pricelistSetId == this.pricelistSetId &&
           other.cost == this.cost &&
           other.minPrice == this.minPrice &&
@@ -6945,6 +6979,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   final Value<int> categoryId;
   final Value<String?> manufacturer;
   final Value<bool> isLatest;
+  final Value<bool> isOrderable;
   final Value<int> pricelistSetId;
   final Value<double> cost;
   final Value<double> minPrice;
@@ -6969,6 +7004,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     this.categoryId = const Value.absent(),
     this.manufacturer = const Value.absent(),
     this.isLatest = const Value.absent(),
+    this.isOrderable = const Value.absent(),
     this.pricelistSetId = const Value.absent(),
     this.cost = const Value.absent(),
     this.minPrice = const Value.absent(),
@@ -6994,6 +7030,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     required int categoryId,
     this.manufacturer = const Value.absent(),
     required bool isLatest,
+    required bool isOrderable,
     required int pricelistSetId,
     required double cost,
     required double minPrice,
@@ -7015,6 +7052,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
         imageKey = Value(imageKey),
         categoryId = Value(categoryId),
         isLatest = Value(isLatest),
+        isOrderable = Value(isOrderable),
         pricelistSetId = Value(pricelistSetId),
         cost = Value(cost),
         minPrice = Value(minPrice),
@@ -7038,6 +7076,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     Expression<int>? categoryId,
     Expression<String>? manufacturer,
     Expression<bool>? isLatest,
+    Expression<bool>? isOrderable,
     Expression<int>? pricelistSetId,
     Expression<double>? cost,
     Expression<double>? minPrice,
@@ -7063,6 +7102,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       if (categoryId != null) 'category_id': categoryId,
       if (manufacturer != null) 'manufacturer': manufacturer,
       if (isLatest != null) 'is_latest': isLatest,
+      if (isOrderable != null) 'is_orderable': isOrderable,
       if (pricelistSetId != null) 'pricelist_set_id': pricelistSetId,
       if (cost != null) 'cost': cost,
       if (minPrice != null) 'min_price': minPrice,
@@ -7092,6 +7132,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       Value<int>? categoryId,
       Value<String?>? manufacturer,
       Value<bool>? isLatest,
+      Value<bool>? isOrderable,
       Value<int>? pricelistSetId,
       Value<double>? cost,
       Value<double>? minPrice,
@@ -7116,6 +7157,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       categoryId: categoryId ?? this.categoryId,
       manufacturer: manufacturer ?? this.manufacturer,
       isLatest: isLatest ?? this.isLatest,
+      isOrderable: isOrderable ?? this.isOrderable,
       pricelistSetId: pricelistSetId ?? this.pricelistSetId,
       cost: cost ?? this.cost,
       minPrice: minPrice ?? this.minPrice,
@@ -7159,6 +7201,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     }
     if (isLatest.present) {
       map['is_latest'] = Variable<bool>(isLatest.value);
+    }
+    if (isOrderable.present) {
+      map['is_orderable'] = Variable<bool>(isOrderable.value);
     }
     if (pricelistSetId.present) {
       map['pricelist_set_id'] = Variable<int>(pricelistSetId.value);
@@ -7223,6 +7268,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
           ..write('categoryId: $categoryId, ')
           ..write('manufacturer: $manufacturer, ')
           ..write('isLatest: $isLatest, ')
+          ..write('isOrderable: $isOrderable, ')
           ..write('pricelistSetId: $pricelistSetId, ')
           ..write('cost: $cost, ')
           ..write('minPrice: $minPrice, ')
@@ -17442,7 +17488,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."mc_vol" AS "nested_0.mc_vol", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date, (SELECT MAX(shipment_lines.price) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN (SELECT MAX(shipments.date) AS last_shipment_date, shipments.buyer_id FROM shipments GROUP BY shipments.buyer_id) AS sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_price FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
+        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."is_orderable" AS "nested_0.is_orderable", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."mc_vol" AS "nested_0.mc_vol", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date, (SELECT MAX(shipment_lines.price) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN (SELECT MAX(shipments.date) AS last_shipment_date, shipments.buyer_id FROM shipments GROUP BY shipments.buyer_id) AS sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_price FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
         variables: [
           Variable<int>(buyerId),
           for (var $ in goodsIds) Variable<int>($)
