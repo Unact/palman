@@ -224,7 +224,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   }
 
   Future<void> preloadGoodsImages() async {
-    final goodsWithImage = await ordersRepository.getAllGoodsWithImage();
+    final goodsWithImage = await ordersRepository.getOrderableGoodsWithImage();
 
     if (goodsWithImage.isEmpty) {
       emit(state.copyWith(status: InfoStateStatus.imageLoadFailure, message: 'Нет товаров для загрузки фотографий'));

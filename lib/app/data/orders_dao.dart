@@ -245,8 +245,12 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     return (select(orderLines)..where((tbl) => hasOrderToSync)).get();
   }
 
-  Future<List<Goods>> getAllGoodsWithImage() async {
-    return await (select(allGoods)..where((tbl) => tbl.imageUrl.equals('').not())).get();
+  Future<List<Goods>> getOrderableGoodsWithImage() async {
+    return (
+      select(allGoods)
+        ..where((tbl) => tbl.isOrderable.equals(true))
+        ..where((tbl) => tbl.imageUrl.equals('').not())
+    ).get();
   }
 
   Future<List<Goods>> getGoods({
