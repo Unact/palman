@@ -224,8 +224,8 @@ class OrdersRepository extends BaseRepository {
     return dataStore.ordersDao.watchCategories(buyerId: buyerId);
   }
 
-  Future<List<Goods>> getAllGoodsWithImage() async {
-    return dataStore.ordersDao.getAllGoodsWithImage();
+  Future<List<Goods>> getOrderableGoodsWithImage() async {
+    return dataStore.ordersDao.getOrderableGoodsWithImage();
   }
 
   Stream<List<BonusProgramGroup>> watchBonusProgramGroups({
