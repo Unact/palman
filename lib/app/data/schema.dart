@@ -376,6 +376,7 @@ class OrderLines extends Table with Syncable {
   RealColumn get priceOriginal => real()();
   IntColumn get package => integer()();
   IntColumn get rel => integer()();
+  RealColumn get handPrice => real().nullable()();
 
   @override
   List<Set<Column>> get uniqueKeys => [{orderGuid, goodsId}];

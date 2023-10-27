@@ -399,6 +399,7 @@ class OrdersRepository extends BaseRepository {
     Optional<double>? priceOriginal,
     Optional<int>? package,
     Optional<int>? rel,
+    Optional<double>? handPrice,
     bool restoreDeleted = true
   }) async {
     final updatedOrderLine = OrderLinesCompanion(
@@ -408,6 +409,7 @@ class OrdersRepository extends BaseRepository {
       priceOriginal: priceOriginal == null ? const Value.absent() : Value(priceOriginal.value),
       package: package == null ? const Value.absent() : Value(package.value),
       rel: rel == null ? const Value.absent() : Value(rel.value),
+      handPrice: handPrice == null ? const Value.absent() : Value(handPrice.value),
       isDeleted: restoreDeleted ? const Value(false) : const Value.absent()
     );
 
@@ -505,13 +507,13 @@ class OrdersRepository extends BaseRepository {
         final goodsDetail = goodsDetails.firstWhereOrNull((e) => e.goods.id == orderLine.line.goodsId);
 
         if (goodsDetail == null) continue;
-        if (orderLine.line.price != orderLine.line.priceOriginal) continue;
+        if (orderLine.line.handPrice != null) continue;
 
         await dataStore.ordersDao.updateOrderLine(
           orderLine.line.guid,
           OrderLinesCompanion(
             price: Value(goodsDetail.price),
-            priceOriginal: Value(goodsDetail.price)
+            priceOriginal: Value(goodsDetail.pricelistPrice)
           )
         );
       }
