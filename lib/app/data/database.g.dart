@@ -9165,6 +9165,12 @@ class $OrderLinesTable extends OrderLines
   late final GeneratedColumn<int> rel = GeneratedColumn<int>(
       'rel', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _handPriceMeta =
+      const VerificationMeta('handPrice');
+  @override
+  late final GeneratedColumn<double> handPrice = GeneratedColumn<double>(
+      'hand_price', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         guid,
@@ -9181,7 +9187,8 @@ class $OrderLinesTable extends OrderLines
         price,
         priceOriginal,
         package,
-        rel
+        rel,
+        handPrice
       ];
   @override
   String get aliasedName => _alias ?? 'order_lines';
@@ -9273,6 +9280,10 @@ class $OrderLinesTable extends OrderLines
     } else if (isInserting) {
       context.missing(_relMeta);
     }
+    if (data.containsKey('hand_price')) {
+      context.handle(_handPriceMeta,
+          handPrice.isAcceptableOrUnknown(data['hand_price']!, _handPriceMeta));
+    }
     return context;
   }
 
@@ -9316,6 +9327,8 @@ class $OrderLinesTable extends OrderLines
           .read(DriftSqlType.int, data['${effectivePrefix}package'])!,
       rel: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}rel'])!,
+      handPrice: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}hand_price']),
     );
   }
 
@@ -9341,6 +9354,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
   final double priceOriginal;
   final int package;
   final int rel;
+  final double? handPrice;
   const OrderLine(
       {required this.guid,
       required this.isDeleted,
@@ -9356,7 +9370,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       required this.price,
       required this.priceOriginal,
       required this.package,
-      required this.rel});
+      required this.rel,
+      this.handPrice});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -9377,6 +9392,9 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
     map['price_original'] = Variable<double>(priceOriginal);
     map['package'] = Variable<int>(package);
     map['rel'] = Variable<int>(rel);
+    if (!nullToAbsent || handPrice != null) {
+      map['hand_price'] = Variable<double>(handPrice);
+    }
     return map;
   }
 
@@ -9397,6 +9415,9 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       priceOriginal: Value(priceOriginal),
       package: Value(package),
       rel: Value(rel),
+      handPrice: handPrice == null && nullToAbsent
+          ? const Value.absent()
+          : Value(handPrice),
     );
   }
 
@@ -9419,6 +9440,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       priceOriginal: serializer.fromJson<double>(json['priceOriginal']),
       package: serializer.fromJson<int>(json['package']),
       rel: serializer.fromJson<int>(json['rel']),
+      handPrice: serializer.fromJson<double?>(json['handPrice']),
     );
   }
   @override
@@ -9440,6 +9462,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       'priceOriginal': serializer.toJson<double>(priceOriginal),
       'package': serializer.toJson<int>(package),
       'rel': serializer.toJson<int>(rel),
+      'handPrice': serializer.toJson<double?>(handPrice),
     };
   }
 
@@ -9458,7 +9481,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           double? price,
           double? priceOriginal,
           int? package,
-          int? rel}) =>
+          int? rel,
+          Value<double?> handPrice = const Value.absent()}) =>
       OrderLine(
         guid: guid ?? this.guid,
         isDeleted: isDeleted ?? this.isDeleted,
@@ -9476,6 +9500,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
         priceOriginal: priceOriginal ?? this.priceOriginal,
         package: package ?? this.package,
         rel: rel ?? this.rel,
+        handPrice: handPrice.present ? handPrice.value : this.handPrice,
       );
   @override
   String toString() {
@@ -9494,7 +9519,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           ..write('price: $price, ')
           ..write('priceOriginal: $priceOriginal, ')
           ..write('package: $package, ')
-          ..write('rel: $rel')
+          ..write('rel: $rel, ')
+          ..write('handPrice: $handPrice')
           ..write(')'))
         .toString();
   }
@@ -9515,7 +9541,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       price,
       priceOriginal,
       package,
-      rel);
+      rel,
+      handPrice);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -9534,7 +9561,8 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           other.price == this.price &&
           other.priceOriginal == this.priceOriginal &&
           other.package == this.package &&
-          other.rel == this.rel);
+          other.rel == this.rel &&
+          other.handPrice == this.handPrice);
 }
 
 class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
@@ -9551,6 +9579,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
   final Value<double> priceOriginal;
   final Value<int> package;
   final Value<int> rel;
+  final Value<double?> handPrice;
   final Value<int> rowid;
   const OrderLinesCompanion({
     this.guid = const Value.absent(),
@@ -9566,6 +9595,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     this.priceOriginal = const Value.absent(),
     this.package = const Value.absent(),
     this.rel = const Value.absent(),
+    this.handPrice = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OrderLinesCompanion.insert({
@@ -9582,6 +9612,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     required double priceOriginal,
     required int package,
     required int rel,
+    this.handPrice = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : guid = Value(guid),
         orderGuid = Value(orderGuid),
@@ -9605,6 +9636,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     Expression<double>? priceOriginal,
     Expression<int>? package,
     Expression<int>? rel,
+    Expression<double>? handPrice,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -9621,6 +9653,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
       if (priceOriginal != null) 'price_original': priceOriginal,
       if (package != null) 'package': package,
       if (rel != null) 'rel': rel,
+      if (handPrice != null) 'hand_price': handPrice,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -9639,6 +9672,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
       Value<double>? priceOriginal,
       Value<int>? package,
       Value<int>? rel,
+      Value<double?>? handPrice,
       Value<int>? rowid}) {
     return OrderLinesCompanion(
       guid: guid ?? this.guid,
@@ -9654,6 +9688,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
       priceOriginal: priceOriginal ?? this.priceOriginal,
       package: package ?? this.package,
       rel: rel ?? this.rel,
+      handPrice: handPrice ?? this.handPrice,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -9700,6 +9735,9 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     if (rel.present) {
       map['rel'] = Variable<int>(rel.value);
     }
+    if (handPrice.present) {
+      map['hand_price'] = Variable<double>(handPrice.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -9722,6 +9760,7 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
           ..write('priceOriginal: $priceOriginal, ')
           ..write('package: $package, ')
           ..write('rel: $rel, ')
+          ..write('handPrice: $handPrice, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -17429,7 +17468,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
 
   Selectable<OrderLineExResult> orderLineEx(String orderGuid) {
     return customSelect(
-        'SELECT"order_lines"."guid" AS "nested_0.guid", "order_lines"."is_deleted" AS "nested_0.is_deleted", "order_lines"."timestamp" AS "nested_0.timestamp", "order_lines"."current_timestamp" AS "nested_0.current_timestamp", "order_lines"."last_sync_time" AS "nested_0.last_sync_time", "order_lines"."need_sync" AS "nested_0.need_sync", "order_lines"."is_new" AS "nested_0.is_new", "order_lines"."id" AS "nested_0.id", "order_lines"."order_guid" AS "nested_0.order_guid", "order_lines"."goods_id" AS "nested_0.goods_id", "order_lines"."vol" AS "nested_0.vol", "order_lines"."price" AS "nested_0.price", "order_lines"."price_original" AS "nested_0.price_original", "order_lines"."package" AS "nested_0.package", "order_lines"."rel" AS "nested_0.rel", goods.name AS goods_name FROM order_lines JOIN goods ON goods.id = order_lines.goods_id WHERE order_lines.order_guid = ?1 ORDER BY goods.name',
+        'SELECT"order_lines"."guid" AS "nested_0.guid", "order_lines"."is_deleted" AS "nested_0.is_deleted", "order_lines"."timestamp" AS "nested_0.timestamp", "order_lines"."current_timestamp" AS "nested_0.current_timestamp", "order_lines"."last_sync_time" AS "nested_0.last_sync_time", "order_lines"."need_sync" AS "nested_0.need_sync", "order_lines"."is_new" AS "nested_0.is_new", "order_lines"."id" AS "nested_0.id", "order_lines"."order_guid" AS "nested_0.order_guid", "order_lines"."goods_id" AS "nested_0.goods_id", "order_lines"."vol" AS "nested_0.vol", "order_lines"."price" AS "nested_0.price", "order_lines"."price_original" AS "nested_0.price_original", "order_lines"."package" AS "nested_0.package", "order_lines"."rel" AS "nested_0.rel", "order_lines"."hand_price" AS "nested_0.hand_price", goods.name AS goods_name FROM order_lines JOIN goods ON goods.id = order_lines.goods_id WHERE order_lines.order_guid = ?1 ORDER BY goods.name',
         variables: [
           Variable<String>(orderGuid)
         ],
