@@ -47,7 +47,6 @@ class _GoodsView extends StatefulWidget {
 }
 
 class _GoodsViewState extends State<_GoodsView> {
-  late final ProgressDialog progressDialog = ProgressDialog(context: context);
   final TextEditingController nameController = TextEditingController();
 
   Future<void> showScanPage() async {
@@ -63,15 +62,9 @@ class _GoodsViewState extends State<_GoodsView> {
     );
   }
 
-  @override
-  void dispose() {
-    progressDialog.close();
-    super.dispose();
-  }
-
   Future<void> showCategorySelectDialog() async {
     final vm = context.read<GoodsViewModel>();
-    final result = await showDialog<Category>(
+    final result = await showDialog<CategoriesExResult>(
       context: context,
       barrierDismissible: true,
       builder: (BuildContext dialogContext) {
@@ -82,7 +75,7 @@ class _GoodsViewState extends State<_GoodsView> {
               appBar: AppBar(title: const Text('Выберите категорию')),
               body: buildCategoryView(
                 context,
-                (Category category) => Navigator.of(dialogContext).pop(category)
+                (CategoriesExResult categoryEx) => Navigator.of(dialogContext).pop(categoryEx)
               )
             )
           )
@@ -164,11 +157,6 @@ class _GoodsViewState extends State<_GoodsView> {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               showScanPage();
             });
-          case GoodsStateStatus.searchStarted:
-            await progressDialog.open();
-            break;
-          case GoodsStateStatus.searchFinished:
-            progressDialog.close();
             break;
           default:
         }
@@ -179,19 +167,25 @@ class _GoodsViewState extends State<_GoodsView> {
   Widget buildGoodsView(BuildContext context, bool compactMode) {
     final vm = context.read<GoodsViewModel>();
     final Map<String, List<GoodsReturnDetail>> groupedGoods = {};
+    final keyStr = Object.hashAll([
+      vm.state.selectedCategory,
+      vm.state.selectedGoodsFilter,
+      vm.state.showOnlyLatest,
+      vm.state.goodsNameSearch
+    ]).toString();
 
     if (vm.state.groupByManufacturer) {
       for (var e in vm.state.manufacturers) {
-        groupedGoods[e] = vm.state.goodsReturnDetails.where((g) => g.goods.manufacturer == e).toList();
+        groupedGoods[e] = vm.state.visibleGoodsDetails.where((g) => g.goods.manufacturer == e).toList();
       }
     } else {
       for (var e in vm.state.goodsFirstWords) {
-        groupedGoods[e] = vm.state.goodsReturnDetails.where((g) => g.goods.name.split(' ').first == e).toList();
+        groupedGoods[e] = vm.state.visibleGoodsDetails.where((g) => g.goods.name.split(' ').first == e).toList();
       }
     }
 
     return _GoodsGroupsView(
-      key: Key(vm.state.goodsReturnDetails.fold(0, (prev, e) => prev + e.goods.hashCode).toString()),
+      key: Key(keyStr),
       groupedGoods: groupedGoods,
       initiallyExpanded: vm.state.goodsListInitiallyExpanded,
       compactMode: compactMode,
@@ -235,7 +229,7 @@ class _GoodsViewState extends State<_GoodsView> {
                   tooltip: 'Выбрать категорию',
                 )
               ),
-              controller: TextEditingController(text: vm.state.selectedCategory?.name),
+              controller: TextEditingController(text: vm.state.selectedCategory?.category.name),
               style: Styles.formStyle
             ),
           Row(
@@ -323,12 +317,12 @@ class _GoodsViewState extends State<_GoodsView> {
     );
   }
 
-  Widget buildCategoryView(BuildContext context, void Function(Category) onCategoryTap) {
+  Widget buildCategoryView(BuildContext context, void Function(CategoriesExResult) onCategoryTap) {
     final vm = context.read<GoodsViewModel>();
-    final Map<String, List<Category>> groupedCategories = {};
+    final Map<String, List<CategoriesExResult>> groupedCategories = {};
 
     for (var e in vm.state.shopDepartments) {
-      groupedCategories[e.name] = vm.state.visibleCategories.where((c) => c.shopDepartmentId == e.id).toList();
+      groupedCategories[e.name] = vm.state.visibleCategories.where((c) => c.category.shopDepartmentId == e.id).toList();
     }
 
     return _CategoriesView(
@@ -342,9 +336,9 @@ class _GoodsViewState extends State<_GoodsView> {
 }
 
 class _CategoriesView extends StatefulWidget {
-  final Map<String, List<Category>> groupedCategories;
-  final Category? selectedCategory;
-  final void Function(Category) onCategoryTap;
+  final Map<String, List<CategoriesExResult>> groupedCategories;
+  final CategoriesExResult? selectedCategory;
+  final void Function(CategoriesExResult) onCategoryTap;
   final bool initiallyExpanded;
 
   _CategoriesView({
@@ -400,7 +394,7 @@ class _CategoriesViewState extends State<_CategoriesView> {
     BuildContext context,
     int index,
     String name,
-    List<Category> groupCategories
+    List<CategoriesExResult> groupCategories
   ) {
     final children = groupCategories.map((e) => buildCategoryTile(e)).toList();
 
@@ -434,19 +428,21 @@ class _CategoriesViewState extends State<_CategoriesView> {
     );
   }
 
-  Widget buildCategoryTile(Category category) {
+  Widget buildCategoryTile(CategoriesExResult categoryEx) {
     return ListTile(
-      title: buildCategoryTileTitle(category),
+      title: buildCategoryTileTitle(categoryEx),
       tileColor: Colors.transparent,
-      selected: category == widget.selectedCategory,
-      onTap: () => widget.onCategoryTap.call(category)
+      selected: categoryEx == widget.selectedCategory,
+      onTap: () => widget.onCategoryTap.call(categoryEx)
     );
   }
 
-  Widget buildCategoryTileTitle(Category category) {
+  Widget buildCategoryTileTitle(CategoriesExResult categoryEx) {
     return Row(
       children: [
-        Expanded(child: Text(category.name, style: Styles.tileTitleText.copyWith(fontWeight: FontWeight.w500)))
+        Expanded(
+          child: Text(categoryEx.category.name, style: Styles.tileTitleText.copyWith(fontWeight: FontWeight.w500))
+        )
       ]
     );
   }

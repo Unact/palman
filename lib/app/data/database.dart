@@ -226,7 +226,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -269,8 +269,13 @@ class AppDataStore extends _$AppDataStore {
     }
 
     final List<(TableInfo, List<String>)> indices = [
+      (goodsBonusProgramPrices, ['goods_id', 'bonus_program_id']),
       (goodsPartnersPricelists, ['partner_pricelist_id', 'goods_id']),
       (partnersPricelists, ['partner_id', 'pricelist_id']),
+      (buyers, ['partner_id']),
+      (buyersSetsBonusPrograms, ['bonus_program_id']),
+      (partnersPrices, ['goods_id', 'partner_id']),
+      (shipmentLines, ['goods_id']),
       (shipmentLines, ['goods_id']),
       (shipmentLines, ['shipment_id']),
       (orderLines, ['goods_id']),
@@ -279,12 +284,12 @@ class AppDataStore extends _$AppDataStore {
       (preOrderLines, ['pre_order_id']),
       (returnActLines, ['goods_id']),
       (returnActLines, ['return_act_guid']),
-      (goodsBonusPrograms, ['goods_id']),
-      (goodsBonusPrograms, ['bonus_program_id']),
+      (goodsBonusPrograms, ['goods_id', 'bonus_program_id']),
       (pricelistPrices, ['goods_id', 'pricelist_id']),
       (pointImages, ['point_guid']),
       (allGoods, ['category_id']),
-      (encashments, ['deposit_guid'])
+      (encashments, ['deposit_guid']),
+      (goodsStocks, ['goods_id'])
     ];
 
     for (final index in indices) {

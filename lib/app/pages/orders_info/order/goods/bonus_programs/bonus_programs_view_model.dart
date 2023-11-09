@@ -7,9 +7,9 @@ class BonusProgramsViewModel extends PageViewModel<BonusProgramsState, BonusProg
   BonusProgramsViewModel(this.ordersRepository, {
     required DateTime date,
     required Buyer buyer,
-    required CategoriesExResult? category,
+    required CategoriesExResult? categoryEx,
     required GoodsExResult? goodsEx
-  }) : super(BonusProgramsState(date: date, buyer: buyer, category: category, goodsEx: goodsEx));
+  }) : super(BonusProgramsState(date: date, buyer: buyer, categoryEx: categoryEx, goodsEx: goodsEx));
 
   @override
   BonusProgramsStateStatus get status => state.status;
@@ -61,7 +61,7 @@ class BonusProgramsViewModel extends PageViewModel<BonusProgramsState, BonusProg
       buyerId: state.buyer.id,
       date: state.date,
       bonusProgramGroupId: state.selectedBonusProgramGroup?.id,
-      categoryId: state.filterByCategory ? state.category?.id : null,
+      categoryId: state.filterByCategory ? state.categoryEx?.category.id : null,
       goodsId: state.goodsEx?.goods.id
     );
 

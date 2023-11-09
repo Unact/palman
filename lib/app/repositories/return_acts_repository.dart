@@ -135,18 +135,6 @@ class ReturnActsRepository extends BaseRepository {
     return dataStore.returnActsDao.watchReturnActLineExList(returnActGuid);
   }
 
-  Stream<List<Category>> watchCategories({
-    required int buyerId,
-    required int returnActTypeId,
-    int? receptId
-  }) {
-    return dataStore.returnActsDao.watchCategories(
-      buyerId: buyerId,
-      returnActTypeId: returnActTypeId,
-      receptId: receptId
-    );
-  }
-
   Future<List<ReceptExResult>> getReceptExList({
     required int buyerId,
     required int returnActTypeId
@@ -154,13 +142,13 @@ class ReturnActsRepository extends BaseRepository {
     return dataStore.returnActsDao.getReceptExList(buyerId: buyerId, returnActTypeId: returnActTypeId);
   }
 
-  Future<List<GoodsReturnDetail>> getGoodsReturnDetails({
+  Stream<List<GoodsReturnDetail>> watchGoodsReturnDetails({
     required int buyerId,
     required int returnActTypeId,
     required List<int> goodsIds,
     int? receptId
-  }) async {
-    return dataStore.returnActsDao.getGoodsReturnDetails(
+  }) {
+    return dataStore.returnActsDao.watchGoodsReturnDetails(
       buyerId: buyerId,
       returnActTypeId: returnActTypeId,
       receptId: receptId,

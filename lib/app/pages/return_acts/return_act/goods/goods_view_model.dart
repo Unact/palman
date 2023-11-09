@@ -4,9 +4,9 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   final AppRepository appRepository;
   final OrdersRepository ordersRepository;
   final ReturnActsRepository returnActsRepository;
+  StreamSubscription<List<GoodsReturnDetail>>? goodsDetailsSubscription;
   StreamSubscription<List<ReturnActExResult>>? returnActExListSubscription;
   StreamSubscription<List<ReturnActLineExResult>>? returnActLineExListSubscription;
-  StreamSubscription<List<Category>>? categoriesSubscription;
   StreamSubscription<List<ShopDepartment>>? shopDepartmentsSubscription;
   StreamSubscription<List<GoodsFilter>>? goodsFiltersSubscription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
@@ -26,6 +26,33 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   Future<void> initViewModel() async {
     await super.initViewModel();
 
+    final goods = await returnActsRepository.getBuyerGoods(
+      buyerId: state.returnActEx.buyer!.id,
+      name: null,
+      extraLabel: null,
+      categoryId: null,
+      goodsIds: null,
+      onlyLatest: false,
+      barcode: null
+    );
+    final categories = await ordersRepository.getCategories(buyerId: state.returnActEx.buyer!.id);
+
+    goodsDetailsSubscription = returnActsRepository.watchGoodsReturnDetails(
+      returnActTypeId: state.returnActEx.returnAct.returnActTypeId!,
+      buyerId: state.returnActEx.returnAct.buyerId!,
+      receptId: state.returnActEx.returnAct.receptId,
+      goodsIds: goods.map((e) => e.id).toList()
+    ).listen((event) {
+      final categoryIds = event.map((e) => e.goods.categoryId).toSet();
+      final allCategories = categories.where((e) => categoryIds.contains(e.category.id)).toList();
+
+      emit(state.copyWith(
+        status: GoodsStateStatus.dataLoaded,
+        goodsDetails: event,
+        allCategories: allCategories,
+        visibleCategories: state.allCategories.isEmpty ? allCategories : null
+      ));
+    });
     returnActExListSubscription = returnActsRepository.watchReturnActExList().listen((event) {
       emit(state.copyWith(
         status: GoodsStateStatus.dataLoaded,
@@ -35,19 +62,6 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     returnActLineExListSubscription = returnActsRepository.watchReturnActLineExList(state.returnActEx.returnAct.guid)
       .listen((event) {
         emit(state.copyWith(status: GoodsStateStatus.dataLoaded, linesExList: event));
-      });
-    categoriesSubscription = returnActsRepository
-      .watchCategories(
-        returnActTypeId: state.returnActEx.returnAct.returnActTypeId!,
-        buyerId: state.returnActEx.returnAct.buyerId!,
-        receptId: state.returnActEx.returnAct.receptId,
-      )
-      .listen((event) {
-        emit(state.copyWith(
-          status: GoodsStateStatus.dataLoaded,
-          allCategories: event,
-          visibleCategories: state.allCategories.isEmpty ? event : null
-        ));
       });
     shopDepartmentsSubscription = ordersRepository.watchShopDepartments().listen((event) {
       emit(state.copyWith(status: GoodsStateStatus.dataLoaded, shopDepartments: event));
@@ -64,9 +78,9 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   Future<void> close() async {
     await super.close();
 
+    await goodsDetailsSubscription?.cancel();
     await returnActExListSubscription?.cancel();
     await returnActLineExListSubscription?.cancel();
-    await categoriesSubscription?.cancel();
     await shopDepartmentsSubscription?.cancel();
     await goodsFiltersSubscription?.cancel();
     await appInfoSubscription?.cancel();
@@ -80,16 +94,16 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       showOnlyReturnAct: false,
       showOnlyLatest: false,
       goodsNameSearch: const Optional.absent(),
-      goodsReturnDetails: List.empty(),
+      visibleGoodsDetails: List.empty(),
       visibleCategories: state.allCategories
     ));
   }
 
-  Future<void> selectCategory(Category? category) async {
+  Future<void> selectCategory(CategoriesExResult? categoryEx) async {
     emit(state.copyWith(
       status: GoodsStateStatus.filterChanged,
-      selectedCategory: Optional.fromNullable(category),
-      goodsReturnDetails: []
+      selectedCategory: Optional.fromNullable(categoryEx),
+      visibleGoodsDetails: []
     ));
 
     await searchGoods();
@@ -100,7 +114,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       status: GoodsStateStatus.filterChanged,
       goodsNameSearch: Optional.fromNullable(goodsNameSearch),
       selectedCategory: const Optional.absent(),
-      goodsReturnDetails: []
+      visibleGoodsDetails: []
     ));
 
     await searchGoods();
@@ -111,7 +125,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       status: GoodsStateStatus.filterChanged,
       selectedGoodsFilter: Optional.fromNullable(goodsFilter),
       selectedCategory: const Optional.absent(),
-      goodsReturnDetails: []
+      visibleGoodsDetails: []
     ));
 
     await searchGoods();
@@ -134,7 +148,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       status: GoodsStateStatus.filterChanged,
       showOnlyLatest: !state.showOnlyLatest,
       selectedCategory: const Optional.absent(),
-      goodsReturnDetails: []
+      visibleGoodsDetails: []
     ));
 
     await searchGoods();
@@ -169,34 +183,23 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> searchGoods() async {
-    emit(state.copyWith(status: GoodsStateStatus.searchStarted));
-
     final goods = await returnActsRepository.getBuyerGoods(
       buyerId: state.returnActEx.returnAct.buyerId!,
       name: state.goodsNameSearch,
       extraLabel: state.selectedGoodsFilter?.value,
-      categoryId: state.selectedCategory?.id,
+      categoryId: state.selectedCategory?.category.id,
       goodsIds: state.showOnlyReturnAct ? state.filteredReturnActLinesExList.map((e) => e.line.goodsId).toList() : null,
       onlyLatest: state.showOnlyLatest,
       barcode: null
     );
-    final categoryIds = goods.map((e) => e.categoryId).toSet();
-    final visibleCategories = state.selectedCategory == null ?
-      state.allCategories.where((e) => categoryIds.contains(e.id)).toList() :
-      state.visibleCategories;
-    final List<GoodsReturnDetail> goodsReturnDetails = !state.showAllGoods ?
-      [] :
-      await returnActsRepository.getGoodsReturnDetails(
-        returnActTypeId: state.returnActEx.returnAct.returnActTypeId!,
-        buyerId: state.returnActEx.returnAct.buyerId!,
-        receptId: state.returnActEx.returnAct.receptId,
-        goodsIds: goods.map((e) => e.id).toList()
-      );
+    final goodsIds = goods.map((e) => e.id).toSet();
+    final visibleGoodsDetails = state.goodsDetails.where((g) => goodsIds.contains(g.goods.id)).toList();
+    final categoryIds = visibleGoodsDetails.map((e) => e.goods.categoryId).toSet();
+    final visibleCategories = state.allCategories.where((e) => categoryIds.contains(e.category.id)).toList();
 
     emit(state.copyWith(
-      status: GoodsStateStatus.searchFinished,
-      goodsReturnDetails: goodsReturnDetails,
-      visibleCategories: visibleCategories
+      visibleGoodsDetails: !state.showAllGoods ? [] : visibleGoodsDetails,
+      visibleCategories: state.selectedCategory != null ? null : visibleCategories
     ));
   }
 

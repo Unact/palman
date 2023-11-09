@@ -29,8 +29,7 @@ part of 'database.dart';
       ORDER BY bonus_programs.name
     ''',
     'filteredGoodsBonusPrograms': '''
-      SELECT DISTINCT
-        bonus_programs.id AS "bonus_program_id",
+      SELECT
         CAST(
           COALESCE(
             MAX(CASE WHEN bonus_programs.discount_percent > 0 THEN bonus_programs.conditional_discount ELSE 0 END),
@@ -42,25 +41,27 @@ part of 'database.dart';
           FROM goods_bonus_program_prices
           WHERE
             goods_bonus_program_prices.bonus_program_id = bonus_programs.id AND
-            goods_bonus_program_prices.goods_id = goods.id
+            goods_bonus_program_prices.goods_id = goods_bonus_programs.goods_id
         ) AS "goods_price",
         MAX(bonus_programs.discount_percent) AS "discount_percent",
         MAX(bonus_programs.coef) AS "coef",
         bonus_programs.tag_text,
-        goods.id AS "goods_id"
+        goods_bonus_programs.goods_id
       FROM bonus_programs
-      JOIN buyers_sets_bonus_programs ON buyers_sets_bonus_programs.bonus_program_id = bonus_programs.id
-      JOIN buyers_sets_buyers ON buyers_sets_buyers.buyers_set_id = buyers_sets_bonus_programs.buyers_set_id
-      JOIN buyers_sets ON buyers_sets.id = buyers_sets_buyers.buyers_set_id
       JOIN goods_bonus_programs ON goods_bonus_programs.bonus_program_id = bonus_programs.id
-      JOIN goods ON goods.id = goods_bonus_programs.goods_id
       WHERE
-        LENGTH(bonus_programs.tag_text) > 0 AND
-        (buyers_sets.is_for_all = 1 OR buyers_sets_buyers.buyer_id = :buyer_id) AND
         goods_bonus_programs.goods_id IN :goods_ids AND
-        :date between bonus_programs.date_from and bonus_programs.date_to
-      GROUP BY bonus_programs.id, bonus_programs.tag_text, goods.id, goods.name
-      ORDER BY bonus_programs.id, goods.name
+        goods_bonus_programs.bonus_program_id IN (
+          SELECT DISTINCT bonus_programs.id
+          FROM bonus_programs
+          JOIN buyers_sets_bonus_programs ON buyers_sets_bonus_programs.bonus_program_id = bonus_programs.id
+          JOIN buyers_sets_buyers ON buyers_sets_buyers.buyers_set_id = buyers_sets_bonus_programs.buyers_set_id
+          JOIN buyers_sets ON buyers_sets.id = buyers_sets_buyers.buyers_set_id
+          WHERE
+            (buyers_sets.is_for_all = 1 OR buyers_sets_buyers.buyer_id = :buyer_id) AND
+            :date between bonus_programs.date_from and bonus_programs.date_to
+        )
+      GROUP BY goods_bonus_programs.bonus_program_id, goods_bonus_programs.goods_id, bonus_programs.tag_text
     '''
   }
 )
@@ -131,18 +132,6 @@ class BonusProgramsDao extends DatabaseAccessor<AppDataStore> with _$BonusProgra
       goodsId?.toString(),
       categoryId?.toString(),
       buyerId,
-      date
-    ).get();
-  }
-
-  Future<List<FilteredGoodsBonusProgramsResult>> getGoodsBonusPrograms({
-    required int buyerId,
-    required DateTime date,
-    required List<int> goodsIds
-  }) async {
-    return filteredGoodsBonusPrograms(
-      buyerId,
-      goodsIds,
       date
     ).get();
   }

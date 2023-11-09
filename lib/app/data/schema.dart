@@ -188,8 +188,9 @@ class AllGoods extends Table {
   IntColumn get categoryPackageRel => integer()();
   IntColumn get categoryBlockRel => integer()();
   RealColumn get weight => real()();
-  RealColumn get mcVol => real()();
+  RealColumn get volume => real()();
   BoolColumn get isFridge => boolean()();
+  BoolColumn get forPhysical => boolean()();
   IntColumn get shelfLife => integer()();
   TextColumn get shelfLifeTypeName => text()();
   TextColumn get barcodes => text().map(const JsonListConverter())();

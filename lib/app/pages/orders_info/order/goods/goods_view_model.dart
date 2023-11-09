@@ -3,9 +3,9 @@ part of 'goods_page.dart';
 class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   final AppRepository appRepository;
   final OrdersRepository ordersRepository;
+  StreamSubscription<List<GoodsDetail>>? goodsDetailsSubscription;
   StreamSubscription<List<OrderExResult>>? orderExListSubscription;
   StreamSubscription<List<OrderLineExResult>>? orderLineExListSubscription;
-  StreamSubscription<List<CategoriesExResult>>? categoriesSubscription;
   StreamSubscription<List<ShopDepartment>>? shopDepartmentsSubscription;
   StreamSubscription<List<GoodsFilter>>? goodsFiltersSubscription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
@@ -20,6 +20,32 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   Future<void> initViewModel() async {
     await super.initViewModel();
 
+    final goods = await ordersRepository.getGoods(
+      name: null,
+      extraLabel: null,
+      categoryId: null,
+      bonusProgramId: null,
+      goodsIds: null,
+      onlyLatest: false,
+      onlyForPhysical: state.orderEx.order.isPhysical
+    );
+    final categories = await ordersRepository.getCategories(buyerId: state.orderEx.buyer!.id);
+
+    goodsDetailsSubscription = ordersRepository.watchGoodsDetails(
+      buyerId: state.orderEx.buyer!.id,
+      date: state.orderEx.order.date!,
+      goodsIds: goods.map((e) => e.id).toList()
+    ).listen((event) {
+      final categoryIds = event.map((e) => e.goods.categoryId).toSet();
+      final allCategories = categories.where((e) => categoryIds.contains(e.category.id)).toList();
+
+      emit(state.copyWith(
+        status: GoodsStateStatus.dataLoaded,
+        goodsDetails: event,
+        allCategories: allCategories,
+        visibleCategories: state.allCategories.isEmpty ? allCategories : null
+      ));
+    });
     orderExListSubscription = ordersRepository.watchOrderExList().listen((event) {
       emit(state.copyWith(
         status: GoodsStateStatus.dataLoaded,
@@ -28,13 +54,6 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     });
     orderLineExListSubscription = ordersRepository.watchOrderLineExList(state.orderEx.order.guid).listen((event) {
       emit(state.copyWith(status: GoodsStateStatus.dataLoaded, linesExList: event));
-    });
-    categoriesSubscription = ordersRepository.watchCategories(buyerId: state.orderEx.order.buyerId!).listen((event) {
-      emit(state.copyWith(
-        status: GoodsStateStatus.dataLoaded,
-        allCategories: event,
-        visibleCategories: state.allCategories.isEmpty ? event : null
-      ));
     });
     shopDepartmentsSubscription = ordersRepository.watchShopDepartments().listen((event) {
       emit(state.copyWith(status: GoodsStateStatus.dataLoaded, shopDepartments: event));
@@ -51,9 +70,9 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   Future<void> close() async {
     await super.close();
 
+    await goodsDetailsSubscription?.cancel();
     await orderExListSubscription?.cancel();
     await orderLineExListSubscription?.cancel();
-    await categoriesSubscription?.cancel();
     await shopDepartmentsSubscription?.cancel();
     await goodsFiltersSubscription?.cancel();
     await appInfoSubscription?.cancel();
@@ -68,7 +87,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       showOnlyOrder: false,
       showOnlyLatest: false,
       goodsNameSearch: const Optional.absent(),
-      goodsDetails: List.empty(),
+      visibleGoodsDetails: [],
       visibleCategories: state.allCategories
     ));
   }
@@ -77,14 +96,14 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     emit(state.copyWith(
       selectedBonusProgram: Optional.fromNullable(bonusProgram),
       selectedCategory: const Optional.absent(),
-      goodsDetails: []
+      visibleGoodsDetails: []
     ));
 
     await searchGoods();
   }
 
-  Future<void> selectCategory(CategoriesExResult? category) async {
-    emit(state.copyWith(selectedCategory: Optional.fromNullable(category), goodsDetails: []));
+  Future<void> selectCategory(CategoriesExResult? categoryEx) async {
+    emit(state.copyWith(selectedCategory: Optional.fromNullable(categoryEx), visibleGoodsDetails: []));
 
     await searchGoods();
   }
@@ -93,7 +112,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     emit(state.copyWith(
       goodsNameSearch: Optional.fromNullable(goodsNameSearch),
       selectedCategory: const Optional.absent(),
-      goodsDetails: []
+      visibleGoodsDetails: []
     ));
 
     await searchGoods();
@@ -103,7 +122,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     emit(state.copyWith(
       selectedGoodsFilter: Optional.fromNullable(goodsFilter),
       selectedCategory: const Optional.absent(),
-      goodsDetails: []
+      visibleGoodsDetails: []
     ));
 
     await searchGoods();
@@ -125,7 +144,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     emit(state.copyWith(
       showOnlyActive: !state.showOnlyActive,
       selectedCategory: const Optional.absent(),
-      goodsDetails: []
+      visibleGoodsDetails: []
     ));
 
     await searchGoods();
@@ -135,7 +154,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     emit(state.copyWith(
       showOnlyLatest: !state.showOnlyLatest,
       selectedCategory: const Optional.absent(),
-      goodsDetails: []
+      visibleGoodsDetails: []
     ));
 
     await searchGoods();
@@ -151,32 +170,31 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> searchGoods() async {
-    emit(state.copyWith(status: GoodsStateStatus.searchStarted));
-
     final goods = await ordersRepository.getGoods(
       name: state.goodsNameSearch,
       extraLabel: state.selectedGoodsFilter?.value,
-      categoryId: state.selectedCategory?.id,
+      categoryId: state.selectedCategory?.category.id,
       bonusProgramId: state.selectedBonusProgram?.id,
       goodsIds: state.showOnlyOrder ? state.filteredOrderLinesExList.map((e) => e.line.goodsId).toList() : null,
-      onlyLatest: state.showOnlyLatest
+      onlyLatest: state.showOnlyLatest,
+      onlyForPhysical: state.orderEx.order.isPhysical
     );
-    final categoryIds = goods.map((e) => e.categoryId).toSet();
-    final visibleCategories = state.selectedCategory == null ?
-      state.allCategories.where((e) => categoryIds.contains(e.id)).toList() :
-      state.visibleCategories;
-    final List<GoodsDetail> goodsDetails = !state.showAllGoods ?
-      [] :
-      await ordersRepository.getGoodsDetails(
-        buyerId: state.orderEx.buyer!.id,
-        date: state.orderEx.order.date!,
-        goodsIds: goods.map((e) => e.id).toList()
-      );
+    final goodsIds = goods.map((e) => e.id).toSet();
+    final visibleGoodsDetails = state.goodsDetails.where((g) {
+      final orderLineEx = state.linesExList.firstWhereOrNull((e) => e.line.goodsId == g.goods.id);
+
+      if (!goodsIds.contains(g.goods.id)) return false;
+      if (state.showWithPrice && g.price == 0 && orderLineEx == null) return false;
+      if (g.stock == null && orderLineEx == null) return false;
+
+      return true;
+    }).toList();
+    final categoryIds = visibleGoodsDetails.map((e) => e.goods.categoryId).toSet();
+    final visibleCategories = state.allCategories.where((e) => categoryIds.contains(e.category.id)).toList();
 
     emit(state.copyWith(
-      status: GoodsStateStatus.searchFinished,
-      goodsDetails: goodsDetails,
-      visibleCategories: visibleCategories
+      visibleGoodsDetails: !state.showAllGoods ? [] : visibleGoodsDetails,
+      visibleCategories: state.selectedCategory != null ? null : visibleCategories
     ));
   }
 

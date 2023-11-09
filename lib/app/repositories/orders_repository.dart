@@ -201,6 +201,7 @@ class OrdersRepository extends BaseRepository {
     required int? bonusProgramId,
     required List<int>? goodsIds,
     required bool onlyLatest,
+    required bool onlyForPhysical
   }) async {
     return dataStore.ordersDao.getGoods(
       name: name,
@@ -208,7 +209,8 @@ class OrdersRepository extends BaseRepository {
       categoryId: categoryId,
       bonusProgramId: bonusProgramId,
       goodsIds: goodsIds,
-      onlyLatest: onlyLatest
+      onlyLatest: onlyLatest,
+      onlyForPhysical: onlyForPhysical
     );
   }
 
@@ -220,8 +222,8 @@ class OrdersRepository extends BaseRepository {
     return dataStore.ordersDao.watchShopDepartments();
   }
 
-  Stream<List<CategoriesExResult>> watchCategories({required int buyerId}) {
-    return dataStore.ordersDao.watchCategories(buyerId: buyerId);
+  Future<List<CategoriesExResult>> getCategories({required int buyerId}) {
+    return dataStore.ordersDao.getCategories(buyerId: buyerId);
   }
 
   Future<List<Goods>> getOrderableGoodsWithImage() async {
@@ -264,12 +266,12 @@ class OrdersRepository extends BaseRepository {
     );
   }
 
-  Future<List<GoodsDetail>> getGoodsDetails({
+  Stream<List<GoodsDetail>> watchGoodsDetails({
     required int buyerId,
     required DateTime date,
     required List<int> goodsIds
-  }) async {
-    return dataStore.ordersDao.getGoodsDetails(
+  }) {
+    return dataStore.ordersDao.watchGoodsDetails(
       buyerId: buyerId,
       date: date,
       goodsIds: goodsIds
@@ -436,7 +438,7 @@ class OrdersRepository extends BaseRepository {
         needProcessing: false,
         isEditable: true
       ));
-      final goodsDetails = await getGoodsDetails(
+      final goodsDetails = await dataStore.ordersDao.getGoodsDetails(
         buyerId: preOrder.buyerId,
         date: preOrder.date,
         goodsIds: preOrderLines.map((e) => e.goodsId).toList()
