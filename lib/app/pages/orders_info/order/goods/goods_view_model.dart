@@ -39,12 +39,9 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       final categoryIds = event.map((e) => e.goods.categoryId).toSet();
       final allCategories = categories.where((e) => categoryIds.contains(e.category.id)).toList();
 
-      emit(state.copyWith(
-        status: GoodsStateStatus.dataLoaded,
-        goodsDetails: event,
-        allCategories: allCategories,
-        visibleCategories: state.allCategories.isEmpty ? allCategories : null
-      ));
+      emit(state.copyWith(status: GoodsStateStatus.dataLoaded, goodsDetails: event, allCategories: allCategories));
+
+      searchGoods();
     });
     orderExListSubscription = ordersRepository.watchOrderExList().listen((event) {
       emit(state.copyWith(
@@ -200,7 +197,6 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
 
   Future<void> updateGoodsPrices() async {
     await ordersRepository.updateOrderLinePrices(state.orderEx.order);
-    await searchGoods();
   }
 
   Future<void> updateOrderLineVol(GoodsDetail goodsDetail, double? vol) async {
