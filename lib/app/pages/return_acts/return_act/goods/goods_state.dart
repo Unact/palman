@@ -4,8 +4,6 @@ enum GoodsStateStatus {
   initial,
   dataLoaded,
   filterChanged,
-  searchStarted,
-  searchFinished,
   showScanFailure,
   showScan,
   scanSuccess,
@@ -20,7 +18,8 @@ class GoodsState {
     this.allCategories = const [],
     this.shopDepartments = const [],
     this.goodsFilters = const [],
-    this.goodsReturnDetails = const [],
+    this.goodsDetails = const [],
+    this.visibleGoodsDetails = const [],
     this.visibleCategories = const [],
     this.selectedCategory,
     this.selectedGoodsFilter,
@@ -38,18 +37,18 @@ class GoodsState {
 
   final ReturnActExResult returnActEx;
   final List<ReturnActLineExResult> linesExList;
-  final List<Category> allCategories;
+  final List<CategoriesExResult> allCategories;
   final List<ShopDepartment> shopDepartments;
   final List<GoodsFilter> goodsFilters;
-  final List<GoodsReturnDetail> goodsReturnDetails;
+  final List<GoodsReturnDetail> goodsDetails;
   final String message;
 
-  List<String> get manufacturers => goodsReturnDetails
+  List<String> get manufacturers => visibleGoodsDetails
     .where((e) => e.goods.manufacturer != null)
     .map((e) => e.goods.manufacturer!)
     .toSet().toList();
 
-  List<String> get goodsFirstWords => goodsReturnDetails.map((e) => e.goods.name.split(' ')[0]).toSet().toList();
+  List<String> get goodsFirstWords => visibleGoodsDetails.map((e) => e.goods.name.split(' ')[0]).toSet().toList();
   List<ReturnActLineExResult> get filteredReturnActLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
 
   bool get showAllGoods =>
@@ -67,8 +66,9 @@ class GoodsState {
     selectedGoodsFilter != null ||
     (goodsNameSearch ?? '').isNotEmpty;
 
-  final List<Category> visibleCategories;
-  final Category? selectedCategory;
+  final List<GoodsReturnDetail> visibleGoodsDetails;
+  final List<CategoriesExResult> visibleCategories;
+  final CategoriesExResult? selectedCategory;
   final GoodsFilter? selectedGoodsFilter;
   final String? goodsNameSearch;
   final bool groupByManufacturer;
@@ -85,12 +85,13 @@ class GoodsState {
     GoodsStateStatus? status,
     ReturnActExResult? returnActEx,
     List<ReturnActLineExResult>? linesExList,
-    List<Category>? allCategories,
+    List<CategoriesExResult>? allCategories,
     List<ShopDepartment>? shopDepartments,
     List<GoodsFilter>? goodsFilters,
-    List<GoodsReturnDetail>? goodsReturnDetails,
-    List<Category>? visibleCategories,
-    Optional<Category>? selectedCategory,
+    List<GoodsReturnDetail>? goodsDetails,
+    List<GoodsReturnDetail>? visibleGoodsDetails,
+    List<CategoriesExResult>? visibleCategories,
+    Optional<CategoriesExResult>? selectedCategory,
     Optional<GoodsFilter>? selectedGoodsFilter,
     Optional<String>? goodsNameSearch,
     bool? groupByManufacturer,
@@ -108,7 +109,8 @@ class GoodsState {
       allCategories: allCategories ?? this.allCategories,
       shopDepartments: shopDepartments ?? this.shopDepartments,
       goodsFilters: goodsFilters ?? this.goodsFilters,
-      goodsReturnDetails: goodsReturnDetails ?? this.goodsReturnDetails,
+      goodsDetails: goodsDetails ?? this.goodsDetails,
+      visibleGoodsDetails: visibleGoodsDetails ?? this.visibleGoodsDetails,
       visibleCategories: visibleCategories ?? this.visibleCategories,
       selectedCategory: selectedCategory != null ? selectedCategory.orNull : this.selectedCategory,
       selectedGoodsFilter: selectedGoodsFilter != null ? selectedGoodsFilter.orNull : this.selectedGoodsFilter,

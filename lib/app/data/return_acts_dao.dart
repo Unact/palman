@@ -164,52 +164,42 @@ class ReturnActsDao extends DatabaseAccessor<AppDataStore> with _$ReturnActsDaoM
     return query.map((lineRow) => lineRow.readTable(returnActTypes)).get();
   }
 
-  Stream<List<Category>> watchCategories({
-    required int buyerId,
-    required int returnActTypeId,
-    int? receptId
-  }) {
-    final hasReturnStock = existsQuery(
-      select(goodsReturnStocks)
-        .join([
-          innerJoin(allGoods, allGoods.id.equalsExp(goodsReturnStocks.goodsId)),
-        ])
-        ..where(categories.id.equalsExp(allGoods.categoryId))
-        ..where(goodsReturnStocks.buyerId.equals(buyerId))
-        ..where(goodsReturnStocks.returnActTypeId.equals(returnActTypeId))
-        ..where(receptId != null ? goodsReturnStocks.receptId.equals(receptId) : const Constant(true))
-    );
-
-    final query = select(categories)
-      ..where((tbl) => hasReturnStock)
-      ..orderBy([(tbl) => OrderingTerm(expression: tbl.name)]);
-
-    return query.watch();
-  }
-
   Future<List<ReceptExResult>> getReceptExList({required int buyerId, required int returnActTypeId}) async {
     return receptEx(buyerId, returnActTypeId).get();
   }
 
-  Future<List<GoodsReturnDetail>> getGoodsReturnDetails({
+  Stream<List<GoodsReturnDetail>> watchGoodsReturnDetails({
     required int returnActTypeId,
     required int buyerId,
     required List<int> goodsIds,
     int? receptId
-  }) async {
-    final returnStocks = await (
+  }) {
+    final returnStocksStream = (
       select(goodsReturnStocks)
         ..where((tbl) => tbl.buyerId.equals(buyerId))
         ..where((tbl) => tbl.returnActTypeId.equals(returnActTypeId))
         ..where((tbl) => tbl.goodsId.isIn(goodsIds))
         ..where(receptId != null ? (tbl) => tbl.receptId.equals(receptId) : (tbl) => const Constant(true) )
-    ).get();
-    final goodsExList = await db.ordersDao.goodsEx(buyerId, returnStocks.map((e) => e.goodsId).toList()).get();
+    ).watch();
+    final goodsExListStream = db.ordersDao.goodsEx(buyerId, goodsIds).watch();
 
-    return goodsExList.map((e) => GoodsReturnDetail(
-      e,
-      returnStocks.where((gp) => gp.goodsId == e.goods.id).toList()
-    )).toList();
+    return Rx.combineLatest2(
+      returnStocksStream,
+      goodsExListStream,
+      (
+        List<GoodsReturnStock> returnStocks,
+        List<GoodsExResult> goodsExList
+      ) {
+        final groupedReturnStocks = returnStocks
+          .groupFoldBy<int, List<GoodsReturnStock>>((e) => e.goodsId, (acc, e) => (acc ?? [])..add(e));
+
+        return goodsExList.map((e) {
+          if (groupedReturnStocks[e.goods.id] == null) return null;
+
+          return GoodsReturnDetail(e, groupedReturnStocks[e.goods.id]!);
+        }).whereNotNull().toList();
+      }
+    );
   }
 
   Future<List<Goods>> getBuyerGoods({

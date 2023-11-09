@@ -49,14 +49,7 @@ class _GoodsView extends StatefulWidget {
 }
 
 class _GoodsViewState extends State<_GoodsView> {
-  late final ProgressDialog progressDialog = ProgressDialog(context: context);
   final TextEditingController nameController = TextEditingController();
-
-  @override
-  void dispose() {
-    progressDialog.close();
-    super.dispose();
-  }
 
   Future<void> showBonusProgramSelectDialog([GoodsDetail? goodsDetail]) async {
     final vm = context.read<GoodsViewModel>();
@@ -68,7 +61,7 @@ class _GoodsViewState extends State<_GoodsView> {
           child: BonusProgramsPage(
             date: vm.state.orderEx.order.date!,
             buyer: vm.state.orderEx.buyer!,
-            category: vm.state.selectedCategory,
+            categoryEx: vm.state.selectedCategory,
             goodsEx: goodsDetail?.goodsEx
           )
         );
@@ -108,7 +101,7 @@ class _GoodsViewState extends State<_GoodsView> {
               appBar: AppBar(title: const Text('Выберите категорию')),
               body: buildCategoryView(
                 context,
-                (CategoriesExResult category) => Navigator.of(dialogContext).pop(category)
+                (CategoriesExResult categoryEx) => Navigator.of(dialogContext).pop(categoryEx)
               )
             )
           )
@@ -121,7 +114,7 @@ class _GoodsViewState extends State<_GoodsView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<GoodsViewModel, GoodsState>(
+    return BlocBuilder<GoodsViewModel, GoodsState>(
       builder: (context, state) {
         final vm = context.read<GoodsViewModel>();
         final compactMode = MediaQuery.of(context).size.width < 700;
@@ -177,17 +170,6 @@ class _GoodsViewState extends State<_GoodsView> {
           ),
           bottomSheet: buildViewOptionsRow(context)
         );
-      },
-      listener: (context, state) async {
-        switch (state.status) {
-          case GoodsStateStatus.searchStarted:
-            await progressDialog.open();
-            break;
-          case GoodsStateStatus.searchFinished:
-            progressDialog.close();
-            break;
-          default:
-        }
       }
     );
   }
@@ -207,11 +189,11 @@ class _GoodsViewState extends State<_GoodsView> {
 
     if (vm.state.groupByManufacturer) {
       for (var e in vm.state.manufacturers) {
-        groupedGoods[e] = vm.state.filteredGoodsDetails.where((g) => g.goods.manufacturer == e).toList();
+        groupedGoods[e] = vm.state.visibleGoodsDetails.where((g) => g.goods.manufacturer == e).toList();
       }
     } else {
       for (var e in vm.state.goodsFirstWords) {
-        groupedGoods[e] = vm.state.filteredGoodsDetails.where((g) => g.goods.name.split(' ').first == e).toList();
+        groupedGoods[e] = vm.state.visibleGoodsDetails.where((g) => g.goods.name.split(' ').first == e).toList();
       }
     }
 
@@ -252,7 +234,7 @@ class _GoodsViewState extends State<_GoodsView> {
                   tooltip: 'Выбрать категорию',
                 )
               ),
-              controller: TextEditingController(text: vm.state.selectedCategory?.name),
+              controller: TextEditingController(text: vm.state.selectedCategory?.category.name),
               style: Styles.formStyle
             ),
           Row(
@@ -376,7 +358,7 @@ class _GoodsViewState extends State<_GoodsView> {
     ]).toString();
 
     for (var e in vm.state.shopDepartments) {
-      groupedCategories[e.name] = vm.state.visibleCategories.where((c) => c.shopDepartmentId == e.id).toList();
+      groupedCategories[e.name] = vm.state.visibleCategories.where((c) => c.category.shopDepartmentId == e.id).toList();
     }
 
     return _CategoriesView(
@@ -501,23 +483,25 @@ class _CategoriesViewState extends State<_CategoriesView> {
     );
   }
 
-  Widget buildCategoryTile(CategoriesExResult category) {
+  Widget buildCategoryTile(CategoriesExResult categoryEx) {
     return ListTile(
-      title: buildCategoryTileTitle(category),
+      title: buildCategoryTileTitle(categoryEx),
       tileColor: Colors.transparent,
-      selected: category == widget.selectedCategory,
-      onTap: () => widget.onCategoryTap.call(category)
+      selected: categoryEx == widget.selectedCategory,
+      onTap: () => widget.onCategoryTap.call(categoryEx)
     );
   }
 
-  Widget buildCategoryTileTitle(CategoriesExResult category) {
-    final daysDiff = category.lastShipmentDate != null ?
-      DateTime.now().difference(category.lastShipmentDate!) :
+  Widget buildCategoryTileTitle(CategoriesExResult categoryEx) {
+    final daysDiff = categoryEx.lastShipmentDate != null ?
+      DateTime.now().difference(categoryEx.lastShipmentDate!) :
       null;
 
     return Row(
       children: [
-        Expanded(child: Text(category.name, style: Styles.tileTitleText.copyWith(fontWeight: FontWeight.w500))),
+        Expanded(
+          child: Text(categoryEx.category.name, style: Styles.tileTitleText.copyWith(fontWeight: FontWeight.w500))
+        ),
         daysDiff == null ?
           Container() :
           Padding(
@@ -990,12 +974,6 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
             TextSpan(
               style: Styles.tileText.copyWith(fontWeight: FontWeight.w500, color: color),
               children: <InlineSpan>[
-                TextSpan(
-                  text: (goodsEx.lastPrice ?? 0) > 0 && (goods.handPrice ?? 0) > 0 ?
-                    'Спец. цена: ${Format.numberStr(goodsEx.lastPrice)} ' :
-                    null,
-                  style: const TextStyle(fontWeight: FontWeight.bold)
-                ),
                 const TextSpan(text: 'Цена: '),
                 (goods.handPrice ?? 0) > 0 ?
                   WidgetSpan(

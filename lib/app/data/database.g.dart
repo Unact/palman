@@ -32,15 +32,12 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
   static const VerificationMeta _preOrderModeMeta =
       const VerificationMeta('preOrderMode');
   @override
-  late final GeneratedColumn<bool> preOrderMode =
-      GeneratedColumn<bool>('pre_order_mode', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("pre_order_mode" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> preOrderMode = GeneratedColumn<bool>(
+      'pre_order_mode', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("pre_order_mode" IN (0, 1))'));
   static const VerificationMeta _emailMeta = const VerificationMeta('email');
   @override
   late final GeneratedColumn<String> email = GeneratedColumn<String>(
@@ -56,9 +53,10 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
   List<GeneratedColumn> get $columns =>
       [id, username, salesmanName, preOrderMode, email, version];
   @override
-  String get aliasedName => _alias ?? 'users';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'users';
+  String get actualTableName => $name;
+  static const String $name = 'users';
   @override
   VerificationContext validateIntegrity(Insertable<User> instance,
       {bool isInserting = false}) {
@@ -344,27 +342,21 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
   static const VerificationMeta _showLocalImageMeta =
       const VerificationMeta('showLocalImage');
   @override
-  late final GeneratedColumn<bool> showLocalImage =
-      GeneratedColumn<bool>('show_local_image', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("show_local_image" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> showLocalImage = GeneratedColumn<bool>(
+      'show_local_image', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("show_local_image" IN (0, 1))'));
   static const VerificationMeta _showWithPriceMeta =
       const VerificationMeta('showWithPrice');
   @override
-  late final GeneratedColumn<bool> showWithPrice =
-      GeneratedColumn<bool>('show_with_price', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("show_with_price" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> showWithPrice = GeneratedColumn<bool>(
+      'show_with_price', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("show_with_price" IN (0, 1))'));
   static const VerificationMeta _lastLoadTimeMeta =
       const VerificationMeta('lastLoadTime');
   @override
@@ -375,9 +367,10 @@ class $PrefsTable extends Prefs with TableInfo<$PrefsTable, Pref> {
   List<GeneratedColumn> get $columns =>
       [showLocalImage, showWithPrice, lastLoadTime];
   @override
-  String get aliasedName => _alias ?? 'prefs';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'prefs';
+  String get actualTableName => $name;
+  static const String $name = 'prefs';
   @override
   VerificationContext validateIntegrity(Insertable<Pref> instance,
       {bool isInserting = false}) {
@@ -628,9 +621,10 @@ class $BuyersTable extends Buyers with TableInfo<$BuyersTable, Buyer> {
   List<GeneratedColumn> get $columns =>
       [id, name, loadto, partnerId, siteId, fridgeSiteId];
   @override
-  String get aliasedName => _alias ?? 'buyers';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'buyers';
+  String get actualTableName => $name;
+  static const String $name = 'buyers';
   @override
   VerificationContext validateIntegrity(Insertable<Buyer> instance,
       {bool isInserting = false}) {
@@ -928,9 +922,10 @@ class $PartnersTable extends Partners with TableInfo<$PartnersTable, Partner> {
   @override
   List<GeneratedColumn> get $columns => [id, name];
   @override
-  String get aliasedName => _alias ?? 'partners';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'partners';
+  String get actualTableName => $name;
+  static const String $name = 'partners';
   @override
   VerificationContext validateIntegrity(Insertable<Partner> instance,
       {bool isInserting = false}) {
@@ -1134,9 +1129,10 @@ class $LocationsTable extends Locations
   List<GeneratedColumn> get $columns =>
       [id, latitude, longitude, accuracy, altitude, heading, speed, timestamp];
   @override
-  String get aliasedName => _alias ?? 'locations';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'locations';
+  String get actualTableName => $name;
+  static const String $name = 'locations';
   @override
   VerificationContext validateIntegrity(Insertable<Location> instance,
       {bool isInserting = false}) {
@@ -1493,9 +1489,10 @@ class $PointFormatsTable extends PointFormats
   @override
   List<GeneratedColumn> get $columns => [id, name];
   @override
-  String get aliasedName => _alias ?? 'point_formats';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'point_formats';
+  String get actualTableName => $name;
+  static const String $name = 'point_formats';
   @override
   VerificationContext validateIntegrity(Insertable<PointFormat> instance,
       {bool isInserting = false}) {
@@ -1652,16 +1649,13 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
-  late final GeneratedColumn<bool> isDeleted =
-      GeneratedColumn<bool>('is_deleted', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }),
-          defaultValue: const Constant(false));
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _timestampMeta =
       const VerificationMeta('timestamp');
   @override
@@ -1695,23 +1689,17 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
           true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
   static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
   @override
-  late final GeneratedColumn<bool> isNew =
-      GeneratedColumn<bool>('is_new', aliasedName, false,
-          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -1840,9 +1828,10 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
         nds20
       ];
   @override
-  String get aliasedName => _alias ?? 'points';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'points';
+  String get actualTableName => $name;
+  static const String $name = 'points';
   @override
   VerificationContext validateIntegrity(Insertable<Point> instance,
       {bool isInserting = false}) {
@@ -2722,16 +2711,13 @@ class $PointImagesTable extends PointImages
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
-  late final GeneratedColumn<bool> isDeleted =
-      GeneratedColumn<bool>('is_deleted', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }),
-          defaultValue: const Constant(false));
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _timestampMeta =
       const VerificationMeta('timestamp');
   @override
@@ -2765,23 +2751,17 @@ class $PointImagesTable extends PointImages
           true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
   static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
   @override
-  late final GeneratedColumn<bool> isNew =
-      GeneratedColumn<bool>('is_new', aliasedName, false,
-          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -2844,9 +2824,10 @@ class $PointImagesTable extends PointImages
         imageKey
       ];
   @override
-  String get aliasedName => _alias ?? 'point_images';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'point_images';
+  String get actualTableName => $name;
+  static const String $name = 'point_images';
   @override
   VerificationContext validateIntegrity(Insertable<PointImage> instance,
       {bool isInserting = false}) {
@@ -3364,16 +3345,13 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
-  late final GeneratedColumn<bool> isDeleted =
-      GeneratedColumn<bool>('is_deleted', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }),
-          defaultValue: const Constant(false));
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _timestampMeta =
       const VerificationMeta('timestamp');
   @override
@@ -3407,23 +3385,17 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
           true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
   static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
   @override
-  late final GeneratedColumn<bool> isNew =
-      GeneratedColumn<bool>('is_new', aliasedName, false,
-          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -3461,9 +3433,10 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
         checkTotalSum
       ];
   @override
-  String get aliasedName => _alias ?? 'deposits';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'deposits';
+  String get actualTableName => $name;
+  static const String $name = 'deposits';
   @override
   VerificationContext validateIntegrity(Insertable<Deposit> instance,
       {bool isInserting = false}) {
@@ -3881,16 +3854,13 @@ class $EncashmentsTable extends Encashments
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
-  late final GeneratedColumn<bool> isDeleted =
-      GeneratedColumn<bool>('is_deleted', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }),
-          defaultValue: const Constant(false));
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _timestampMeta =
       const VerificationMeta('timestamp');
   @override
@@ -3924,23 +3894,17 @@ class $EncashmentsTable extends Encashments
           true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
   static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
   @override
-  late final GeneratedColumn<bool> isNew =
-      GeneratedColumn<bool>('is_new', aliasedName, false,
-          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -3963,15 +3927,12 @@ class $EncashmentsTable extends Encashments
   static const VerificationMeta _isCheckMeta =
       const VerificationMeta('isCheck');
   @override
-  late final GeneratedColumn<bool> isCheck =
-      GeneratedColumn<bool>('is_check', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_check" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isCheck = GeneratedColumn<bool>(
+      'is_check', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_check" IN (0, 1))'));
   static const VerificationMeta _buyerIdMeta =
       const VerificationMeta('buyerId');
   @override
@@ -4006,9 +3967,10 @@ class $EncashmentsTable extends Encashments
         encSum
       ];
   @override
-  String get aliasedName => _alias ?? 'encashments';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'encashments';
+  String get actualTableName => $name;
+  static const String $name = 'encashments';
   @override
   VerificationContext validateIntegrity(Insertable<Encashment> instance,
       {bool isInserting = false}) {
@@ -4561,15 +4523,12 @@ class $DebtsTable extends Debts with TableInfo<$DebtsTable, Debt> {
   static const VerificationMeta _isCheckMeta =
       const VerificationMeta('isCheck');
   @override
-  late final GeneratedColumn<bool> isCheck =
-      GeneratedColumn<bool>('is_check', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_check" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isCheck = GeneratedColumn<bool>(
+      'is_check', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_check" IN (0, 1))'));
   static const VerificationMeta _dateUntilMeta =
       const VerificationMeta('dateUntil');
   @override
@@ -4579,22 +4538,20 @@ class $DebtsTable extends Debts with TableInfo<$DebtsTable, Debt> {
   static const VerificationMeta _overdueMeta =
       const VerificationMeta('overdue');
   @override
-  late final GeneratedColumn<bool> overdue =
-      GeneratedColumn<bool>('overdue', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("overdue" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> overdue = GeneratedColumn<bool>(
+      'overdue', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("overdue" IN (0, 1))'));
   @override
   List<GeneratedColumn> get $columns =>
       [id, date, buyerId, info, debtSum, orderSum, isCheck, dateUntil, overdue];
   @override
-  String get aliasedName => _alias ?? 'debts';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'debts';
+  String get actualTableName => $name;
+  static const String $name = 'debts';
   @override
   VerificationContext validateIntegrity(Insertable<Debt> instance,
       {bool isInserting = false}) {
@@ -5014,9 +4971,10 @@ class $ShipmentsTable extends Shipments
   List<GeneratedColumn> get $columns =>
       [id, date, ndoc, info, status, debtSum, shipmentSum, buyerId];
   @override
-  String get aliasedName => _alias ?? 'shipments';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'shipments';
+  String get actualTableName => $name;
+  static const String $name = 'shipments';
   @override
   VerificationContext validateIntegrity(Insertable<Shipment> instance,
       {bool isInserting = false}) {
@@ -5393,9 +5351,10 @@ class $ShipmentLinesTable extends ShipmentLines
   @override
   List<GeneratedColumn> get $columns => [id, shipmentId, goodsId, vol, price];
   @override
-  String get aliasedName => _alias ?? 'shipment_lines';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'shipment_lines';
+  String get actualTableName => $name;
+  static const String $name = 'shipment_lines';
   @override
   VerificationContext validateIntegrity(Insertable<ShipmentLine> instance,
       {bool isInserting = false}) {
@@ -5654,16 +5613,13 @@ class $IncRequestsTable extends IncRequests
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
-  late final GeneratedColumn<bool> isDeleted =
-      GeneratedColumn<bool>('is_deleted', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }),
-          defaultValue: const Constant(false));
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _timestampMeta =
       const VerificationMeta('timestamp');
   @override
@@ -5697,23 +5653,17 @@ class $IncRequestsTable extends IncRequests
           true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
   static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
   @override
-  late final GeneratedColumn<bool> isNew =
-      GeneratedColumn<bool>('is_new', aliasedName, false,
-          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -5762,9 +5712,10 @@ class $IncRequestsTable extends IncRequests
         status
       ];
   @override
-  String get aliasedName => _alias ?? 'inc_requests';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'inc_requests';
+  String get actualTableName => $name;
+  static const String $name = 'inc_requests';
   @override
   VerificationContext validateIntegrity(Insertable<IncRequest> instance,
       {bool isInserting = false}) {
@@ -6271,27 +6222,21 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
   static const VerificationMeta _isLatestMeta =
       const VerificationMeta('isLatest');
   @override
-  late final GeneratedColumn<bool> isLatest =
-      GeneratedColumn<bool>('is_latest', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_latest" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isLatest = GeneratedColumn<bool>(
+      'is_latest', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_latest" IN (0, 1))'));
   static const VerificationMeta _isOrderableMeta =
       const VerificationMeta('isOrderable');
   @override
-  late final GeneratedColumn<bool> isOrderable =
-      GeneratedColumn<bool>('is_orderable', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_orderable" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isOrderable = GeneratedColumn<bool>(
+      'is_orderable', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_orderable" IN (0, 1))'));
   static const VerificationMeta _pricelistSetIdMeta =
       const VerificationMeta('pricelistSetId');
   @override
@@ -6355,23 +6300,29 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
   late final GeneratedColumn<double> weight = GeneratedColumn<double>(
       'weight', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _mcVolMeta = const VerificationMeta('mcVol');
+  static const VerificationMeta _volumeMeta = const VerificationMeta('volume');
   @override
-  late final GeneratedColumn<double> mcVol = GeneratedColumn<double>(
-      'mc_vol', aliasedName, false,
+  late final GeneratedColumn<double> volume = GeneratedColumn<double>(
+      'volume', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
   static const VerificationMeta _isFridgeMeta =
       const VerificationMeta('isFridge');
   @override
-  late final GeneratedColumn<bool> isFridge =
-      GeneratedColumn<bool>('is_fridge', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_fridge" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isFridge = GeneratedColumn<bool>(
+      'is_fridge', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_fridge" IN (0, 1))'));
+  static const VerificationMeta _forPhysicalMeta =
+      const VerificationMeta('forPhysical');
+  @override
+  late final GeneratedColumn<bool> forPhysical = GeneratedColumn<bool>(
+      'for_physical', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("for_physical" IN (0, 1))'));
   static const VerificationMeta _shelfLifeMeta =
       const VerificationMeta('shelfLife');
   @override
@@ -6412,16 +6363,18 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
         categoryPackageRel,
         categoryBlockRel,
         weight,
-        mcVol,
+        volume,
         isFridge,
+        forPhysical,
         shelfLife,
         shelfLifeTypeName,
         barcodes
       ];
   @override
-  String get aliasedName => _alias ?? 'goods';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'goods';
+  String get actualTableName => $name;
+  static const String $name = 'goods';
   @override
   VerificationContext validateIntegrity(Insertable<Goods> instance,
       {bool isInserting = false}) {
@@ -6550,17 +6503,25 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
     } else if (isInserting) {
       context.missing(_weightMeta);
     }
-    if (data.containsKey('mc_vol')) {
-      context.handle(
-          _mcVolMeta, mcVol.isAcceptableOrUnknown(data['mc_vol']!, _mcVolMeta));
+    if (data.containsKey('volume')) {
+      context.handle(_volumeMeta,
+          volume.isAcceptableOrUnknown(data['volume']!, _volumeMeta));
     } else if (isInserting) {
-      context.missing(_mcVolMeta);
+      context.missing(_volumeMeta);
     }
     if (data.containsKey('is_fridge')) {
       context.handle(_isFridgeMeta,
           isFridge.isAcceptableOrUnknown(data['is_fridge']!, _isFridgeMeta));
     } else if (isInserting) {
       context.missing(_isFridgeMeta);
+    }
+    if (data.containsKey('for_physical')) {
+      context.handle(
+          _forPhysicalMeta,
+          forPhysical.isAcceptableOrUnknown(
+              data['for_physical']!, _forPhysicalMeta));
+    } else if (isInserting) {
+      context.missing(_forPhysicalMeta);
     }
     if (data.containsKey('shelf_life')) {
       context.handle(_shelfLifeMeta,
@@ -6625,10 +6586,12 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           DriftSqlType.int, data['${effectivePrefix}category_block_rel'])!,
       weight: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}weight'])!,
-      mcVol: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}mc_vol'])!,
+      volume: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}volume'])!,
       isFridge: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_fridge'])!,
+      forPhysical: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}for_physical'])!,
       shelfLife: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}shelf_life'])!,
       shelfLifeTypeName: attachedDatabase.typeMapping.read(
@@ -6668,8 +6631,9 @@ class Goods extends DataClass implements Insertable<Goods> {
   final int categoryPackageRel;
   final int categoryBlockRel;
   final double weight;
-  final double mcVol;
+  final double volume;
   final bool isFridge;
+  final bool forPhysical;
   final int shelfLife;
   final String shelfLifeTypeName;
   final List<String> barcodes;
@@ -6693,8 +6657,9 @@ class Goods extends DataClass implements Insertable<Goods> {
       required this.categoryPackageRel,
       required this.categoryBlockRel,
       required this.weight,
-      required this.mcVol,
+      required this.volume,
       required this.isFridge,
+      required this.forPhysical,
       required this.shelfLife,
       required this.shelfLifeTypeName,
       required this.barcodes});
@@ -6724,8 +6689,9 @@ class Goods extends DataClass implements Insertable<Goods> {
     map['category_package_rel'] = Variable<int>(categoryPackageRel);
     map['category_block_rel'] = Variable<int>(categoryBlockRel);
     map['weight'] = Variable<double>(weight);
-    map['mc_vol'] = Variable<double>(mcVol);
+    map['volume'] = Variable<double>(volume);
     map['is_fridge'] = Variable<bool>(isFridge);
+    map['for_physical'] = Variable<bool>(forPhysical);
     map['shelf_life'] = Variable<int>(shelfLife);
     map['shelf_life_type_name'] = Variable<String>(shelfLifeTypeName);
     {
@@ -6760,8 +6726,9 @@ class Goods extends DataClass implements Insertable<Goods> {
       categoryPackageRel: Value(categoryPackageRel),
       categoryBlockRel: Value(categoryBlockRel),
       weight: Value(weight),
-      mcVol: Value(mcVol),
+      volume: Value(volume),
       isFridge: Value(isFridge),
+      forPhysical: Value(forPhysical),
       shelfLife: Value(shelfLife),
       shelfLifeTypeName: Value(shelfLifeTypeName),
       barcodes: Value(barcodes),
@@ -6792,8 +6759,9 @@ class Goods extends DataClass implements Insertable<Goods> {
       categoryPackageRel: serializer.fromJson<int>(json['categoryPackageRel']),
       categoryBlockRel: serializer.fromJson<int>(json['categoryBlockRel']),
       weight: serializer.fromJson<double>(json['weight']),
-      mcVol: serializer.fromJson<double>(json['mcVol']),
+      volume: serializer.fromJson<double>(json['volume']),
       isFridge: serializer.fromJson<bool>(json['isFridge']),
+      forPhysical: serializer.fromJson<bool>(json['forPhysical']),
       shelfLife: serializer.fromJson<int>(json['shelfLife']),
       shelfLifeTypeName: serializer.fromJson<String>(json['shelfLifeTypeName']),
       barcodes: serializer.fromJson<List<String>>(json['barcodes']),
@@ -6822,8 +6790,9 @@ class Goods extends DataClass implements Insertable<Goods> {
       'categoryPackageRel': serializer.toJson<int>(categoryPackageRel),
       'categoryBlockRel': serializer.toJson<int>(categoryBlockRel),
       'weight': serializer.toJson<double>(weight),
-      'mcVol': serializer.toJson<double>(mcVol),
+      'volume': serializer.toJson<double>(volume),
       'isFridge': serializer.toJson<bool>(isFridge),
+      'forPhysical': serializer.toJson<bool>(forPhysical),
       'shelfLife': serializer.toJson<int>(shelfLife),
       'shelfLifeTypeName': serializer.toJson<String>(shelfLifeTypeName),
       'barcodes': serializer.toJson<List<String>>(barcodes),
@@ -6850,8 +6819,9 @@ class Goods extends DataClass implements Insertable<Goods> {
           int? categoryPackageRel,
           int? categoryBlockRel,
           double? weight,
-          double? mcVol,
+          double? volume,
           bool? isFridge,
+          bool? forPhysical,
           int? shelfLife,
           String? shelfLifeTypeName,
           List<String>? barcodes}) =>
@@ -6877,8 +6847,9 @@ class Goods extends DataClass implements Insertable<Goods> {
         categoryPackageRel: categoryPackageRel ?? this.categoryPackageRel,
         categoryBlockRel: categoryBlockRel ?? this.categoryBlockRel,
         weight: weight ?? this.weight,
-        mcVol: mcVol ?? this.mcVol,
+        volume: volume ?? this.volume,
         isFridge: isFridge ?? this.isFridge,
+        forPhysical: forPhysical ?? this.forPhysical,
         shelfLife: shelfLife ?? this.shelfLife,
         shelfLifeTypeName: shelfLifeTypeName ?? this.shelfLifeTypeName,
         barcodes: barcodes ?? this.barcodes,
@@ -6905,8 +6876,9 @@ class Goods extends DataClass implements Insertable<Goods> {
           ..write('categoryPackageRel: $categoryPackageRel, ')
           ..write('categoryBlockRel: $categoryBlockRel, ')
           ..write('weight: $weight, ')
-          ..write('mcVol: $mcVol, ')
+          ..write('volume: $volume, ')
           ..write('isFridge: $isFridge, ')
+          ..write('forPhysical: $forPhysical, ')
           ..write('shelfLife: $shelfLife, ')
           ..write('shelfLifeTypeName: $shelfLifeTypeName, ')
           ..write('barcodes: $barcodes')
@@ -6935,8 +6907,9 @@ class Goods extends DataClass implements Insertable<Goods> {
         categoryPackageRel,
         categoryBlockRel,
         weight,
-        mcVol,
+        volume,
         isFridge,
+        forPhysical,
         shelfLife,
         shelfLifeTypeName,
         barcodes
@@ -6964,8 +6937,9 @@ class Goods extends DataClass implements Insertable<Goods> {
           other.categoryPackageRel == this.categoryPackageRel &&
           other.categoryBlockRel == this.categoryBlockRel &&
           other.weight == this.weight &&
-          other.mcVol == this.mcVol &&
+          other.volume == this.volume &&
           other.isFridge == this.isFridge &&
+          other.forPhysical == this.forPhysical &&
           other.shelfLife == this.shelfLife &&
           other.shelfLifeTypeName == this.shelfLifeTypeName &&
           other.barcodes == this.barcodes);
@@ -6991,8 +6965,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   final Value<int> categoryPackageRel;
   final Value<int> categoryBlockRel;
   final Value<double> weight;
-  final Value<double> mcVol;
+  final Value<double> volume;
   final Value<bool> isFridge;
+  final Value<bool> forPhysical;
   final Value<int> shelfLife;
   final Value<String> shelfLifeTypeName;
   final Value<List<String>> barcodes;
@@ -7016,8 +6991,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     this.categoryPackageRel = const Value.absent(),
     this.categoryBlockRel = const Value.absent(),
     this.weight = const Value.absent(),
-    this.mcVol = const Value.absent(),
+    this.volume = const Value.absent(),
     this.isFridge = const Value.absent(),
+    this.forPhysical = const Value.absent(),
     this.shelfLife = const Value.absent(),
     this.shelfLifeTypeName = const Value.absent(),
     this.barcodes = const Value.absent(),
@@ -7042,8 +7018,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     required int categoryPackageRel,
     required int categoryBlockRel,
     required double weight,
-    required double mcVol,
+    required double volume,
     required bool isFridge,
+    required bool forPhysical,
     required int shelfLife,
     required String shelfLifeTypeName,
     required List<String> barcodes,
@@ -7063,8 +7040,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
         categoryPackageRel = Value(categoryPackageRel),
         categoryBlockRel = Value(categoryBlockRel),
         weight = Value(weight),
-        mcVol = Value(mcVol),
+        volume = Value(volume),
         isFridge = Value(isFridge),
+        forPhysical = Value(forPhysical),
         shelfLife = Value(shelfLife),
         shelfLifeTypeName = Value(shelfLifeTypeName),
         barcodes = Value(barcodes);
@@ -7088,8 +7066,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     Expression<int>? categoryPackageRel,
     Expression<int>? categoryBlockRel,
     Expression<double>? weight,
-    Expression<double>? mcVol,
+    Expression<double>? volume,
     Expression<bool>? isFridge,
+    Expression<bool>? forPhysical,
     Expression<int>? shelfLife,
     Expression<String>? shelfLifeTypeName,
     Expression<String>? barcodes,
@@ -7116,8 +7095,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
         'category_package_rel': categoryPackageRel,
       if (categoryBlockRel != null) 'category_block_rel': categoryBlockRel,
       if (weight != null) 'weight': weight,
-      if (mcVol != null) 'mc_vol': mcVol,
+      if (volume != null) 'volume': volume,
       if (isFridge != null) 'is_fridge': isFridge,
+      if (forPhysical != null) 'for_physical': forPhysical,
       if (shelfLife != null) 'shelf_life': shelfLife,
       if (shelfLifeTypeName != null) 'shelf_life_type_name': shelfLifeTypeName,
       if (barcodes != null) 'barcodes': barcodes,
@@ -7144,8 +7124,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       Value<int>? categoryPackageRel,
       Value<int>? categoryBlockRel,
       Value<double>? weight,
-      Value<double>? mcVol,
+      Value<double>? volume,
       Value<bool>? isFridge,
+      Value<bool>? forPhysical,
       Value<int>? shelfLife,
       Value<String>? shelfLifeTypeName,
       Value<List<String>>? barcodes}) {
@@ -7170,8 +7151,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       categoryPackageRel: categoryPackageRel ?? this.categoryPackageRel,
       categoryBlockRel: categoryBlockRel ?? this.categoryBlockRel,
       weight: weight ?? this.weight,
-      mcVol: mcVol ?? this.mcVol,
+      volume: volume ?? this.volume,
       isFridge: isFridge ?? this.isFridge,
+      forPhysical: forPhysical ?? this.forPhysical,
       shelfLife: shelfLife ?? this.shelfLife,
       shelfLifeTypeName: shelfLifeTypeName ?? this.shelfLifeTypeName,
       barcodes: barcodes ?? this.barcodes,
@@ -7239,11 +7221,14 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     if (weight.present) {
       map['weight'] = Variable<double>(weight.value);
     }
-    if (mcVol.present) {
-      map['mc_vol'] = Variable<double>(mcVol.value);
+    if (volume.present) {
+      map['volume'] = Variable<double>(volume.value);
     }
     if (isFridge.present) {
       map['is_fridge'] = Variable<bool>(isFridge.value);
+    }
+    if (forPhysical.present) {
+      map['for_physical'] = Variable<bool>(forPhysical.value);
     }
     if (shelfLife.present) {
       map['shelf_life'] = Variable<int>(shelfLife.value);
@@ -7253,6 +7238,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     }
     if (barcodes.present) {
       final converter = $AllGoodsTable.$converterbarcodes;
+
       map['barcodes'] = Variable<String>(converter.toSql(barcodes.value));
     }
     return map;
@@ -7280,8 +7266,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
           ..write('categoryPackageRel: $categoryPackageRel, ')
           ..write('categoryBlockRel: $categoryBlockRel, ')
           ..write('weight: $weight, ')
-          ..write('mcVol: $mcVol, ')
+          ..write('volume: $volume, ')
           ..write('isFridge: $isFridge, ')
+          ..write('forPhysical: $forPhysical, ')
           ..write('shelfLife: $shelfLife, ')
           ..write('shelfLifeTypeName: $shelfLifeTypeName, ')
           ..write('barcodes: $barcodes')
@@ -7304,9 +7291,10 @@ class $WorkdatesTable extends Workdates
   @override
   List<GeneratedColumn> get $columns => [date];
   @override
-  String get aliasedName => _alias ?? 'workdates';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'workdates';
+  String get actualTableName => $name;
+  static const String $name = 'workdates';
   @override
   VerificationContext validateIntegrity(Insertable<Workdate> instance,
       {bool isInserting = false}) {
@@ -7465,9 +7453,10 @@ class $ShopDepartmentsTable extends ShopDepartments
   @override
   List<GeneratedColumn> get $columns => [id, name, ord];
   @override
-  String get aliasedName => _alias ?? 'shop_departments';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'shop_departments';
+  String get actualTableName => $name;
+  static const String $name = 'shop_departments';
   @override
   VerificationContext validateIntegrity(Insertable<ShopDepartment> instance,
       {bool isInserting = false}) {
@@ -7689,9 +7678,10 @@ class $CategoriesTable extends Categories
   List<GeneratedColumn> get $columns =>
       [id, name, ord, shopDepartmentId, package, userPackage];
   @override
-  String get aliasedName => _alias ?? 'categories';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'categories';
+  String get actualTableName => $name;
+  static const String $name = 'categories';
   @override
   VerificationContext validateIntegrity(Insertable<Category> instance,
       {bool isInserting = false}) {
@@ -7997,9 +7987,10 @@ class $GoodsFiltersTable extends GoodsFilters
   @override
   List<GeneratedColumn> get $columns => [id, name, value];
   @override
-  String get aliasedName => _alias ?? 'goods_filters';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'goods_filters';
+  String get actualTableName => $name;
+  static const String $name = 'goods_filters';
   @override
   VerificationContext validateIntegrity(Insertable<GoodsFilter> instance,
       {bool isInserting = false}) {
@@ -8187,16 +8178,13 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
-  late final GeneratedColumn<bool> isDeleted =
-      GeneratedColumn<bool>('is_deleted', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }),
-          defaultValue: const Constant(false));
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _timestampMeta =
       const VerificationMeta('timestamp');
   @override
@@ -8230,23 +8218,17 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
           true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
   static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
   @override
-  late final GeneratedColumn<bool> isNew =
-      GeneratedColumn<bool>('is_new', aliasedName, false,
-          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -8271,51 +8253,39 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
   static const VerificationMeta _needDocsMeta =
       const VerificationMeta('needDocs');
   @override
-  late final GeneratedColumn<bool> needDocs =
-      GeneratedColumn<bool>('need_docs', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("need_docs" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> needDocs = GeneratedColumn<bool>(
+      'need_docs', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_docs" IN (0, 1))'));
   static const VerificationMeta _needIncMeta =
       const VerificationMeta('needInc');
   @override
-  late final GeneratedColumn<bool> needInc =
-      GeneratedColumn<bool>('need_inc', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("need_inc" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> needInc = GeneratedColumn<bool>(
+      'need_inc', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_inc" IN (0, 1))'));
   static const VerificationMeta _isBonusMeta =
       const VerificationMeta('isBonus');
   @override
-  late final GeneratedColumn<bool> isBonus =
-      GeneratedColumn<bool>('is_bonus', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_bonus" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isBonus = GeneratedColumn<bool>(
+      'is_bonus', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_bonus" IN (0, 1))'));
   static const VerificationMeta _isPhysicalMeta =
       const VerificationMeta('isPhysical');
   @override
-  late final GeneratedColumn<bool> isPhysical =
-      GeneratedColumn<bool>('is_physical', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_physical" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isPhysical = GeneratedColumn<bool>(
+      'is_physical', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_physical" IN (0, 1))'));
   static const VerificationMeta _buyerIdMeta =
       const VerificationMeta('buyerId');
   @override
@@ -8330,27 +8300,21 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
   static const VerificationMeta _needProcessingMeta =
       const VerificationMeta('needProcessing');
   @override
-  late final GeneratedColumn<bool> needProcessing =
-      GeneratedColumn<bool>('need_processing', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("need_processing" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> needProcessing = GeneratedColumn<bool>(
+      'need_processing', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("need_processing" IN (0, 1))'));
   static const VerificationMeta _isEditableMeta =
       const VerificationMeta('isEditable');
   @override
-  late final GeneratedColumn<bool> isEditable =
-      GeneratedColumn<bool>('is_editable', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_editable" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isEditable = GeneratedColumn<bool>(
+      'is_editable', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_editable" IN (0, 1))'));
   @override
   List<GeneratedColumn> get $columns => [
         guid,
@@ -8374,9 +8338,10 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
         isEditable
       ];
   @override
-  String get aliasedName => _alias ?? 'orders';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'orders';
+  String get actualTableName => $name;
+  static const String $name = 'orders';
   @override
   VerificationContext validateIntegrity(Insertable<Order> instance,
       {bool isInserting = false}) {
@@ -9058,16 +9023,13 @@ class $OrderLinesTable extends OrderLines
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
-  late final GeneratedColumn<bool> isDeleted =
-      GeneratedColumn<bool>('is_deleted', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }),
-          defaultValue: const Constant(false));
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _timestampMeta =
       const VerificationMeta('timestamp');
   @override
@@ -9101,23 +9063,17 @@ class $OrderLinesTable extends OrderLines
           true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
   static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
   @override
-  late final GeneratedColumn<bool> isNew =
-      GeneratedColumn<bool>('is_new', aliasedName, false,
-          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -9191,9 +9147,10 @@ class $OrderLinesTable extends OrderLines
         handPrice
       ];
   @override
-  String get aliasedName => _alias ?? 'order_lines';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'order_lines';
+  String get actualTableName => $name;
+  static const String $name = 'order_lines';
   @override
   VerificationContext validateIntegrity(Insertable<OrderLine> instance,
       {bool isInserting = false}) {
@@ -9796,15 +9753,12 @@ class $PreOrdersTable extends PreOrders
   static const VerificationMeta _needDocsMeta =
       const VerificationMeta('needDocs');
   @override
-  late final GeneratedColumn<bool> needDocs =
-      GeneratedColumn<bool>('need_docs', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("need_docs" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> needDocs = GeneratedColumn<bool>(
+      'need_docs', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_docs" IN (0, 1))'));
   static const VerificationMeta _infoMeta = const VerificationMeta('info');
   @override
   late final GeneratedColumn<String> info = GeneratedColumn<String>(
@@ -9813,9 +9767,10 @@ class $PreOrdersTable extends PreOrders
   @override
   List<GeneratedColumn> get $columns => [id, date, buyerId, needDocs, info];
   @override
-  String get aliasedName => _alias ?? 'pre_orders';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'pre_orders';
+  String get actualTableName => $name;
+  static const String $name = 'pre_orders';
   @override
   VerificationContext validateIntegrity(Insertable<PreOrder> instance,
       {bool isInserting = false}) {
@@ -10109,9 +10064,10 @@ class $PreOrderLinesTable extends PreOrderLines
   List<GeneratedColumn> get $columns =>
       [id, preOrderId, goodsId, vol, price, package, rel];
   @override
-  String get aliasedName => _alias ?? 'pre_order_lines';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'pre_order_lines';
+  String get actualTableName => $name;
+  static const String $name = 'pre_order_lines';
   @override
   VerificationContext validateIntegrity(Insertable<PreOrderLine> instance,
       {bool isInserting = false}) {
@@ -10435,9 +10391,10 @@ class $SeenPreOrdersTable extends SeenPreOrders
   @override
   List<GeneratedColumn> get $columns => [id];
   @override
-  String get aliasedName => _alias ?? 'seen_pre_orders';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'seen_pre_orders';
+  String get actualTableName => $name;
+  static const String $name = 'seen_pre_orders';
   @override
   VerificationContext validateIntegrity(Insertable<SeenPreOrder> instance,
       {bool isInserting = false}) {
@@ -10578,9 +10535,10 @@ class $BonusProgramGroupsTable extends BonusProgramGroups
   @override
   List<GeneratedColumn> get $columns => [id, name];
   @override
-  String get aliasedName => _alias ?? 'bonus_program_groups';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'bonus_program_groups';
+  String get actualTableName => $name;
+  static const String $name = 'bonus_program_groups';
   @override
   VerificationContext validateIntegrity(Insertable<BonusProgramGroup> instance,
       {bool isInserting = false}) {
@@ -10814,9 +10772,10 @@ class $BonusProgramsTable extends BonusPrograms
         bonusProgramGroupId
       ];
   @override
-  String get aliasedName => _alias ?? 'bonus_programs';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'bonus_programs';
+  String get actualTableName => $name;
+  static const String $name = 'bonus_programs';
   @override
   VerificationContext validateIntegrity(Insertable<BonusProgram> instance,
       {bool isInserting = false}) {
@@ -11286,21 +11245,19 @@ class $BuyersSetsTable extends BuyersSets
   static const VerificationMeta _isForAllMeta =
       const VerificationMeta('isForAll');
   @override
-  late final GeneratedColumn<bool> isForAll =
-      GeneratedColumn<bool>('is_for_all', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_for_all" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isForAll = GeneratedColumn<bool>(
+      'is_for_all', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_for_all" IN (0, 1))'));
   @override
   List<GeneratedColumn> get $columns => [id, name, isForAll];
   @override
-  String get aliasedName => _alias ?? 'buyers_sets';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'buyers_sets';
+  String get actualTableName => $name;
+  static const String $name = 'buyers_sets';
   @override
   VerificationContext validateIntegrity(Insertable<BuyersSet> instance,
       {bool isInserting = false}) {
@@ -11496,9 +11453,10 @@ class $BuyersSetsBonusProgramsTable extends BuyersSetsBonusPrograms
   @override
   List<GeneratedColumn> get $columns => [buyersSetId, bonusProgramId];
   @override
-  String get aliasedName => _alias ?? 'buyers_sets_bonus_programs';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'buyers_sets_bonus_programs';
+  String get actualTableName => $name;
+  static const String $name = 'buyers_sets_bonus_programs';
   @override
   VerificationContext validateIntegrity(
       Insertable<BuyersSetsBonusProgram> instance,
@@ -11691,9 +11649,10 @@ class $BuyersSetsBuyersTable extends BuyersSetsBuyers
   @override
   List<GeneratedColumn> get $columns => [buyersSetId, buyerId];
   @override
-  String get aliasedName => _alias ?? 'buyers_sets_buyers';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'buyers_sets_buyers';
+  String get actualTableName => $name;
+  static const String $name = 'buyers_sets_buyers';
   @override
   VerificationContext validateIntegrity(Insertable<BuyersSetsBuyer> instance,
       {bool isInserting = false}) {
@@ -11877,9 +11836,10 @@ class $GoodsBonusProgramsTable extends GoodsBonusPrograms
   @override
   List<GeneratedColumn> get $columns => [bonusProgramId, goodsId];
   @override
-  String get aliasedName => _alias ?? 'goods_bonus_programs';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'goods_bonus_programs';
+  String get actualTableName => $name;
+  static const String $name = 'goods_bonus_programs';
   @override
   VerificationContext validateIntegrity(Insertable<GoodsBonusProgram> instance,
       {bool isInserting = false}) {
@@ -12071,9 +12031,10 @@ class $GoodsBonusProgramPricesTable extends GoodsBonusProgramPrices
   @override
   List<GeneratedColumn> get $columns => [bonusProgramId, goodsId, price];
   @override
-  String get aliasedName => _alias ?? 'goods_bonus_program_prices';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'goods_bonus_program_prices';
+  String get actualTableName => $name;
+  static const String $name = 'goods_bonus_program_prices';
   @override
   VerificationContext validateIntegrity(
       Insertable<GoodsBonusProgramPrice> instance,
@@ -12296,21 +12257,19 @@ class $PricelistsTable extends Pricelists
       type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _permitMeta = const VerificationMeta('permit');
   @override
-  late final GeneratedColumn<bool> permit =
-      GeneratedColumn<bool>('permit', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("permit" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> permit = GeneratedColumn<bool>(
+      'permit', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("permit" IN (0, 1))'));
   @override
   List<GeneratedColumn> get $columns => [id, name, permit];
   @override
-  String get aliasedName => _alias ?? 'pricelists';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'pricelists';
+  String get actualTableName => $name;
+  static const String $name = 'pricelists';
   @override
   VerificationContext validateIntegrity(Insertable<Pricelist> instance,
       {bool isInserting = false}) {
@@ -12505,9 +12464,10 @@ class $PricelistSetCategoriesTable extends PricelistSetCategories
   @override
   List<GeneratedColumn> get $columns => [pricelistSetId, categoryId];
   @override
-  String get aliasedName => _alias ?? 'pricelist_set_categories';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'pricelist_set_categories';
+  String get actualTableName => $name;
+  static const String $name = 'pricelist_set_categories';
   @override
   VerificationContext validateIntegrity(
       Insertable<PricelistSetCategory> instance,
@@ -12691,16 +12651,13 @@ class $PartnersPricesTable extends PartnersPrices
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
-  late final GeneratedColumn<bool> isDeleted =
-      GeneratedColumn<bool>('is_deleted', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }),
-          defaultValue: const Constant(false));
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _timestampMeta =
       const VerificationMeta('timestamp');
   @override
@@ -12734,23 +12691,17 @@ class $PartnersPricesTable extends PartnersPrices
           true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
   static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
   @override
-  late final GeneratedColumn<bool> isNew =
-      GeneratedColumn<bool>('is_new', aliasedName, false,
-          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -12801,9 +12752,10 @@ class $PartnersPricesTable extends PartnersPrices
         dateTo
       ];
   @override
-  String get aliasedName => _alias ?? 'partners_prices';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'partners_prices';
+  String get actualTableName => $name;
+  static const String $name = 'partners_prices';
   @override
   VerificationContext validateIntegrity(Insertable<PartnersPrice> instance,
       {bool isInserting = false}) {
@@ -13315,9 +13267,10 @@ class $PricelistPricesTable extends PricelistPrices
   List<GeneratedColumn> get $columns =>
       [goodsId, pricelistId, price, dateFrom, dateTo];
   @override
-  String get aliasedName => _alias ?? 'pricelist_prices';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'pricelist_prices';
+  String get actualTableName => $name;
+  static const String $name = 'pricelist_prices';
   @override
   VerificationContext validateIntegrity(Insertable<PricelistPrice> instance,
       {bool isInserting = false}) {
@@ -13592,16 +13545,13 @@ class $PartnersPricelistsTable extends PartnersPricelists
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
-  late final GeneratedColumn<bool> isDeleted =
-      GeneratedColumn<bool>('is_deleted', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }),
-          defaultValue: const Constant(false));
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _timestampMeta =
       const VerificationMeta('timestamp');
   @override
@@ -13635,23 +13585,17 @@ class $PartnersPricelistsTable extends PartnersPricelists
           true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
   static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
   @override
-  late final GeneratedColumn<bool> isNew =
-      GeneratedColumn<bool>('is_new', aliasedName, false,
-          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -13697,9 +13641,10 @@ class $PartnersPricelistsTable extends PartnersPricelists
         discount
       ];
   @override
-  String get aliasedName => _alias ?? 'partners_pricelists';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'partners_pricelists';
+  String get actualTableName => $name;
+  static const String $name = 'partners_pricelists';
   @override
   VerificationContext validateIntegrity(Insertable<PartnersPricelist> instance,
       {bool isInserting = false}) {
@@ -14168,9 +14113,10 @@ class $GoodsRestrictionsTable extends GoodsRestrictions
   @override
   List<GeneratedColumn> get $columns => [goodsId, buyerId];
   @override
-  String get aliasedName => _alias ?? 'goods_restrictions';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'goods_restrictions';
+  String get actualTableName => $name;
+  static const String $name = 'goods_restrictions';
   @override
   VerificationContext validateIntegrity(Insertable<GoodsRestriction> instance,
       {bool isInserting = false}) {
@@ -14352,15 +14298,12 @@ class $GoodsStocksTable extends GoodsStocks
   static const VerificationMeta _isVollowMeta =
       const VerificationMeta('isVollow');
   @override
-  late final GeneratedColumn<bool> isVollow =
-      GeneratedColumn<bool>('is_vollow', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_vollow" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isVollow = GeneratedColumn<bool>(
+      'is_vollow', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_vollow" IN (0, 1))'));
   static const VerificationMeta _factorMeta = const VerificationMeta('factor');
   @override
   late final GeneratedColumn<double> factor = GeneratedColumn<double>(
@@ -14375,9 +14318,10 @@ class $GoodsStocksTable extends GoodsStocks
   List<GeneratedColumn> get $columns =>
       [goodsId, siteId, isVollow, factor, vol];
   @override
-  String get aliasedName => _alias ?? 'goods_stocks';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'goods_stocks';
+  String get actualTableName => $name;
+  static const String $name = 'goods_stocks';
   @override
   VerificationContext validateIntegrity(Insertable<GoodsStock> instance,
       {bool isInserting = false}) {
@@ -14669,9 +14613,10 @@ class $GoodsPartnersPricelistsTable extends GoodsPartnersPricelists
   List<GeneratedColumn> get $columns =>
       [goodsId, partnerPricelistId, pricelistId, discount];
   @override
-  String get aliasedName => _alias ?? 'goods_partners_pricelists';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'goods_partners_pricelists';
+  String get actualTableName => $name;
+  static const String $name = 'goods_partners_pricelists';
   @override
   VerificationContext validateIntegrity(
       Insertable<GoodsPartnersPricelist> instance,
@@ -14974,9 +14919,10 @@ class $GoodsReturnStocksTable extends GoodsReturnStocks
         receptNdoc
       ];
   @override
-  String get aliasedName => _alias ?? 'goods_return_stocks';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'goods_return_stocks';
+  String get actualTableName => $name;
+  static const String $name = 'goods_return_stocks';
   @override
   VerificationContext validateIntegrity(Insertable<GoodsReturnStock> instance,
       {bool isInserting = false}) {
@@ -15349,16 +15295,13 @@ class $ReturnActsTable extends ReturnActs
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
-  late final GeneratedColumn<bool> isDeleted =
-      GeneratedColumn<bool>('is_deleted', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }),
-          defaultValue: const Constant(false));
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _timestampMeta =
       const VerificationMeta('timestamp');
   @override
@@ -15392,23 +15335,17 @@ class $ReturnActsTable extends ReturnActs
           true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
   static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
   @override
-  late final GeneratedColumn<bool> isNew =
-      GeneratedColumn<bool>('is_new', aliasedName, false,
-          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -15433,15 +15370,12 @@ class $ReturnActsTable extends ReturnActs
   static const VerificationMeta _needPickupMeta =
       const VerificationMeta('needPickup');
   @override
-  late final GeneratedColumn<bool> needPickup =
-      GeneratedColumn<bool>('need_pickup', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: true,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("need_pickup" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> needPickup = GeneratedColumn<bool>(
+      'need_pickup', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("need_pickup" IN (0, 1))'));
   static const VerificationMeta _returnActTypeIdMeta =
       const VerificationMeta('returnActTypeId');
   @override
@@ -15486,9 +15420,10 @@ class $ReturnActsTable extends ReturnActs
         receptDate
       ];
   @override
-  String get aliasedName => _alias ?? 'return_acts';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'return_acts';
+  String get actualTableName => $name;
+  static const String $name = 'return_acts';
   @override
   VerificationContext validateIntegrity(Insertable<ReturnAct> instance,
       {bool isInserting = false}) {
@@ -16083,16 +16018,13 @@ class $ReturnActLinesTable extends ReturnActLines
   static const VerificationMeta _isDeletedMeta =
       const VerificationMeta('isDeleted');
   @override
-  late final GeneratedColumn<bool> isDeleted =
-      GeneratedColumn<bool>('is_deleted', aliasedName, false,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_deleted" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }),
-          defaultValue: const Constant(false));
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _timestampMeta =
       const VerificationMeta('timestamp');
   @override
@@ -16126,23 +16058,17 @@ class $ReturnActLinesTable extends ReturnActLines
           true),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-        SqlDialect.sqlite: 'CHECK ("need_sync" IN (0, 1))',
-        SqlDialect.mysql: '',
-        SqlDialect.postgres: '',
-      }));
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
   static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
   @override
-  late final GeneratedColumn<bool> isNew =
-      GeneratedColumn<bool>('is_new', aliasedName, false,
-          generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_new" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
   static const VerificationMeta _idMeta = const VerificationMeta('id');
   @override
   late final GeneratedColumn<int> id = GeneratedColumn<int>(
@@ -16176,15 +16102,12 @@ class $ReturnActLinesTable extends ReturnActLines
           type: DriftSqlType.dateTime, requiredDuringInsert: false);
   static const VerificationMeta _isBadMeta = const VerificationMeta('isBad');
   @override
-  late final GeneratedColumn<bool> isBad =
-      GeneratedColumn<bool>('is_bad', aliasedName, true,
-          type: DriftSqlType.bool,
-          requiredDuringInsert: false,
-          defaultConstraints: GeneratedColumn.constraintsDependsOnDialect({
-            SqlDialect.sqlite: 'CHECK ("is_bad" IN (0, 1))',
-            SqlDialect.mysql: '',
-            SqlDialect.postgres: '',
-          }));
+  late final GeneratedColumn<bool> isBad = GeneratedColumn<bool>(
+      'is_bad', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_bad" IN (0, 1))'));
   @override
   List<GeneratedColumn> get $columns => [
         guid,
@@ -16202,9 +16125,10 @@ class $ReturnActLinesTable extends ReturnActLines
         isBad
       ];
   @override
-  String get aliasedName => _alias ?? 'return_act_lines';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'return_act_lines';
+  String get actualTableName => $name;
+  static const String $name = 'return_act_lines';
   @override
   VerificationContext validateIntegrity(Insertable<ReturnActLine> instance,
       {bool isInserting = false}) {
@@ -16711,9 +16635,10 @@ class $ReturnActTypesTable extends ReturnActTypes
   @override
   List<GeneratedColumn> get $columns => [id, name];
   @override
-  String get aliasedName => _alias ?? 'return_act_types';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'return_act_types';
+  String get actualTableName => $name;
+  static const String $name = 'return_act_types';
   @override
   VerificationContext validateIntegrity(Insertable<ReturnActType> instance,
       {bool isInserting = false}) {
@@ -16880,9 +16805,10 @@ class $PartnersReturnActTypesTable extends PartnersReturnActTypes
   @override
   List<GeneratedColumn> get $columns => [returnActTypeId, partnerId];
   @override
-  String get aliasedName => _alias ?? 'partners_return_act_types';
+  String get aliasedName => _alias ?? actualTableName;
   @override
-  String get actualTableName => 'partners_return_act_types';
+  String get actualTableName => $name;
+  static const String $name = 'partners_return_act_types';
   @override
   VerificationContext validateIntegrity(
       Insertable<PartnersReturnActType> instance,
@@ -17138,26 +17064,25 @@ abstract class _$AppDataStore extends GeneratedDatabase {
           shipments,
           preOrders,
           prefs,
-        }).map((QueryRow row) {
-      return AppInfoResult(
-        showLocalImage: row.read<bool>('show_local_image'),
-        showWithPrice: row.read<bool>('show_with_price'),
-        lastLoadTime: row.readNullable<DateTime>('last_load_time'),
-        pointsToSync: row.read<int>('points_to_sync'),
-        depositsToSync: row.read<int>('deposits_to_sync'),
-        ordersToSync: row.read<int>('orders_to_sync'),
-        returnActsToSync: row.read<int>('return_acts_to_sync'),
-        incRequestsToSync: row.read<int>('inc_requests_to_sync'),
-        partnerPricesToSync: row.read<int>('partner_prices_to_sync'),
-        partnersPricelistsToSync: row.read<int>('partners_pricelists_to_sync'),
-        pointsTotal: row.read<int>('points_total'),
-        encashmentsTotal: row.read<int>('encashments_total'),
-        shipmentsTotal: row.read<int>('shipments_total'),
-        ordersTotal: row.read<int>('orders_total'),
-        preOrdersTotal: row.read<int>('pre_orders_total'),
-        returnActsTotal: row.read<int>('return_acts_total'),
-      );
-    });
+        }).map((QueryRow row) => AppInfoResult(
+          showLocalImage: row.read<bool>('show_local_image'),
+          showWithPrice: row.read<bool>('show_with_price'),
+          lastLoadTime: row.readNullable<DateTime>('last_load_time'),
+          pointsToSync: row.read<int>('points_to_sync'),
+          depositsToSync: row.read<int>('deposits_to_sync'),
+          ordersToSync: row.read<int>('orders_to_sync'),
+          returnActsToSync: row.read<int>('return_acts_to_sync'),
+          incRequestsToSync: row.read<int>('inc_requests_to_sync'),
+          partnerPricesToSync: row.read<int>('partner_prices_to_sync'),
+          partnersPricelistsToSync:
+              row.read<int>('partners_pricelists_to_sync'),
+          pointsTotal: row.read<int>('points_total'),
+          encashmentsTotal: row.read<int>('encashments_total'),
+          shipmentsTotal: row.read<int>('shipments_total'),
+          ordersTotal: row.read<int>('orders_total'),
+          preOrdersTotal: row.read<int>('pre_orders_total'),
+          returnActsTotal: row.read<int>('return_acts_total'),
+        ));
   }
 
   @override
@@ -17346,23 +17271,21 @@ mixin _$BonusProgramsDaoMixin on DatabaseAccessor<AppDataStore> {
           buyersSets,
           goodsBonusPrograms,
           allGoods,
-        }).map((QueryRow row) {
-      return FilteredBonusProgramsResult(
-        id: row.read<int>('id'),
-        name: row.read<String>('name'),
-        condition: row.read<String>('condition'),
-        present: row.read<String>('present'),
-      );
-    });
+        }).map((QueryRow row) => FilteredBonusProgramsResult(
+          id: row.read<int>('id'),
+          name: row.read<String>('name'),
+          condition: row.read<String>('condition'),
+          present: row.read<String>('present'),
+        ));
   }
 
   Selectable<FilteredGoodsBonusProgramsResult> filteredGoodsBonusPrograms(
-      int buyerId, List<int> goodsIds, DateTime date) {
+      List<int> goodsIds, int buyerId, DateTime date) {
     var $arrayStartIndex = 3;
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT DISTINCT bonus_programs.id AS bonus_program_id, CAST(COALESCE(MAX(CASE WHEN bonus_programs.discount_percent > 0 THEN bonus_programs.conditional_discount ELSE 0 END), 0) AS INT) AS conditional_discount, (SELECT MAX(goods_bonus_program_prices.price) FROM goods_bonus_program_prices WHERE goods_bonus_program_prices.bonus_program_id = bonus_programs.id AND goods_bonus_program_prices.goods_id = goods.id) AS goods_price, MAX(bonus_programs.discount_percent) AS discount_percent, MAX(bonus_programs.coef) AS coef, bonus_programs.tag_text, goods.id AS goods_id FROM bonus_programs JOIN buyers_sets_bonus_programs ON buyers_sets_bonus_programs.bonus_program_id = bonus_programs.id JOIN buyers_sets_buyers ON buyers_sets_buyers.buyers_set_id = buyers_sets_bonus_programs.buyers_set_id JOIN buyers_sets ON buyers_sets.id = buyers_sets_buyers.buyers_set_id JOIN goods_bonus_programs ON goods_bonus_programs.bonus_program_id = bonus_programs.id JOIN goods ON goods.id = goods_bonus_programs.goods_id WHERE LENGTH(bonus_programs.tag_text) > 0 AND(buyers_sets.is_for_all = 1 OR buyers_sets_buyers.buyer_id = ?1)AND goods_bonus_programs.goods_id IN ($expandedgoodsIds) AND ?2 BETWEEN bonus_programs.date_from AND bonus_programs.date_to GROUP BY bonus_programs.id, bonus_programs.tag_text, goods.id, goods.name ORDER BY bonus_programs.id, goods.name',
+        'SELECT CAST(COALESCE(MAX(CASE WHEN bonus_programs.discount_percent > 0 THEN bonus_programs.conditional_discount ELSE 0 END), 0) AS INT) AS conditional_discount, (SELECT MAX(goods_bonus_program_prices.price) FROM goods_bonus_program_prices WHERE goods_bonus_program_prices.bonus_program_id = bonus_programs.id AND goods_bonus_program_prices.goods_id = goods_bonus_programs.goods_id) AS goods_price, MAX(bonus_programs.discount_percent) AS discount_percent, MAX(bonus_programs.coef) AS coef, bonus_programs.tag_text, goods_bonus_programs.goods_id FROM bonus_programs JOIN goods_bonus_programs ON goods_bonus_programs.bonus_program_id = bonus_programs.id WHERE goods_bonus_programs.goods_id IN ($expandedgoodsIds) AND goods_bonus_programs.bonus_program_id IN (SELECT DISTINCT bonus_programs.id FROM bonus_programs JOIN buyers_sets_bonus_programs ON buyers_sets_bonus_programs.bonus_program_id = bonus_programs.id JOIN buyers_sets_buyers ON buyers_sets_buyers.buyers_set_id = buyers_sets_bonus_programs.buyers_set_id JOIN buyers_sets ON buyers_sets.id = buyers_sets_buyers.buyers_set_id WHERE(buyers_sets.is_for_all = 1 OR buyers_sets_buyers.buyer_id = ?1)AND ?2 BETWEEN bonus_programs.date_from AND bonus_programs.date_to) GROUP BY goods_bonus_programs.bonus_program_id, goods_bonus_programs.goods_id, bonus_programs.tag_text',
         variables: [
           Variable<int>(buyerId),
           Variable<DateTime>(date),
@@ -17371,22 +17294,18 @@ mixin _$BonusProgramsDaoMixin on DatabaseAccessor<AppDataStore> {
         readsFrom: {
           bonusPrograms,
           goodsBonusProgramPrices,
-          allGoods,
+          goodsBonusPrograms,
           buyersSetsBonusPrograms,
           buyersSetsBuyers,
           buyersSets,
-          goodsBonusPrograms,
-        }).map((QueryRow row) {
-      return FilteredGoodsBonusProgramsResult(
-        bonusProgramId: row.read<int>('bonus_program_id'),
-        conditionalDiscount: row.read<bool>('conditional_discount'),
-        goodsPrice: row.readNullable<double>('goods_price'),
-        discountPercent: row.readNullable<int>('discount_percent'),
-        coef: row.readNullable<double>('coef'),
-        tagText: row.read<String>('tag_text'),
-        goodsId: row.read<int>('goods_id'),
-      );
-    });
+        }).map((QueryRow row) => FilteredGoodsBonusProgramsResult(
+          conditionalDiscount: row.read<bool>('conditional_discount'),
+          goodsPrice: row.readNullable<double>('goods_price'),
+          discountPercent: row.readNullable<int>('discount_percent'),
+          coef: row.readNullable<double>('coef'),
+          tagText: row.read<String>('tag_text'),
+          goodsId: row.read<int>('goods_id'),
+        ));
   }
 }
 
@@ -17404,7 +17323,6 @@ class FilteredBonusProgramsResult {
 }
 
 class FilteredGoodsBonusProgramsResult {
-  final int bonusProgramId;
   final bool conditionalDiscount;
   final double? goodsPrice;
   final int? discountPercent;
@@ -17412,7 +17330,6 @@ class FilteredGoodsBonusProgramsResult {
   final String tagText;
   final int goodsId;
   FilteredGoodsBonusProgramsResult({
-    required this.bonusProgramId,
     required this.conditionalDiscount,
     this.goodsPrice,
     this.discountPercent,
@@ -17455,15 +17372,13 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
           orderLines,
           orders,
           buyers,
-        }).asyncMap((QueryRow row) async {
-      return OrderExResult(
-        order: await orders.mapFromRow(row, tablePrefix: 'nested_0'),
-        buyer: await buyers.mapFromRowOrNull(row, tablePrefix: 'nested_1'),
-        linesTotal: row.read<double>('lines_total'),
-        linesCount: row.read<int>('lines_count'),
-        linesNeedSync: row.read<bool>('lines_need_sync'),
-      );
-    });
+        }).asyncMap((QueryRow row) async => OrderExResult(
+          order: await orders.mapFromRow(row, tablePrefix: 'nested_0'),
+          buyer: await buyers.mapFromRowOrNull(row, tablePrefix: 'nested_1'),
+          linesTotal: row.read<double>('lines_total'),
+          linesCount: row.read<int>('lines_count'),
+          linesNeedSync: row.read<bool>('lines_need_sync'),
+        ));
   }
 
   Selectable<OrderLineExResult> orderLineEx(String orderGuid) {
@@ -17475,12 +17390,10 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
         readsFrom: {
           allGoods,
           orderLines,
-        }).asyncMap((QueryRow row) async {
-      return OrderLineExResult(
-        line: await orderLines.mapFromRow(row, tablePrefix: 'nested_0'),
-        goodsName: row.read<String>('goods_name'),
-      );
-    });
+        }).asyncMap((QueryRow row) async => OrderLineExResult(
+          line: await orderLines.mapFromRow(row, tablePrefix: 'nested_0'),
+          goodsName: row.read<String>('goods_name'),
+        ));
   }
 
   Selectable<PreOrderExResult> preOrderEx() {
@@ -17493,16 +17406,14 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
           orders,
           seenPreOrders,
           buyers,
-        }).asyncMap((QueryRow row) async {
-      return PreOrderExResult(
-        preOrder: await preOrders.mapFromRow(row, tablePrefix: 'nested_0'),
-        buyer: await buyers.mapFromRow(row, tablePrefix: 'nested_1'),
-        linesTotal: row.read<double>('lines_total'),
-        linesCount: row.read<int>('lines_count'),
-        hasOrder: row.read<bool>('has_order'),
-        wasSeen: row.read<bool>('was_seen'),
-      );
-    });
+        }).asyncMap((QueryRow row) async => PreOrderExResult(
+          preOrder: await preOrders.mapFromRow(row, tablePrefix: 'nested_0'),
+          buyer: await buyers.mapFromRow(row, tablePrefix: 'nested_1'),
+          linesTotal: row.read<double>('lines_total'),
+          linesCount: row.read<int>('lines_count'),
+          hasOrder: row.read<bool>('has_order'),
+          wasSeen: row.read<bool>('was_seen'),
+        ));
   }
 
   Selectable<PreOrderLineExResult> preOrderLineEx(int preOrderId) {
@@ -17514,12 +17425,10 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
         readsFrom: {
           allGoods,
           preOrderLines,
-        }).asyncMap((QueryRow row) async {
-      return PreOrderLineExResult(
-        line: await preOrderLines.mapFromRow(row, tablePrefix: 'nested_0'),
-        goodsName: row.read<String>('goods_name'),
-      );
-    });
+        }).asyncMap((QueryRow row) async => PreOrderLineExResult(
+          line: await preOrderLines.mapFromRow(row, tablePrefix: 'nested_0'),
+          goodsName: row.read<String>('goods_name'),
+        ));
   }
 
   Selectable<GoodsExResult> goodsEx(int buyerId, List<int> goodsIds) {
@@ -17527,7 +17436,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."is_orderable" AS "nested_0.is_orderable", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."mc_vol" AS "nested_0.mc_vol", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date, (SELECT MAX(shipment_lines.price) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN (SELECT MAX(shipments.date) AS last_shipment_date, shipments.buyer_id FROM shipments GROUP BY shipments.buyer_id) AS sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_price FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
+        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."is_orderable" AS "nested_0.is_orderable", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."volume" AS "nested_0.volume", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."for_physical" AS "nested_0.for_physical", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds)',
         variables: [
           Variable<int>(buyerId),
           for (var $ in goodsIds) Variable<int>($)
@@ -17540,25 +17449,22 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
           shipments,
           shipmentLines,
           goodsStocks,
-        }).asyncMap((QueryRow row) async {
-      return GoodsExResult(
-        goods: await allGoods.mapFromRow(row, tablePrefix: 'nested_0'),
-        categoryPackage: row.read<int>('categoryPackage'),
-        categoryUserPackage: row.read<int>('categoryUserPackage'),
-        normalStock:
-            await goodsStocks.mapFromRowOrNull(row, tablePrefix: 'nested_1'),
-        fridgeStock:
-            await goodsStocks.mapFromRowOrNull(row, tablePrefix: 'nested_2'),
-        restricted: row.read<bool>('restricted'),
-        lastShipmentDate: row.readNullable<DateTime>('last_shipment_date'),
-        lastPrice: row.readNullable<double>('last_price'),
-      );
-    });
+        }).asyncMap((QueryRow row) async => GoodsExResult(
+          goods: await allGoods.mapFromRow(row, tablePrefix: 'nested_0'),
+          categoryPackage: row.read<int>('categoryPackage'),
+          categoryUserPackage: row.read<int>('categoryUserPackage'),
+          normalStock:
+              await goodsStocks.mapFromRowOrNull(row, tablePrefix: 'nested_1'),
+          fridgeStock:
+              await goodsStocks.mapFromRowOrNull(row, tablePrefix: 'nested_2'),
+          restricted: row.read<bool>('restricted'),
+          lastShipmentDate: row.readNullable<DateTime>('last_shipment_date'),
+        ));
   }
 
   Selectable<CategoriesExResult> categoriesEx(int buyerId) {
     return customSelect(
-        'SELECT categories.*, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN goods ON shipment_lines.goods_id = goods.id WHERE categories.id = goods.category_id AND shipments.buyer_id = ?1 AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM categories WHERE EXISTS (SELECT 1 AS _c0 FROM goods WHERE goods.category_id = categories.id) ORDER BY categories.name',
+        'SELECT"categories"."id" AS "nested_0.id", "categories"."name" AS "nested_0.name", "categories"."ord" AS "nested_0.ord", "categories"."shop_department_id" AS "nested_0.shop_department_id", "categories"."package" AS "nested_0.package", "categories"."user_package" AS "nested_0.user_package", (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN goods ON shipment_lines.goods_id = goods.id WHERE categories.id = goods.category_id AND shipments.buyer_id = ?1 AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM categories ORDER BY categories.name',
         variables: [
           Variable<int>(buyerId)
         ],
@@ -17567,17 +17473,10 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
           shipmentLines,
           allGoods,
           categories,
-        }).map((QueryRow row) {
-      return CategoriesExResult(
-        id: row.read<int>('id'),
-        name: row.read<String>('name'),
-        ord: row.read<int>('ord'),
-        shopDepartmentId: row.read<int>('shop_department_id'),
-        package: row.read<int>('package'),
-        userPackage: row.read<int>('user_package'),
-        lastShipmentDate: row.readNullable<DateTime>('last_shipment_date'),
-      );
-    });
+        }).asyncMap((QueryRow row) async => CategoriesExResult(
+          category: await categories.mapFromRow(row, tablePrefix: 'nested_0'),
+          lastShipmentDate: row.readNullable<DateTime>('last_shipment_date'),
+        ));
   }
 }
 
@@ -17639,7 +17538,6 @@ class GoodsExResult {
   final GoodsStock? fridgeStock;
   final bool restricted;
   final DateTime? lastShipmentDate;
-  final double? lastPrice;
   GoodsExResult({
     required this.goods,
     required this.categoryPackage,
@@ -17648,25 +17546,14 @@ class GoodsExResult {
     this.fridgeStock,
     required this.restricted,
     this.lastShipmentDate,
-    this.lastPrice,
   });
 }
 
 class CategoriesExResult {
-  final int id;
-  final String name;
-  final int ord;
-  final int shopDepartmentId;
-  final int package;
-  final int userPackage;
+  final Category category;
   final DateTime? lastShipmentDate;
   CategoriesExResult({
-    required this.id,
-    required this.name,
-    required this.ord,
-    required this.shopDepartmentId,
-    required this.package,
-    required this.userPackage,
+    required this.category,
     this.lastShipmentDate,
   });
 }
@@ -17712,12 +17599,10 @@ mixin _$PricesDaoMixin on DatabaseAccessor<AppDataStore> {
           allGoods,
           pricelistSetCategories,
           partnersPrices,
-        }).map((QueryRow row) {
-      return GoodsPricesResult(
-        goodsId: row.read<int>('goods_id'),
-        price: row.readNullable<double>('price'),
-      );
-    });
+        }).map((QueryRow row) => GoodsPricesResult(
+          goodsId: row.read<int>('goods_id'),
+          price: row.readNullable<double>('price'),
+        ));
   }
 
   Selectable<GoodsPricelistsResult> goodsPricelists(
@@ -17732,14 +17617,12 @@ mixin _$PricesDaoMixin on DatabaseAccessor<AppDataStore> {
           pricelists,
           goodsPartnersPricelists,
           pricelistPrices,
-        }).map((QueryRow row) {
-      return GoodsPricelistsResult(
-        id: row.read<int>('id'),
-        name: row.read<String>('name'),
-        permit: row.read<bool>('permit'),
-        price: row.read<double>('price'),
-      );
-    });
+        }).map((QueryRow row) => GoodsPricelistsResult(
+          id: row.read<int>('id'),
+          name: row.read<String>('name'),
+          permit: row.read<bool>('permit'),
+          price: row.read<double>('price'),
+        ));
   }
 }
 
@@ -17780,13 +17663,11 @@ mixin _$ShipmentsDaoMixin on DatabaseAccessor<AppDataStore> {
           shipmentLines,
           shipments,
           buyers,
-        }).asyncMap((QueryRow row) async {
-      return ShipmentExResult(
-        shipment: await shipments.mapFromRow(row, tablePrefix: 'nested_0'),
-        buyer: await buyers.mapFromRow(row, tablePrefix: 'nested_1'),
-        linesCount: row.read<int>('lines_count'),
-      );
-    });
+        }).asyncMap((QueryRow row) async => ShipmentExResult(
+          shipment: await shipments.mapFromRow(row, tablePrefix: 'nested_0'),
+          buyer: await buyers.mapFromRow(row, tablePrefix: 'nested_1'),
+          linesCount: row.read<int>('lines_count'),
+        ));
   }
 
   Selectable<GoodsShipmentsResult> goodsShipments(int buyerId, int goodsId) {
@@ -17799,13 +17680,11 @@ mixin _$ShipmentsDaoMixin on DatabaseAccessor<AppDataStore> {
         readsFrom: {
           shipments,
           shipmentLines,
-        }).map((QueryRow row) {
-      return GoodsShipmentsResult(
-        date: row.read<DateTime>('date'),
-        vol: row.read<double>('vol'),
-        price: row.read<double>('price'),
-      );
-    });
+        }).map((QueryRow row) => GoodsShipmentsResult(
+          date: row.read<DateTime>('date'),
+          vol: row.read<double>('vol'),
+          price: row.read<double>('price'),
+        ));
   }
 }
 
@@ -17851,15 +17730,13 @@ mixin _$ReturnActsDaoMixin on DatabaseAccessor<AppDataStore> {
           returnActs,
           returnActLines,
           buyers,
-        }).asyncMap((QueryRow row) async {
-      return ReturnActExResult(
-        returnAct: await returnActs.mapFromRow(row, tablePrefix: 'nested_0'),
-        returnActTypeName: row.read<String>('return_act_type_name'),
-        buyer: await buyers.mapFromRowOrNull(row, tablePrefix: 'nested_1'),
-        linesCount: row.read<int>('lines_count'),
-        linesNeedSync: row.read<bool>('lines_need_sync'),
-      );
-    });
+        }).asyncMap((QueryRow row) async => ReturnActExResult(
+          returnAct: await returnActs.mapFromRow(row, tablePrefix: 'nested_0'),
+          returnActTypeName: row.read<String>('return_act_type_name'),
+          buyer: await buyers.mapFromRowOrNull(row, tablePrefix: 'nested_1'),
+          linesCount: row.read<int>('lines_count'),
+          linesNeedSync: row.read<bool>('lines_need_sync'),
+        ));
   }
 
   Selectable<ReturnActLineExResult> returnActLineEx(String returnActGuid) {
@@ -17871,12 +17748,10 @@ mixin _$ReturnActsDaoMixin on DatabaseAccessor<AppDataStore> {
         readsFrom: {
           allGoods,
           returnActLines,
-        }).asyncMap((QueryRow row) async {
-      return ReturnActLineExResult(
-        line: await returnActLines.mapFromRow(row, tablePrefix: 'nested_0'),
-        goodsName: row.read<String>('goods_name'),
-      );
-    });
+        }).asyncMap((QueryRow row) async => ReturnActLineExResult(
+          line: await returnActLines.mapFromRow(row, tablePrefix: 'nested_0'),
+          goodsName: row.read<String>('goods_name'),
+        ));
   }
 
   Selectable<ReceptExResult> receptEx(int buyerId, int returnActTypeId) {
@@ -17888,13 +17763,11 @@ mixin _$ReturnActsDaoMixin on DatabaseAccessor<AppDataStore> {
         ],
         readsFrom: {
           goodsReturnStocks,
-        }).map((QueryRow row) {
-      return ReceptExResult(
-        id: row.read<int>('id'),
-        date: row.read<DateTime>('date'),
-        ndoc: row.read<String>('ndoc'),
-      );
-    });
+        }).map((QueryRow row) => ReceptExResult(
+          id: row.read<int>('id'),
+          date: row.read<DateTime>('date'),
+          ndoc: row.read<String>('ndoc'),
+        ));
   }
 }
 

@@ -16,6 +16,7 @@ class GoodsState {
     this.shopDepartments = const [],
     this.goodsFilters = const [],
     this.goodsDetails = const [],
+    this.visibleGoodsDetails = const [],
     this.visibleCategories = const [],
     this.selectedBonusProgram,
     this.selectedCategory,
@@ -39,25 +40,14 @@ class GoodsState {
   final List<GoodsFilter> goodsFilters;
   final List<GoodsDetail> goodsDetails;
 
-  List<String> get manufacturers => filteredGoodsDetails
+  List<String> get manufacturers => visibleGoodsDetails
     .where((e) => e.goods.manufacturer != null)
     .map((e) => e.goods.manufacturer!)
     .toSet().toList();
 
   double get total => filteredOrderLinesExList.fold(0, (acc, e) => acc + e.line.total);
 
-  List<GoodsDetail> get filteredGoodsDetails => goodsDetails
-    .where((g) {
-      final orderLineEx = linesExList.firstWhereOrNull((e) => e.line.goodsId == g.goods.id);
-
-      if (showWithPrice && g.price == 0 && orderLineEx == null) return false;
-      if (g.stock == null && orderLineEx == null) return false;
-
-      return true;
-    })
-    .toList();
-
-  List<String> get goodsFirstWords => filteredGoodsDetails.map((e) => e.goods.name.split(' ')[0]).toSet().toList();
+  List<String> get goodsFirstWords => visibleGoodsDetails.map((e) => e.goods.name.split(' ')[0]).toSet().toList();
   List<OrderLineExResult> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
 
   bool get showAllGoods => selectedCategory != null ||
@@ -78,6 +68,7 @@ class GoodsState {
     selectedBonusProgram != null ||
     (goodsNameSearch ?? '').isNotEmpty;
 
+  final List<GoodsDetail> visibleGoodsDetails;
   final List<CategoriesExResult> visibleCategories;
   final CategoriesExResult? selectedCategory;
   final GoodsFilter? selectedGoodsFilter;
@@ -102,6 +93,7 @@ class GoodsState {
     List<ShopDepartment>? shopDepartments,
     List<GoodsFilter>? goodsFilters,
     List<GoodsDetail>? goodsDetails,
+    List<GoodsDetail>? visibleGoodsDetails,
     List<CategoriesExResult>? visibleCategories,
     Optional<FilteredBonusProgramsResult>? selectedBonusProgram,
     Optional<CategoriesExResult>? selectedCategory,
@@ -123,6 +115,7 @@ class GoodsState {
       shopDepartments: shopDepartments ?? this.shopDepartments,
       goodsFilters: goodsFilters ?? this.goodsFilters,
       goodsDetails: goodsDetails ?? this.goodsDetails,
+      visibleGoodsDetails: visibleGoodsDetails ?? this.visibleGoodsDetails,
       visibleCategories: visibleCategories ?? this.visibleCategories,
       selectedBonusProgram: selectedBonusProgram != null ? selectedBonusProgram.orNull : this.selectedBonusProgram,
       selectedCategory: selectedCategory != null ? selectedCategory.orNull : this.selectedCategory,

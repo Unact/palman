@@ -156,7 +156,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
                     labelText: 'Объем короба',
                     border: InputBorder.none
                   ),
-                  initialValue: Format.numberStr(goods.mcVol)
+                  initialValue: Format.numberStr(goods.volume)
                 ),
                 TextFormField(
                   canRequestFocus: false,

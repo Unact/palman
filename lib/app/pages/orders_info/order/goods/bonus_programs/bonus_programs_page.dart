@@ -16,13 +16,13 @@ part 'bonus_programs_view_model.dart';
 class BonusProgramsPage extends StatelessWidget {
   final DateTime date;
   final Buyer buyer;
-  final CategoriesExResult? category;
+  final CategoriesExResult? categoryEx;
   final GoodsExResult? goodsEx;
 
   BonusProgramsPage({
     required this.date,
     required this.buyer,
-    required this.category,
+    required this.categoryEx,
     required this.goodsEx,
     Key? key
   }) : super(key: key);
@@ -33,7 +33,7 @@ class BonusProgramsPage extends StatelessWidget {
       create: (context) => BonusProgramsViewModel(
         date: date,
         buyer: buyer,
-        category: category,
+        categoryEx: categoryEx,
         goodsEx: goodsEx,
         RepositoryProvider.of<OrdersRepository>(context),
       ),

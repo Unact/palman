@@ -12,7 +12,7 @@ class BonusProgramsState {
     this.status = BonusProgramsStateStatus.initial,
     required this.date,
     required this.buyer,
-    required this.category,
+    required this.categoryEx,
     required this.goodsEx,
     this.bonusProgramGroups = const [],
     this.bonusPrograms = const [],
@@ -24,7 +24,7 @@ class BonusProgramsState {
 
   final DateTime date;
   final Buyer buyer;
-  final CategoriesExResult? category;
+  final CategoriesExResult? categoryEx;
   final GoodsExResult? goodsEx;
   final List<BonusProgramGroup> bonusProgramGroups;
   final List<FilteredBonusProgramsResult> bonusPrograms;
@@ -36,7 +36,7 @@ class BonusProgramsState {
     BonusProgramsStateStatus? status,
     DateTime? date,
     Buyer? buyer,
-    CategoriesExResult? category,
+    CategoriesExResult? categoryEx,
     GoodsExResult? goodsEx,
     List<BonusProgramGroup>? bonusProgramGroups,
     List<FilteredBonusProgramsResult>? bonusPrograms,
@@ -47,7 +47,7 @@ class BonusProgramsState {
       status: status ?? this.status,
       date: date ?? this.date,
       buyer: buyer ?? this.buyer,
-      category: category ?? this.category,
+      categoryEx: categoryEx ?? this.categoryEx,
       goodsEx: goodsEx ?? this.goodsEx,
       bonusProgramGroups: bonusProgramGroups ?? this.bonusProgramGroups,
       bonusPrograms: bonusPrograms ?? this.bonusPrograms,

@@ -105,21 +105,7 @@ part of 'database.dart';
             shipment_lines.goods_id = goods.id AND
             shipments.buyer_id = buyers.id AND
             shipments.date < STRFTIME('%s', 'now', 'start of day')
-        ) AS "last_shipment_date",
-        (
-          SELECT MAX(shipment_lines.price)
-          FROM shipment_lines
-          JOIN shipments ON shipments.id = shipment_lines.shipment_id
-          JOIN (
-            SELECT MAX(shipments.date) last_shipment_date, shipments.buyer_id
-            FROM shipments
-            GROUP BY shipments.buyer_id
-          ) sm ON sm.last_shipment_date = shipments.date AND sm.buyer_id = shipments.buyer_id
-          WHERE
-            shipment_lines.goods_id = goods.id AND
-            shipments.buyer_id = buyers.id AND
-            shipments.date < STRFTIME('%s', 'now', 'start of day')
-        ) AS "last_price"
+        ) AS "last_shipment_date"
       FROM goods
       JOIN categories ON categories.id = goods.category_id
       CROSS JOIN buyers
@@ -130,11 +116,10 @@ part of 'database.dart';
       WHERE
         buyers.id = :buyer_id AND
         goods.id IN :goods_ids
-      ORDER BY goods.name
     ''',
     'categoriesEx': '''
       SELECT
-        categories.*,
+        categories.** AS "category",
         (
           SELECT MAX(shipments.date)
           FROM shipment_lines
@@ -146,7 +131,6 @@ part of 'database.dart';
             shipments.date < STRFTIME('%s', 'now', 'start of day')
         ) AS "last_shipment_date"
       FROM categories
-      WHERE EXISTS(SELECT 1 FROM goods WHERE goods.category_id = categories.id)
       ORDER BY categories.name
     '''
   }
@@ -259,7 +243,8 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     required int? categoryId,
     required int? bonusProgramId,
     required List<int>? goodsIds,
-    required bool onlyLatest
+    required bool onlyLatest,
+    required bool onlyForPhysical
   }) async {
     final hasBonusProgram = existsQuery(
       select(goodsBonusPrograms)
@@ -278,13 +263,14 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
       ..where((tbl) => hasStock)
       ..where(goodsIds != null ? (tbl) => tbl.id.isIn(goodsIds) : (tbl) => const Constant(true))
       ..where(onlyLatest ? (tbl) => tbl.isLatest.equals(true) : (tbl) => const Constant(true))
+      ..where(onlyForPhysical ? (tbl) => tbl.forPhysical.equals(true) : (tbl) => const Constant(true))
       ..where((tbl) => tbl.isOrderable.equals(true));
 
     return query.get();
   }
 
-  Stream<List<CategoriesExResult>> watchCategories({required int buyerId}) {
-    return categoriesEx(buyerId).watch();
+  Future<List<CategoriesExResult>> getCategories({required int buyerId}) {
+    return categoriesEx(buyerId).get();
   }
 
   Stream<List<GoodsFilter>> watchGoodsFilters() {
@@ -304,14 +290,50 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     required List<int> goodsIds
   }) async {
     final goodsPrices = await db.pricesDao.goodsPrices(buyerId, goodsIds, date).get();
-    final bonusPrograms = await db.bonusProgramsDao.filteredGoodsBonusPrograms(buyerId, goodsIds, date).get();
+    final bonusPrograms = await db.bonusProgramsDao.filteredGoodsBonusPrograms(goodsIds, buyerId, date).get();
     final goodsExList = await goodsEx(buyerId, goodsIds).get();
+    final groupedGoodsPrices = goodsPrices
+      .groupFoldBy<int, List<GoodsPricesResult>>((e) => e.goodsId, (acc, e) => (acc ?? [])..add(e));
+    final groupedBonusPrograms = bonusPrograms
+      .groupFoldBy<int, List<FilteredGoodsBonusProgramsResult>>((e) => e.goodsId, (acc, e) => (acc ?? [])..add(e));
 
     return goodsExList.map((e) => GoodsDetail(
       e,
-      goodsPrices.where((gp) => gp.goodsId == e.goods.id).toList(),
-      bonusPrograms.where((gp) => gp.goodsId == e.goods.id).toList()
+      groupedGoodsPrices[e.goods.id] ?? [],
+      groupedBonusPrograms[e.goods.id] ?? []
     )).toList();
+  }
+
+  Stream<List<GoodsDetail>> watchGoodsDetails({
+    required int buyerId,
+    required DateTime date,
+    required List<int> goodsIds
+  }) {
+    final goodsPricesStream = db.pricesDao.goodsPrices(buyerId, goodsIds, date).watch();
+    final bonusProgramsStream = db.bonusProgramsDao.filteredGoodsBonusPrograms(goodsIds, buyerId, date).watch();
+    final goodsExListStream = goodsEx(buyerId, goodsIds).watch();
+
+    return Rx.combineLatest3(
+      goodsPricesStream,
+      bonusProgramsStream,
+      goodsExListStream,
+      (
+        List<GoodsPricesResult> goodsPrices,
+        List<FilteredGoodsBonusProgramsResult> bonusPrograms,
+        List<GoodsExResult> goodsExList
+      ) {
+        final groupedGoodsPrices = goodsPrices
+          .groupFoldBy<int, List<GoodsPricesResult>>((e) => e.goodsId, (acc, e) => (acc ?? [])..add(e));
+        final groupedBonusPrograms = bonusPrograms
+          .groupFoldBy<int, List<FilteredGoodsBonusProgramsResult>>((e) => e.goodsId, (acc, e) => (acc ?? [])..add(e));
+
+        return goodsExList.map((e) => GoodsDetail(
+          e,
+          groupedGoodsPrices[e.goods.id] ?? [],
+          groupedBonusPrograms[e.goods.id] ?? []
+        )).toList();
+      }
+    );
   }
 
   Future<OrderExResult> getOrderEx(String guid) async {

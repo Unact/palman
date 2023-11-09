@@ -19,12 +19,13 @@ class ApiGoods extends Equatable {
   final int categoryPackageRel;
   final int categoryBlockRel;
   final double weight;
-  final double mcVol;
+  final double volume;
   final bool isFridge;
   final int shelfLife;
   final String shelfLifeTypeName;
   final List<String> barcodes;
   final bool isOrderable;
+  final bool forPhysical;
 
   const ApiGoods({
     required this.id,
@@ -45,12 +46,13 @@ class ApiGoods extends Equatable {
     required this.categoryPackageRel,
     required this.categoryBlockRel,
     required this.weight,
-    required this.mcVol,
+    required this.volume,
     required this.isFridge,
     required this.shelfLife,
     required this.shelfLifeTypeName,
     required this.barcodes,
-    required this.isOrderable
+    required this.isOrderable,
+    required this.forPhysical
   });
 
   factory ApiGoods.fromJson(dynamic json) {
@@ -73,12 +75,13 @@ class ApiGoods extends Equatable {
       categoryPackageRel: json['categoryPackageRel'],
       categoryBlockRel: json['categoryBlockRel'],
       weight: Parsing.parseDouble(json['weight'])!,
-      mcVol: Parsing.parseDouble(json['mcVol'])!,
+      volume: Parsing.parseDouble(json['volume'])!,
       isFridge: json['isFridge'],
       shelfLife: json['shelfLife'],
       shelfLifeTypeName: json['shelfLifeTypeName'],
       barcodes: json['barcodes'].cast<String>(),
-      isOrderable: json['isOrderable']
+      isOrderable: json['isOrderable'],
+      forPhysical: json['forPhysical']
     );
   }
 
@@ -102,12 +105,13 @@ class ApiGoods extends Equatable {
       categoryPackageRel: categoryPackageRel,
       categoryBlockRel: categoryBlockRel,
       weight: weight,
-      mcVol: mcVol,
+      volume: volume,
       isFridge: isFridge,
       shelfLife: shelfLife,
       shelfLifeTypeName: shelfLifeTypeName,
       barcodes: barcodes,
-      isOrderable: isOrderable
+      isOrderable: isOrderable,
+      forPhysical: forPhysical
     );
   }
 
@@ -131,11 +135,12 @@ class ApiGoods extends Equatable {
     categoryPackageRel,
     categoryBlockRel,
     weight,
-    mcVol,
+    volume,
     isFridge,
     shelfLife,
     shelfLifeTypeName,
     barcodes,
-    isOrderable
+    isOrderable,
+    forPhysical
   ];
 }
