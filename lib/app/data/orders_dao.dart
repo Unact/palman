@@ -116,6 +116,7 @@ part of 'database.dart';
       WHERE
         buyers.id = :buyer_id AND
         goods.id IN :goods_ids
+      ORDER BY goods.name
     ''',
     'categoriesEx': '''
       SELECT
