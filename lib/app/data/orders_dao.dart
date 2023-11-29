@@ -245,7 +245,8 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     required int? bonusProgramId,
     required List<int>? goodsIds,
     required bool onlyLatest,
-    required bool onlyForPhysical
+    required bool onlyForPhysical,
+    required bool onlyWithoutDocs
   }) async {
     final hasBonusProgram = existsQuery(
       select(goodsBonusPrograms)
@@ -265,6 +266,7 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
       ..where(goodsIds != null ? (tbl) => tbl.id.isIn(goodsIds) : (tbl) => const Constant(true))
       ..where(onlyLatest ? (tbl) => tbl.isLatest.equals(true) : (tbl) => const Constant(true))
       ..where(onlyForPhysical ? (tbl) => tbl.forPhysical.equals(true) : (tbl) => const Constant(true))
+      ..where(onlyWithoutDocs ? (tbl) => tbl.onlyWithDocs.equals(false) : (tbl) => const Constant(true))
       ..where((tbl) => tbl.isOrderable.equals(true));
 
     return query.get();
