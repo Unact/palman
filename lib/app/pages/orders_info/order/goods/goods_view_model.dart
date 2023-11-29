@@ -28,7 +28,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       goodsIds: null,
       onlyLatest: false,
       onlyForPhysical: state.orderEx.order.isPhysical,
-      onlyWithoutDocs: !state.orderEx.order.needDocs
+      onlyWithoutDocs: state.orderEx.order.isPhysical ? false : !state.orderEx.order.needDocs
     );
     final categories = await ordersRepository.getCategories(buyerId: state.orderEx.buyer!.id);
 
@@ -176,7 +176,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       goodsIds: state.showOnlyOrder ? state.filteredOrderLinesExList.map((e) => e.line.goodsId).toList() : null,
       onlyLatest: state.showOnlyLatest,
       onlyForPhysical: state.orderEx.order.isPhysical,
-      onlyWithoutDocs: !state.orderEx.order.needDocs
+      onlyWithoutDocs: state.orderEx.order.isPhysical ? false : !state.orderEx.order.needDocs
     );
     final goodsIds = goods.map((e) => e.id).toSet();
     final visibleGoodsDetails = state.goodsDetails.where((g) {
