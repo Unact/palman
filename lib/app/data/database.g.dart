@@ -6323,6 +6323,15 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'CHECK ("for_physical" IN (0, 1))'));
+  static const VerificationMeta _onlyWithDocsMeta =
+      const VerificationMeta('onlyWithDocs');
+  @override
+  late final GeneratedColumn<bool> onlyWithDocs = GeneratedColumn<bool>(
+      'only_with_docs', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("only_with_docs" IN (0, 1))'));
   static const VerificationMeta _shelfLifeMeta =
       const VerificationMeta('shelfLife');
   @override
@@ -6366,6 +6375,7 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
         volume,
         isFridge,
         forPhysical,
+        onlyWithDocs,
         shelfLife,
         shelfLifeTypeName,
         barcodes
@@ -6523,6 +6533,14 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
     } else if (isInserting) {
       context.missing(_forPhysicalMeta);
     }
+    if (data.containsKey('only_with_docs')) {
+      context.handle(
+          _onlyWithDocsMeta,
+          onlyWithDocs.isAcceptableOrUnknown(
+              data['only_with_docs']!, _onlyWithDocsMeta));
+    } else if (isInserting) {
+      context.missing(_onlyWithDocsMeta);
+    }
     if (data.containsKey('shelf_life')) {
       context.handle(_shelfLifeMeta,
           shelfLife.isAcceptableOrUnknown(data['shelf_life']!, _shelfLifeMeta));
@@ -6592,6 +6610,8 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           .read(DriftSqlType.bool, data['${effectivePrefix}is_fridge'])!,
       forPhysical: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}for_physical'])!,
+      onlyWithDocs: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}only_with_docs'])!,
       shelfLife: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}shelf_life'])!,
       shelfLifeTypeName: attachedDatabase.typeMapping.read(
@@ -6634,6 +6654,7 @@ class Goods extends DataClass implements Insertable<Goods> {
   final double volume;
   final bool isFridge;
   final bool forPhysical;
+  final bool onlyWithDocs;
   final int shelfLife;
   final String shelfLifeTypeName;
   final List<String> barcodes;
@@ -6660,6 +6681,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       required this.volume,
       required this.isFridge,
       required this.forPhysical,
+      required this.onlyWithDocs,
       required this.shelfLife,
       required this.shelfLifeTypeName,
       required this.barcodes});
@@ -6692,6 +6714,7 @@ class Goods extends DataClass implements Insertable<Goods> {
     map['volume'] = Variable<double>(volume);
     map['is_fridge'] = Variable<bool>(isFridge);
     map['for_physical'] = Variable<bool>(forPhysical);
+    map['only_with_docs'] = Variable<bool>(onlyWithDocs);
     map['shelf_life'] = Variable<int>(shelfLife);
     map['shelf_life_type_name'] = Variable<String>(shelfLifeTypeName);
     {
@@ -6729,6 +6752,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       volume: Value(volume),
       isFridge: Value(isFridge),
       forPhysical: Value(forPhysical),
+      onlyWithDocs: Value(onlyWithDocs),
       shelfLife: Value(shelfLife),
       shelfLifeTypeName: Value(shelfLifeTypeName),
       barcodes: Value(barcodes),
@@ -6762,6 +6786,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       volume: serializer.fromJson<double>(json['volume']),
       isFridge: serializer.fromJson<bool>(json['isFridge']),
       forPhysical: serializer.fromJson<bool>(json['forPhysical']),
+      onlyWithDocs: serializer.fromJson<bool>(json['onlyWithDocs']),
       shelfLife: serializer.fromJson<int>(json['shelfLife']),
       shelfLifeTypeName: serializer.fromJson<String>(json['shelfLifeTypeName']),
       barcodes: serializer.fromJson<List<String>>(json['barcodes']),
@@ -6793,6 +6818,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       'volume': serializer.toJson<double>(volume),
       'isFridge': serializer.toJson<bool>(isFridge),
       'forPhysical': serializer.toJson<bool>(forPhysical),
+      'onlyWithDocs': serializer.toJson<bool>(onlyWithDocs),
       'shelfLife': serializer.toJson<int>(shelfLife),
       'shelfLifeTypeName': serializer.toJson<String>(shelfLifeTypeName),
       'barcodes': serializer.toJson<List<String>>(barcodes),
@@ -6822,6 +6848,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           double? volume,
           bool? isFridge,
           bool? forPhysical,
+          bool? onlyWithDocs,
           int? shelfLife,
           String? shelfLifeTypeName,
           List<String>? barcodes}) =>
@@ -6850,6 +6877,7 @@ class Goods extends DataClass implements Insertable<Goods> {
         volume: volume ?? this.volume,
         isFridge: isFridge ?? this.isFridge,
         forPhysical: forPhysical ?? this.forPhysical,
+        onlyWithDocs: onlyWithDocs ?? this.onlyWithDocs,
         shelfLife: shelfLife ?? this.shelfLife,
         shelfLifeTypeName: shelfLifeTypeName ?? this.shelfLifeTypeName,
         barcodes: barcodes ?? this.barcodes,
@@ -6879,6 +6907,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           ..write('volume: $volume, ')
           ..write('isFridge: $isFridge, ')
           ..write('forPhysical: $forPhysical, ')
+          ..write('onlyWithDocs: $onlyWithDocs, ')
           ..write('shelfLife: $shelfLife, ')
           ..write('shelfLifeTypeName: $shelfLifeTypeName, ')
           ..write('barcodes: $barcodes')
@@ -6910,6 +6939,7 @@ class Goods extends DataClass implements Insertable<Goods> {
         volume,
         isFridge,
         forPhysical,
+        onlyWithDocs,
         shelfLife,
         shelfLifeTypeName,
         barcodes
@@ -6940,6 +6970,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           other.volume == this.volume &&
           other.isFridge == this.isFridge &&
           other.forPhysical == this.forPhysical &&
+          other.onlyWithDocs == this.onlyWithDocs &&
           other.shelfLife == this.shelfLife &&
           other.shelfLifeTypeName == this.shelfLifeTypeName &&
           other.barcodes == this.barcodes);
@@ -6968,6 +6999,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   final Value<double> volume;
   final Value<bool> isFridge;
   final Value<bool> forPhysical;
+  final Value<bool> onlyWithDocs;
   final Value<int> shelfLife;
   final Value<String> shelfLifeTypeName;
   final Value<List<String>> barcodes;
@@ -6994,6 +7026,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     this.volume = const Value.absent(),
     this.isFridge = const Value.absent(),
     this.forPhysical = const Value.absent(),
+    this.onlyWithDocs = const Value.absent(),
     this.shelfLife = const Value.absent(),
     this.shelfLifeTypeName = const Value.absent(),
     this.barcodes = const Value.absent(),
@@ -7021,6 +7054,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     required double volume,
     required bool isFridge,
     required bool forPhysical,
+    required bool onlyWithDocs,
     required int shelfLife,
     required String shelfLifeTypeName,
     required List<String> barcodes,
@@ -7043,6 +7077,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
         volume = Value(volume),
         isFridge = Value(isFridge),
         forPhysical = Value(forPhysical),
+        onlyWithDocs = Value(onlyWithDocs),
         shelfLife = Value(shelfLife),
         shelfLifeTypeName = Value(shelfLifeTypeName),
         barcodes = Value(barcodes);
@@ -7069,6 +7104,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     Expression<double>? volume,
     Expression<bool>? isFridge,
     Expression<bool>? forPhysical,
+    Expression<bool>? onlyWithDocs,
     Expression<int>? shelfLife,
     Expression<String>? shelfLifeTypeName,
     Expression<String>? barcodes,
@@ -7098,6 +7134,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       if (volume != null) 'volume': volume,
       if (isFridge != null) 'is_fridge': isFridge,
       if (forPhysical != null) 'for_physical': forPhysical,
+      if (onlyWithDocs != null) 'only_with_docs': onlyWithDocs,
       if (shelfLife != null) 'shelf_life': shelfLife,
       if (shelfLifeTypeName != null) 'shelf_life_type_name': shelfLifeTypeName,
       if (barcodes != null) 'barcodes': barcodes,
@@ -7127,6 +7164,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       Value<double>? volume,
       Value<bool>? isFridge,
       Value<bool>? forPhysical,
+      Value<bool>? onlyWithDocs,
       Value<int>? shelfLife,
       Value<String>? shelfLifeTypeName,
       Value<List<String>>? barcodes}) {
@@ -7154,6 +7192,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       volume: volume ?? this.volume,
       isFridge: isFridge ?? this.isFridge,
       forPhysical: forPhysical ?? this.forPhysical,
+      onlyWithDocs: onlyWithDocs ?? this.onlyWithDocs,
       shelfLife: shelfLife ?? this.shelfLife,
       shelfLifeTypeName: shelfLifeTypeName ?? this.shelfLifeTypeName,
       barcodes: barcodes ?? this.barcodes,
@@ -7230,6 +7269,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     if (forPhysical.present) {
       map['for_physical'] = Variable<bool>(forPhysical.value);
     }
+    if (onlyWithDocs.present) {
+      map['only_with_docs'] = Variable<bool>(onlyWithDocs.value);
+    }
     if (shelfLife.present) {
       map['shelf_life'] = Variable<int>(shelfLife.value);
     }
@@ -7269,6 +7311,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
           ..write('volume: $volume, ')
           ..write('isFridge: $isFridge, ')
           ..write('forPhysical: $forPhysical, ')
+          ..write('onlyWithDocs: $onlyWithDocs, ')
           ..write('shelfLife: $shelfLife, ')
           ..write('shelfLifeTypeName: $shelfLifeTypeName, ')
           ..write('barcodes: $barcodes')
@@ -17436,7 +17479,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."is_orderable" AS "nested_0.is_orderable", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."volume" AS "nested_0.volume", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."for_physical" AS "nested_0.for_physical", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
+        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."is_orderable" AS "nested_0.is_orderable", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."volume" AS "nested_0.volume", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."for_physical" AS "nested_0.for_physical", "goods"."only_with_docs" AS "nested_0.only_with_docs", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
         variables: [
           Variable<int>(buyerId),
           for (var $ in goodsIds) Variable<int>($)

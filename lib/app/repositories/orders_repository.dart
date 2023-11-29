@@ -201,7 +201,8 @@ class OrdersRepository extends BaseRepository {
     required int? bonusProgramId,
     required List<int>? goodsIds,
     required bool onlyLatest,
-    required bool onlyForPhysical
+    required bool onlyForPhysical,
+    required bool onlyWithoutDocs
   }) async {
     return dataStore.ordersDao.getGoods(
       name: name,
@@ -210,7 +211,8 @@ class OrdersRepository extends BaseRepository {
       bonusProgramId: bonusProgramId,
       goodsIds: goodsIds,
       onlyLatest: onlyLatest,
-      onlyForPhysical: onlyForPhysical
+      onlyForPhysical: onlyForPhysical,
+      onlyWithoutDocs: onlyWithoutDocs
     );
   }
 
