@@ -37,7 +37,7 @@ part 'users_dao.dart';
     PointFormats,
     Points,
     PointImages,
-    Encashments,
+    PreEncashments,
     Debts,
     Deposits,
     Shipments,
@@ -96,11 +96,6 @@ part 'users_dao.dart';
         ) AS "points_to_sync",
         (
           SELECT COUNT(*)
-          FROM deposits
-          WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM encashments WHERE deposit_guid = deposits.guid AND need_sync = 1)
-        ) AS "deposits_to_sync",
-        (
-          SELECT COUNT(*)
           FROM orders
           WHERE need_sync = 1 OR EXISTS(SELECT 1 FROM order_lines WHERE order_guid = orders.guid AND need_sync = 1)
         ) AS "orders_to_sync",
@@ -111,11 +106,12 @@ part 'users_dao.dart';
             need_sync = 1 OR
             EXISTS(SELECT 1 FROM return_act_lines WHERE return_act_guid = return_acts.guid AND need_sync = 1)
         ) AS "return_acts_to_sync",
+        (SELECT COUNT(*) FROM pre_encashments WHERE need_sync = 1) AS "pre_encashments_to_sync",
         (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS "inc_requests_to_sync",
         (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS "partner_prices_to_sync",
         (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS "partners_pricelists_to_sync",
         (SELECT COUNT(*) FROM points) AS "points_total",
-        (SELECT COUNT(*) FROM encashments) AS "encashments_total",
+        (SELECT COUNT(*) FROM pre_encashments) AS "pre_encashments_total",
         (SELECT COUNT(*) FROM shipments) AS "shipments_total",
         (SELECT COUNT(*) FROM orders) AS "orders_total",
         (SELECT COUNT(*) FROM pre_orders) AS "pre_orders_total",
@@ -226,13 +222,19 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onUpgrade: (m, from, to) async {
+      final oldTables = ['encashments'];
+
       for (final entity in allSchemaEntities.reversed) {
         await m.drop(entity);
+      }
+
+      for (final oldTable in oldTables) {
+        await customStatement('DROP TABLE IF EXISTS "$oldTable"');
       }
 
       await m.createAll();
@@ -288,7 +290,6 @@ class AppDataStore extends _$AppDataStore {
       (pricelistPrices, ['goods_id', 'pricelist_id']),
       (pointImages, ['point_guid']),
       (allGoods, ['category_id']),
-      (encashments, ['deposit_guid']),
       (goodsStocks, ['goods_id'])
     ];
 

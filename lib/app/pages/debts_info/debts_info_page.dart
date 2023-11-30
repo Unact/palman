@@ -9,12 +9,13 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
+import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/debts_repository.dart';
 import '/app/repositories/users_repository.dart';
 import '/app/widgets/widgets.dart';
-import 'encashment/encashment_page.dart';
+import 'pre_encashment/pre_encashment_page.dart';
 
 part 'debts_info_state.dart';
 part 'debts_info_view_model.dart';
@@ -43,10 +44,19 @@ class _DebtsInfoView extends StatefulWidget {
 }
 
 class _DebtsInfoViewState extends State<_DebtsInfoView> {
+  late final progressDialog = ProgressDialog(context: context);
+
+  @override
+  void dispose() {
+    progressDialog.close();
+    super.dispose();
+  }
+
   Future<void> showDepositConfirmationDialog() async {
     final vm = context.read<DebtsInfoViewModel>();
-    final encWithoutDeposit = vm.state.encashmentExList.where((e) => e.deposit == null);
-    final total = encWithoutDeposit.fold<double>(0, (acc, e) => acc + (e.encashment.encSum ?? 0));
+    final total = vm.state.filteredPreEncashmentExList
+      .where((e) => !e.preEncashment.isNew)
+      .fold<double>(0, (acc, e) => acc + (e.preEncashment.encSum ?? 0));
     final result = await showDialog<bool>(
       context: context,
       barrierDismissible: false,
@@ -64,7 +74,7 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
       }
     ) ?? false;
 
-    if (result) await vm.createDeposit();
+    if (result) await vm.deposit();
   }
 
   @override
@@ -116,8 +126,16 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
         switch (state.status) {
           case DebtsInfoStateStatus.encashmentAdded:
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              openEncashmentPage(state.newEncashment!);
+              openPreEncashmentPage(state.newPreEncashment!);
             });
+            break;
+          case DebtsInfoStateStatus.depositInProgress:
+            progressDialog.open();
+            break;
+          case DebtsInfoStateStatus.depositSuccess:
+          case DebtsInfoStateStatus.depositFailure:
+            progressDialog.close();
+            Misc.showMessage(context, state.message);
             break;
           default:
         }
@@ -137,25 +155,11 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
 
   Widget buildEncashmentListView(BuildContext context, ScrollPhysics physics) {
     final vm = context.read<DebtsInfoViewModel>();
-    final List<Widget> children = [];
 
-    if (vm.state.encWithoutDeposit.isNotEmpty) {
-      children.add(ExpansionTile(
-        initiallyExpanded: true,
-        title: const Text('Не сдано'),
-        children: vm.state.encWithoutDeposit.map((e) => buildEncashmentTile(context, e)).toList()
-      ));
-    }
-
-    if (vm.state.encWithDeposit.isNotEmpty) {
-      children.add(ExpansionTile(
-        initiallyExpanded: true,
-        title: const Text('Сдано'),
-        children: vm.state.encWithDeposit.map((e) => buildEncashmentTile(context, e)).toList()
-      ));
-    }
-
-    return ListView(physics: physics, children: children);
+    return ListView(
+      physics: physics,
+      children: vm.state.filteredPreEncashmentExList.map((e) => buildEncashmentTile(context, e)).toList()
+    );
   }
 
   Widget buildDebtListView(BuildContext context, ScrollPhysics physics) {
@@ -171,13 +175,8 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
   }
 
   Widget buildDepositTile(BuildContext context, Deposit deposit) {
-    final vm = context.read<DebtsInfoViewModel>();
-    final needSync = deposit.needSync ||
-      vm.state.encashmentExList.any((e) => e.deposit == deposit && e.encashment.needSync);
-
     return ListTile(
       title: Text(Format.dateStr(deposit.date), style: Styles.tileTitleText),
-      trailing: needSync ? Icon(Icons.sync, color: Theme.of(context).colorScheme.primary) : null,
       subtitle: Text.rich(
         TextSpan(
           children: <TextSpan>[
@@ -196,66 +195,35 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
     );
   }
 
-  Widget buildEncashmentTile(BuildContext context, EncashmentEx encashmentEx) {
-    return encashmentEx.deposit == null ?
-      buildEncashmentWithoutDepositTile(context, encashmentEx) :
-      buildEncashmentWithDepositTile(context, encashmentEx);
-  }
-
-  Widget buildEncashmentWithDepositTile(BuildContext context, EncashmentEx encashmentEx) {
-    return ListTile(
-      title: Text(encashmentEx.buyer.name, style: Styles.tileTitleText),
-      subtitle: Text.rich(
-        TextSpan(
-          children: <TextSpan>[
-            TextSpan(
-              text: 'Дата: ${Format.dateStr(encashmentEx.encashment.date)}\n',
-              style: Styles.tileText
-            ),
-            TextSpan(
-              text: 'Сумма: ${Format.numberStr(encashmentEx.encashment.encSum)}\n',
-              style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
-            ),
-            TextSpan(
-              text: 'Сдана: ${Format.dateStr(encashmentEx.deposit!.date)}\n',
-              style: Styles.tileText.copyWith(color: Colors.green)
-            ),
-          ]
-        )
-      ),
-      dense: false
-    );
-  }
-
-  Widget buildEncashmentWithoutDepositTile(BuildContext context, EncashmentEx encashmentEx) {
+  Widget buildEncashmentTile(BuildContext context, PreEncashmentEx preEncashmentEx) {
     final vm = context.read<DebtsInfoViewModel>();
 
     return Dismissible(
-      key: Key(encashmentEx.hashCode.toString()),
+      key: Key(preEncashmentEx.hashCode.toString()),
       background: Container(color: Colors.red[500]),
-      onDismissed: (direction) => vm.deleteEncashment(encashmentEx),
+      onDismissed: (direction) => vm.deletePreEncashment(preEncashmentEx),
       confirmDismiss: (direction) => ConfirmationDialog(
         context: context,
         confirmationText: 'Вы точно хотите удалить инкассацию?'
       ).open(),
       child: ListTile(
-        title: Text(encashmentEx.buyer.name, style: Styles.tileTitleText),
+        title: Text(preEncashmentEx.buyer.name, style: Styles.tileTitleText),
         subtitle: Text.rich(
           TextSpan(
             children: <TextSpan>[
               TextSpan(
-                text: 'Дата: ${Format.dateStr(encashmentEx.encashment.date)}\n',
+                text: 'Дата: ${Format.dateStr(preEncashmentEx.preEncashment.date)}\n',
                 style: Styles.tileText
               ),
               TextSpan(
-                text: 'Сумма: ${Format.numberStr(encashmentEx.encashment.encSum)}\n',
+                text: 'Сумма: ${Format.numberStr(preEncashmentEx.preEncashment.encSum)}\n',
                 style: Styles.tileText
               )
             ]
           )
         ),
         dense: false,
-        onTap: encashmentEx.debt == null ? null : () => openEncashmentPage(encashmentEx)
+        onTap: preEncashmentEx.debt == null ? null : () => openPreEncashmentPage(preEncashmentEx)
       )
     );
   }
@@ -292,7 +260,7 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
         )
       ),
       dense: false,
-      onTap: debtEx.debt.debtSum > 0 ? () => vm.createEncashment(debtEx) : null,
+      onTap: debtEx.debt.debtSum > 0 ? () => vm.createPreEncashment(debtEx) : null,
     );
   }
 
@@ -304,11 +272,11 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
     );
   }
 
-  Future<void> openEncashmentPage(EncashmentEx encashmentEx) async {
+  Future<void> openPreEncashmentPage(PreEncashmentEx preEncashmentEx) async {
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (BuildContext context) => EncashmentPage(encashmentEx: encashmentEx),
+        builder: (BuildContext context) => PreEncashmentPage(preEncashmentEx: preEncashmentEx),
         fullscreenDialog: false
       )
     );

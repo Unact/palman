@@ -51,14 +51,14 @@ class InfoState {
   int get pendingChanges => appInfo == null ?
     0 :
     appInfo!.pointsToSync +
-    appInfo!.depositsToSync +
+    appInfo!.preEncashmentsToSync +
     appInfo!.ordersToSync +
     appInfo!.incRequestsToSync +
     appInfo!.partnerPricesToSync +
     appInfo!.partnersPricelistsToSync +
     appInfo!.returnActsToSync;
 
-  int get encashmentsTotal => appInfo == null ? 0 : appInfo!.encashmentsTotal;
+  int get preEncashmentsTotal => appInfo == null ? 0 : appInfo!.preEncashmentsTotal;
   int get ordersTotal => appInfo == null ? 0 : appInfo!.ordersTotal;
   int get returnActsTotal => appInfo == null ? 0 : appInfo!.returnActsTotal;
   int get preOrdersTotal => appInfo == null ? 0 : appInfo!.preOrdersTotal;

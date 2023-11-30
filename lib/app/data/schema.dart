@@ -105,15 +105,11 @@ class PointImages extends Table with Syncable {
   TextColumn get imageKey => text()();
 }
 
-class Encashments extends Table with Syncable {
+class PreEncashments extends Table with Syncable {
   IntColumn get id => integer().nullable()();
-  TextColumn get depositGuid => text()
-    .nullable()
-    .references(Deposits, #guid, onUpdate: KeyAction.cascade, onDelete: KeyAction.cascade)();
   DateTimeColumn get date => dateTime()();
-  BoolColumn get isCheck => boolean()();
-  IntColumn get buyerId => integer()();
-  IntColumn get debtId => integer().nullable()();
+  BoolColumn get needReceipt => boolean()();
+  IntColumn get debtId => integer()();
   RealColumn get encSum => real().nullable()();
 }
 
@@ -124,13 +120,13 @@ class Debts extends Table {
   TextColumn get info => text().nullable()();
   RealColumn get debtSum => real()();
   RealColumn get orderSum => real()();
-  BoolColumn get isCheck => boolean()();
+  BoolColumn get needReceipt => boolean()();
   DateTimeColumn get dateUntil => dateTime()();
   BoolColumn get overdue => boolean()();
 }
 
-class Deposits extends Table with Syncable {
-  IntColumn get id => integer().nullable()();
+class Deposits extends Table {
+  IntColumn get id => integer()();
   DateTimeColumn get date => dateTime()();
   RealColumn get totalSum => real()();
   RealColumn get checkTotalSum => real()();

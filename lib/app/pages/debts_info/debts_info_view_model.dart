@@ -4,7 +4,7 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
   final AppRepository appRepository;
   final DebtsRepository debtsRepository;
   final UsersRepository usersRepository;
-  StreamSubscription<List<EncashmentEx>>? encashmentExListSubscription;
+  StreamSubscription<List<PreEncashmentEx>>? preEncashmentExListSubscription;
   StreamSubscription<List<DebtEx>>? debtExListSubscription;
   StreamSubscription<List<Deposit>>? depositsSubscription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
@@ -18,10 +18,10 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
   Future<void> initViewModel() async {
     await super.initViewModel();
 
-    encashmentExListSubscription = debtsRepository.watchEncashmentExList().listen((event) {
+    preEncashmentExListSubscription = debtsRepository.watchPreEncashmentExList().listen((event) {
       emit(state.copyWith(
         status: DebtsInfoStateStatus.dataLoaded,
-        encashmentExList: event
+        preEncashmentExList: event
       ));
     });
     debtExListSubscription = debtsRepository.watchDebtExList().listen((event) {
@@ -45,35 +45,43 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
   Future<void> close() async {
     await super.close();
 
-    await encashmentExListSubscription?.cancel();
+    await preEncashmentExListSubscription?.cancel();
     await debtExListSubscription?.cancel();
     await depositsSubscription?.cancel();
     await appInfoSubscription?.cancel();
   }
 
-  Future<void> createDeposit() async {
-    await debtsRepository.depositEncashments(DateTime.now().date(), state.encWithoutDeposit);
+  Future<void> deposit() async {
+    emit(state.copyWith(status: DebtsInfoStateStatus.depositInProgress));
+
+    try {
+      await debtsRepository.deposit();
+
+      emit(state.copyWith(status: DebtsInfoStateStatus.depositSuccess, message: 'Инкассации успешно сданы'));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: DebtsInfoStateStatus.depositFailure, message: e.message));
+    }
   }
 
-  Future<void> createEncashment(DebtEx debtEx) async {
-    final newEncashment = await debtsRepository.addEncashment(debtEx.debt, debtEx.buyer);
+  Future<void> createPreEncashment(DebtEx debtEx) async {
+    final newPreEncashment = await debtsRepository.addPreEncashment(debtEx.debt);
 
     emit(state.copyWith(
       status: DebtsInfoStateStatus.encashmentAdded,
-      newEncashment: newEncashment
+      newPreEncashment: newPreEncashment
     ));
   }
 
-  Future<void> deleteEncashment(EncashmentEx encashmentEx) async {
-    await debtsRepository.deleteEncashment(encashmentEx.encashment);
+  Future<void> deletePreEncashment(PreEncashmentEx preEncashmentEx) async {
+    await debtsRepository.deletePreEncashment(preEncashmentEx.preEncashment);
     emit(state.copyWith(
       status: DebtsInfoStateStatus.encashmentDeleted,
-      encashmentExList: state.encashmentExList.where((e) => e != encashmentEx).toList()
+      preEncashmentExList: state.preEncashmentExList.where((e) => e != preEncashmentEx).toList()
     ));
 
     await debtsRepository.updateDebt(
-      encashmentEx.debt!,
-      debtSum: Optional.of(encashmentEx.debt!.debtSum + (encashmentEx.encashment.encSum ?? 0)),
+      preEncashmentEx.debt!,
+      debtSum: Optional.of(preEncashmentEx.debt!.debtSum + (preEncashmentEx.preEncashment.encSum ?? 0)),
     );
   }
 

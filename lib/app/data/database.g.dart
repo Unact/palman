@@ -3332,11 +3332,12 @@ class PointImagesCompanion extends UpdateCompanion<PointImage> {
   }
 }
 
-class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
+class $PreEncashmentsTable extends PreEncashments
+    with TableInfo<$PreEncashmentsTable, PreEncashment> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
-  $DepositsTable(this.attachedDatabase, [this._alias]);
+  $PreEncashmentsTable(this.attachedDatabase, [this._alias]);
   static const VerificationMeta _guidMeta = const VerificationMeta('guid');
   @override
   late final GeneratedColumn<String> guid = GeneratedColumn<String>(
@@ -3406,544 +3407,20 @@ class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
       'date', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _totalSumMeta =
-      const VerificationMeta('totalSum');
+  static const VerificationMeta _needReceiptMeta =
+      const VerificationMeta('needReceipt');
   @override
-  late final GeneratedColumn<double> totalSum = GeneratedColumn<double>(
-      'total_sum', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _checkTotalSumMeta =
-      const VerificationMeta('checkTotalSum');
-  @override
-  late final GeneratedColumn<double> checkTotalSum = GeneratedColumn<double>(
-      'check_total_sum', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
-  @override
-  List<GeneratedColumn> get $columns => [
-        guid,
-        isDeleted,
-        timestamp,
-        currentTimestamp,
-        lastSyncTime,
-        needSync,
-        isNew,
-        id,
-        date,
-        totalSum,
-        checkTotalSum
-      ];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'deposits';
-  @override
-  VerificationContext validateIntegrity(Insertable<Deposit> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('guid')) {
-      context.handle(
-          _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
-    } else if (isInserting) {
-      context.missing(_guidMeta);
-    }
-    if (data.containsKey('is_deleted')) {
-      context.handle(_isDeletedMeta,
-          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
-    }
-    if (data.containsKey('timestamp')) {
-      context.handle(_timestampMeta,
-          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
-    }
-    if (data.containsKey('current_timestamp')) {
-      context.handle(
-          _currentTimestampMeta,
-          currentTimestamp.isAcceptableOrUnknown(
-              data['current_timestamp']!, _currentTimestampMeta));
-    }
-    if (data.containsKey('last_sync_time')) {
-      context.handle(
-          _lastSyncTimeMeta,
-          lastSyncTime.isAcceptableOrUnknown(
-              data['last_sync_time']!, _lastSyncTimeMeta));
-    }
-    if (data.containsKey('need_sync')) {
-      context.handle(_needSyncMeta,
-          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
-    }
-    if (data.containsKey('is_new')) {
-      context.handle(
-          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
-    }
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
-    }
-    if (data.containsKey('date')) {
-      context.handle(
-          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
-    } else if (isInserting) {
-      context.missing(_dateMeta);
-    }
-    if (data.containsKey('total_sum')) {
-      context.handle(_totalSumMeta,
-          totalSum.isAcceptableOrUnknown(data['total_sum']!, _totalSumMeta));
-    } else if (isInserting) {
-      context.missing(_totalSumMeta);
-    }
-    if (data.containsKey('check_total_sum')) {
-      context.handle(
-          _checkTotalSumMeta,
-          checkTotalSum.isAcceptableOrUnknown(
-              data['check_total_sum']!, _checkTotalSumMeta));
-    } else if (isInserting) {
-      context.missing(_checkTotalSumMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {guid};
-  @override
-  Deposit map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Deposit(
-      guid: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}guid'])!,
-      isDeleted: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
-      timestamp: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
-      currentTimestamp: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
-      lastSyncTime: attachedDatabase.typeMapping.read(
-          DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
-      needSync: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
-      isNew: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id']),
-      date: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
-      totalSum: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}total_sum'])!,
-      checkTotalSum: attachedDatabase.typeMapping.read(
-          DriftSqlType.double, data['${effectivePrefix}check_total_sum'])!,
-    );
-  }
-
-  @override
-  $DepositsTable createAlias(String alias) {
-    return $DepositsTable(attachedDatabase, alias);
-  }
-}
-
-class Deposit extends DataClass implements Insertable<Deposit> {
-  final String guid;
-  final bool isDeleted;
-  final DateTime timestamp;
-  final DateTime currentTimestamp;
-  final DateTime? lastSyncTime;
-  final bool needSync;
-  final bool isNew;
-  final int? id;
-  final DateTime date;
-  final double totalSum;
-  final double checkTotalSum;
-  const Deposit(
-      {required this.guid,
-      required this.isDeleted,
-      required this.timestamp,
-      required this.currentTimestamp,
-      this.lastSyncTime,
-      required this.needSync,
-      required this.isNew,
-      this.id,
-      required this.date,
-      required this.totalSum,
-      required this.checkTotalSum});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['guid'] = Variable<String>(guid);
-    map['is_deleted'] = Variable<bool>(isDeleted);
-    map['timestamp'] = Variable<DateTime>(timestamp);
-    map['current_timestamp'] = Variable<DateTime>(currentTimestamp);
-    if (!nullToAbsent || lastSyncTime != null) {
-      map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
-    }
-    if (!nullToAbsent || id != null) {
-      map['id'] = Variable<int>(id);
-    }
-    map['date'] = Variable<DateTime>(date);
-    map['total_sum'] = Variable<double>(totalSum);
-    map['check_total_sum'] = Variable<double>(checkTotalSum);
-    return map;
-  }
-
-  DepositsCompanion toCompanion(bool nullToAbsent) {
-    return DepositsCompanion(
-      guid: Value(guid),
-      isDeleted: Value(isDeleted),
-      timestamp: Value(timestamp),
-      currentTimestamp: Value(currentTimestamp),
-      lastSyncTime: lastSyncTime == null && nullToAbsent
-          ? const Value.absent()
-          : Value(lastSyncTime),
-      id: id == null && nullToAbsent ? const Value.absent() : Value(id),
-      date: Value(date),
-      totalSum: Value(totalSum),
-      checkTotalSum: Value(checkTotalSum),
-    );
-  }
-
-  factory Deposit.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Deposit(
-      guid: serializer.fromJson<String>(json['guid']),
-      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
-      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
-      currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
-      lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
-      needSync: serializer.fromJson<bool>(json['needSync']),
-      isNew: serializer.fromJson<bool>(json['isNew']),
-      id: serializer.fromJson<int?>(json['id']),
-      date: serializer.fromJson<DateTime>(json['date']),
-      totalSum: serializer.fromJson<double>(json['totalSum']),
-      checkTotalSum: serializer.fromJson<double>(json['checkTotalSum']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'guid': serializer.toJson<String>(guid),
-      'isDeleted': serializer.toJson<bool>(isDeleted),
-      'timestamp': serializer.toJson<DateTime>(timestamp),
-      'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
-      'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
-      'needSync': serializer.toJson<bool>(needSync),
-      'isNew': serializer.toJson<bool>(isNew),
-      'id': serializer.toJson<int?>(id),
-      'date': serializer.toJson<DateTime>(date),
-      'totalSum': serializer.toJson<double>(totalSum),
-      'checkTotalSum': serializer.toJson<double>(checkTotalSum),
-    };
-  }
-
-  Deposit copyWith(
-          {String? guid,
-          bool? isDeleted,
-          DateTime? timestamp,
-          DateTime? currentTimestamp,
-          Value<DateTime?> lastSyncTime = const Value.absent(),
-          bool? needSync,
-          bool? isNew,
-          Value<int?> id = const Value.absent(),
-          DateTime? date,
-          double? totalSum,
-          double? checkTotalSum}) =>
-      Deposit(
-        guid: guid ?? this.guid,
-        isDeleted: isDeleted ?? this.isDeleted,
-        timestamp: timestamp ?? this.timestamp,
-        currentTimestamp: currentTimestamp ?? this.currentTimestamp,
-        lastSyncTime:
-            lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
-        needSync: needSync ?? this.needSync,
-        isNew: isNew ?? this.isNew,
-        id: id.present ? id.value : this.id,
-        date: date ?? this.date,
-        totalSum: totalSum ?? this.totalSum,
-        checkTotalSum: checkTotalSum ?? this.checkTotalSum,
-      );
-  @override
-  String toString() {
-    return (StringBuffer('Deposit(')
-          ..write('guid: $guid, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('timestamp: $timestamp, ')
-          ..write('currentTimestamp: $currentTimestamp, ')
-          ..write('lastSyncTime: $lastSyncTime, ')
-          ..write('needSync: $needSync, ')
-          ..write('isNew: $isNew, ')
-          ..write('id: $id, ')
-          ..write('date: $date, ')
-          ..write('totalSum: $totalSum, ')
-          ..write('checkTotalSum: $checkTotalSum')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(guid, isDeleted, timestamp, currentTimestamp,
-      lastSyncTime, needSync, isNew, id, date, totalSum, checkTotalSum);
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is Deposit &&
-          other.guid == this.guid &&
-          other.isDeleted == this.isDeleted &&
-          other.timestamp == this.timestamp &&
-          other.currentTimestamp == this.currentTimestamp &&
-          other.lastSyncTime == this.lastSyncTime &&
-          other.needSync == this.needSync &&
-          other.isNew == this.isNew &&
-          other.id == this.id &&
-          other.date == this.date &&
-          other.totalSum == this.totalSum &&
-          other.checkTotalSum == this.checkTotalSum);
-}
-
-class DepositsCompanion extends UpdateCompanion<Deposit> {
-  final Value<String> guid;
-  final Value<bool> isDeleted;
-  final Value<DateTime> timestamp;
-  final Value<DateTime> currentTimestamp;
-  final Value<DateTime?> lastSyncTime;
-  final Value<int?> id;
-  final Value<DateTime> date;
-  final Value<double> totalSum;
-  final Value<double> checkTotalSum;
-  final Value<int> rowid;
-  const DepositsCompanion({
-    this.guid = const Value.absent(),
-    this.isDeleted = const Value.absent(),
-    this.timestamp = const Value.absent(),
-    this.currentTimestamp = const Value.absent(),
-    this.lastSyncTime = const Value.absent(),
-    this.id = const Value.absent(),
-    this.date = const Value.absent(),
-    this.totalSum = const Value.absent(),
-    this.checkTotalSum = const Value.absent(),
-    this.rowid = const Value.absent(),
-  });
-  DepositsCompanion.insert({
-    required String guid,
-    this.isDeleted = const Value.absent(),
-    this.timestamp = const Value.absent(),
-    this.currentTimestamp = const Value.absent(),
-    this.lastSyncTime = const Value.absent(),
-    this.id = const Value.absent(),
-    required DateTime date,
-    required double totalSum,
-    required double checkTotalSum,
-    this.rowid = const Value.absent(),
-  })  : guid = Value(guid),
-        date = Value(date),
-        totalSum = Value(totalSum),
-        checkTotalSum = Value(checkTotalSum);
-  static Insertable<Deposit> custom({
-    Expression<String>? guid,
-    Expression<bool>? isDeleted,
-    Expression<DateTime>? timestamp,
-    Expression<DateTime>? currentTimestamp,
-    Expression<DateTime>? lastSyncTime,
-    Expression<int>? id,
-    Expression<DateTime>? date,
-    Expression<double>? totalSum,
-    Expression<double>? checkTotalSum,
-    Expression<int>? rowid,
-  }) {
-    return RawValuesInsertable({
-      if (guid != null) 'guid': guid,
-      if (isDeleted != null) 'is_deleted': isDeleted,
-      if (timestamp != null) 'timestamp': timestamp,
-      if (currentTimestamp != null) 'current_timestamp': currentTimestamp,
-      if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
-      if (id != null) 'id': id,
-      if (date != null) 'date': date,
-      if (totalSum != null) 'total_sum': totalSum,
-      if (checkTotalSum != null) 'check_total_sum': checkTotalSum,
-      if (rowid != null) 'rowid': rowid,
-    });
-  }
-
-  DepositsCompanion copyWith(
-      {Value<String>? guid,
-      Value<bool>? isDeleted,
-      Value<DateTime>? timestamp,
-      Value<DateTime>? currentTimestamp,
-      Value<DateTime?>? lastSyncTime,
-      Value<int?>? id,
-      Value<DateTime>? date,
-      Value<double>? totalSum,
-      Value<double>? checkTotalSum,
-      Value<int>? rowid}) {
-    return DepositsCompanion(
-      guid: guid ?? this.guid,
-      isDeleted: isDeleted ?? this.isDeleted,
-      timestamp: timestamp ?? this.timestamp,
-      currentTimestamp: currentTimestamp ?? this.currentTimestamp,
-      lastSyncTime: lastSyncTime ?? this.lastSyncTime,
-      id: id ?? this.id,
-      date: date ?? this.date,
-      totalSum: totalSum ?? this.totalSum,
-      checkTotalSum: checkTotalSum ?? this.checkTotalSum,
-      rowid: rowid ?? this.rowid,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (guid.present) {
-      map['guid'] = Variable<String>(guid.value);
-    }
-    if (isDeleted.present) {
-      map['is_deleted'] = Variable<bool>(isDeleted.value);
-    }
-    if (timestamp.present) {
-      map['timestamp'] = Variable<DateTime>(timestamp.value);
-    }
-    if (currentTimestamp.present) {
-      map['current_timestamp'] = Variable<DateTime>(currentTimestamp.value);
-    }
-    if (lastSyncTime.present) {
-      map['last_sync_time'] = Variable<DateTime>(lastSyncTime.value);
-    }
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
-    }
-    if (date.present) {
-      map['date'] = Variable<DateTime>(date.value);
-    }
-    if (totalSum.present) {
-      map['total_sum'] = Variable<double>(totalSum.value);
-    }
-    if (checkTotalSum.present) {
-      map['check_total_sum'] = Variable<double>(checkTotalSum.value);
-    }
-    if (rowid.present) {
-      map['rowid'] = Variable<int>(rowid.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('DepositsCompanion(')
-          ..write('guid: $guid, ')
-          ..write('isDeleted: $isDeleted, ')
-          ..write('timestamp: $timestamp, ')
-          ..write('currentTimestamp: $currentTimestamp, ')
-          ..write('lastSyncTime: $lastSyncTime, ')
-          ..write('id: $id, ')
-          ..write('date: $date, ')
-          ..write('totalSum: $totalSum, ')
-          ..write('checkTotalSum: $checkTotalSum, ')
-          ..write('rowid: $rowid')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $EncashmentsTable extends Encashments
-    with TableInfo<$EncashmentsTable, Encashment> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $EncashmentsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _guidMeta = const VerificationMeta('guid');
-  @override
-  late final GeneratedColumn<String> guid = GeneratedColumn<String>(
-      'guid', aliasedName, false,
-      type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _isDeletedMeta =
-      const VerificationMeta('isDeleted');
-  @override
-  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
-      'is_deleted', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
-      defaultValue: const Constant(false));
-  static const VerificationMeta _timestampMeta =
-      const VerificationMeta('timestamp');
-  @override
-  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
-      'timestamp', aliasedName, false,
-      type: DriftSqlType.dateTime,
-      requiredDuringInsert: false,
-      defaultValue: currentDateAndTime);
-  static const VerificationMeta _currentTimestampMeta =
-      const VerificationMeta('currentTimestamp');
-  @override
-  late final GeneratedColumn<DateTime> currentTimestamp =
-      GeneratedColumn<DateTime>('current_timestamp', aliasedName, false,
-          type: DriftSqlType.dateTime,
-          requiredDuringInsert: false,
-          defaultValue: currentDateAndTime);
-  static const VerificationMeta _lastSyncTimeMeta =
-      const VerificationMeta('lastSyncTime');
-  @override
-  late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
-      'last_sync_time', aliasedName, true,
-      type: DriftSqlType.dateTime, requiredDuringInsert: false);
-  static const VerificationMeta _needSyncMeta =
-      const VerificationMeta('needSync');
-  @override
-  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
-      'need_sync', aliasedName, false,
-      generatedAs: GeneratedAs(
-          (isNew & isDeleted.not()) |
-              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
-          true),
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
-  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
-  @override
-  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
-      'is_new', aliasedName, false,
-      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
-      type: DriftSqlType.bool,
-      requiredDuringInsert: false,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
-  @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _depositGuidMeta =
-      const VerificationMeta('depositGuid');
-  @override
-  late final GeneratedColumn<String> depositGuid = GeneratedColumn<String>(
-      'deposit_guid', aliasedName, true,
-      type: DriftSqlType.string,
-      requiredDuringInsert: false,
-      defaultConstraints: GeneratedColumn.constraintIsAlways(
-          'REFERENCES deposits (guid) ON UPDATE CASCADE ON DELETE CASCADE'));
-  static const VerificationMeta _dateMeta = const VerificationMeta('date');
-  @override
-  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
-      'date', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
-  static const VerificationMeta _isCheckMeta =
-      const VerificationMeta('isCheck');
-  @override
-  late final GeneratedColumn<bool> isCheck = GeneratedColumn<bool>(
-      'is_check', aliasedName, false,
+  late final GeneratedColumn<bool> needReceipt = GeneratedColumn<bool>(
+      'need_receipt', aliasedName, false,
       type: DriftSqlType.bool,
       requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_check" IN (0, 1))'));
-  static const VerificationMeta _buyerIdMeta =
-      const VerificationMeta('buyerId');
-  @override
-  late final GeneratedColumn<int> buyerId = GeneratedColumn<int>(
-      'buyer_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("need_receipt" IN (0, 1))'));
   static const VerificationMeta _debtIdMeta = const VerificationMeta('debtId');
   @override
   late final GeneratedColumn<int> debtId = GeneratedColumn<int>(
-      'debt_id', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
+      'debt_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _encSumMeta = const VerificationMeta('encSum');
   @override
   late final GeneratedColumn<double> encSum = GeneratedColumn<double>(
@@ -3959,10 +3436,8 @@ class $EncashmentsTable extends Encashments
         needSync,
         isNew,
         id,
-        depositGuid,
         date,
-        isCheck,
-        buyerId,
+        needReceipt,
         debtId,
         encSum
       ];
@@ -3970,9 +3445,9 @@ class $EncashmentsTable extends Encashments
   String get aliasedName => _alias ?? actualTableName;
   @override
   String get actualTableName => $name;
-  static const String $name = 'encashments';
+  static const String $name = 'pre_encashments';
   @override
-  VerificationContext validateIntegrity(Insertable<Encashment> instance,
+  VerificationContext validateIntegrity(Insertable<PreEncashment> instance,
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
@@ -4013,33 +3488,25 @@ class $EncashmentsTable extends Encashments
     if (data.containsKey('id')) {
       context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
     }
-    if (data.containsKey('deposit_guid')) {
-      context.handle(
-          _depositGuidMeta,
-          depositGuid.isAcceptableOrUnknown(
-              data['deposit_guid']!, _depositGuidMeta));
-    }
     if (data.containsKey('date')) {
       context.handle(
           _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
     } else if (isInserting) {
       context.missing(_dateMeta);
     }
-    if (data.containsKey('is_check')) {
-      context.handle(_isCheckMeta,
-          isCheck.isAcceptableOrUnknown(data['is_check']!, _isCheckMeta));
+    if (data.containsKey('need_receipt')) {
+      context.handle(
+          _needReceiptMeta,
+          needReceipt.isAcceptableOrUnknown(
+              data['need_receipt']!, _needReceiptMeta));
     } else if (isInserting) {
-      context.missing(_isCheckMeta);
-    }
-    if (data.containsKey('buyer_id')) {
-      context.handle(_buyerIdMeta,
-          buyerId.isAcceptableOrUnknown(data['buyer_id']!, _buyerIdMeta));
-    } else if (isInserting) {
-      context.missing(_buyerIdMeta);
+      context.missing(_needReceiptMeta);
     }
     if (data.containsKey('debt_id')) {
       context.handle(_debtIdMeta,
           debtId.isAcceptableOrUnknown(data['debt_id']!, _debtIdMeta));
+    } else if (isInserting) {
+      context.missing(_debtIdMeta);
     }
     if (data.containsKey('enc_sum')) {
       context.handle(_encSumMeta,
@@ -4051,9 +3518,9 @@ class $EncashmentsTable extends Encashments
   @override
   Set<GeneratedColumn> get $primaryKey => {guid};
   @override
-  Encashment map(Map<String, dynamic> data, {String? tablePrefix}) {
+  PreEncashment map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return Encashment(
+    return PreEncashment(
       guid: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}guid'])!,
       isDeleted: attachedDatabase.typeMapping
@@ -4070,28 +3537,24 @@ class $EncashmentsTable extends Encashments
           .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       id: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}id']),
-      depositGuid: attachedDatabase.typeMapping
-          .read(DriftSqlType.string, data['${effectivePrefix}deposit_guid']),
       date: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
-      isCheck: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_check'])!,
-      buyerId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}buyer_id'])!,
+      needReceipt: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_receipt'])!,
       debtId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}debt_id']),
+          .read(DriftSqlType.int, data['${effectivePrefix}debt_id'])!,
       encSum: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}enc_sum']),
     );
   }
 
   @override
-  $EncashmentsTable createAlias(String alias) {
-    return $EncashmentsTable(attachedDatabase, alias);
+  $PreEncashmentsTable createAlias(String alias) {
+    return $PreEncashmentsTable(attachedDatabase, alias);
   }
 }
 
-class Encashment extends DataClass implements Insertable<Encashment> {
+class PreEncashment extends DataClass implements Insertable<PreEncashment> {
   final String guid;
   final bool isDeleted;
   final DateTime timestamp;
@@ -4100,13 +3563,11 @@ class Encashment extends DataClass implements Insertable<Encashment> {
   final bool needSync;
   final bool isNew;
   final int? id;
-  final String? depositGuid;
   final DateTime date;
-  final bool isCheck;
-  final int buyerId;
-  final int? debtId;
+  final bool needReceipt;
+  final int debtId;
   final double? encSum;
-  const Encashment(
+  const PreEncashment(
       {required this.guid,
       required this.isDeleted,
       required this.timestamp,
@@ -4115,11 +3576,9 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       required this.needSync,
       required this.isNew,
       this.id,
-      this.depositGuid,
       required this.date,
-      required this.isCheck,
-      required this.buyerId,
-      this.debtId,
+      required this.needReceipt,
+      required this.debtId,
       this.encSum});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4134,23 +3593,17 @@ class Encashment extends DataClass implements Insertable<Encashment> {
     if (!nullToAbsent || id != null) {
       map['id'] = Variable<int>(id);
     }
-    if (!nullToAbsent || depositGuid != null) {
-      map['deposit_guid'] = Variable<String>(depositGuid);
-    }
     map['date'] = Variable<DateTime>(date);
-    map['is_check'] = Variable<bool>(isCheck);
-    map['buyer_id'] = Variable<int>(buyerId);
-    if (!nullToAbsent || debtId != null) {
-      map['debt_id'] = Variable<int>(debtId);
-    }
+    map['need_receipt'] = Variable<bool>(needReceipt);
+    map['debt_id'] = Variable<int>(debtId);
     if (!nullToAbsent || encSum != null) {
       map['enc_sum'] = Variable<double>(encSum);
     }
     return map;
   }
 
-  EncashmentsCompanion toCompanion(bool nullToAbsent) {
-    return EncashmentsCompanion(
+  PreEncashmentsCompanion toCompanion(bool nullToAbsent) {
+    return PreEncashmentsCompanion(
       guid: Value(guid),
       isDeleted: Value(isDeleted),
       timestamp: Value(timestamp),
@@ -4159,23 +3612,18 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           ? const Value.absent()
           : Value(lastSyncTime),
       id: id == null && nullToAbsent ? const Value.absent() : Value(id),
-      depositGuid: depositGuid == null && nullToAbsent
-          ? const Value.absent()
-          : Value(depositGuid),
       date: Value(date),
-      isCheck: Value(isCheck),
-      buyerId: Value(buyerId),
-      debtId:
-          debtId == null && nullToAbsent ? const Value.absent() : Value(debtId),
+      needReceipt: Value(needReceipt),
+      debtId: Value(debtId),
       encSum:
           encSum == null && nullToAbsent ? const Value.absent() : Value(encSum),
     );
   }
 
-  factory Encashment.fromJson(Map<String, dynamic> json,
+  factory PreEncashment.fromJson(Map<String, dynamic> json,
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
-    return Encashment(
+    return PreEncashment(
       guid: serializer.fromJson<String>(json['guid']),
       isDeleted: serializer.fromJson<bool>(json['isDeleted']),
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
@@ -4184,11 +3632,9 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       needSync: serializer.fromJson<bool>(json['needSync']),
       isNew: serializer.fromJson<bool>(json['isNew']),
       id: serializer.fromJson<int?>(json['id']),
-      depositGuid: serializer.fromJson<String?>(json['depositGuid']),
       date: serializer.fromJson<DateTime>(json['date']),
-      isCheck: serializer.fromJson<bool>(json['isCheck']),
-      buyerId: serializer.fromJson<int>(json['buyerId']),
-      debtId: serializer.fromJson<int?>(json['debtId']),
+      needReceipt: serializer.fromJson<bool>(json['needReceipt']),
+      debtId: serializer.fromJson<int>(json['debtId']),
       encSum: serializer.fromJson<double?>(json['encSum']),
     );
   }
@@ -4204,16 +3650,14 @@ class Encashment extends DataClass implements Insertable<Encashment> {
       'needSync': serializer.toJson<bool>(needSync),
       'isNew': serializer.toJson<bool>(isNew),
       'id': serializer.toJson<int?>(id),
-      'depositGuid': serializer.toJson<String?>(depositGuid),
       'date': serializer.toJson<DateTime>(date),
-      'isCheck': serializer.toJson<bool>(isCheck),
-      'buyerId': serializer.toJson<int>(buyerId),
-      'debtId': serializer.toJson<int?>(debtId),
+      'needReceipt': serializer.toJson<bool>(needReceipt),
+      'debtId': serializer.toJson<int>(debtId),
       'encSum': serializer.toJson<double?>(encSum),
     };
   }
 
-  Encashment copyWith(
+  PreEncashment copyWith(
           {String? guid,
           bool? isDeleted,
           DateTime? timestamp,
@@ -4222,13 +3666,11 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           bool? needSync,
           bool? isNew,
           Value<int?> id = const Value.absent(),
-          Value<String?> depositGuid = const Value.absent(),
           DateTime? date,
-          bool? isCheck,
-          int? buyerId,
-          Value<int?> debtId = const Value.absent(),
+          bool? needReceipt,
+          int? debtId,
           Value<double?> encSum = const Value.absent()}) =>
-      Encashment(
+      PreEncashment(
         guid: guid ?? this.guid,
         isDeleted: isDeleted ?? this.isDeleted,
         timestamp: timestamp ?? this.timestamp,
@@ -4238,16 +3680,14 @@ class Encashment extends DataClass implements Insertable<Encashment> {
         needSync: needSync ?? this.needSync,
         isNew: isNew ?? this.isNew,
         id: id.present ? id.value : this.id,
-        depositGuid: depositGuid.present ? depositGuid.value : this.depositGuid,
         date: date ?? this.date,
-        isCheck: isCheck ?? this.isCheck,
-        buyerId: buyerId ?? this.buyerId,
-        debtId: debtId.present ? debtId.value : this.debtId,
+        needReceipt: needReceipt ?? this.needReceipt,
+        debtId: debtId ?? this.debtId,
         encSum: encSum.present ? encSum.value : this.encSum,
       );
   @override
   String toString() {
-    return (StringBuffer('Encashment(')
+    return (StringBuffer('PreEncashment(')
           ..write('guid: $guid, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('timestamp: $timestamp, ')
@@ -4256,10 +3696,8 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           ..write('needSync: $needSync, ')
           ..write('isNew: $isNew, ')
           ..write('id: $id, ')
-          ..write('depositGuid: $depositGuid, ')
           ..write('date: $date, ')
-          ..write('isCheck: $isCheck, ')
-          ..write('buyerId: $buyerId, ')
+          ..write('needReceipt: $needReceipt, ')
           ..write('debtId: $debtId, ')
           ..write('encSum: $encSum')
           ..write(')'))
@@ -4267,25 +3705,12 @@ class Encashment extends DataClass implements Insertable<Encashment> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      guid,
-      isDeleted,
-      timestamp,
-      currentTimestamp,
-      lastSyncTime,
-      needSync,
-      isNew,
-      id,
-      depositGuid,
-      date,
-      isCheck,
-      buyerId,
-      debtId,
-      encSum);
+  int get hashCode => Object.hash(guid, isDeleted, timestamp, currentTimestamp,
+      lastSyncTime, needSync, isNew, id, date, needReceipt, debtId, encSum);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is Encashment &&
+      (other is PreEncashment &&
           other.guid == this.guid &&
           other.isDeleted == this.isDeleted &&
           other.timestamp == this.timestamp &&
@@ -4294,72 +3719,62 @@ class Encashment extends DataClass implements Insertable<Encashment> {
           other.needSync == this.needSync &&
           other.isNew == this.isNew &&
           other.id == this.id &&
-          other.depositGuid == this.depositGuid &&
           other.date == this.date &&
-          other.isCheck == this.isCheck &&
-          other.buyerId == this.buyerId &&
+          other.needReceipt == this.needReceipt &&
           other.debtId == this.debtId &&
           other.encSum == this.encSum);
 }
 
-class EncashmentsCompanion extends UpdateCompanion<Encashment> {
+class PreEncashmentsCompanion extends UpdateCompanion<PreEncashment> {
   final Value<String> guid;
   final Value<bool> isDeleted;
   final Value<DateTime> timestamp;
   final Value<DateTime> currentTimestamp;
   final Value<DateTime?> lastSyncTime;
   final Value<int?> id;
-  final Value<String?> depositGuid;
   final Value<DateTime> date;
-  final Value<bool> isCheck;
-  final Value<int> buyerId;
-  final Value<int?> debtId;
+  final Value<bool> needReceipt;
+  final Value<int> debtId;
   final Value<double?> encSum;
   final Value<int> rowid;
-  const EncashmentsCompanion({
+  const PreEncashmentsCompanion({
     this.guid = const Value.absent(),
     this.isDeleted = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.currentTimestamp = const Value.absent(),
     this.lastSyncTime = const Value.absent(),
     this.id = const Value.absent(),
-    this.depositGuid = const Value.absent(),
     this.date = const Value.absent(),
-    this.isCheck = const Value.absent(),
-    this.buyerId = const Value.absent(),
+    this.needReceipt = const Value.absent(),
     this.debtId = const Value.absent(),
     this.encSum = const Value.absent(),
     this.rowid = const Value.absent(),
   });
-  EncashmentsCompanion.insert({
+  PreEncashmentsCompanion.insert({
     required String guid,
     this.isDeleted = const Value.absent(),
     this.timestamp = const Value.absent(),
     this.currentTimestamp = const Value.absent(),
     this.lastSyncTime = const Value.absent(),
     this.id = const Value.absent(),
-    this.depositGuid = const Value.absent(),
     required DateTime date,
-    required bool isCheck,
-    required int buyerId,
-    this.debtId = const Value.absent(),
+    required bool needReceipt,
+    required int debtId,
     this.encSum = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : guid = Value(guid),
         date = Value(date),
-        isCheck = Value(isCheck),
-        buyerId = Value(buyerId);
-  static Insertable<Encashment> custom({
+        needReceipt = Value(needReceipt),
+        debtId = Value(debtId);
+  static Insertable<PreEncashment> custom({
     Expression<String>? guid,
     Expression<bool>? isDeleted,
     Expression<DateTime>? timestamp,
     Expression<DateTime>? currentTimestamp,
     Expression<DateTime>? lastSyncTime,
     Expression<int>? id,
-    Expression<String>? depositGuid,
     Expression<DateTime>? date,
-    Expression<bool>? isCheck,
-    Expression<int>? buyerId,
+    Expression<bool>? needReceipt,
     Expression<int>? debtId,
     Expression<double>? encSum,
     Expression<int>? rowid,
@@ -4371,41 +3786,35 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
       if (currentTimestamp != null) 'current_timestamp': currentTimestamp,
       if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
       if (id != null) 'id': id,
-      if (depositGuid != null) 'deposit_guid': depositGuid,
       if (date != null) 'date': date,
-      if (isCheck != null) 'is_check': isCheck,
-      if (buyerId != null) 'buyer_id': buyerId,
+      if (needReceipt != null) 'need_receipt': needReceipt,
       if (debtId != null) 'debt_id': debtId,
       if (encSum != null) 'enc_sum': encSum,
       if (rowid != null) 'rowid': rowid,
     });
   }
 
-  EncashmentsCompanion copyWith(
+  PreEncashmentsCompanion copyWith(
       {Value<String>? guid,
       Value<bool>? isDeleted,
       Value<DateTime>? timestamp,
       Value<DateTime>? currentTimestamp,
       Value<DateTime?>? lastSyncTime,
       Value<int?>? id,
-      Value<String?>? depositGuid,
       Value<DateTime>? date,
-      Value<bool>? isCheck,
-      Value<int>? buyerId,
-      Value<int?>? debtId,
+      Value<bool>? needReceipt,
+      Value<int>? debtId,
       Value<double?>? encSum,
       Value<int>? rowid}) {
-    return EncashmentsCompanion(
+    return PreEncashmentsCompanion(
       guid: guid ?? this.guid,
       isDeleted: isDeleted ?? this.isDeleted,
       timestamp: timestamp ?? this.timestamp,
       currentTimestamp: currentTimestamp ?? this.currentTimestamp,
       lastSyncTime: lastSyncTime ?? this.lastSyncTime,
       id: id ?? this.id,
-      depositGuid: depositGuid ?? this.depositGuid,
       date: date ?? this.date,
-      isCheck: isCheck ?? this.isCheck,
-      buyerId: buyerId ?? this.buyerId,
+      needReceipt: needReceipt ?? this.needReceipt,
       debtId: debtId ?? this.debtId,
       encSum: encSum ?? this.encSum,
       rowid: rowid ?? this.rowid,
@@ -4433,17 +3842,11 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
     if (id.present) {
       map['id'] = Variable<int>(id.value);
     }
-    if (depositGuid.present) {
-      map['deposit_guid'] = Variable<String>(depositGuid.value);
-    }
     if (date.present) {
       map['date'] = Variable<DateTime>(date.value);
     }
-    if (isCheck.present) {
-      map['is_check'] = Variable<bool>(isCheck.value);
-    }
-    if (buyerId.present) {
-      map['buyer_id'] = Variable<int>(buyerId.value);
+    if (needReceipt.present) {
+      map['need_receipt'] = Variable<bool>(needReceipt.value);
     }
     if (debtId.present) {
       map['debt_id'] = Variable<int>(debtId.value);
@@ -4459,17 +3862,15 @@ class EncashmentsCompanion extends UpdateCompanion<Encashment> {
 
   @override
   String toString() {
-    return (StringBuffer('EncashmentsCompanion(')
+    return (StringBuffer('PreEncashmentsCompanion(')
           ..write('guid: $guid, ')
           ..write('isDeleted: $isDeleted, ')
           ..write('timestamp: $timestamp, ')
           ..write('currentTimestamp: $currentTimestamp, ')
           ..write('lastSyncTime: $lastSyncTime, ')
           ..write('id: $id, ')
-          ..write('depositGuid: $depositGuid, ')
           ..write('date: $date, ')
-          ..write('isCheck: $isCheck, ')
-          ..write('buyerId: $buyerId, ')
+          ..write('needReceipt: $needReceipt, ')
           ..write('debtId: $debtId, ')
           ..write('encSum: $encSum, ')
           ..write('rowid: $rowid')
@@ -4520,15 +3921,15 @@ class $DebtsTable extends Debts with TableInfo<$DebtsTable, Debt> {
   late final GeneratedColumn<double> orderSum = GeneratedColumn<double>(
       'order_sum', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _isCheckMeta =
-      const VerificationMeta('isCheck');
+  static const VerificationMeta _needReceiptMeta =
+      const VerificationMeta('needReceipt');
   @override
-  late final GeneratedColumn<bool> isCheck = GeneratedColumn<bool>(
-      'is_check', aliasedName, false,
+  late final GeneratedColumn<bool> needReceipt = GeneratedColumn<bool>(
+      'need_receipt', aliasedName, false,
       type: DriftSqlType.bool,
       requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_check" IN (0, 1))'));
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("need_receipt" IN (0, 1))'));
   static const VerificationMeta _dateUntilMeta =
       const VerificationMeta('dateUntil');
   @override
@@ -4545,8 +3946,17 @@ class $DebtsTable extends Debts with TableInfo<$DebtsTable, Debt> {
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("overdue" IN (0, 1))'));
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, date, buyerId, info, debtSum, orderSum, isCheck, dateUntil, overdue];
+  List<GeneratedColumn> get $columns => [
+        id,
+        date,
+        buyerId,
+        info,
+        debtSum,
+        orderSum,
+        needReceipt,
+        dateUntil,
+        overdue
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -4588,11 +3998,13 @@ class $DebtsTable extends Debts with TableInfo<$DebtsTable, Debt> {
     } else if (isInserting) {
       context.missing(_orderSumMeta);
     }
-    if (data.containsKey('is_check')) {
-      context.handle(_isCheckMeta,
-          isCheck.isAcceptableOrUnknown(data['is_check']!, _isCheckMeta));
+    if (data.containsKey('need_receipt')) {
+      context.handle(
+          _needReceiptMeta,
+          needReceipt.isAcceptableOrUnknown(
+              data['need_receipt']!, _needReceiptMeta));
     } else if (isInserting) {
-      context.missing(_isCheckMeta);
+      context.missing(_needReceiptMeta);
     }
     if (data.containsKey('date_until')) {
       context.handle(_dateUntilMeta,
@@ -4627,8 +4039,8 @@ class $DebtsTable extends Debts with TableInfo<$DebtsTable, Debt> {
           .read(DriftSqlType.double, data['${effectivePrefix}debt_sum'])!,
       orderSum: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}order_sum'])!,
-      isCheck: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_check'])!,
+      needReceipt: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_receipt'])!,
       dateUntil: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}date_until'])!,
       overdue: attachedDatabase.typeMapping
@@ -4649,7 +4061,7 @@ class Debt extends DataClass implements Insertable<Debt> {
   final String? info;
   final double debtSum;
   final double orderSum;
-  final bool isCheck;
+  final bool needReceipt;
   final DateTime dateUntil;
   final bool overdue;
   const Debt(
@@ -4659,7 +4071,7 @@ class Debt extends DataClass implements Insertable<Debt> {
       this.info,
       required this.debtSum,
       required this.orderSum,
-      required this.isCheck,
+      required this.needReceipt,
       required this.dateUntil,
       required this.overdue});
   @override
@@ -4673,7 +4085,7 @@ class Debt extends DataClass implements Insertable<Debt> {
     }
     map['debt_sum'] = Variable<double>(debtSum);
     map['order_sum'] = Variable<double>(orderSum);
-    map['is_check'] = Variable<bool>(isCheck);
+    map['need_receipt'] = Variable<bool>(needReceipt);
     map['date_until'] = Variable<DateTime>(dateUntil);
     map['overdue'] = Variable<bool>(overdue);
     return map;
@@ -4687,7 +4099,7 @@ class Debt extends DataClass implements Insertable<Debt> {
       info: info == null && nullToAbsent ? const Value.absent() : Value(info),
       debtSum: Value(debtSum),
       orderSum: Value(orderSum),
-      isCheck: Value(isCheck),
+      needReceipt: Value(needReceipt),
       dateUntil: Value(dateUntil),
       overdue: Value(overdue),
     );
@@ -4703,7 +4115,7 @@ class Debt extends DataClass implements Insertable<Debt> {
       info: serializer.fromJson<String?>(json['info']),
       debtSum: serializer.fromJson<double>(json['debtSum']),
       orderSum: serializer.fromJson<double>(json['orderSum']),
-      isCheck: serializer.fromJson<bool>(json['isCheck']),
+      needReceipt: serializer.fromJson<bool>(json['needReceipt']),
       dateUntil: serializer.fromJson<DateTime>(json['dateUntil']),
       overdue: serializer.fromJson<bool>(json['overdue']),
     );
@@ -4718,7 +4130,7 @@ class Debt extends DataClass implements Insertable<Debt> {
       'info': serializer.toJson<String?>(info),
       'debtSum': serializer.toJson<double>(debtSum),
       'orderSum': serializer.toJson<double>(orderSum),
-      'isCheck': serializer.toJson<bool>(isCheck),
+      'needReceipt': serializer.toJson<bool>(needReceipt),
       'dateUntil': serializer.toJson<DateTime>(dateUntil),
       'overdue': serializer.toJson<bool>(overdue),
     };
@@ -4731,7 +4143,7 @@ class Debt extends DataClass implements Insertable<Debt> {
           Value<String?> info = const Value.absent(),
           double? debtSum,
           double? orderSum,
-          bool? isCheck,
+          bool? needReceipt,
           DateTime? dateUntil,
           bool? overdue}) =>
       Debt(
@@ -4741,7 +4153,7 @@ class Debt extends DataClass implements Insertable<Debt> {
         info: info.present ? info.value : this.info,
         debtSum: debtSum ?? this.debtSum,
         orderSum: orderSum ?? this.orderSum,
-        isCheck: isCheck ?? this.isCheck,
+        needReceipt: needReceipt ?? this.needReceipt,
         dateUntil: dateUntil ?? this.dateUntil,
         overdue: overdue ?? this.overdue,
       );
@@ -4754,7 +4166,7 @@ class Debt extends DataClass implements Insertable<Debt> {
           ..write('info: $info, ')
           ..write('debtSum: $debtSum, ')
           ..write('orderSum: $orderSum, ')
-          ..write('isCheck: $isCheck, ')
+          ..write('needReceipt: $needReceipt, ')
           ..write('dateUntil: $dateUntil, ')
           ..write('overdue: $overdue')
           ..write(')'))
@@ -4762,8 +4174,8 @@ class Debt extends DataClass implements Insertable<Debt> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, date, buyerId, info, debtSum, orderSum, isCheck, dateUntil, overdue);
+  int get hashCode => Object.hash(id, date, buyerId, info, debtSum, orderSum,
+      needReceipt, dateUntil, overdue);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -4774,7 +4186,7 @@ class Debt extends DataClass implements Insertable<Debt> {
           other.info == this.info &&
           other.debtSum == this.debtSum &&
           other.orderSum == this.orderSum &&
-          other.isCheck == this.isCheck &&
+          other.needReceipt == this.needReceipt &&
           other.dateUntil == this.dateUntil &&
           other.overdue == this.overdue);
 }
@@ -4786,7 +4198,7 @@ class DebtsCompanion extends UpdateCompanion<Debt> {
   final Value<String?> info;
   final Value<double> debtSum;
   final Value<double> orderSum;
-  final Value<bool> isCheck;
+  final Value<bool> needReceipt;
   final Value<DateTime> dateUntil;
   final Value<bool> overdue;
   const DebtsCompanion({
@@ -4796,7 +4208,7 @@ class DebtsCompanion extends UpdateCompanion<Debt> {
     this.info = const Value.absent(),
     this.debtSum = const Value.absent(),
     this.orderSum = const Value.absent(),
-    this.isCheck = const Value.absent(),
+    this.needReceipt = const Value.absent(),
     this.dateUntil = const Value.absent(),
     this.overdue = const Value.absent(),
   });
@@ -4807,14 +4219,14 @@ class DebtsCompanion extends UpdateCompanion<Debt> {
     this.info = const Value.absent(),
     required double debtSum,
     required double orderSum,
-    required bool isCheck,
+    required bool needReceipt,
     required DateTime dateUntil,
     required bool overdue,
   })  : date = Value(date),
         buyerId = Value(buyerId),
         debtSum = Value(debtSum),
         orderSum = Value(orderSum),
-        isCheck = Value(isCheck),
+        needReceipt = Value(needReceipt),
         dateUntil = Value(dateUntil),
         overdue = Value(overdue);
   static Insertable<Debt> custom({
@@ -4824,7 +4236,7 @@ class DebtsCompanion extends UpdateCompanion<Debt> {
     Expression<String>? info,
     Expression<double>? debtSum,
     Expression<double>? orderSum,
-    Expression<bool>? isCheck,
+    Expression<bool>? needReceipt,
     Expression<DateTime>? dateUntil,
     Expression<bool>? overdue,
   }) {
@@ -4835,7 +4247,7 @@ class DebtsCompanion extends UpdateCompanion<Debt> {
       if (info != null) 'info': info,
       if (debtSum != null) 'debt_sum': debtSum,
       if (orderSum != null) 'order_sum': orderSum,
-      if (isCheck != null) 'is_check': isCheck,
+      if (needReceipt != null) 'need_receipt': needReceipt,
       if (dateUntil != null) 'date_until': dateUntil,
       if (overdue != null) 'overdue': overdue,
     });
@@ -4848,7 +4260,7 @@ class DebtsCompanion extends UpdateCompanion<Debt> {
       Value<String?>? info,
       Value<double>? debtSum,
       Value<double>? orderSum,
-      Value<bool>? isCheck,
+      Value<bool>? needReceipt,
       Value<DateTime>? dateUntil,
       Value<bool>? overdue}) {
     return DebtsCompanion(
@@ -4858,7 +4270,7 @@ class DebtsCompanion extends UpdateCompanion<Debt> {
       info: info ?? this.info,
       debtSum: debtSum ?? this.debtSum,
       orderSum: orderSum ?? this.orderSum,
-      isCheck: isCheck ?? this.isCheck,
+      needReceipt: needReceipt ?? this.needReceipt,
       dateUntil: dateUntil ?? this.dateUntil,
       overdue: overdue ?? this.overdue,
     );
@@ -4885,8 +4297,8 @@ class DebtsCompanion extends UpdateCompanion<Debt> {
     if (orderSum.present) {
       map['order_sum'] = Variable<double>(orderSum.value);
     }
-    if (isCheck.present) {
-      map['is_check'] = Variable<bool>(isCheck.value);
+    if (needReceipt.present) {
+      map['need_receipt'] = Variable<bool>(needReceipt.value);
     }
     if (dateUntil.present) {
       map['date_until'] = Variable<DateTime>(dateUntil.value);
@@ -4906,9 +4318,268 @@ class DebtsCompanion extends UpdateCompanion<Debt> {
           ..write('info: $info, ')
           ..write('debtSum: $debtSum, ')
           ..write('orderSum: $orderSum, ')
-          ..write('isCheck: $isCheck, ')
+          ..write('needReceipt: $needReceipt, ')
           ..write('dateUntil: $dateUntil, ')
           ..write('overdue: $overdue')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DepositsTable extends Deposits with TableInfo<$DepositsTable, Deposit> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DepositsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+      'date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _totalSumMeta =
+      const VerificationMeta('totalSum');
+  @override
+  late final GeneratedColumn<double> totalSum = GeneratedColumn<double>(
+      'total_sum', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _checkTotalSumMeta =
+      const VerificationMeta('checkTotalSum');
+  @override
+  late final GeneratedColumn<double> checkTotalSum = GeneratedColumn<double>(
+      'check_total_sum', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, date, totalSum, checkTotalSum];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'deposits';
+  @override
+  VerificationContext validateIntegrity(Insertable<Deposit> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('total_sum')) {
+      context.handle(_totalSumMeta,
+          totalSum.isAcceptableOrUnknown(data['total_sum']!, _totalSumMeta));
+    } else if (isInserting) {
+      context.missing(_totalSumMeta);
+    }
+    if (data.containsKey('check_total_sum')) {
+      context.handle(
+          _checkTotalSumMeta,
+          checkTotalSum.isAcceptableOrUnknown(
+              data['check_total_sum']!, _checkTotalSumMeta));
+    } else if (isInserting) {
+      context.missing(_checkTotalSumMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => const {};
+  @override
+  Deposit map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Deposit(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
+      totalSum: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}total_sum'])!,
+      checkTotalSum: attachedDatabase.typeMapping.read(
+          DriftSqlType.double, data['${effectivePrefix}check_total_sum'])!,
+    );
+  }
+
+  @override
+  $DepositsTable createAlias(String alias) {
+    return $DepositsTable(attachedDatabase, alias);
+  }
+}
+
+class Deposit extends DataClass implements Insertable<Deposit> {
+  final int id;
+  final DateTime date;
+  final double totalSum;
+  final double checkTotalSum;
+  const Deposit(
+      {required this.id,
+      required this.date,
+      required this.totalSum,
+      required this.checkTotalSum});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['date'] = Variable<DateTime>(date);
+    map['total_sum'] = Variable<double>(totalSum);
+    map['check_total_sum'] = Variable<double>(checkTotalSum);
+    return map;
+  }
+
+  DepositsCompanion toCompanion(bool nullToAbsent) {
+    return DepositsCompanion(
+      id: Value(id),
+      date: Value(date),
+      totalSum: Value(totalSum),
+      checkTotalSum: Value(checkTotalSum),
+    );
+  }
+
+  factory Deposit.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Deposit(
+      id: serializer.fromJson<int>(json['id']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      totalSum: serializer.fromJson<double>(json['totalSum']),
+      checkTotalSum: serializer.fromJson<double>(json['checkTotalSum']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'date': serializer.toJson<DateTime>(date),
+      'totalSum': serializer.toJson<double>(totalSum),
+      'checkTotalSum': serializer.toJson<double>(checkTotalSum),
+    };
+  }
+
+  Deposit copyWith(
+          {int? id, DateTime? date, double? totalSum, double? checkTotalSum}) =>
+      Deposit(
+        id: id ?? this.id,
+        date: date ?? this.date,
+        totalSum: totalSum ?? this.totalSum,
+        checkTotalSum: checkTotalSum ?? this.checkTotalSum,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Deposit(')
+          ..write('id: $id, ')
+          ..write('date: $date, ')
+          ..write('totalSum: $totalSum, ')
+          ..write('checkTotalSum: $checkTotalSum')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, date, totalSum, checkTotalSum);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Deposit &&
+          other.id == this.id &&
+          other.date == this.date &&
+          other.totalSum == this.totalSum &&
+          other.checkTotalSum == this.checkTotalSum);
+}
+
+class DepositsCompanion extends UpdateCompanion<Deposit> {
+  final Value<int> id;
+  final Value<DateTime> date;
+  final Value<double> totalSum;
+  final Value<double> checkTotalSum;
+  final Value<int> rowid;
+  const DepositsCompanion({
+    this.id = const Value.absent(),
+    this.date = const Value.absent(),
+    this.totalSum = const Value.absent(),
+    this.checkTotalSum = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  DepositsCompanion.insert({
+    required int id,
+    required DateTime date,
+    required double totalSum,
+    required double checkTotalSum,
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        date = Value(date),
+        totalSum = Value(totalSum),
+        checkTotalSum = Value(checkTotalSum);
+  static Insertable<Deposit> custom({
+    Expression<int>? id,
+    Expression<DateTime>? date,
+    Expression<double>? totalSum,
+    Expression<double>? checkTotalSum,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (date != null) 'date': date,
+      if (totalSum != null) 'total_sum': totalSum,
+      if (checkTotalSum != null) 'check_total_sum': checkTotalSum,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  DepositsCompanion copyWith(
+      {Value<int>? id,
+      Value<DateTime>? date,
+      Value<double>? totalSum,
+      Value<double>? checkTotalSum,
+      Value<int>? rowid}) {
+    return DepositsCompanion(
+      id: id ?? this.id,
+      date: date ?? this.date,
+      totalSum: totalSum ?? this.totalSum,
+      checkTotalSum: checkTotalSum ?? this.checkTotalSum,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (totalSum.present) {
+      map['total_sum'] = Variable<double>(totalSum.value);
+    }
+    if (checkTotalSum.present) {
+      map['check_total_sum'] = Variable<double>(checkTotalSum.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DepositsCompanion(')
+          ..write('id: $id, ')
+          ..write('date: $date, ')
+          ..write('totalSum: $totalSum, ')
+          ..write('checkTotalSum: $checkTotalSum, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -17029,9 +16700,9 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final $PointFormatsTable pointFormats = $PointFormatsTable(this);
   late final $PointsTable points = $PointsTable(this);
   late final $PointImagesTable pointImages = $PointImagesTable(this);
-  late final $DepositsTable deposits = $DepositsTable(this);
-  late final $EncashmentsTable encashments = $EncashmentsTable(this);
+  late final $PreEncashmentsTable preEncashments = $PreEncashmentsTable(this);
   late final $DebtsTable debts = $DebtsTable(this);
+  late final $DepositsTable deposits = $DepositsTable(this);
   late final $ShipmentsTable shipments = $ShipmentsTable(this);
   late final $ShipmentLinesTable shipmentLines = $ShipmentLinesTable(this);
   late final $IncRequestsTable incRequests = $IncRequestsTable(this);
@@ -17090,17 +16761,16 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final UsersDao usersDao = UsersDao(this as AppDataStore);
   Selectable<AppInfoResult> appInfo() {
     return customSelect(
-        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_guid = points.guid AND need_sync = 1)) AS points_to_sync, (SELECT COUNT(*) FROM deposits WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM encashments WHERE deposit_guid = deposits.guid AND need_sync = 1)) AS deposits_to_sync, (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_guid = orders.guid AND need_sync = 1)) AS orders_to_sync, (SELECT COUNT(*) FROM return_acts WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM return_act_lines WHERE return_act_guid = return_acts.guid AND need_sync = 1)) AS return_acts_to_sync, (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS inc_requests_to_sync, (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS partner_prices_to_sync, (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS partners_pricelists_to_sync, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM encashments) AS encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total, (SELECT COUNT(*) FROM return_acts) AS return_acts_total FROM prefs',
+        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_guid = points.guid AND need_sync = 1)) AS points_to_sync, (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_guid = orders.guid AND need_sync = 1)) AS orders_to_sync, (SELECT COUNT(*) FROM return_acts WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM return_act_lines WHERE return_act_guid = return_acts.guid AND need_sync = 1)) AS return_acts_to_sync, (SELECT COUNT(*) FROM pre_encashments WHERE need_sync = 1) AS pre_encashments_to_sync, (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS inc_requests_to_sync, (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS partner_prices_to_sync, (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS partners_pricelists_to_sync, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM pre_encashments) AS pre_encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total, (SELECT COUNT(*) FROM return_acts) AS return_acts_total FROM prefs',
         variables: [],
         readsFrom: {
           points,
           pointImages,
-          deposits,
-          encashments,
           orders,
           orderLines,
           returnActs,
           returnActLines,
+          preEncashments,
           incRequests,
           partnersPrices,
           partnersPricelists,
@@ -17112,15 +16782,15 @@ abstract class _$AppDataStore extends GeneratedDatabase {
           showWithPrice: row.read<bool>('show_with_price'),
           lastLoadTime: row.readNullable<DateTime>('last_load_time'),
           pointsToSync: row.read<int>('points_to_sync'),
-          depositsToSync: row.read<int>('deposits_to_sync'),
           ordersToSync: row.read<int>('orders_to_sync'),
           returnActsToSync: row.read<int>('return_acts_to_sync'),
+          preEncashmentsToSync: row.read<int>('pre_encashments_to_sync'),
           incRequestsToSync: row.read<int>('inc_requests_to_sync'),
           partnerPricesToSync: row.read<int>('partner_prices_to_sync'),
           partnersPricelistsToSync:
               row.read<int>('partners_pricelists_to_sync'),
           pointsTotal: row.read<int>('points_total'),
-          encashmentsTotal: row.read<int>('encashments_total'),
+          preEncashmentsTotal: row.read<int>('pre_encashments_total'),
           shipmentsTotal: row.read<int>('shipments_total'),
           ordersTotal: row.read<int>('orders_total'),
           preOrdersTotal: row.read<int>('pre_orders_total'),
@@ -17141,9 +16811,9 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         pointFormats,
         points,
         pointImages,
-        deposits,
-        encashments,
+        preEncashments,
         debts,
+        deposits,
         shipments,
         shipmentLines,
         incRequests,
@@ -17196,20 +16866,6 @@ abstract class _$AppDataStore extends GeneratedDatabase {
             ],
           ),
           WritePropagation(
-            on: TableUpdateQuery.onTableName('deposits',
-                limitUpdateKind: UpdateKind.delete),
-            result: [
-              TableUpdate('encashments', kind: UpdateKind.delete),
-            ],
-          ),
-          WritePropagation(
-            on: TableUpdateQuery.onTableName('deposits',
-                limitUpdateKind: UpdateKind.update),
-            result: [
-              TableUpdate('encashments', kind: UpdateKind.update),
-            ],
-          ),
-          WritePropagation(
             on: TableUpdateQuery.onTableName('orders',
                 limitUpdateKind: UpdateKind.delete),
             result: [
@@ -17246,14 +16902,14 @@ class AppInfoResult {
   final bool showWithPrice;
   final DateTime? lastLoadTime;
   final int pointsToSync;
-  final int depositsToSync;
   final int ordersToSync;
   final int returnActsToSync;
+  final int preEncashmentsToSync;
   final int incRequestsToSync;
   final int partnerPricesToSync;
   final int partnersPricelistsToSync;
   final int pointsTotal;
-  final int encashmentsTotal;
+  final int preEncashmentsTotal;
   final int shipmentsTotal;
   final int ordersTotal;
   final int preOrdersTotal;
@@ -17263,14 +16919,14 @@ class AppInfoResult {
     required this.showWithPrice,
     this.lastLoadTime,
     required this.pointsToSync,
-    required this.depositsToSync,
     required this.ordersToSync,
     required this.returnActsToSync,
+    required this.preEncashmentsToSync,
     required this.incRequestsToSync,
     required this.partnerPricesToSync,
     required this.partnersPricelistsToSync,
     required this.pointsTotal,
-    required this.encashmentsTotal,
+    required this.preEncashmentsTotal,
     required this.shipmentsTotal,
     required this.ordersTotal,
     required this.preOrdersTotal,
@@ -17387,7 +17043,7 @@ mixin _$DebtsDaoMixin on DatabaseAccessor<AppDataStore> {
   $BuyersTable get buyers => attachedDatabase.buyers;
   $DebtsTable get debts => attachedDatabase.debts;
   $DepositsTable get deposits => attachedDatabase.deposits;
-  $EncashmentsTable get encashments => attachedDatabase.encashments;
+  $PreEncashmentsTable get preEncashments => attachedDatabase.preEncashments;
 }
 mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
   $BuyersTable get buyers => attachedDatabase.buyers;
