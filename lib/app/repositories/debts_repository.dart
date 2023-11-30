@@ -58,7 +58,7 @@ class DebtsRepository extends BaseRepository {
         'encSum': i.encSum
       }).toList();
 
-      final data = await api.savePreEncashments(preEncashmentsData);
+      final data = await api.saveDebts(preEncashmentsData);
       final apiPreEncashments = data.preEncashments.map((e) => e.toDatabaseEnt()).toList();
       await dataStore.transaction(() async {
         for (var encashment in preEncashments) {

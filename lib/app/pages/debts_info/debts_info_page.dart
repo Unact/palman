@@ -46,6 +46,12 @@ class _DebtsInfoView extends StatefulWidget {
 class _DebtsInfoViewState extends State<_DebtsInfoView> {
   late final progressDialog = ProgressDialog(context: context);
 
+  @override
+  void dispose() {
+    progressDialog.close();
+    super.dispose();
+  }
+
   Future<void> showDepositConfirmationDialog() async {
     final vm = context.read<DebtsInfoViewModel>();
     final total = vm.state.filteredPreEncashmentExList
