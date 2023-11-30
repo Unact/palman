@@ -249,7 +249,7 @@ class _InfoViewState extends State<_InfoView> {
         isThreeLine: true,
         onTap: () => changePage(2),
         title: const Text(Strings.debtsInfoPageName, style: Styles.tileTitleText),
-        subtitle: Text('Инкассаций: ${vm.state.encashmentsTotal}', style: Styles.tileText)
+        subtitle: Text('Инкассаций: ${vm.state.preEncashmentsTotal}', style: Styles.tileText)
       )
     );
   }

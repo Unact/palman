@@ -7,7 +7,7 @@ class ApiDebt extends Equatable {
   final String info;
   final double debtSum;
   final double orderSum;
-  final bool isCheck;
+  final bool needReceipt;
   final DateTime dateUntil;
   final bool overdue;
 
@@ -18,7 +18,7 @@ class ApiDebt extends Equatable {
     required this.info,
     required this.debtSum,
     required this.orderSum,
-    required this.isCheck,
+    required this.needReceipt,
     required this.dateUntil,
     required this.overdue
   });
@@ -31,7 +31,7 @@ class ApiDebt extends Equatable {
       info: json['info'],
       debtSum: Parsing.parseDouble(json['debtSum'])!,
       orderSum: Parsing.parseDouble(json['orderSum'])!,
-      isCheck: json['isCheck'],
+      needReceipt: json['needReceipt'],
       dateUntil: Parsing.parseDate(json['dateUntil'])!,
       overdue: json['overdue']
     );
@@ -45,7 +45,7 @@ class ApiDebt extends Equatable {
       info: info,
       debtSum: debtSum,
       orderSum: orderSum,
-      isCheck: isCheck,
+      needReceipt: needReceipt,
       dateUntil: dateUntil,
       overdue: overdue
     );
@@ -59,7 +59,7 @@ class ApiDebt extends Equatable {
     info,
     debtSum,
     orderSum,
-    isCheck,
+    needReceipt,
     dateUntil,
     overdue
   ];

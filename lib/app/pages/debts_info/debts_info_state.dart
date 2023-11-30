@@ -4,55 +4,59 @@ enum DebtsInfoStateStatus {
   initial,
   dataLoaded,
   encashmentAdded,
-  encashmentDeleted
+  encashmentDeleted,
+  depositInProgress,
+  depositSuccess,
+  depositFailure
 }
 
 class DebtsInfoState {
   DebtsInfoState({
     this.status = DebtsInfoStateStatus.initial,
     this.debtExList = const [],
-    this.encashmentExList = const [],
+    this.preEncashmentExList = const [],
     this.deposits = const [],
-    this.newEncashment,
+    this.newPreEncashment,
     this.appInfo,
-    this.isLoading = false
+    this.isLoading = false,
+    this.message = ''
   });
 
   final DebtsInfoStateStatus status;
   final bool isLoading;
+  final String message;
   final List<DebtEx> debtExList;
-  final List<EncashmentEx> encashmentExList;
+  final List<PreEncashmentEx> preEncashmentExList;
   final List<Deposit> deposits;
-  final EncashmentEx? newEncashment;
+  final PreEncashmentEx? newPreEncashment;
   final AppInfoResult? appInfo;
 
-  int get pendingChanges => appInfo == null ? 0 : appInfo!.depositsToSync;
+  int get pendingChanges => appInfo == null ? 0 : appInfo!.preEncashmentsToSync;
 
-  List<EncashmentEx> get encWithoutDeposit => encashmentExList
-    .where((e) => !e.encashment.isDeleted)
-    .where((e) => e.deposit == null).toList();
-  List<EncashmentEx> get encWithDeposit => encashmentExList
-    .where((e) => !e.encashment.isDeleted)
-    .where((e) => e.deposit != null).toList();
+  bool get canDeposit => filteredPreEncashmentExList.isNotEmpty &&
+    filteredPreEncashmentExList.every((e) => !e.preEncashment.needSync);
 
-  bool get canDeposit => encWithoutDeposit.isNotEmpty;
+  List<PreEncashmentEx> get filteredPreEncashmentExList => preEncashmentExList
+    .where((e) => !e.preEncashment.isDeleted).toList();
 
   DebtsInfoState copyWith({
     DebtsInfoStateStatus? status,
     List<DebtEx>? debtExList,
-    List<EncashmentEx>? encashmentExList,
+    List<PreEncashmentEx>? preEncashmentExList,
     List<Deposit>? deposits,
-    EncashmentEx? newEncashment,
+    PreEncashmentEx? newPreEncashment,
     bool? isLoading,
+    String? message,
     AppInfoResult? appInfo,
   }) {
     return DebtsInfoState(
       status: status ?? this.status,
       debtExList: debtExList ?? this.debtExList,
-      encashmentExList: encashmentExList ?? this.encashmentExList,
+      preEncashmentExList: preEncashmentExList ?? this.preEncashmentExList,
       deposits: deposits ?? this.deposits,
-      newEncashment: newEncashment ?? this.newEncashment,
+      newPreEncashment: newPreEncashment ?? this.newPreEncashment,
       isLoading: isLoading ?? this.isLoading,
+      message: message ?? this.message,
       appInfo: appInfo ?? this.appInfo
     );
   }

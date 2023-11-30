@@ -6,18 +6,14 @@ part of 'database.dart';
     Buyers,
     Debts,
     Deposits,
-    Encashments
+    PreEncashments
   ]
 )
 class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
   DebtsDao(AppDataStore db) : super(db);
 
-  Future<void> regenerateDepositsGuid() async {
-    await db._regenerateGuid(deposits);
-  }
-
-  Future<void> regenerateEncashmentsGuid() async {
-    await db._regenerateGuid(encashments);
+  Future<void> regeneratePreEncashmentsGuid() async {
+    await db._regenerateGuid(preEncashments);
   }
 
   Future<void> loadDebts(List<Debt> list) async {
@@ -28,51 +24,24 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     await db._loadData(deposits, list, clearTable);
   }
 
-  Future<void> loadEncashments(List<Encashment> list, [bool clearTable = true]) async {
-    await db._loadData(encashments, list, clearTable);
+  Future<void> loadPreEncashments(List<PreEncashment> list, [bool clearTable = true]) async {
+    await db._loadData(preEncashments, list, clearTable);
   }
 
-  Future<void> addDeposit(DepositsCompanion newDeposit) async {
-    await into(deposits).insert(newDeposit);
+  Future<void> addPreEncashment(PreEncashmentsCompanion newEncashment) async {
+    await into(preEncashments).insert(newEncashment);
   }
 
-  Future<void> updateDeposit(String guid, DepositsCompanion updatedDeposit) async {
-    await (update(deposits)..where((tbl) => tbl.guid.equals(guid))).write(updatedDeposit);
-  }
-
-  Future<void> addEncashment(EncashmentsCompanion newEncashment) async {
-    await into(encashments).insert(newEncashment);
-  }
-
-  Future<void> updateEncashment(String guid, EncashmentsCompanion updatedEncashment) async {
-    await (update(encashments)..where((tbl) => tbl.guid.equals(guid))).write(updatedEncashment);
+  Future<void> updatePreEncashment(String guid, PreEncashmentsCompanion updatedEncashment) async {
+    await (update(preEncashments)..where((tbl) => tbl.guid.equals(guid))).write(updatedEncashment);
   }
 
   Future<void> updateDebt(int id, DebtsCompanion updatedDebt) async {
     await (update(debts)..where((tbl) => tbl.id.equals(id))).write(updatedDebt);
   }
 
-  Future<List<Encashment>> getEncashmentsForSync() async {
-    final hasDepositToSync = existsQuery(
-      select(deposits)
-        ..where((tbl) => tbl.guid.equalsExp(encashments.depositGuid))
-        ..where((tbl) => tbl.needSync.equals(true) | encashments.needSync.equals(true))
-    );
-
-    return (select(encashments)..where((tbl) => hasDepositToSync)).get();
-  }
-
-  Future<List<Deposit>> getDepositsForSync() async {
-    final hasEncashmentToSync = existsQuery(
-      select(encashments)
-        ..where((tbl) => tbl.depositGuid.equalsExp(deposits.guid))
-        ..where((tbl) => tbl.needSync.equals(true))
-    );
-
-    return (
-      select(deposits)
-        ..where((tbl) => tbl.needSync.equals(true) | hasEncashmentToSync)
-    ).get();
+  Future<List<PreEncashment>> getPreEncashmentsForSync() {
+    return (select(preEncashments)..where((tbl) => tbl.needSync.equals(true))).get();
   }
 
   Stream<List<DebtEx>> watchDebtExList() {
@@ -86,53 +55,50 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
     return res.map((row) => DebtEx(row.readTable(debts), row.readTable(buyers), row.readTable(partners))).watch();
   }
 
-  Stream<List<EncashmentEx>> watchEncashmentExList() {
-    final res = select(encashments)
+  Stream<List<PreEncashmentEx>> watchPreEncashmentExList() {
+    final res = select(preEncashments)
       .join([
-        leftOuterJoin(deposits, deposits.guid.equalsExp(encashments.depositGuid)),
-        innerJoin(buyers, buyers.id.equalsExp(encashments.buyerId)),
-        leftOuterJoin(debts, debts.id.equalsExp(encashments.debtId))
+        innerJoin(debts, debts.id.equalsExp(preEncashments.debtId)),
+        innerJoin(buyers, buyers.id.equalsExp(debts.buyerId)),
       ])
       ..orderBy([
-        OrderingTerm(expression: deposits.date, mode: OrderingMode.desc),
+        OrderingTerm(expression: preEncashments.date, mode: OrderingMode.desc),
         OrderingTerm(expression: buyers.name)
       ]);
 
     return res.map(
-      (row) => EncashmentEx(
-        row.readTable(encashments),
+      (row) => PreEncashmentEx(
+        row.readTable(preEncashments),
         row.readTable(buyers),
-        row.readTableOrNull(debts),
-        row.readTableOrNull(deposits)
+        row.readTable(debts)
       )
     ).watch();
   }
 
-  Future<EncashmentEx> getEncashmentEx(String guid) async {
-    final res = select(encashments)
+  Future<PreEncashmentEx> getPreEncashmentEx(String guid) async {
+    final res = select(preEncashments)
       .join([
-        leftOuterJoin(deposits, deposits.guid.equalsExp(encashments.depositGuid)),
-        innerJoin(buyers, buyers.id.equalsExp(encashments.buyerId)),
-        leftOuterJoin(debts, debts.id.equalsExp(encashments.debtId))
+        innerJoin(debts, debts.id.equalsExp(preEncashments.debtId)),
+        innerJoin(buyers, buyers.id.equalsExp(debts.buyerId)),
       ])
-      ..where(encashments.guid.equals(guid));
+      ..where(preEncashments.guid.equals(guid));
 
     return res.map(
-      (row) => EncashmentEx(
-        row.readTable(encashments),
+      (row) => PreEncashmentEx(
+        row.readTable(preEncashments),
         row.readTable(buyers),
-        row.readTableOrNull(debts),
-        row.readTableOrNull(deposits)
+        row.readTableOrNull(debts)
       )
     ).getSingle();
   }
 
-  Future<Deposit> getDeposit(String guid) async {
-    return await (select(deposits)..where((tbl) => tbl.guid.equals(guid))).getSingle();
-  }
-
   Selectable<Deposit> _deposits() {
-    return (select(deposits)..orderBy([(tbl) => OrderingTerm(expression: tbl.date, mode: OrderingMode.desc)]));
+    return (
+      select(deposits)
+      ..orderBy([
+        (tbl) => OrderingTerm(expression: tbl.date, mode: OrderingMode.desc),
+        (tbl) => OrderingTerm(expression: tbl.totalSum, mode: OrderingMode.desc)
+      ]));
   }
 
   Stream<List<Deposit>> watchDeposits() {
@@ -152,11 +118,10 @@ class DebtEx {
   DebtEx(this.debt, this.buyer, this.partner);
 }
 
-class EncashmentEx {
-  final Encashment encashment;
+class PreEncashmentEx {
+  final PreEncashment preEncashment;
   final Buyer buyer;
   final Debt? debt;
-  final Deposit? deposit;
 
-  EncashmentEx(this.encashment, this.buyer, this.debt, this.deposit);
+  PreEncashmentEx(this.preEncashment, this.buyer, this.debt);
 }

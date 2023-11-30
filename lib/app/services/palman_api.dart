@@ -34,7 +34,7 @@ extension PalmanApi on RenewApi {
   }
 
   Future<ApiDebtsData> getDebts() async {
-    return ApiDebtsData.fromJson(await get('v1/palman/debts'));
+    return ApiDebtsData.fromJson(await get('v2/palman/debts'));
   }
 
   Future<ApiShipmentsData> getShipments() async {
@@ -68,8 +68,14 @@ extension PalmanApi on RenewApi {
     return ApiPointsData.fromJson(await post('v1/palman/points/save', dataGenerator: () => points));
   }
 
-  Future<ApiDebtsData> saveDebts(List<Map<String, dynamic>> debts) async {
-    return ApiDebtsData.fromJson(await post('v1/palman/debts/save', dataGenerator: () => debts));
+  Future<ApiDebtsData> savePreEncashments(List<Map<String, dynamic>> preEncashments) async {
+    return ApiDebtsData.fromJson(
+      await post('v2/palman/debts/save', dataGenerator: () => preEncashments)
+    );
+  }
+
+  Future<ApiDebtsData> deposit() async {
+    return ApiDebtsData.fromJson(await post('v2/palman/debts/deposit'));
   }
 
   Future<ApiShipmentsData> saveShipments(List<Map<String, dynamic>> shipments) async {
