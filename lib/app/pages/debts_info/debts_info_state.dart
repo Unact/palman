@@ -5,6 +5,7 @@ enum DebtsInfoStateStatus {
   dataLoaded,
   encashmentAdded,
   encashmentDeleted,
+  encashmentCreateConfirmation,
   depositInProgress,
   depositSuccess,
   depositFailure
@@ -17,6 +18,7 @@ class DebtsInfoState {
     this.preEncashmentExList = const [],
     this.deposits = const [],
     this.newPreEncashment,
+    this.newPreEncashmentDebtEx,
     this.appInfo,
     this.isLoading = false,
     this.message = ''
@@ -29,6 +31,7 @@ class DebtsInfoState {
   final List<PreEncashmentEx> preEncashmentExList;
   final List<Deposit> deposits;
   final PreEncashmentEx? newPreEncashment;
+  final DebtEx? newPreEncashmentDebtEx;
   final AppInfoResult? appInfo;
 
   int get pendingChanges => appInfo == null ? 0 : appInfo!.preEncashmentsToSync;
@@ -45,6 +48,7 @@ class DebtsInfoState {
     List<PreEncashmentEx>? preEncashmentExList,
     List<Deposit>? deposits,
     PreEncashmentEx? newPreEncashment,
+    DebtEx? newPreEncashmentDebtEx,
     bool? isLoading,
     String? message,
     AppInfoResult? appInfo,
@@ -55,6 +59,7 @@ class DebtsInfoState {
       preEncashmentExList: preEncashmentExList ?? this.preEncashmentExList,
       deposits: deposits ?? this.deposits,
       newPreEncashment: newPreEncashment ?? this.newPreEncashment,
+      newPreEncashmentDebtEx: newPreEncashmentDebtEx ?? this.newPreEncashmentDebtEx,
       isLoading: isLoading ?? this.isLoading,
       message: message ?? this.message,
       appInfo: appInfo ?? this.appInfo

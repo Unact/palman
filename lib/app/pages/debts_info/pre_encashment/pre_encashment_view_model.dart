@@ -33,8 +33,8 @@ class PreEncashmentViewModel extends PageViewModel<PreEncashmentState, PreEncash
     final preEncashmentEx = state.preEncashmentEx;
 
     await debtsRepository.updateDebt(
-      preEncashmentEx.debt!,
-      debtSum: Optional.of(preEncashmentEx.debt!.debtSum + (preEncashmentEx.preEncashment.encSum ?? 0) - (encSum ?? 0)),
+      preEncashmentEx.debt,
+      debtSum: Optional.of(preEncashmentEx.debt.debtSum + (preEncashmentEx.preEncashment.encSum ?? 0) - (encSum ?? 0)),
     );
     await debtsRepository.updatePreEncashment(
       preEncashmentEx.preEncashment,

@@ -63,6 +63,18 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
     }
   }
 
+  Future<void> tryCreatePreEncashment(DebtEx debtEx) async {
+    if (state.filteredPreEncashmentExList.any((e) => e.debt == debtEx.debt)) {
+      emit(state.copyWith(
+        status: DebtsInfoStateStatus.encashmentCreateConfirmation,
+        newPreEncashmentDebtEx: debtEx
+      ));
+      return;
+    }
+
+    await createPreEncashment(debtEx);
+  }
+
   Future<void> createPreEncashment(DebtEx debtEx) async {
     final newPreEncashment = await debtsRepository.addPreEncashment(debtEx.debt);
 
@@ -80,8 +92,8 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
     ));
 
     await debtsRepository.updateDebt(
-      preEncashmentEx.debt!,
-      debtSum: Optional.of(preEncashmentEx.debt!.debtSum + (preEncashmentEx.preEncashment.encSum ?? 0)),
+      preEncashmentEx.debt,
+      debtSum: Optional.of(preEncashmentEx.debt.debtSum + (preEncashmentEx.preEncashment.encSum ?? 0)),
     );
   }
 
