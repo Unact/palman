@@ -87,7 +87,7 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
       (row) => PreEncashmentEx(
         row.readTable(preEncashments),
         row.readTable(buyers),
-        row.readTableOrNull(debts)
+        row.readTable(debts)
       )
     ).getSingle();
   }
@@ -121,7 +121,7 @@ class DebtEx {
 class PreEncashmentEx {
   final PreEncashment preEncashment;
   final Buyer buyer;
-  final Debt? debt;
+  final Debt debt;
 
   PreEncashmentEx(this.preEncashment, this.buyer, this.debt);
 }

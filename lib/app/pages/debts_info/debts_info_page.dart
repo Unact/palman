@@ -77,6 +77,29 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
     if (result) await vm.deposit();
   }
 
+  Future<void> showCreatePreEncashmentConfirmationDialog(DebtEx debtEx) async {
+    final vm = context.read<DebtsInfoViewModel>();
+
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Внимание'),
+          content: const SingleChildScrollView(child: ListBody(children: <Widget>[
+            Text('Уже есть созданная инкассация по этому документу. Вы уверены, что хотите создать еще одну?')
+          ])),
+          actions: <Widget>[
+            TextButton(child: const Text(Strings.no), onPressed: () => Navigator.of(context).pop(false)),
+            TextButton(child: const Text(Strings.yes), onPressed: () => Navigator.of(context).pop(true))
+          ],
+        );
+      }
+    ) ?? false;
+
+    if (result) await vm.createPreEncashment(debtEx);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<DebtsInfoViewModel, DebtsInfoState>(
@@ -124,6 +147,11 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
       },
       listener: (context, state) async {
         switch (state.status) {
+          case DebtsInfoStateStatus.encashmentCreateConfirmation:
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+              showCreatePreEncashmentConfirmationDialog(state.newPreEncashmentDebtEx!);
+            });
+            break;
           case DebtsInfoStateStatus.encashmentAdded:
             WidgetsBinding.instance.addPostFrameCallback((_) {
               openPreEncashmentPage(state.newPreEncashment!);
@@ -212,6 +240,10 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
           TextSpan(
             children: <TextSpan>[
               TextSpan(
+                text: 'Документ: ${preEncashmentEx.debt.info}\n',
+                style: Styles.tileText
+              ),
+              TextSpan(
                 text: 'Дата: ${Format.dateStr(preEncashmentEx.preEncashment.date)}\n',
                 style: Styles.tileText
               ),
@@ -223,7 +255,7 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
           )
         ),
         dense: false,
-        onTap: preEncashmentEx.debt == null ? null : () => openPreEncashmentPage(preEncashmentEx)
+        onTap: () => openPreEncashmentPage(preEncashmentEx)
       )
     );
   }
@@ -260,7 +292,7 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
         )
       ),
       dense: false,
-      onTap: debtEx.debt.debtSum > 0 ? () => vm.createPreEncashment(debtEx) : null,
+      onTap: debtEx.debt.debtSum > 0 ? () => vm.tryCreatePreEncashment(debtEx) : null,
     );
   }
 
