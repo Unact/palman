@@ -457,3 +457,10 @@ class PartnersReturnActTypes extends Table {
   @override
   Set<Column> get primaryKey => {returnActTypeId, partnerId};
 }
+
+class RoutePoints extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  DateTimeColumn get date => dateTime()();
+  IntColumn get buyerId => integer().nullable()();
+}

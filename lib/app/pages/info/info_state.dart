@@ -64,6 +64,7 @@ class InfoState {
   int get preOrdersTotal => appInfo == null ? 0 : appInfo!.preOrdersTotal;
   int get shipmentsTotal => appInfo == null ? 0 : appInfo!.shipmentsTotal;
   int get pointsTotal => appInfo == null ? 0 : appInfo!.pointsTotal;
+  int get routePointsTotal => appInfo == null ? 0 : appInfo!.routePointsTotal;
 
   InfoState copyWith({
     InfoStateStatus? status,

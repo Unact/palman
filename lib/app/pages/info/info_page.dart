@@ -172,7 +172,20 @@ class _InfoViewState extends State<_InfoView> {
         isThreeLine: true,
         onTap: () => changePage(1),
         title: const Text(Strings.pointsPageName, style: Styles.tileTitleText),
-        subtitle: Text('Загружено: ${vm.state.pointsTotal}', style: Styles.tileText)
+        subtitle: Text.rich(
+          TextSpan(
+            children: <TextSpan>[
+              TextSpan(
+                text: 'Загружено: ${vm.state.pointsTotal}\n',
+                style: Styles.tileText
+              ),
+              TextSpan(
+                text: 'В маршруте: ${vm.state.routePointsTotal}',
+                style: Styles.tileText
+              )
+            ]
+          )
+        )
       )
     );
   }

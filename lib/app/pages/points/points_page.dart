@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +14,12 @@ import '/app/constants/styles.dart';
 import '/app/data/database.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
+import '/app/repositories/orders_repository.dart';
 import '/app/repositories/points_repository.dart';
 import '/app/repositories/users_repository.dart';
 import '/app/widgets/widgets.dart';
 import 'point/point_page.dart';
+import '../orders_info/order/order_page.dart';
 
 part 'points_state.dart';
 part 'points_view_model.dart';
@@ -31,6 +34,7 @@ class PointsPage extends StatelessWidget {
     return BlocProvider<PointsViewModel>(
       create: (context) => PointsViewModel(
         RepositoryProvider.of<AppRepository>(context),
+        RepositoryProvider.of<OrdersRepository>(context),
         RepositoryProvider.of<PointsRepository>(context),
         RepositoryProvider.of<UsersRepository>(context),
       ),
@@ -44,9 +48,22 @@ class _PointsView extends StatefulWidget {
   _PointsViewState createState() => _PointsViewState();
 }
 
-class _PointsViewState extends State<_PointsView> {
+class _PointsViewState extends State<_PointsView> with SingleTickerProviderStateMixin {
+  late TabController tabController;
   static const int kSliverHeaderHeight = 104;
   ym.PlacemarkMapObject? tappedPoint;
+
+  @override
+  void initState() {
+    super.initState();
+    tabController = TabController(vsync: this, length: 2);
+  }
+
+  @override
+  void dispose() {
+    tabController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,34 +80,40 @@ class _PointsViewState extends State<_PointsView> {
                 pendingChanges: vm.state.pendingChanges,
               )
             ],
+            bottom: TabBar(
+              onTap: (_) => setState(() {}),
+              controller: tabController,
+              tabs: const [
+                Tab(child: Text('Точки', style: Styles.tabStyle, softWrap: false)),
+                Tab(child: Text('Маршрут', style: Styles.tabStyle, softWrap: false))
+              ],
+            ),
           ),
-          floatingActionButton: FloatingActionButton(
+          floatingActionButton: tabController.index == 0 ? FloatingActionButton(
             heroTag: null,
             onPressed: vm.addNewPoint,
             child: const Icon(Icons.add),
-          ),
+          ) : null,
           body: Refreshable(
             pendingChanges: vm.state.pendingChanges,
             onRefresh: vm.getData,
-            childBuilder: (context, physics) {
-              return CustomScrollView(
-                physics: physics,
-                slivers: [
-                  SliverAppBar(
-                    centerTitle: true,
-                    pinned: true,
-                    backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-                    title: buildHeader(context),
-                  ),
-                  SliverList(delegate: buildPointView(context))
-                ]
-              );
-            }
+            childBuilder: (context, physics) => TabBarView(
+              controller: tabController,
+              children: [
+                buildPointListView(context, physics),
+                buildRoutePointListView(context, physics)
+              ]
+            )
           )
         );
       },
       listener: (context, state) async {
         switch (state.status) {
+          case PointsStateStatus.orderAdded:
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              openOrderPage(state.newOrder!);
+            });
+            break;
           case PointsStateStatus.pointAdded:
             WidgetsBinding.instance.addPostFrameCallback((_) {
               openPointPage(state.newPoint!);
@@ -99,6 +122,57 @@ class _PointsViewState extends State<_PointsView> {
           default:
         }
       },
+    );
+  }
+
+  Widget buildPointListView(BuildContext context, ScrollPhysics physics) {
+    return CustomScrollView(
+      physics: physics,
+      slivers: [
+        SliverAppBar(
+          centerTitle: true,
+          pinned: true,
+          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+          title: buildHeader(context),
+        ),
+        SliverList(delegate: buildPointView(context))
+      ]
+    );
+  }
+
+  Widget buildRoutePointListView(BuildContext context, ScrollPhysics physics) {
+    final vm = context.read<PointsViewModel>();
+    final routePointDate = vm.state.routePointExList
+      .groupFoldBy<DateTime, List<RoutePointEx>>((e) => e.routePoint.date, (acc, e) => (acc ?? [])..add(e));
+
+    return ListView(
+      physics: physics,
+      padding: const EdgeInsets.only(top: 16),
+      children: routePointDate.entries.map((e) => buildRoutePointDateTile(context, e.key, e.value)).toList()
+    );
+  }
+
+  Widget buildRoutePointDateTile(BuildContext context, DateTime date, List<RoutePointEx> routePointExList) {
+    return ExpansionTile(
+      initiallyExpanded: false,
+      title: Text(Format.dateStr(date), style: const TextStyle(color: Colors.black)),
+      children: routePointExList.map((e) => buildRoutePointTile(context, e)).toList()
+    );
+  }
+
+  Widget buildRoutePointTile(BuildContext context, RoutePointEx routePointEx) {
+        final vm = context.read<PointsViewModel>();
+
+    return ListTile(
+      title: Text(
+        routePointEx.buyer != null ? routePointEx.buyer!.fullname : routePointEx.routePoint.name,
+        style: Styles.tileText
+      ),
+      trailing: IconButton(
+        icon: const Icon(Icons.add_shopping_cart),
+        onPressed: routePointEx.buyer != null ? () => vm.addNewOrder(routePointEx) : null
+      ),
+      dense: false
     );
   }
 
@@ -252,6 +326,16 @@ class _PointsViewState extends State<_PointsView> {
         confirmationText: 'Вы точно хотите удалить точку?'
       ).open(),
       child: tile
+    );
+  }
+
+  Future<void> openOrderPage(OrderExResult orderEx) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => OrderPage(orderEx: orderEx),
+        fullscreenDialog: false
+      )
     );
   }
 

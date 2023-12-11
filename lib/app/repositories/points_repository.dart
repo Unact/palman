@@ -45,6 +45,10 @@ class PointsRepository extends BaseRepository {
     return dataStore.pointsDao.watchPointFormats();
   }
 
+  Stream<List<RoutePointEx>> watchRoutePointExList() {
+    return dataStore.pointsDao.watchRoutePoints();
+  }
+
   Future<void> loadPoints() async {
     try {
       final data = await api.getPoints();
@@ -54,9 +58,11 @@ class PointsRepository extends BaseRepository {
         final pointImages = data.points
           .map((e) => e.images.map((i) => i.toDatabaseEnt(e.guid))).expand((e) => e)
           .toList();
+        final routePoints = data.routePoints.map((e) => e.toDatabaseEnt()).toList();
 
         await dataStore.pointsDao.loadPoints(points);
         await dataStore.pointsDao.loadPointImages(pointImages);
+        await dataStore.pointsDao.loadRoutePoints(routePoints);
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);

@@ -16690,6 +16690,254 @@ class PartnersReturnActTypesCompanion
   }
 }
 
+class $RoutePointsTable extends RoutePoints
+    with TableInfo<$RoutePointsTable, RoutePoint> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RoutePointsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+      'date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _buyerIdMeta =
+      const VerificationMeta('buyerId');
+  @override
+  late final GeneratedColumn<int> buyerId = GeneratedColumn<int>(
+      'buyer_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [id, name, date, buyerId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'route_points';
+  @override
+  VerificationContext validateIntegrity(Insertable<RoutePoint> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('buyer_id')) {
+      context.handle(_buyerIdMeta,
+          buyerId.isAcceptableOrUnknown(data['buyer_id']!, _buyerIdMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RoutePoint map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RoutePoint(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
+      buyerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}buyer_id']),
+    );
+  }
+
+  @override
+  $RoutePointsTable createAlias(String alias) {
+    return $RoutePointsTable(attachedDatabase, alias);
+  }
+}
+
+class RoutePoint extends DataClass implements Insertable<RoutePoint> {
+  final int id;
+  final String name;
+  final DateTime date;
+  final int? buyerId;
+  const RoutePoint(
+      {required this.id, required this.name, required this.date, this.buyerId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['date'] = Variable<DateTime>(date);
+    if (!nullToAbsent || buyerId != null) {
+      map['buyer_id'] = Variable<int>(buyerId);
+    }
+    return map;
+  }
+
+  RoutePointsCompanion toCompanion(bool nullToAbsent) {
+    return RoutePointsCompanion(
+      id: Value(id),
+      name: Value(name),
+      date: Value(date),
+      buyerId: buyerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(buyerId),
+    );
+  }
+
+  factory RoutePoint.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RoutePoint(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      buyerId: serializer.fromJson<int?>(json['buyerId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'date': serializer.toJson<DateTime>(date),
+      'buyerId': serializer.toJson<int?>(buyerId),
+    };
+  }
+
+  RoutePoint copyWith(
+          {int? id,
+          String? name,
+          DateTime? date,
+          Value<int?> buyerId = const Value.absent()}) =>
+      RoutePoint(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        date: date ?? this.date,
+        buyerId: buyerId.present ? buyerId.value : this.buyerId,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('RoutePoint(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('date: $date, ')
+          ..write('buyerId: $buyerId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, date, buyerId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RoutePoint &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.date == this.date &&
+          other.buyerId == this.buyerId);
+}
+
+class RoutePointsCompanion extends UpdateCompanion<RoutePoint> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<DateTime> date;
+  final Value<int?> buyerId;
+  const RoutePointsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.date = const Value.absent(),
+    this.buyerId = const Value.absent(),
+  });
+  RoutePointsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    required DateTime date,
+    this.buyerId = const Value.absent(),
+  })  : name = Value(name),
+        date = Value(date);
+  static Insertable<RoutePoint> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<DateTime>? date,
+    Expression<int>? buyerId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (date != null) 'date': date,
+      if (buyerId != null) 'buyer_id': buyerId,
+    });
+  }
+
+  RoutePointsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? name,
+      Value<DateTime>? date,
+      Value<int?>? buyerId}) {
+    return RoutePointsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      date: date ?? this.date,
+      buyerId: buyerId ?? this.buyerId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (buyerId.present) {
+      map['buyer_id'] = Variable<int>(buyerId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RoutePointsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('date: $date, ')
+          ..write('buyerId: $buyerId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDataStore extends GeneratedDatabase {
   _$AppDataStore(QueryExecutor e) : super(e);
   late final $UsersTable users = $UsersTable(this);
@@ -16749,6 +16997,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final $ReturnActTypesTable returnActTypes = $ReturnActTypesTable(this);
   late final $PartnersReturnActTypesTable partnersReturnActTypes =
       $PartnersReturnActTypesTable(this);
+  late final $RoutePointsTable routePoints = $RoutePointsTable(this);
   late final BonusProgramsDao bonusProgramsDao =
       BonusProgramsDao(this as AppDataStore);
   late final DebtsDao debtsDao = DebtsDao(this as AppDataStore);
@@ -16761,7 +17010,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final UsersDao usersDao = UsersDao(this as AppDataStore);
   Selectable<AppInfoResult> appInfo() {
     return customSelect(
-        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_guid = points.guid AND need_sync = 1)) AS points_to_sync, (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_guid = orders.guid AND need_sync = 1)) AS orders_to_sync, (SELECT COUNT(*) FROM return_acts WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM return_act_lines WHERE return_act_guid = return_acts.guid AND need_sync = 1)) AS return_acts_to_sync, (SELECT COUNT(*) FROM pre_encashments WHERE need_sync = 1) AS pre_encashments_to_sync, (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS inc_requests_to_sync, (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS partner_prices_to_sync, (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS partners_pricelists_to_sync, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM pre_encashments) AS pre_encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total, (SELECT COUNT(*) FROM return_acts) AS return_acts_total FROM prefs',
+        'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_guid = points.guid AND need_sync = 1)) AS points_to_sync, (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_guid = orders.guid AND need_sync = 1)) AS orders_to_sync, (SELECT COUNT(*) FROM return_acts WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM return_act_lines WHERE return_act_guid = return_acts.guid AND need_sync = 1)) AS return_acts_to_sync, (SELECT COUNT(*) FROM pre_encashments WHERE need_sync = 1) AS pre_encashments_to_sync, (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS inc_requests_to_sync, (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS partner_prices_to_sync, (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS partners_pricelists_to_sync, (SELECT COUNT(*) FROM route_points) AS route_points_total, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM pre_encashments) AS pre_encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total, (SELECT COUNT(*) FROM return_acts) AS return_acts_total FROM prefs',
         variables: [],
         readsFrom: {
           points,
@@ -16774,6 +17023,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
           incRequests,
           partnersPrices,
           partnersPricelists,
+          routePoints,
           shipments,
           preOrders,
           prefs,
@@ -16789,6 +17039,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
           partnerPricesToSync: row.read<int>('partner_prices_to_sync'),
           partnersPricelistsToSync:
               row.read<int>('partners_pricelists_to_sync'),
+          routePointsTotal: row.read<int>('route_points_total'),
           pointsTotal: row.read<int>('points_total'),
           preEncashmentsTotal: row.read<int>('pre_encashments_total'),
           shipmentsTotal: row.read<int>('shipments_total'),
@@ -16846,7 +17097,8 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         returnActs,
         returnActLines,
         returnActTypes,
-        partnersReturnActTypes
+        partnersReturnActTypes,
+        routePoints
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -16908,6 +17160,7 @@ class AppInfoResult {
   final int incRequestsToSync;
   final int partnerPricesToSync;
   final int partnersPricelistsToSync;
+  final int routePointsTotal;
   final int pointsTotal;
   final int preEncashmentsTotal;
   final int shipmentsTotal;
@@ -16925,6 +17178,7 @@ class AppInfoResult {
     required this.incRequestsToSync,
     required this.partnerPricesToSync,
     required this.partnersPricelistsToSync,
+    required this.routePointsTotal,
     required this.pointsTotal,
     required this.preEncashmentsTotal,
     required this.shipmentsTotal,
@@ -17262,9 +17516,11 @@ mixin _$PartnersDaoMixin on DatabaseAccessor<AppDataStore> {
   $PartnersTable get partners => attachedDatabase.partners;
 }
 mixin _$PointsDaoMixin on DatabaseAccessor<AppDataStore> {
+  $BuyersTable get buyers => attachedDatabase.buyers;
   $PointsTable get points => attachedDatabase.points;
   $PointImagesTable get pointImages => attachedDatabase.pointImages;
   $PointFormatsTable get pointFormats => attachedDatabase.pointFormats;
+  $RoutePointsTable get routePoints => attachedDatabase.routePoints;
 }
 mixin _$PricesDaoMixin on DatabaseAccessor<AppDataStore> {
   $BuyersTable get buyers => attachedDatabase.buyers;

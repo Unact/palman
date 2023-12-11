@@ -6,7 +6,8 @@ enum PointsStateStatus {
   selectedReasonChanged,
   listViewChanged,
   pointAdded,
-  pointDeleted
+  pointDeleted,
+  orderAdded
 }
 
 class PointsState {
@@ -23,6 +24,8 @@ class PointsState {
     this.newPoint,
     this.listView = true,
     this.appInfo,
+    this.routePointExList = const [],
+    this.newOrder,
     this.isLoading = false
   });
 
@@ -32,6 +35,8 @@ class PointsState {
   final List<PointEx> pointExList;
   final PointEx? newPoint;
   final bool listView;
+  final List<RoutePointEx> routePointExList;
+  final OrderExResult? newOrder;
   final AppInfoResult? appInfo;
 
   int get pendingChanges => appInfo == null ? 0 : appInfo!.pointsToSync;
@@ -47,6 +52,8 @@ class PointsState {
     PointEx? newPoint,
     bool? listView,
     bool? isLoading,
+    List<RoutePointEx>? routePointExList,
+    OrderExResult? newOrder,
     AppInfoResult? appInfo,
   }) {
     return PointsState(
@@ -56,6 +63,8 @@ class PointsState {
       newPoint: newPoint ?? this.newPoint,
       listView: listView ?? this.listView,
       isLoading: isLoading ?? this.isLoading,
+      routePointExList: routePointExList ?? this.routePointExList,
+      newOrder: newOrder ?? this.newOrder,
       appInfo: appInfo ?? this.appInfo
     );
   }
