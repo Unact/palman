@@ -2,9 +2,11 @@ part of 'database.dart';
 
 @DriftAccessor(
   tables: [
+    Buyers,
     Points,
     PointImages,
-    PointFormats
+    PointFormats,
+    RoutePoints
   ]
 )
 class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
@@ -30,8 +32,25 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     await db._loadData(pointFormats, list);
   }
 
+  Future<void> loadRoutePoints(List<RoutePoint> list, [bool clearTable = true]) async {
+    await db._loadData(routePoints, list, clearTable);
+  }
+
   Stream<List<PointFormat>> watchPointFormats() {
     return select(pointFormats).watch();
+  }
+
+  Stream<List<RoutePointEx>> watchRoutePoints() {
+    final res = select(routePoints).join([
+      innerJoin(buyers, buyers.id.equalsExp(routePoints.buyerId))
+    ]);
+
+    return res.map(
+      (row) => RoutePointEx(
+        row.readTable(routePoints),
+        row.readTableOrNull(buyers)
+      )
+    ).watch();
   }
 
   Future<void> updatePoint(String guid, PointsCompanion updatedPoint) async {
@@ -105,4 +124,11 @@ class PointEx {
   bool get filled => images.length >= 3 && point.pointFormat != null && point.numberOfCdesks != null;
 
   PointEx(this.point, this.images);
+}
+
+class RoutePointEx {
+  final RoutePoint routePoint;
+  final Buyer? buyer;
+
+  RoutePointEx(this.routePoint, this.buyer);
 }

@@ -2,12 +2,14 @@ part of 'points_page.dart';
 
 class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   final AppRepository appRepository;
+  final OrdersRepository ordersRepository;
   final PointsRepository pointsRepository;
   final UsersRepository usersRepository;
   StreamSubscription<List<PointEx>>? pointExListSubscription;
+  StreamSubscription<List<RoutePointEx>>? routePointListSubscription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
 
-  PointsViewModel(this.appRepository, this.pointsRepository, this.usersRepository) :
+  PointsViewModel(this.appRepository, this.ordersRepository, this.pointsRepository, this.usersRepository) :
     super(PointsState(selectedReason: PointsState.kReasonFilter.first));
 
   @override
@@ -17,6 +19,9 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   Future<void> initViewModel() async {
     await super.initViewModel();
 
+    routePointListSubscription = pointsRepository.watchRoutePointExList().listen((event) {
+      emit(state.copyWith(status: PointsStateStatus.dataLoaded, routePointExList: event));
+    });
     pointExListSubscription = pointsRepository.watchPointExList().listen((event) {
       emit(state.copyWith(status: PointsStateStatus.dataLoaded, pointExList: event));
     });
@@ -29,6 +34,7 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   Future<void> close() async {
     await super.close();
 
+    await routePointListSubscription?.cancel();
     await pointExListSubscription?.cancel();
     await appInfoSubscription?.cancel();
   }
@@ -44,6 +50,18 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     emit(state.copyWith(
       status: PointsStateStatus.listViewChanged,
       listView: listView
+    ));
+  }
+
+  Future<void> addNewOrder(RoutePointEx routePointEx) async {
+    final newOrder = await ordersRepository.addOrder(
+      date: routePointEx.routePoint.date,
+      buyerId: routePointEx.routePoint.buyerId
+    );
+
+    emit(state.copyWith(
+      status: PointsStateStatus.orderAdded,
+      newOrder: newOrder
     ));
   }
 

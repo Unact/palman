@@ -72,7 +72,8 @@ part 'users_dao.dart';
     ReturnActs,
     ReturnActLines,
     ReturnActTypes,
-    PartnersReturnActTypes
+    PartnersReturnActTypes,
+    RoutePoints
   ],
   daos: [
     BonusProgramsDao,
@@ -110,6 +111,7 @@ part 'users_dao.dart';
         (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS "inc_requests_to_sync",
         (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS "partner_prices_to_sync",
         (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS "partners_pricelists_to_sync",
+        (SELECT COUNT(*) FROM route_points) AS "route_points_total",
         (SELECT COUNT(*) FROM points) AS "points_total",
         (SELECT COUNT(*) FROM pre_encashments) AS "pre_encashments_total",
         (SELECT COUNT(*) FROM shipments) AS "shipments_total",
@@ -222,7 +224,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -310,7 +312,7 @@ LazyDatabase _openConnection(bool logStatements) {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, '${Strings.appName}.sqlite'));
 
-    return NativeDatabase.createInBackground(file, logStatements: logStatements, cachePreparedStatements: true);
+    return NativeDatabase.createInBackground(file, logStatements: false, cachePreparedStatements: true);
   });
 }
 
