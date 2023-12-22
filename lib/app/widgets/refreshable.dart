@@ -4,6 +4,8 @@ class Refreshable extends StatefulWidget {
   final Widget Function(BuildContext, ScrollPhysics) childBuilder;
   final FutureOr<void> Function() onRefresh;
   final int pendingChanges;
+  final EasyRefreshController? refreshController;
+  final ScrollController? scrollController;
   final String? messageText;
   final String? processingText;
 
@@ -11,6 +13,8 @@ class Refreshable extends StatefulWidget {
     required this.childBuilder,
     required this.onRefresh,
     required this.pendingChanges,
+    this.refreshController,
+    this.scrollController,
     this.messageText,
     this.processingText,
     Key? key
@@ -57,6 +61,8 @@ class _RefreshableState extends State<Refreshable> {
   @override
   Widget build(BuildContext context) {
     return EasyRefresh.builder(
+      scrollController: widget.scrollController,
+      controller: widget.refreshController,
       canRefreshAfterNoMore: true,
       header: ClassicHeader(
         dragText: 'Потяните чтобы обновить',
@@ -89,6 +95,7 @@ class _RefreshableState extends State<Refreshable> {
       },
       childBuilder: (context, physics) {
         return NestedScrollView(
+          controller: widget.scrollController,
           physics: physics,
           headerSliverBuilder: (context, innerBoxIsScrolled) {
             return [

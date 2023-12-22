@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
@@ -58,6 +59,9 @@ class _InfoView extends StatefulWidget {
 }
 
 class _InfoViewState extends State<_InfoView> {
+  final ScrollController scrollController = ScrollController();
+  final EasyRefreshController refreshController = EasyRefreshController();
+
   void changePage(int index) {
     final homeVm = context.read<HomeViewModel>();
 
@@ -116,6 +120,8 @@ class _InfoViewState extends State<_InfoView> {
             ]
           ),
           body: Refreshable(
+            scrollController: scrollController,
+            refreshController: refreshController,
             processingText: state.toLoad != 0 ? 'Загружено ${state.loaded} из ${state.toLoad} словарей' : 'Загрузка',
             messageText: 'Последнее обновление: $lastLoadTime',
             pendingChanges: vm.state.pendingChanges,
@@ -136,6 +142,20 @@ class _InfoViewState extends State<_InfoView> {
       },
       listener: (context, state) {
         switch (state.status) {
+          case InfoStateStatus.reloadNeeded:
+            context.read<GlobalKey<ScaffoldMessengerState>>().currentState!.showSnackBar(SnackBar(
+              content: Text(state.message),
+              actionOverflowThreshold: 1,
+              action: SnackBarAction(
+                label: 'Обновить',
+                onPressed: () {
+                  Navigator.popUntil(context, (route) => route.isFirst);
+                  changePage(0);
+                  refreshController.callRefresh(scrollController: scrollController);
+                }
+              ),
+            ));
+            break;
           case InfoStateStatus.imageLoadInProgress:
           case InfoStateStatus.imageLoadSuccess:
           case InfoStateStatus.imageLoadCanceled:
