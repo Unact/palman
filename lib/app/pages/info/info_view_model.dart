@@ -14,6 +14,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   StreamSubscription<User>? userSubscription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
   Timer? syncTimer;
+  Timer? needReloadCheckTimer;
 
   InfoViewModel(
     this.appRepository,
@@ -36,8 +37,10 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
     await _startLocationListen();
     await saveLocationChanges();
+    await needReloadCheck();
 
     syncTimer = Timer.periodic(const Duration(minutes: 10), saveLocationChanges);
+    needReloadCheckTimer = Timer.periodic(const Duration(minutes: 10), needReloadCheck);
 
     userSubscription = usersRepository.watchUser().listen((event) {
       emit(state.copyWith(status: InfoStateStatus.dataLoaded, user: event));
@@ -45,6 +48,19 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     appInfoSubscription = appRepository.watchAppInfo().listen((event) {
       emit(state.copyWith(status: InfoStateStatus.dataLoaded, appInfo: event));
     });
+  }
+
+  Future<void> needReloadCheck([Timer? _]) async {
+    final needReload = state.appInfo?.lastLoadTime == null ?
+      false :
+      DateTime.now().isAfter(state.appInfo!.lastLoadTime!.add(const Duration(days: 1)));
+
+    if (!needReload) return;
+
+    emit(state.copyWith(
+      status: InfoStateStatus.reloadNeeded,
+      message: 'Полное обновление данных производилось более 24 часов назад'
+    ));
   }
 
   @override
@@ -57,6 +73,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     await userSubscription?.cancel();
     await appInfoSubscription?.cancel();
     syncTimer?.cancel();
+    needReloadCheckTimer?.cancel();
   }
 
   Future<void> _saveLocation(Position? position) async {

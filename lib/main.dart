@@ -44,6 +44,8 @@ void main() async {
     ShipmentsRepository shipmentsRepository = ShipmentsRepository(dataStore, api);
     UsersRepository usersRepository = UsersRepository(dataStore, api);
 
+    GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+
     await Initialization.initializeSentry(
       dsn: const String.fromEnvironment('PALMAN_SENTRY_DSN'),
       isDebug: isDebug,
@@ -58,6 +60,7 @@ void main() async {
     runApp(
       MultiRepositoryProvider(
         providers: [
+          Provider.value(value: scaffoldMessengerKey),
           RepositoryProvider.value(value: appRepository),
           RepositoryProvider.value(value: debtsRepository),
           RepositoryProvider.value(value: ordersRepository),
@@ -70,6 +73,7 @@ void main() async {
           RepositoryProvider.value(value: usersRepository)
         ],
         child: MaterialApp(
+          scaffoldMessengerKey: scaffoldMessengerKey,
           title: Strings.ruAppName,
           theme: FlexThemeData.light(
             scheme: FlexScheme.hippieBlue,
