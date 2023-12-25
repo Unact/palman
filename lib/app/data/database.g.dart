@@ -3421,6 +3421,17 @@ class $PreEncashmentsTable extends PreEncashments
   late final GeneratedColumn<int> debtId = GeneratedColumn<int>(
       'debt_id', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _buyerIdMeta =
+      const VerificationMeta('buyerId');
+  @override
+  late final GeneratedColumn<int> buyerId = GeneratedColumn<int>(
+      'buyer_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _infoMeta = const VerificationMeta('info');
+  @override
+  late final GeneratedColumn<String> info = GeneratedColumn<String>(
+      'info', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _encSumMeta = const VerificationMeta('encSum');
   @override
   late final GeneratedColumn<double> encSum = GeneratedColumn<double>(
@@ -3439,6 +3450,8 @@ class $PreEncashmentsTable extends PreEncashments
         date,
         needReceipt,
         debtId,
+        buyerId,
+        info,
         encSum
       ];
   @override
@@ -3508,6 +3521,16 @@ class $PreEncashmentsTable extends PreEncashments
     } else if (isInserting) {
       context.missing(_debtIdMeta);
     }
+    if (data.containsKey('buyer_id')) {
+      context.handle(_buyerIdMeta,
+          buyerId.isAcceptableOrUnknown(data['buyer_id']!, _buyerIdMeta));
+    } else if (isInserting) {
+      context.missing(_buyerIdMeta);
+    }
+    if (data.containsKey('info')) {
+      context.handle(
+          _infoMeta, info.isAcceptableOrUnknown(data['info']!, _infoMeta));
+    }
     if (data.containsKey('enc_sum')) {
       context.handle(_encSumMeta,
           encSum.isAcceptableOrUnknown(data['enc_sum']!, _encSumMeta));
@@ -3543,6 +3566,10 @@ class $PreEncashmentsTable extends PreEncashments
           .read(DriftSqlType.bool, data['${effectivePrefix}need_receipt'])!,
       debtId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}debt_id'])!,
+      buyerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}buyer_id'])!,
+      info: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}info']),
       encSum: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}enc_sum']),
     );
@@ -3566,6 +3593,8 @@ class PreEncashment extends DataClass implements Insertable<PreEncashment> {
   final DateTime date;
   final bool needReceipt;
   final int debtId;
+  final int buyerId;
+  final String? info;
   final double? encSum;
   const PreEncashment(
       {required this.guid,
@@ -3579,6 +3608,8 @@ class PreEncashment extends DataClass implements Insertable<PreEncashment> {
       required this.date,
       required this.needReceipt,
       required this.debtId,
+      required this.buyerId,
+      this.info,
       this.encSum});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -3596,6 +3627,10 @@ class PreEncashment extends DataClass implements Insertable<PreEncashment> {
     map['date'] = Variable<DateTime>(date);
     map['need_receipt'] = Variable<bool>(needReceipt);
     map['debt_id'] = Variable<int>(debtId);
+    map['buyer_id'] = Variable<int>(buyerId);
+    if (!nullToAbsent || info != null) {
+      map['info'] = Variable<String>(info);
+    }
     if (!nullToAbsent || encSum != null) {
       map['enc_sum'] = Variable<double>(encSum);
     }
@@ -3615,6 +3650,8 @@ class PreEncashment extends DataClass implements Insertable<PreEncashment> {
       date: Value(date),
       needReceipt: Value(needReceipt),
       debtId: Value(debtId),
+      buyerId: Value(buyerId),
+      info: info == null && nullToAbsent ? const Value.absent() : Value(info),
       encSum:
           encSum == null && nullToAbsent ? const Value.absent() : Value(encSum),
     );
@@ -3635,6 +3672,8 @@ class PreEncashment extends DataClass implements Insertable<PreEncashment> {
       date: serializer.fromJson<DateTime>(json['date']),
       needReceipt: serializer.fromJson<bool>(json['needReceipt']),
       debtId: serializer.fromJson<int>(json['debtId']),
+      buyerId: serializer.fromJson<int>(json['buyerId']),
+      info: serializer.fromJson<String?>(json['info']),
       encSum: serializer.fromJson<double?>(json['encSum']),
     );
   }
@@ -3653,6 +3692,8 @@ class PreEncashment extends DataClass implements Insertable<PreEncashment> {
       'date': serializer.toJson<DateTime>(date),
       'needReceipt': serializer.toJson<bool>(needReceipt),
       'debtId': serializer.toJson<int>(debtId),
+      'buyerId': serializer.toJson<int>(buyerId),
+      'info': serializer.toJson<String?>(info),
       'encSum': serializer.toJson<double?>(encSum),
     };
   }
@@ -3669,6 +3710,8 @@ class PreEncashment extends DataClass implements Insertable<PreEncashment> {
           DateTime? date,
           bool? needReceipt,
           int? debtId,
+          int? buyerId,
+          Value<String?> info = const Value.absent(),
           Value<double?> encSum = const Value.absent()}) =>
       PreEncashment(
         guid: guid ?? this.guid,
@@ -3683,6 +3726,8 @@ class PreEncashment extends DataClass implements Insertable<PreEncashment> {
         date: date ?? this.date,
         needReceipt: needReceipt ?? this.needReceipt,
         debtId: debtId ?? this.debtId,
+        buyerId: buyerId ?? this.buyerId,
+        info: info.present ? info.value : this.info,
         encSum: encSum.present ? encSum.value : this.encSum,
       );
   @override
@@ -3699,14 +3744,29 @@ class PreEncashment extends DataClass implements Insertable<PreEncashment> {
           ..write('date: $date, ')
           ..write('needReceipt: $needReceipt, ')
           ..write('debtId: $debtId, ')
+          ..write('buyerId: $buyerId, ')
+          ..write('info: $info, ')
           ..write('encSum: $encSum')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(guid, isDeleted, timestamp, currentTimestamp,
-      lastSyncTime, needSync, isNew, id, date, needReceipt, debtId, encSum);
+  int get hashCode => Object.hash(
+      guid,
+      isDeleted,
+      timestamp,
+      currentTimestamp,
+      lastSyncTime,
+      needSync,
+      isNew,
+      id,
+      date,
+      needReceipt,
+      debtId,
+      buyerId,
+      info,
+      encSum);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -3722,6 +3782,8 @@ class PreEncashment extends DataClass implements Insertable<PreEncashment> {
           other.date == this.date &&
           other.needReceipt == this.needReceipt &&
           other.debtId == this.debtId &&
+          other.buyerId == this.buyerId &&
+          other.info == this.info &&
           other.encSum == this.encSum);
 }
 
@@ -3735,6 +3797,8 @@ class PreEncashmentsCompanion extends UpdateCompanion<PreEncashment> {
   final Value<DateTime> date;
   final Value<bool> needReceipt;
   final Value<int> debtId;
+  final Value<int> buyerId;
+  final Value<String?> info;
   final Value<double?> encSum;
   final Value<int> rowid;
   const PreEncashmentsCompanion({
@@ -3747,6 +3811,8 @@ class PreEncashmentsCompanion extends UpdateCompanion<PreEncashment> {
     this.date = const Value.absent(),
     this.needReceipt = const Value.absent(),
     this.debtId = const Value.absent(),
+    this.buyerId = const Value.absent(),
+    this.info = const Value.absent(),
     this.encSum = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -3760,12 +3826,15 @@ class PreEncashmentsCompanion extends UpdateCompanion<PreEncashment> {
     required DateTime date,
     required bool needReceipt,
     required int debtId,
+    required int buyerId,
+    this.info = const Value.absent(),
     this.encSum = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : guid = Value(guid),
         date = Value(date),
         needReceipt = Value(needReceipt),
-        debtId = Value(debtId);
+        debtId = Value(debtId),
+        buyerId = Value(buyerId);
   static Insertable<PreEncashment> custom({
     Expression<String>? guid,
     Expression<bool>? isDeleted,
@@ -3776,6 +3845,8 @@ class PreEncashmentsCompanion extends UpdateCompanion<PreEncashment> {
     Expression<DateTime>? date,
     Expression<bool>? needReceipt,
     Expression<int>? debtId,
+    Expression<int>? buyerId,
+    Expression<String>? info,
     Expression<double>? encSum,
     Expression<int>? rowid,
   }) {
@@ -3789,6 +3860,8 @@ class PreEncashmentsCompanion extends UpdateCompanion<PreEncashment> {
       if (date != null) 'date': date,
       if (needReceipt != null) 'need_receipt': needReceipt,
       if (debtId != null) 'debt_id': debtId,
+      if (buyerId != null) 'buyer_id': buyerId,
+      if (info != null) 'info': info,
       if (encSum != null) 'enc_sum': encSum,
       if (rowid != null) 'rowid': rowid,
     });
@@ -3804,6 +3877,8 @@ class PreEncashmentsCompanion extends UpdateCompanion<PreEncashment> {
       Value<DateTime>? date,
       Value<bool>? needReceipt,
       Value<int>? debtId,
+      Value<int>? buyerId,
+      Value<String?>? info,
       Value<double?>? encSum,
       Value<int>? rowid}) {
     return PreEncashmentsCompanion(
@@ -3816,6 +3891,8 @@ class PreEncashmentsCompanion extends UpdateCompanion<PreEncashment> {
       date: date ?? this.date,
       needReceipt: needReceipt ?? this.needReceipt,
       debtId: debtId ?? this.debtId,
+      buyerId: buyerId ?? this.buyerId,
+      info: info ?? this.info,
       encSum: encSum ?? this.encSum,
       rowid: rowid ?? this.rowid,
     );
@@ -3851,6 +3928,12 @@ class PreEncashmentsCompanion extends UpdateCompanion<PreEncashment> {
     if (debtId.present) {
       map['debt_id'] = Variable<int>(debtId.value);
     }
+    if (buyerId.present) {
+      map['buyer_id'] = Variable<int>(buyerId.value);
+    }
+    if (info.present) {
+      map['info'] = Variable<String>(info.value);
+    }
     if (encSum.present) {
       map['enc_sum'] = Variable<double>(encSum.value);
     }
@@ -3872,6 +3955,8 @@ class PreEncashmentsCompanion extends UpdateCompanion<PreEncashment> {
           ..write('date: $date, ')
           ..write('needReceipt: $needReceipt, ')
           ..write('debtId: $debtId, ')
+          ..write('buyerId: $buyerId, ')
+          ..write('info: $info, ')
           ..write('encSum: $encSum, ')
           ..write('rowid: $rowid')
           ..write(')'))

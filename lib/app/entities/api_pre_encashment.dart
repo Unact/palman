@@ -6,6 +6,8 @@ class ApiPreEncashment extends Equatable {
   final DateTime date;
   final bool needReceipt;
   final int debtId;
+  final int buyerId;
+  final String? info;
   final double encSum;
   final DateTime timestamp;
 
@@ -14,7 +16,9 @@ class ApiPreEncashment extends Equatable {
     required this.guid,
     required this.date,
     required this.debtId,
+    required this.buyerId,
     required this.encSum,
+    required this.info,
     required this.needReceipt,
     required this.timestamp
   });
@@ -25,7 +29,9 @@ class ApiPreEncashment extends Equatable {
       guid: json['guid'],
       date: Parsing.parseDate(json['date'])!,
       debtId: json['debtId'],
+      buyerId: json['buyerId'],
       encSum: Parsing.parseDouble(json['encSum'])!,
+      info: json['info'],
       needReceipt: json['needReceipt'],
       timestamp: Parsing.parseDate(json['timestamp'])!
     );
@@ -36,7 +42,9 @@ class ApiPreEncashment extends Equatable {
       id: id,
       date: date,
       debtId: debtId,
+      buyerId: buyerId,
       encSum: encSum,
+      info: info,
       needReceipt: needReceipt,
       guid: guid,
       isNew: false,
@@ -54,7 +62,9 @@ class ApiPreEncashment extends Equatable {
     guid,
     date,
     debtId,
+    buyerId,
     encSum,
+    info,
     needReceipt,
     timestamp
   ];

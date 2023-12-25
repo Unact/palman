@@ -114,6 +114,8 @@ class DebtsRepository extends BaseRepository {
         guid: guid,
         date: DateTime.now(),
         needReceipt: debt.needReceipt,
+        info: Value(debt.info),
+        buyerId: debt.buyerId,
         debtId: debt.id
       )
     );

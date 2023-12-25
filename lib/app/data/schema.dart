@@ -110,6 +110,8 @@ class PreEncashments extends Table with Syncable {
   DateTimeColumn get date => dateTime()();
   BoolColumn get needReceipt => boolean()();
   IntColumn get debtId => integer()();
+  IntColumn get buyerId => integer()();
+  TextColumn get info => text().nullable()();
   RealColumn get encSum => real().nullable()();
 }
 
