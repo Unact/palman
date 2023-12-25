@@ -91,9 +91,11 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
       preEncashmentExList: state.preEncashmentExList.where((e) => e != preEncashmentEx).toList()
     ));
 
+    if (preEncashmentEx.debt == null) return;
+
     await debtsRepository.updateDebt(
-      preEncashmentEx.debt,
-      debtSum: Optional.of(preEncashmentEx.debt.debtSum + (preEncashmentEx.preEncashment.encSum ?? 0)),
+      preEncashmentEx.debt!,
+      debtSum: Optional.of(preEncashmentEx.debt!.debtSum + (preEncashmentEx.preEncashment.encSum ?? 0)),
     );
   }
 

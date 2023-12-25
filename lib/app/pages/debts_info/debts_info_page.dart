@@ -240,7 +240,7 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
           TextSpan(
             children: <TextSpan>[
               TextSpan(
-                text: 'Документ: ${preEncashmentEx.debt.info}\n',
+                text: 'Документ: ${preEncashmentEx.preEncashment.info}\n',
                 style: Styles.tileText
               ),
               TextSpan(
@@ -255,7 +255,7 @@ class _DebtsInfoViewState extends State<_DebtsInfoView> {
           )
         ),
         dense: false,
-        onTap: () => openPreEncashmentPage(preEncashmentEx)
+        onTap: preEncashmentEx.debt == null ? null : () => openPreEncashmentPage(preEncashmentEx)
       )
     );
   }

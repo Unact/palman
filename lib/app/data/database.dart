@@ -224,7 +224,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 19;
+  int get schemaVersion => 20;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -312,7 +312,7 @@ LazyDatabase _openConnection(bool logStatements) {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, '${Strings.appName}.sqlite'));
 
-    return NativeDatabase.createInBackground(file, logStatements: logStatements, cachePreparedStatements: true);
+    return NativeDatabase.createInBackground(file, logStatements: false, cachePreparedStatements: true);
   });
 }
 

@@ -58,8 +58,8 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
   Stream<List<PreEncashmentEx>> watchPreEncashmentExList() {
     final res = select(preEncashments)
       .join([
-        innerJoin(debts, debts.id.equalsExp(preEncashments.debtId)),
-        innerJoin(buyers, buyers.id.equalsExp(debts.buyerId)),
+        leftOuterJoin(debts, debts.id.equalsExp(preEncashments.debtId)),
+        innerJoin(buyers, buyers.id.equalsExp(preEncashments.buyerId)),
       ])
       ..orderBy([
         OrderingTerm(expression: preEncashments.date, mode: OrderingMode.desc),
@@ -70,7 +70,7 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
       (row) => PreEncashmentEx(
         row.readTable(preEncashments),
         row.readTable(buyers),
-        row.readTable(debts)
+        row.readTableOrNull(debts)
       )
     ).watch();
   }
@@ -78,8 +78,8 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
   Future<PreEncashmentEx> getPreEncashmentEx(String guid) async {
     final res = select(preEncashments)
       .join([
-        innerJoin(debts, debts.id.equalsExp(preEncashments.debtId)),
-        innerJoin(buyers, buyers.id.equalsExp(debts.buyerId)),
+        leftOuterJoin(debts, debts.id.equalsExp(preEncashments.debtId)),
+        innerJoin(buyers, buyers.id.equalsExp(preEncashments.buyerId)),
       ])
       ..where(preEncashments.guid.equals(guid));
 
@@ -87,7 +87,7 @@ class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
       (row) => PreEncashmentEx(
         row.readTable(preEncashments),
         row.readTable(buyers),
-        row.readTable(debts)
+        row.readTableOrNull(debts)
       )
     ).getSingle();
   }
@@ -121,7 +121,7 @@ class DebtEx {
 class PreEncashmentEx {
   final PreEncashment preEncashment;
   final Buyer buyer;
-  final Debt debt;
+  final Debt? debt;
 
   PreEncashmentEx(this.preEncashment, this.buyer, this.debt);
 }
