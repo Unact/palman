@@ -50,10 +50,14 @@ class ReturnActViewModel extends PageViewModel<ReturnActState, ReturnActStateSta
       emit(state.copyWith(status: ReturnActStateStatus.dataLoaded, user: event));
     });
     returnActExListSubscription = returnActsRepository.watchReturnActExList().listen((event) {
-      emit(state.copyWith(
-        status: ReturnActStateStatus.dataLoaded,
-        returnActEx: event.firstWhereOrNull((e) => e.returnAct.guid == state.returnActEx.returnAct.guid)
-      ));
+      final returnActEx = event.firstWhereOrNull((e) => e.returnAct.guid == state.returnActEx.returnAct.guid);
+
+      if (returnActEx == null) {
+        emit(state.copyWith(status: ReturnActStateStatus.returnActRemoved));
+        return;
+      }
+
+      emit(state.copyWith(status: ReturnActStateStatus.dataLoaded, returnActEx: returnActEx));
     });
     returnActLineExListSubscription = returnActsRepository
       .watchReturnActLineExList(state.returnActEx.returnAct.guid).listen((event) {

@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:ui';
 
 import 'package:flex_color_scheme/flex_color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -24,40 +24,46 @@ import 'app/repositories/shipments_repository.dart';
 import 'app/repositories/users_repository.dart';
 
 void main() async {
-  runZonedGuarded<Future<void>>(() async {
-    Provider.debugCheckInvalidValueType = null;
-    WidgetsFlutterBinding.ensureInitialized();
-    await PackageInfo.fromPlatform();
+  Provider.debugCheckInvalidValueType = null;
+  WidgetsFlutterBinding.ensureInitialized();
+  await PackageInfo.fromPlatform();
 
-    bool isDebug = Misc.isDebug();
-    RenewApi api = await RenewApi.init(appName: Strings.appName);
-    AppDataStore dataStore = AppDataStore(logStatements: isDebug);
-    AppRepository appRepository = AppRepository(dataStore, api);
+  bool isDebug = Misc.isDebug();
+  RenewApi api = await RenewApi.init(appName: Strings.appName);
+  AppDataStore dataStore = AppDataStore(logStatements: isDebug);
+  AppRepository appRepository = AppRepository(dataStore, api);
 
-    DebtsRepository debtsRepository = DebtsRepository(dataStore, api);
-    LocationsRepository locationsRepository = LocationsRepository(dataStore, api);
-    OrdersRepository ordersRepository = OrdersRepository(dataStore, api);
-    PartnersRepository partnersRepository = PartnersRepository(dataStore, api);
-    PointsRepository pointsRepository = PointsRepository(dataStore, api);
-    PricesRepository pricesRepository = PricesRepository(dataStore, api);
-    ReturnActsRepository returnActsRepository = ReturnActsRepository(dataStore, api);
-    ShipmentsRepository shipmentsRepository = ShipmentsRepository(dataStore, api);
-    UsersRepository usersRepository = UsersRepository(dataStore, api);
+  DebtsRepository debtsRepository = DebtsRepository(dataStore, api);
+  LocationsRepository locationsRepository = LocationsRepository(dataStore, api);
+  OrdersRepository ordersRepository = OrdersRepository(dataStore, api);
+  PartnersRepository partnersRepository = PartnersRepository(dataStore, api);
+  PointsRepository pointsRepository = PointsRepository(dataStore, api);
+  PricesRepository pricesRepository = PricesRepository(dataStore, api);
+  ReturnActsRepository returnActsRepository = ReturnActsRepository(dataStore, api);
+  ShipmentsRepository shipmentsRepository = ShipmentsRepository(dataStore, api);
+  UsersRepository usersRepository = UsersRepository(dataStore, api);
 
-    GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
-    await Initialization.initializeSentry(
-      dsn: const String.fromEnvironment('PALMAN_SENTRY_DSN'),
-      isDebug: isDebug,
-      userGenerator: () async {
-        User user = await usersRepository.getCurrentUser();
+  FlutterError.onError = (errorDetails) {
+    Misc.logError(errorDetails.exception, errorDetails.stack);
+  };
 
-        return SentryUser(id: user.id.toString(), username: user.username, email: user.email);
-      }
-    );
-    Initialization.intializeFlogs(isDebug: isDebug);
+  PlatformDispatcher.instance.onError = (error, stack) {
+    Misc.logError(error, stack);
+    return true;
+  };
 
-    runApp(
+  Initialization.intializeFlogs(isDebug: isDebug);
+  await Initialization.initializeSentry(
+    dsn: const String.fromEnvironment('PALMAN_SENTRY_DSN'),
+    isDebug: false,
+    userGenerator: () async {
+      User user = await usersRepository.getCurrentUser();
+
+      return SentryUser(id: user.id.toString(), username: user.username, email: user.email);
+    },
+    appRunner: () => runApp(
       MultiRepositoryProvider(
         providers: [
           Provider.value(value: scaffoldMessengerKey),
@@ -100,8 +106,6 @@ void main() async {
           ]
         )
       )
-    );
-  }, (Object error, StackTrace stackTrace) {
-    Misc.reportError(error, stackTrace);
-  });
+    )
+  );
 }

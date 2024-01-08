@@ -35,19 +35,19 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   Future<void> initViewModel() async {
     await super.initViewModel();
 
-    await _startLocationListen();
-    await saveLocationChanges();
-    await needReloadCheck();
-
-    syncTimer = Timer.periodic(const Duration(minutes: 10), saveLocationChanges);
-    needReloadCheckTimer = Timer.periodic(const Duration(minutes: 10), needReloadCheck);
-
     userSubscription = usersRepository.watchUser().listen((event) {
       emit(state.copyWith(status: InfoStateStatus.dataLoaded, user: event));
     });
     appInfoSubscription = appRepository.watchAppInfo().listen((event) {
       emit(state.copyWith(status: InfoStateStatus.dataLoaded, appInfo: event));
     });
+
+    await _startLocationListen();
+    await saveLocationChanges();
+    await needReloadCheck();
+
+    syncTimer = Timer.periodic(const Duration(minutes: 10), saveLocationChanges);
+    needReloadCheckTimer = Timer.periodic(const Duration(minutes: 10), needReloadCheck);
   }
 
   Future<void> needReloadCheck([Timer? _]) async {
@@ -172,6 +172,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
         activityType: ActivityType.other,
         distanceFilter: 60,
         showBackgroundLocationIndicator: true,
+        allowBackgroundLocationUpdates: true
       );
     }
   }

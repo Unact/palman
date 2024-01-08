@@ -6,6 +6,7 @@ enum ReturnActStateStatus {
   returnActUpdated,
   returnActCopied,
   returnActLineDeleted,
+  returnActRemoved,
   inProgress,
   success,
   failure
