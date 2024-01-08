@@ -1138,18 +1138,18 @@ packages:
     dependency: transitive
     description:
       name: sentry
-      sha256: "8f4f1d3ef3ca1801aa3138392bbf0851b39eff703008111765b265f76c8f0190"
+      sha256: "89e426587b0879e53c46a0aae0eb312696d9d2d803ba14b252a65cc24b1416a2"
       url: "https://pub.dev"
     source: hosted
-    version: "7.8.0"
+    version: "7.14.0"
   sentry_flutter:
     dependency: "direct main"
     description:
       name: sentry_flutter
-      sha256: bbc1048558cf8ae65c1e27b1249357298cfca50e5843ad0367387f5c873b8e42
+      sha256: fd089ee4e75a927be037c56815a0a54af5a519f52b803a5ffecb589bb36e2401
       url: "https://pub.dev"
     source: hosted
-    version: "7.8.0"
+    version: "7.14.0"
   shared_preferences:
     dependency: transitive
     description:
@@ -1391,8 +1391,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "28b84e8"
-      resolved-ref: "28b84e882128ef29995c6eb17ed53a8997ccf263"
+      ref: "3947e7d"
+      resolved-ref: "3947e7dd408bb400b7601e97c0a0d5f1b2e3cef2"
       url: "git@github.com:Unact/u_app_utils.git"
     source: git
     version: "0.0.1"

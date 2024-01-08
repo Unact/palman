@@ -5,7 +5,8 @@ enum OrderStateStatus {
   dataLoaded,
   orderUpdated,
   orderCopied,
-  orderLineDeleted
+  orderLineDeleted,
+  orderRemoved
 }
 
 class OrderState {

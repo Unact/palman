@@ -124,6 +124,12 @@ class _PointViewState extends State<_PointView> {
       },
       listener: (context, state) async {
         switch (state.status) {
+          case PointStateStatus.pointRemoved:
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              Misc.showMessage(context, 'Акт возврата не доступен для редактирования');
+            });
+            break;
           case PointStateStatus.cameraError:
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Misc.showMessage(context, state.message);

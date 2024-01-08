@@ -111,6 +111,12 @@ class _OrderViewState extends State<_OrderView> {
       },
       listener: (context, state) {
         switch (state.status) {
+          case OrderStateStatus.orderRemoved:
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              Misc.showMessage(context, 'Заказ не доступен для редактирования');
+            });
+            break;
           case OrderStateStatus.orderCopied:
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Misc.showMessage(context, state.message);

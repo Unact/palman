@@ -4,6 +4,7 @@ enum PointStateStatus {
   initial,
   dataLoaded,
   pointUpdated,
+  pointRemoved,
   cameraError,
   cameraOpened
 }

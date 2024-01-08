@@ -21,10 +21,14 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
       emit(state.copyWith(status: PointStateStatus.dataLoaded, appInfo: event));
     });
     pointExListSubscription = pointsRepository.watchPointExList().listen((event) {
-      emit(state.copyWith(
-        status: PointStateStatus.dataLoaded,
-        pointEx: event.firstWhereOrNull((e) => e.point.guid == state.pointEx.point.guid)
-      ));
+      final pointEx = event.firstWhereOrNull((e) => e.point.guid == state.pointEx.point.guid);
+
+      if (pointEx == null) {
+        emit(state.copyWith(status: PointStateStatus.pointRemoved));
+        return;
+      }
+
+      emit(state.copyWith(status: PointStateStatus.dataLoaded, pointEx: pointEx));
     });
     pointFormatsSubscription = pointsRepository.watchPointFormats().listen((event) {
       emit(state.copyWith(status: PointStateStatus.dataLoaded, pointFormats: event));

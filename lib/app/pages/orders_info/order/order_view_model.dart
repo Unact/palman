@@ -36,10 +36,14 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
       emit(state.copyWith(status: OrderStateStatus.dataLoaded, user: event));
     });
     orderExListSubscription = ordersRepository.watchOrderExList().listen((event) {
-      emit(state.copyWith(
-        status: OrderStateStatus.dataLoaded,
-        orderEx: event.firstWhereOrNull((e) => e.order.guid == state.orderEx.order.guid)
-      ));
+      final orderEx = event.firstWhereOrNull((e) => e.order.guid == state.orderEx.order.guid);
+
+      if (orderEx == null) {
+        emit(state.copyWith(status: OrderStateStatus.orderRemoved));
+        return;
+      }
+
+      emit(state.copyWith(status: OrderStateStatus.dataLoaded, orderEx: orderEx));
     });
     orderLineExListSubscription = ordersRepository.watchOrderLineExList(state.orderEx.order.guid).listen((event) {
       emit(state.copyWith(
