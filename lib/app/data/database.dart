@@ -312,7 +312,7 @@ LazyDatabase _openConnection(bool logStatements) {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, '${Strings.appName}.sqlite'));
 
-    return NativeDatabase.createInBackground(file, logStatements: logStatements, cachePreparedStatements: true);
+    return NativeDatabase.createInBackground(file, logStatements: false, cachePreparedStatements: true);
   });
 }
 

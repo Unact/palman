@@ -43,12 +43,6 @@ class GoodsState {
   final List<GoodsReturnDetail> goodsDetails;
   final String message;
 
-  List<String> get manufacturers => visibleGoodsDetails
-    .where((e) => e.goods.manufacturer != null)
-    .map((e) => e.goods.manufacturer!)
-    .toSet().toList();
-
-  List<String> get goodsFirstWords => visibleGoodsDetails.map((e) => e.goods.name.split(' ')[0]).toSet().toList();
   List<ReturnActLineExResult> get filteredReturnActLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
 
   bool get showAllGoods =>

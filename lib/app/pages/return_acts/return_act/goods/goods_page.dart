@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:expansion_tile_group/expansion_tile_group.dart';
+import 'package:expandable_sliver_list/expandable_sliver_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
@@ -166,23 +166,15 @@ class _GoodsViewState extends State<_GoodsView> {
 
   Widget buildGoodsView(BuildContext context, bool compactMode) {
     final vm = context.read<GoodsViewModel>();
-    final Map<String, List<GoodsReturnDetail>> groupedGoods = {};
+    Map<String, List<GoodsReturnDetail>> groupedGoods = vm.state.groupByManufacturer ?
+      vm.state.visibleGoodsDetails.groupListsBy((g) => g.goods.manufacturer ?? 'Не указан') :
+      vm.state.visibleGoodsDetails.groupListsBy((g) => g.goods.name.split(' ').first);
     final keyStr = Object.hashAll([
       vm.state.selectedCategory,
       vm.state.selectedGoodsFilter,
       vm.state.showOnlyLatest,
       vm.state.goodsNameSearch
     ]).toString();
-
-    if (vm.state.groupByManufacturer) {
-      for (var e in vm.state.manufacturers) {
-        groupedGoods[e] = vm.state.visibleGoodsDetails.where((g) => g.goods.manufacturer == e).toList();
-      }
-    } else {
-      for (var e in vm.state.goodsFirstWords) {
-        groupedGoods[e] = vm.state.visibleGoodsDetails.where((g) => g.goods.name.split(' ').first == e).toList();
-      }
-    }
 
     return _GoodsGroupsView(
       key: Key(keyStr),
@@ -354,14 +346,20 @@ class _CategoriesView extends StatefulWidget {
 }
 
 class _CategoriesViewState extends State<_CategoriesView> {
-  final Map<String, GlobalKey<ExpansionTileCustomState>> groupedCategoriesExpansion = {};
+  final Map<String, ExpandableSliverListController<CategoriesExResult>> groupedCategoriesExpansion = {};
   late final AutoScrollController categoriesController = AutoScrollController(
     keepScrollOffset: false,
     axis: Axis.vertical,
     viewportBoundaryGetter: () => Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
   );
 
-   void _scrollToIndex(AutoScrollController controller, int index) {
+  void _expand(AutoScrollController controller, int index, String name, bool forceExpand) {
+    final collapsed = (groupedCategoriesExpansion[name]?.isCollapsed() ?? false) || forceExpand;
+
+    for (var e in groupedCategoriesExpansion.keys) {
+      groupedCategoriesExpansion[e]?.collapse();
+    }
+    if (collapsed) groupedCategoriesExpansion[name]?.expand();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 200));
       controller.scrollToIndex(index, preferPosition: AutoScrollPosition.begin);
@@ -370,11 +368,17 @@ class _CategoriesViewState extends State<_CategoriesView> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> children = [];
+    final items = widget.groupedCategories.entries.where((e) => e.value.isNotEmpty).toList();
 
-    widget.groupedCategories.entries.where((e) => e.value.isNotEmpty).forEachIndexed((index, e) {
-      groupedCategoriesExpansion.putIfAbsent(e.key, () => GlobalKey());
-      children.add(buildCategorySelectGroup(context, index, e.key, e.value));
+    items.forEachIndexed((index, e) {
+      groupedCategoriesExpansion.putIfAbsent(
+        e.key,
+        () => ExpandableSliverListController(
+          initialStatus: widget.initiallyExpanded ?
+            ExpandableSliverListStatus.expanded :
+            ExpandableSliverListStatus.collapsed
+        )
+      );
     });
 
     return LayoutBuilder(
@@ -382,7 +386,14 @@ class _CategoriesViewState extends State<_CategoriesView> {
         return CustomScrollView(
           controller: categoriesController,
           slivers: [
-            SliverToBoxAdapter(child: Column(children: children)),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (BuildContext context, int index) {
+                  return buildCategorySelectGroup(context, index, items[index].key, items[index].value);
+                },
+                childCount: items.length
+              ),
+            ),
             SliverToBoxAdapter(child: SizedBox(height: constraints.maxHeight*0.9))
           ]
         );
@@ -396,33 +407,30 @@ class _CategoriesViewState extends State<_CategoriesView> {
     String name,
     List<CategoriesExResult> groupCategories
   ) {
-    final children = groupCategories.map((e) => buildCategoryTile(e)).toList();
-
     return AutoScrollTag(
       controller: categoriesController,
       index: index,
       key: Key(name),
-      child: ListTileTheme(
-        tileColor: Theme.of(context).colorScheme.primary,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 2),
-          child: ExpansionTileItem(
-            expansionKey: groupedCategoriesExpansion[name],
-            initiallyExpanded: widget.initiallyExpanded,
-            onExpansionChanged: (changed) {
-              if (!changed) return;
-
-              _scrollToIndex(categoriesController, index);
-              for (var e in groupedCategoriesExpansion.entries) {
-                if (e.key != name) e.value.currentState?.collapse();
-              }
-            },
-            childrenPadding: EdgeInsets.zero,
-            decoration: const BoxDecoration(),
-            trailing: Container(width: 0),
-            title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            children: children
-          ),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 2),
+        child: CustomScrollView(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(
+              child: ListTile(
+                onTap: () => _expand(categoriesController, index, name, false),
+                title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                tileColor: Theme.of(context).colorScheme.primary,
+              )
+            ),
+            ExpandableSliverList<CategoriesExResult>(
+              initialItems: groupCategories,
+              controller: groupedCategoriesExpansion[name]!,
+              duration: const Duration(microseconds: 300),
+              builder: (context, item, _) => buildCategoryTile(item)
+            )
+          ]
         )
       )
     );
@@ -483,7 +491,7 @@ class _GoodsGroupsView extends StatefulWidget {
 class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
   final endOfTime = DateTime(9999, 1, 1);
   final startOfTime = DateTime(2015, 8, 1);
-  final Map<String, GlobalKey<ExpansionTileCustomState>> groupedGoodsExpansion = {};
+  final Map<String, ExpandableSliverListController<GoodsReturnDetail>> groupedGoodsExpansion = {};
   late final AutoScrollController goodsController = AutoScrollController(
     keepScrollOffset: false,
     axis: Axis.vertical,
@@ -491,7 +499,13 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
   );
   final Map<GoodsReturnDetail, TextEditingController> dateControllers = {};
 
-  void _scrollToIndex(AutoScrollController controller, int index) {
+  void _expand(AutoScrollController controller, int index, String name, bool forceExpand) {
+    final collapsed = (groupedGoodsExpansion[name]?.isCollapsed() ?? false) || forceExpand;
+
+    for (var e in groupedGoodsExpansion.keys) {
+      groupedGoodsExpansion[e]?.collapse();
+    }
+    if (collapsed) groupedGoodsExpansion[name]?.expand();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await Future.delayed(const Duration(milliseconds: 200));
       controller.scrollToIndex(index, preferPosition: AutoScrollPosition.begin);
@@ -499,33 +513,30 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
   }
 
   Widget buildGoodsViewGroup(BuildContext context, int index, String name, List<GoodsReturnDetail> groupGoods) {
-    final children = groupGoods.map((g) => buildGoodsTile(context, g)).toList();
-
     return AutoScrollTag(
       controller: goodsController,
       index: index,
       key: Key(name),
-      child: ListTileTheme(
-        tileColor: Theme.of(context).colorScheme.primary,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 2),
-          child: ExpansionTileItem(
-            expansionKey: groupedGoodsExpansion[name],
-            initiallyExpanded: widget.initiallyExpanded,
-            onExpansionChanged: (changed) {
-              if (!changed) return;
-
-              _scrollToIndex(goodsController, index);
-              for (var e in groupedGoodsExpansion.entries) {
-                if (e.key != name) e.value.currentState?.collapse();
-              }
-            },
-            childrenPadding: EdgeInsets.zero,
-            decoration: const BoxDecoration(),
-            trailing: Container(width: 0),
-            title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-            children: children
-          ),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 2),
+        child: CustomScrollView(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(
+              child: ListTile(
+                onTap: () => _expand(goodsController, index, name, false),
+                title: Text(name, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                tileColor: Theme.of(context).colorScheme.primary
+              )
+            ),
+            ExpandableSliverList<GoodsReturnDetail>(
+              initialItems: groupGoods,
+              controller: groupedGoodsExpansion[name]!,
+              duration: const Duration(microseconds: 300),
+              builder: (context, item, _) => buildGoodsTile(context, item)
+            )
+          ]
         )
       )
     );
@@ -537,7 +548,14 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     final items = widget.groupedGoods.entries.sorted((a, b) => a.key.compareTo(b.key));
 
     items.where((e) => e.value.isNotEmpty).forEachIndexed((index, e) {
-      groupedGoodsExpansion.putIfAbsent(e.key, () => GlobalKey());
+      groupedGoodsExpansion.putIfAbsent(
+        e.key,
+        () => ExpandableSliverListController(
+          initialStatus: widget.initiallyExpanded ?
+            ExpandableSliverListStatus.expanded :
+            ExpandableSliverListStatus.collapsed
+        )
+      );
       children.add(buildGoodsViewGroup(context, index, e.key, e.value));
     });
 
@@ -554,13 +572,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
               label: Text(e.$2.key),
               labelStyle: Styles.formStyle,
               backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
-              onPressed: () {
-                for (var name in widget.groupedGoods.keys) {
-                  groupedGoodsExpansion[name]?.currentState?.collapse();
-                }
-                groupedGoodsExpansion[e.$2.key]?.currentState?.expand();
-                _scrollToIndex(goodsController, e.$1);
-              }
+              onPressed: () => _expand(goodsController, e.$1, e.$2.key, true)
             )).toList()
           )
         )
@@ -577,7 +589,14 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
                   return CustomScrollView(
                     controller: goodsController,
                     slivers: [
-                      SliverToBoxAdapter(child: Column(children: children)),
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (BuildContext context, int index) {
+                            return buildGoodsViewGroup(context, index, items[index].key, items[index].value);
+                          },
+                          childCount: items.length
+                        ),
+                      ),
                       SliverToBoxAdapter(child: SizedBox(height: constraints.maxHeight*0.9))
                     ]
                   );
