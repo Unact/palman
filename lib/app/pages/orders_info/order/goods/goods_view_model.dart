@@ -39,11 +39,8 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     ).listen((event) {
       final categoryIds = event.map((e) => e.goods.categoryId).toSet();
       final allCategories = categories.where((e) => categoryIds.contains(e.category.id)).toList();
-      emit(state.copyWith(
-        status: GoodsStateStatus.dataLoaded,
-        goodsDetails: event,
-        allCategories: allCategories
-      ));
+
+      emit(state.copyWith(status: GoodsStateStatus.dataLoaded, goodsDetails: event, allCategories: allCategories));
 
       searchGoods();
     });
