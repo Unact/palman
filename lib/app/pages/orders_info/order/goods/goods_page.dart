@@ -176,7 +176,9 @@ class _GoodsViewState extends State<_GoodsView> {
 
   Widget buildGoodsView(BuildContext context, bool compactMode) {
     final vm = context.read<GoodsViewModel>();
-    final Map<String, List<GoodsDetail>> groupedGoods = {};
+    Map<String, List<GoodsDetail>> groupedGoods = vm.state.groupByManufacturer ?
+      vm.state.visibleGoodsDetails.groupListsBy((g) => g.goods.manufacturer ?? 'Не указан') :
+      vm.state.visibleGoodsDetails.groupListsBy((g) => g.goods.name.split(' ').first);
     final keyStr = Object.hashAll([
       vm.state.selectedCategory,
       vm.state.selectedGoodsFilter,
@@ -186,16 +188,6 @@ class _GoodsViewState extends State<_GoodsView> {
       vm.state.showOnlyLatest,
       vm.state.goodsNameSearch
     ]).toString();
-
-    if (vm.state.groupByManufacturer) {
-      for (var e in vm.state.manufacturers) {
-        groupedGoods[e] = vm.state.visibleGoodsDetails.where((g) => g.goods.manufacturer == e).toList();
-      }
-    } else {
-      for (var e in vm.state.goodsFirstWords) {
-        groupedGoods[e] = vm.state.visibleGoodsDetails.where((g) => g.goods.name.split(' ').first == e).toList();
-      }
-    }
 
     return _GoodsGroupsView(
       key: Key(keyStr),
@@ -410,12 +402,11 @@ class _CategoriesViewState extends State<_CategoriesView> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> children = [];
+    final items = widget.groupedCategories.entries.where((e) => e.value.isNotEmpty).toList();
 
-    widget.groupedCategories.entries.where((e) => e.value.isNotEmpty).forEachIndexed((index, e) {
+    items.forEachIndexed((index, e) {
       groupedCategoriesExpansion.putIfAbsent(e.key, () => GlobalKey());
       groupedCategoriesActive.putIfAbsent(e.key, () => widget.showOnlyActive);
-      children.add(buildCategorySelectGroup(context, index, e.key, e.value));
     });
 
     return LayoutBuilder(
@@ -423,7 +414,14 @@ class _CategoriesViewState extends State<_CategoriesView> {
         return CustomScrollView(
           controller: categoriesController,
           slivers: [
-            SliverToBoxAdapter(child: Column(children: children)),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (BuildContext context, int index) {
+                  return buildCategorySelectGroup(context, index, items[index].key, items[index].value);
+                },
+                childCount: items.length
+              ),
+            ),
             SliverToBoxAdapter(child: SizedBox(height: constraints.maxHeight*0.9))
           ]
         );
@@ -619,13 +617,11 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> children = [];
-    final items = widget.groupedGoods.entries.sorted((a, b) => a.key.compareTo(b.key));
+    final items = widget.groupedGoods.entries.where((e) => e.value.isNotEmpty).sorted((a, b) => a.key.compareTo(b.key));
 
-    items.where((e) => e.value.isNotEmpty).forEachIndexed((index, e) {
+    items.forEachIndexed((index, e) {
       groupedGoodsExpansion.putIfAbsent(e.key, () => GlobalKey());
       groupedGoodsActive.putIfAbsent(e.key, () => widget.showOnlyActive);
-      children.add(buildGoodsViewGroup(context, index, e.key, e.value));
     });
 
     final goodsIndex = !widget.showGroupInfo ?
@@ -664,7 +660,14 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
                   return CustomScrollView(
                     controller: goodsController,
                     slivers: [
-                      SliverToBoxAdapter(child: Column(children: children)),
+                      SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (BuildContext context, int index) {
+                            return buildGoodsViewGroup(context, index, items[index].key, items[index].value);
+                          },
+                          childCount: items.length
+                        ),
+                      ),
                       SliverToBoxAdapter(child: SizedBox(height: constraints.maxHeight*0.9))
                     ]
                   );

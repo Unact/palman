@@ -40,14 +40,8 @@ class GoodsState {
   final List<GoodsFilter> goodsFilters;
   final List<GoodsDetail> goodsDetails;
 
-  List<String> get manufacturers => visibleGoodsDetails
-    .where((e) => e.goods.manufacturer != null)
-    .map((e) => e.goods.manufacturer!)
-    .toSet().toList();
-
   double get total => filteredOrderLinesExList.fold(0, (acc, e) => acc + e.line.total);
 
-  List<String> get goodsFirstWords => visibleGoodsDetails.map((e) => e.goods.name.split(' ')[0]).toSet().toList();
   List<OrderLineExResult> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
 
   bool get showAllGoods => selectedCategory != null ||
