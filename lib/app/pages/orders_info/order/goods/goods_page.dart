@@ -331,7 +331,14 @@ class _GoodsViewState extends State<_GoodsView> {
             onPressed: vm.toggleShowGroupInfo,
             tooltip: 'Отобразить индекс'
           ),
-          Flexible(child: Text('Сумма: ${Format.numberStr(vm.state.total)}', style: Styles.formStyle))
+          Flexible(
+            child: Text(
+              'Сумма: ${Format.numberStr(vm.state.total)}',
+              style: Styles.formStyle,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis
+            )
+          )
         ]
       )
     );
