@@ -247,12 +247,14 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
 
           if (latitudes.isEmpty || longitudes.isEmpty) return;
 
-          ym.BoundingBox boundingBox = ym.BoundingBox(
-            northEast: ym.Point(latitude: latitudes.reduce(max), longitude: longitudes.reduce(max)),
-            southWest: ym.Point(latitude: latitudes.reduce(min), longitude: longitudes.reduce(min)),
+          final geometry = ym.Geometry.fromBoundingBox(
+            ym.BoundingBox(
+              northEast: ym.Point(latitude: latitudes.reduce(max), longitude: longitudes.reduce(max)),
+              southWest: ym.Point(latitude: latitudes.reduce(min), longitude: longitudes.reduce(min)),
+            )
           );
 
-          await controller.moveCamera(ym.CameraUpdate.newBounds(boundingBox));
+          await controller.moveCamera(ym.CameraUpdate.newGeometry(geometry));
         },
       ))]
     );

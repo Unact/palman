@@ -46,9 +46,9 @@ PODS:
   - qr_code_scanner (0.2.0):
     - Flutter
     - MTBBarcodeScanner
-  - SDWebImage (5.18.8):
-    - SDWebImage/Core (= 5.18.8)
-  - SDWebImage/Core (5.18.8)
+  - SDWebImage (5.18.10):
+    - SDWebImage/Core (= 5.18.10)
+  - SDWebImage/Core (5.18.10)
   - SDWebImageWebPCoder (0.14.2):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
@@ -90,8 +90,8 @@ PODS:
     - Flutter
   - yandex_mapkit (0.0.1):
     - Flutter
-    - YandexMapsMobile (= 4.3.2-full)
-  - YandexMapsMobile (4.3.2-full)
+    - YandexMapsMobile (= 4.4.0-full)
+  - YandexMapsMobile (4.4.0-full)
 
 DEPENDENCIES:
   - camera_avfoundation (from `.symlinks/plugins/camera_avfoundation/ios`)
@@ -190,7 +190,7 @@ SPEC CHECKSUMS:
   path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
   qr_code_scanner: bb67d64904c3b9658ada8c402e8b4d406d5d796e
-  SDWebImage: a81bbb3ba4ea5f810f4069c68727cb118467a04a
+  SDWebImage: fc8f2d48bbfd72ef39d70e981bd24a3f3be53fec
   SDWebImageWebPCoder: 633b813fca24f1de5e076bcd7f720c038b23892b
   Sentry: 64a9f9c3637af913adcf53deced05bbe452d1410
   sentry_flutter: 57912cf425e09398bdf47f38842a1fcb9836f1be
@@ -203,8 +203,8 @@ SPEC CHECKSUMS:
   u_app_utils: 906ccba4e520504acf7864a60a4b696d6b66b546
   url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
   vibration: 7d883d141656a1c1a6d8d238616b2042a51a1241
-  yandex_mapkit: 352801c3b9fe72c0010207d9b01f8838a54b1c5a
-  YandexMapsMobile: c73c71ec041b215284efbe8a0ebd7cdb77aad8d7
+  yandex_mapkit: 5ab063b9cb8ef57b40bb02bf3dec3ec324ef50c9
+  YandexMapsMobile: a76ddceccf2d78f9f1034d07a354810cd21ef21a
 
 PODFILE CHECKSUM: 81b70bf237591c7a8190509ce76b03039ee099d3
 

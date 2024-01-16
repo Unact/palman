@@ -12,7 +12,7 @@
 
     <application
         android:label="Продажи"
-        android:name="${applicationName}"
+        android:name=".MainApplication"
         android:icon="@mipmap/launcher_icon">
         <activity
             android:name=".MainActivity"
