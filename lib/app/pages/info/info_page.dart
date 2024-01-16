@@ -156,6 +156,7 @@ class _InfoViewState extends State<_InfoView> {
               ),
             ));
             break;
+          case InfoStateStatus.locationUpdateFailure:
           case InfoStateStatus.imageLoadInProgress:
           case InfoStateStatus.imageLoadSuccess:
           case InfoStateStatus.imageLoadCanceled:

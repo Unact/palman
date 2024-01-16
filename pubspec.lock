@@ -173,10 +173,10 @@ packages:
     dependency: transitive
     description:
       name: camera
-      sha256: ebebead3d5ec3d148249331d751d462d7e8c98102b8830a9b45ec96a2bd4333f
+      sha256: "9499cbc2e51d8eb0beadc158b288380037618ce4e30c9acbc4fae1ac3ecb5797"
       url: "https://pub.dev"
     source: hosted
-    version: "0.10.5+2"
+    version: "0.10.5+9"
   camera_android:
     dependency: transitive
     description:
@@ -405,10 +405,11 @@ packages:
   fk_user_agent:
     dependency: transitive
     description:
-      name: fk_user_agent
-      sha256: fd6c94e120786985a292d12f61422a581f4e851148d5940af38b819357b8ad0d
-      url: "https://pub.dev"
-    source: hosted
+      path: "."
+      ref: "2168301"
+      resolved-ref: "2168301ab82eb4b210c7cb064126bd605677d29a"
+      url: "git@github.com:xkxeeshankhan/fk_user_agent.git"
+    source: git
     version: "2.1.0"
   flex_color_scheme:
     dependency: "direct main"
@@ -1391,8 +1392,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "3947e7d"
-      resolved-ref: "3947e7dd408bb400b7601e97c0a0d5f1b2e3cef2"
+      ref: "2736e9c"
+      resolved-ref: "2736e9c3d22290e025b4686ddfead2e5c166e7cf"
       url: "git@github.com:Unact/u_app_utils.git"
     source: git
     version: "0.0.1"
@@ -1560,10 +1561,10 @@ packages:
     dependency: "direct main"
     description:
       name: yandex_mapkit
-      sha256: "9a197369a57a484872546c1d508f1c11e8366c9c2000269032d220dbf210cec5"
+      sha256: "1c992f44cdc86e391e794a3b7bc669c4446a111275fa09fe250ba8670dc2aea5"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.3"
+    version: "3.4.0"
 sdks:
   dart: ">=3.2.0-194.0.dev <4.0.0"
   flutter: ">=3.13.0"

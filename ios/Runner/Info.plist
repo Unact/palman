@@ -29,13 +29,13 @@
 		<key>NSCameraUsageDescription</key>
 		<string>Для фотографирования точки</string>
 		<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-		<string>Для определения местопложения</string>
+		<string>Для определения местоположения</string>
 		<key>NSLocationAlwaysUsageDescription</key>
-		<string>Для определения местопложения</string>
+		<string>Для определения местоположения</string>
 		<key>NSLocationUsageDescription</key>
-		<string>Для определения местопложения</string>
+		<string>Для определения местоположения</string>
 		<key>NSLocationWhenInUseUsageDescription</key>
-		<string>Для определения местопложения</string>
+		<string>Для определения местоположения</string>
 		<key>PALMAN_YANDEX_API_KEY</key>
 		<string>$(PALMAN_YANDEX_API_KEY)</string>
 		<key>UIApplicationSupportsIndirectInputEvents</key>

@@ -93,7 +93,12 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   Future<void> _startLocationListen() async {
     positionSubscription = Geolocator.getPositionStream(
       locationSettings: _getLocationSettings()
-    ).listen(_saveLocation);
+    ).listen(_saveLocation, onError: (error, stack) {
+      emit(state.copyWith(
+        status: InfoStateStatus.locationUpdateFailure,
+        message: 'Не удалось обновить данные о местоположении. $error'
+      ));
+    });
   }
 
   Future<void> syncChanges() async {
