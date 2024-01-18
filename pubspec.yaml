@@ -40,9 +40,10 @@ dependencies:
   sentry_flutter: ^7.14.0
   sqlite3_flutter_libs: ^0.5.0
   u_app_utils:
-    git:
-      url: git@github.com:Unact/u_app_utils.git
-      ref: 2736e9c
+    path: ../u_app_utils
+    #git:
+    #  url: git@github.com:Unact/u_app_utils.git
+    #  ref: 2736e9c
   uuid: ^3.0.7
   yandex_mapkit: ^3.4.0
 

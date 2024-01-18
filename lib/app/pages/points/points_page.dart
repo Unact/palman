@@ -12,6 +12,7 @@ import 'package:yandex_mapkit/yandex_mapkit.dart' as ym;
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
+import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
@@ -95,8 +96,11 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
             child: const Icon(Icons.add),
           ) : null,
           body: Refreshable(
-            pendingChanges: vm.state.pendingChanges,
+            confirmRefresh: vm.state.pendingChanges != 0,
             onRefresh: vm.getData,
+            onError: (error, stackTrace) {
+              if (error is! AppError) Misc.reportError(error, stackTrace);
+            },
             childBuilder: (context, physics) => TabBarView(
               controller: tabController,
               children: [
