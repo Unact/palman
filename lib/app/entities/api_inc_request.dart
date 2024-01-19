@@ -4,7 +4,7 @@ class ApiIncRequest extends Equatable {
   final int id;
   final DateTime date;
   final int buyerId;
-  final double incSum;
+  final double? incSum;
   final String? info;
   final String status;
   final String guid;
@@ -26,7 +26,7 @@ class ApiIncRequest extends Equatable {
       id: json['id'],
       date: Parsing.parseDate(json['date'])!,
       buyerId: json['buyerId'],
-      incSum: Parsing.parseDouble(json['incSum'])!,
+      incSum: Parsing.parseDouble(json['incSum']),
       info: json['info'],
       status: json['status'],
       guid: json['guid'],
