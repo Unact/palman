@@ -124,8 +124,11 @@ class _InfoViewState extends State<_InfoView> {
             refreshController: refreshController,
             processingText: state.toLoad != 0 ? 'Загружено ${state.loaded} из ${state.toLoad} словарей' : 'Загрузка',
             messageText: 'Последнее обновление: $lastLoadTime',
-            pendingChanges: vm.state.pendingChanges,
+            confirmRefresh: vm.state.pendingChanges != 0,
             onRefresh: vm.getData,
+            onError: (error, stackTrace) {
+              if (error is! AppError) Misc.reportError(error, stackTrace);
+            },
             childBuilder: (context, physics) => ListView(
               physics: physics,
               padding: const EdgeInsets.only(top: 24, left: 8, right: 8, bottom: 24),
