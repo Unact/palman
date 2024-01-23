@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:intl/intl.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart' as ym;
 
@@ -152,14 +153,31 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
     return ListView(
       physics: physics,
       padding: const EdgeInsets.only(top: 16),
-      children: routePointDate.entries.map((e) => buildRoutePointDateTile(context, e.key, e.value)).toList()
+      children: routePointDate.entries.sorted(
+        (a, b) => a.key.compareTo(b.key)
+      ).map((e) => buildRoutePointDateTile(context, e.key, e.value)).toList()
     );
   }
 
   Widget buildRoutePointDateTile(BuildContext context, DateTime date, List<RoutePointEx> routePointExList) {
     return ExpansionTile(
       initiallyExpanded: false,
-      title: Text(Format.dateStr(date), style: const TextStyle(color: Colors.black)),
+      title: Text.rich(
+        TextSpan(
+          children: <TextSpan>[
+            TextSpan(
+              text: Format.dateStr(date),
+              style: const TextStyle(color: Colors.black)
+            ),
+            const TextSpan(text: ' ('),
+            TextSpan(
+              text: DateFormat.E('ru').format(date),
+              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)
+            ),
+            const TextSpan(text: ')')
+          ]
+        )
+      ),
       children: routePointExList.map((e) => buildRoutePointTile(context, e)).toList()
     );
   }

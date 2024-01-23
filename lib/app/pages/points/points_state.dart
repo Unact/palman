@@ -26,7 +26,8 @@ class PointsState {
     this.appInfo,
     this.routePointExList = const [],
     this.newOrder,
-    this.isLoading = false
+    this.isLoading = false,
+    this.workdates = const []
   });
 
   final PointsStateStatus status;
@@ -38,6 +39,7 @@ class PointsState {
   final List<RoutePointEx> routePointExList;
   final OrderExResult? newOrder;
   final AppInfoResult? appInfo;
+  final List<Workdate> workdates;
 
   int get pendingChanges => appInfo == null ? 0 : appInfo!.pointsToSync;
 
@@ -55,6 +57,7 @@ class PointsState {
     List<RoutePointEx>? routePointExList,
     OrderExResult? newOrder,
     AppInfoResult? appInfo,
+    List<Workdate>? workdates,
   }) {
     return PointsState(
       status: status ?? this.status,
@@ -65,7 +68,8 @@ class PointsState {
       isLoading: isLoading ?? this.isLoading,
       routePointExList: routePointExList ?? this.routePointExList,
       newOrder: newOrder ?? this.newOrder,
-      appInfo: appInfo ?? this.appInfo
+      appInfo: appInfo ?? this.appInfo,
+      workdates: workdates ?? this.workdates,
     );
   }
 }
