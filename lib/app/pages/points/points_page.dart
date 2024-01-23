@@ -153,7 +153,9 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
     return ListView(
       physics: physics,
       padding: const EdgeInsets.only(top: 16),
-      children: routePointDate.entries.sorted((a, b) => a.key.compareTo(b.key)).map((e) => buildRoutePointDateTile(context, e.key, e.value)).toList()
+      children: routePointDate.entries.sorted(
+        (a, b) => a.key.compareTo(b.key)
+      ).map((e) => buildRoutePointDateTile(context, e.key, e.value)).toList()
     );
   }
 
