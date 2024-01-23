@@ -43,7 +43,8 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
   Stream<List<RoutePointEx>> watchRoutePoints() {
     final res = select(routePoints).join([
       innerJoin(buyers, buyers.id.equalsExp(routePoints.buyerId))
-    ]);
+    ])
+    ..orderBy([OrderingTerm(expression: buyers.name)]);
 
     return res.map(
       (row) => RoutePointEx(

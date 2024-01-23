@@ -5,6 +5,7 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   final OrdersRepository ordersRepository;
   final PointsRepository pointsRepository;
   final UsersRepository usersRepository;
+  StreamSubscription<List<Workdate>>? workdatesSubscription;
   StreamSubscription<List<PointEx>>? pointExListSubscription;
   StreamSubscription<List<RoutePointEx>>? routePointListSubscription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
@@ -19,6 +20,9 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   Future<void> initViewModel() async {
     await super.initViewModel();
 
+    workdatesSubscription = appRepository.watchWorkdates().listen((event) {
+      emit(state.copyWith(status: PointsStateStatus.dataLoaded, workdates: event));
+    });
     routePointListSubscription = pointsRepository.watchRoutePointExList().listen((event) {
       emit(state.copyWith(status: PointsStateStatus.dataLoaded, routePointExList: event));
     });
@@ -34,6 +38,7 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   Future<void> close() async {
     await super.close();
 
+    await workdatesSubscription?.cancel();
     await routePointListSubscription?.cancel();
     await pointExListSubscription?.cancel();
     await appInfoSubscription?.cancel();
@@ -54,8 +59,9 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   }
 
   Future<void> addNewOrder(RoutePointEx routePointEx) async {
+    final workdate = state.workdates.where((el) => el.date.isAfter(routePointEx.routePoint.date)).firstOrNull;
     final newOrder = await ordersRepository.addOrder(
-      date: routePointEx.routePoint.date,
+      date: workdate?.date,
       buyerId: routePointEx.routePoint.buyerId
     );
 
