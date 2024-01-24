@@ -7,7 +7,10 @@ enum PointsStateStatus {
   listViewChanged,
   pointAdded,
   pointDeleted,
-  orderAdded
+  orderAdded,
+  visitInProgress,
+  visitSuccess,
+  visitFailure
 }
 
 class PointsState {
@@ -27,7 +30,9 @@ class PointsState {
     this.routePointExList = const [],
     this.newOrder,
     this.isLoading = false,
-    this.workdates = const []
+    this.workdates = const [],
+    this.visitSkipReasons = const [],
+    this.message = ''
   });
 
   final PointsStateStatus status;
@@ -40,6 +45,8 @@ class PointsState {
   final OrderExResult? newOrder;
   final AppInfoResult? appInfo;
   final List<Workdate> workdates;
+  final List<VisitSkipReason> visitSkipReasons;
+  final String message;
 
   int get pendingChanges => appInfo == null ? 0 : appInfo!.pointsToSync;
 
@@ -58,6 +65,8 @@ class PointsState {
     OrderExResult? newOrder,
     AppInfoResult? appInfo,
     List<Workdate>? workdates,
+    List<VisitSkipReason>? visitSkipReasons,
+    String? message
   }) {
     return PointsState(
       status: status ?? this.status,
@@ -70,6 +79,8 @@ class PointsState {
       newOrder: newOrder ?? this.newOrder,
       appInfo: appInfo ?? this.appInfo,
       workdates: workdates ?? this.workdates,
+      visitSkipReasons: visitSkipReasons ?? this.visitSkipReasons,
+      message: message ?? this.message,
     );
   }
 }

@@ -73,7 +73,8 @@ part 'users_dao.dart';
     ReturnActLines,
     ReturnActTypes,
     PartnersReturnActTypes,
-    RoutePoints
+    RoutePoints,
+    VisitSkipReasons
   ],
   daos: [
     BonusProgramsDao,
@@ -137,6 +138,10 @@ class AppDataStore extends _$AppDataStore {
     return (select(workdates)..orderBy([(tbl) => OrderingTerm(expression: tbl.date)])).watch();
   }
 
+  Stream<List<VisitSkipReason>> watchVisitSkipReasons() {
+    return (select(visitSkipReasons)..orderBy([(tbl) => OrderingTerm(expression: tbl.name)])).watch();
+  }
+
   Future<int> updatePref(PrefsCompanion pref) {
     return update(prefs).write(pref);
   }
@@ -158,6 +163,10 @@ class AppDataStore extends _$AppDataStore {
       await _clearData();
       await _populateData();
     });
+  }
+
+  Future<void> loadVisitSkipReasons(List<VisitSkipReason> list) async {
+    await _loadData(visitSkipReasons, list);
   }
 
   Future<void> loadWorkdates(List<Workdate> list) async {
@@ -224,7 +233,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 20;
+  int get schemaVersion => 21;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

@@ -54,5 +54,6 @@ part 'api_shipment.dart';
 part 'api_shipments_data.dart';
 part 'api_shop_department.dart';
 part 'api_user_data.dart';
+part 'api_visit_skip_reason.dart';
 part 'api_workdate.dart';
 part 'app_error.dart';

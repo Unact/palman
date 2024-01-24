@@ -5,6 +5,7 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   final OrdersRepository ordersRepository;
   final PointsRepository pointsRepository;
   final UsersRepository usersRepository;
+  StreamSubscription<List<VisitSkipReason>>? visitSkipReasonsSubscription;
   StreamSubscription<List<Workdate>>? workdatesSubscription;
   StreamSubscription<List<PointEx>>? pointExListSubscription;
   StreamSubscription<List<RoutePointEx>>? routePointListSubscription;
@@ -20,6 +21,9 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   Future<void> initViewModel() async {
     await super.initViewModel();
 
+    visitSkipReasonsSubscription = appRepository.watchVisitSkipReasons().listen((event) {
+      emit(state.copyWith(status: PointsStateStatus.dataLoaded, visitSkipReasons: event));
+    });
     workdatesSubscription = appRepository.watchWorkdates().listen((event) {
       emit(state.copyWith(status: PointsStateStatus.dataLoaded, workdates: event));
     });
@@ -38,6 +42,7 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   Future<void> close() async {
     await super.close();
 
+    await visitSkipReasonsSubscription?.cancel();
     await workdatesSubscription?.cancel();
     await routePointListSubscription?.cancel();
     await pointExListSubscription?.cancel();
@@ -109,6 +114,30 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
       await Future.wait(futures.map((e) => e.call()));
     } finally {
       emit(state.copyWith(isLoading: false));
+    }
+  }
+
+  Future<void> visit(RoutePointEx routePointEx, [VisitSkipReason? visitSkipReason]) async {
+    emit(state.copyWith(status: PointsStateStatus.visitInProgress));
+
+    final position = await Geolocator.getCurrentPosition();
+
+    try {
+      await pointsRepository.visit(
+        routePoint: routePointEx.routePoint,
+        visitSkipReason: visitSkipReason,
+        latitude: position.latitude,
+        longitude: position.longitude,
+        accuracy: position.accuracy,
+        altitude: position.altitude,
+        heading: position.heading,
+        speed: position.speed,
+        timestamp: position.timestamp ?? DateTime.now()
+      );
+
+      emit(state.copyWith(status: PointsStateStatus.visitSuccess, message: 'Отметка сохранена'));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: PointsStateStatus.visitFailure, message: e.message));
     }
   }
 }

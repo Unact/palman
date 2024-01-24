@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart' as ym;
@@ -51,6 +52,7 @@ class _PointsView extends StatefulWidget {
 }
 
 class _PointsViewState extends State<_PointsView> with SingleTickerProviderStateMixin {
+  late final progressDialog = ProgressDialog(context: context);
   late TabController tabController;
   static const int kSliverHeaderHeight = 104;
   ym.PlacemarkMapObject? tappedPoint;
@@ -64,7 +66,45 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
   @override
   void dispose() {
     tabController.dispose();
+    progressDialog.close();
     super.dispose();
+  }
+
+  Future<void> showVisitSkipDialog(RoutePointEx routePointEx) async {
+    final vm = context.read<PointsViewModel>();
+    final result = await showDialog<VisitSkipReason>(
+      context: context,
+      builder: (BuildContext context) {
+        VisitSkipReason? visitSkipReason;
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Необходимо указать причину'),
+              content: SingleChildScrollView(
+                child: DropdownButtonFormField(
+                  decoration: const InputDecoration(labelText: 'Причина'),
+                  value: visitSkipReason,
+                  items: vm.state.visitSkipReasons.map((e) => DropdownMenuItem<VisitSkipReason>(
+                    value: e,
+                    child: Text(e.name)
+                  )).toList(),
+                  onChanged: (newVal) => setState(() => visitSkipReason = newVal)
+                )
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: visitSkipReason != null ? () => Navigator.of(context).pop(visitSkipReason) : null,
+                  child: const Text(Strings.ok)
+                )
+              ]
+            );
+          }
+        );
+      }
+    );
+
+    if (result != null) await vm.visit(routePointEx, result);
   }
 
   @override
@@ -123,6 +163,14 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
             WidgetsBinding.instance.addPostFrameCallback((_) {
               openPointPage(state.newPoint!);
             });
+            break;
+          case PointsStateStatus.visitInProgress:
+            progressDialog.open();
+            break;
+          case PointsStateStatus.visitSuccess:
+          case PointsStateStatus.visitFailure:
+            progressDialog.close();
+            Misc.showMessage(context, state.message);
             break;
           default:
         }
@@ -183,16 +231,48 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
   }
 
   Widget buildRoutePointTile(BuildContext context, RoutePointEx routePointEx) {
-        final vm = context.read<PointsViewModel>();
+    final vm = context.read<PointsViewModel>();
 
     return ListTile(
+      minLeadingWidth: 1,
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 4),
+        child: routePointEx.routePoint.visited == null ?
+          const Icon(Icons.hourglass_empty, color: Colors.yellow) :
+          routePointEx.routePoint.visited! ?
+            const Icon(Icons.check, color: Colors.green) :
+            const Icon(Icons.clear, color: Colors.red)
+      ),
       title: Text(
         routePointEx.buyer != null ? routePointEx.buyer!.fullname : routePointEx.routePoint.name,
         style: Styles.tileText
       ),
-      trailing: IconButton(
-        icon: const Icon(Icons.add_shopping_cart),
-        onPressed: routePointEx.buyer != null ? () => vm.addNewOrder(routePointEx) : null
+      trailing: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.indeterminate_check_box),
+            onPressed: routePointEx.routePoint.visited == null ? () => showVisitSkipDialog(routePointEx) : null,
+            tooltip: 'Отметить не посещение',
+            constraints: const BoxConstraints(),
+            padding: const EdgeInsets.only(right: 16)
+          ),
+          IconButton(
+            icon: const Icon(Icons.check_box),
+            onPressed: routePointEx.routePoint.visited == null ? () => vm.visit(routePointEx) : null,
+            tooltip: 'Отметить посещение',
+            constraints: const BoxConstraints(),
+            padding: const EdgeInsets.only(right: 16)
+          ),
+          IconButton(
+            icon: const Icon(Icons.add_shopping_cart),
+            onPressed: routePointEx.buyer != null ? () => vm.addNewOrder(routePointEx) : null,
+            tooltip: 'Создать заказ',
+            constraints: const BoxConstraints(),
+            padding: const EdgeInsets.only(right: 16)
+          )
+        ]
       ),
       dense: false
     );

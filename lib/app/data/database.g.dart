@@ -16806,8 +16806,17 @@ class $RoutePointsTable extends RoutePoints
   late final GeneratedColumn<int> buyerId = GeneratedColumn<int>(
       'buyer_id', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _visitedMeta =
+      const VerificationMeta('visited');
   @override
-  List<GeneratedColumn> get $columns => [id, name, date, buyerId];
+  late final GeneratedColumn<bool> visited = GeneratedColumn<bool>(
+      'visited', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("visited" IN (0, 1))'));
+  @override
+  List<GeneratedColumn> get $columns => [id, name, date, buyerId, visited];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -16837,6 +16846,10 @@ class $RoutePointsTable extends RoutePoints
       context.handle(_buyerIdMeta,
           buyerId.isAcceptableOrUnknown(data['buyer_id']!, _buyerIdMeta));
     }
+    if (data.containsKey('visited')) {
+      context.handle(_visitedMeta,
+          visited.isAcceptableOrUnknown(data['visited']!, _visitedMeta));
+    }
     return context;
   }
 
@@ -16854,6 +16867,8 @@ class $RoutePointsTable extends RoutePoints
           .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
       buyerId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}buyer_id']),
+      visited: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}visited']),
     );
   }
 
@@ -16868,8 +16883,13 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
   final String name;
   final DateTime date;
   final int? buyerId;
+  final bool? visited;
   const RoutePoint(
-      {required this.id, required this.name, required this.date, this.buyerId});
+      {required this.id,
+      required this.name,
+      required this.date,
+      this.buyerId,
+      this.visited});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -16878,6 +16898,9 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
     map['date'] = Variable<DateTime>(date);
     if (!nullToAbsent || buyerId != null) {
       map['buyer_id'] = Variable<int>(buyerId);
+    }
+    if (!nullToAbsent || visited != null) {
+      map['visited'] = Variable<bool>(visited);
     }
     return map;
   }
@@ -16890,6 +16913,9 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
       buyerId: buyerId == null && nullToAbsent
           ? const Value.absent()
           : Value(buyerId),
+      visited: visited == null && nullToAbsent
+          ? const Value.absent()
+          : Value(visited),
     );
   }
 
@@ -16901,6 +16927,7 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
       name: serializer.fromJson<String>(json['name']),
       date: serializer.fromJson<DateTime>(json['date']),
       buyerId: serializer.fromJson<int?>(json['buyerId']),
+      visited: serializer.fromJson<bool?>(json['visited']),
     );
   }
   @override
@@ -16911,6 +16938,7 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
       'name': serializer.toJson<String>(name),
       'date': serializer.toJson<DateTime>(date),
       'buyerId': serializer.toJson<int?>(buyerId),
+      'visited': serializer.toJson<bool?>(visited),
     };
   }
 
@@ -16918,12 +16946,14 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
           {int? id,
           String? name,
           DateTime? date,
-          Value<int?> buyerId = const Value.absent()}) =>
+          Value<int?> buyerId = const Value.absent(),
+          Value<bool?> visited = const Value.absent()}) =>
       RoutePoint(
         id: id ?? this.id,
         name: name ?? this.name,
         date: date ?? this.date,
         buyerId: buyerId.present ? buyerId.value : this.buyerId,
+        visited: visited.present ? visited.value : this.visited,
       );
   @override
   String toString() {
@@ -16931,13 +16961,14 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('date: $date, ')
-          ..write('buyerId: $buyerId')
+          ..write('buyerId: $buyerId, ')
+          ..write('visited: $visited')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, date, buyerId);
+  int get hashCode => Object.hash(id, name, date, buyerId, visited);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -16945,7 +16976,8 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
           other.id == this.id &&
           other.name == this.name &&
           other.date == this.date &&
-          other.buyerId == this.buyerId);
+          other.buyerId == this.buyerId &&
+          other.visited == this.visited);
 }
 
 class RoutePointsCompanion extends UpdateCompanion<RoutePoint> {
@@ -16953,17 +16985,20 @@ class RoutePointsCompanion extends UpdateCompanion<RoutePoint> {
   final Value<String> name;
   final Value<DateTime> date;
   final Value<int?> buyerId;
+  final Value<bool?> visited;
   const RoutePointsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.date = const Value.absent(),
     this.buyerId = const Value.absent(),
+    this.visited = const Value.absent(),
   });
   RoutePointsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     required DateTime date,
     this.buyerId = const Value.absent(),
+    this.visited = const Value.absent(),
   })  : name = Value(name),
         date = Value(date);
   static Insertable<RoutePoint> custom({
@@ -16971,12 +17006,14 @@ class RoutePointsCompanion extends UpdateCompanion<RoutePoint> {
     Expression<String>? name,
     Expression<DateTime>? date,
     Expression<int>? buyerId,
+    Expression<bool>? visited,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (date != null) 'date': date,
       if (buyerId != null) 'buyer_id': buyerId,
+      if (visited != null) 'visited': visited,
     });
   }
 
@@ -16984,12 +17021,14 @@ class RoutePointsCompanion extends UpdateCompanion<RoutePoint> {
       {Value<int>? id,
       Value<String>? name,
       Value<DateTime>? date,
-      Value<int?>? buyerId}) {
+      Value<int?>? buyerId,
+      Value<bool?>? visited}) {
     return RoutePointsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       date: date ?? this.date,
       buyerId: buyerId ?? this.buyerId,
+      visited: visited ?? this.visited,
     );
   }
 
@@ -17008,6 +17047,9 @@ class RoutePointsCompanion extends UpdateCompanion<RoutePoint> {
     if (buyerId.present) {
       map['buyer_id'] = Variable<int>(buyerId.value);
     }
+    if (visited.present) {
+      map['visited'] = Variable<bool>(visited.value);
+    }
     return map;
   }
 
@@ -17017,7 +17059,180 @@ class RoutePointsCompanion extends UpdateCompanion<RoutePoint> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('date: $date, ')
-          ..write('buyerId: $buyerId')
+          ..write('buyerId: $buyerId, ')
+          ..write('visited: $visited')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $VisitSkipReasonsTable extends VisitSkipReasons
+    with TableInfo<$VisitSkipReasonsTable, VisitSkipReason> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VisitSkipReasonsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, name];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'visit_skip_reasons';
+  @override
+  VerificationContext validateIntegrity(Insertable<VisitSkipReason> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  VisitSkipReason map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VisitSkipReason(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+    );
+  }
+
+  @override
+  $VisitSkipReasonsTable createAlias(String alias) {
+    return $VisitSkipReasonsTable(attachedDatabase, alias);
+  }
+}
+
+class VisitSkipReason extends DataClass implements Insertable<VisitSkipReason> {
+  final int id;
+  final String name;
+  const VisitSkipReason({required this.id, required this.name});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    return map;
+  }
+
+  VisitSkipReasonsCompanion toCompanion(bool nullToAbsent) {
+    return VisitSkipReasonsCompanion(
+      id: Value(id),
+      name: Value(name),
+    );
+  }
+
+  factory VisitSkipReason.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VisitSkipReason(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+    };
+  }
+
+  VisitSkipReason copyWith({int? id, String? name}) => VisitSkipReason(
+        id: id ?? this.id,
+        name: name ?? this.name,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('VisitSkipReason(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VisitSkipReason &&
+          other.id == this.id &&
+          other.name == this.name);
+}
+
+class VisitSkipReasonsCompanion extends UpdateCompanion<VisitSkipReason> {
+  final Value<int> id;
+  final Value<String> name;
+  const VisitSkipReasonsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+  });
+  VisitSkipReasonsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+  }) : name = Value(name);
+  static Insertable<VisitSkipReason> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+    });
+  }
+
+  VisitSkipReasonsCompanion copyWith({Value<int>? id, Value<String>? name}) {
+    return VisitSkipReasonsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VisitSkipReasonsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name')
           ..write(')'))
         .toString();
   }
@@ -17083,6 +17298,8 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final $PartnersReturnActTypesTable partnersReturnActTypes =
       $PartnersReturnActTypesTable(this);
   late final $RoutePointsTable routePoints = $RoutePointsTable(this);
+  late final $VisitSkipReasonsTable visitSkipReasons =
+      $VisitSkipReasonsTable(this);
   late final BonusProgramsDao bonusProgramsDao =
       BonusProgramsDao(this as AppDataStore);
   late final DebtsDao debtsDao = DebtsDao(this as AppDataStore);
@@ -17183,7 +17400,8 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         returnActLines,
         returnActTypes,
         partnersReturnActTypes,
-        routePoints
+        routePoints,
+        visitSkipReasons
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
