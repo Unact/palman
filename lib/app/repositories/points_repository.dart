@@ -179,6 +179,43 @@ class PointsRepository extends BaseRepository {
     await dataStore.pointsDao.updatePointImage(pointImage.guid, const PointImagesCompanion(isDeleted: Value(true)));
   }
 
+  Future<void> visit({
+    required RoutePoint routePoint,
+    required VisitSkipReason? visitSkipReason,
+    required double latitude,
+    required double longitude,
+    required double accuracy,
+    required double altitude,
+    required double heading,
+    required double speed,
+    required DateTime timestamp
+  }) async {
+    try {
+      Map<String, dynamic> visitData = {
+        'routePointId': routePoint.id,
+        'visitSkipReasonId': visitSkipReason?.id,
+        'latitude': latitude,
+        'longitude': longitude,
+        'accuracy': accuracy,
+        'altitude': altitude,
+        'heading': heading,
+        'speed': speed,
+        'timestamp': timestamp.toIso8601String()
+      };
+      final data = await api.visit(visitData);
+
+      await dataStore.transaction(() async {
+        final routePoints = data.routePoints.map((e) => e.toDatabaseEnt()).toList();
+        await dataStore.pointsDao.loadRoutePoints(routePoints);
+      });
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
   Future<void> syncPoints(List<Point> points, List<PointImage> pointImages) async {
     try {
       final Map<PointImage, String?> images = {};

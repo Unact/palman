@@ -68,6 +68,10 @@ extension PalmanApi on RenewApi {
     return ApiPointsData.fromJson(await post('v1/palman/points/save', dataGenerator: () => points));
   }
 
+  Future<ApiPointsData> visit(Map<String, dynamic> visitData) async {
+    return ApiPointsData.fromJson(await post('v1/palman/points/visit', dataGenerator: () => visitData));
+  }
+
   Future<ApiDebtsData> saveDebts(List<Map<String, dynamic>> preEncashments) async {
     return ApiDebtsData.fromJson(
       await post('v2/palman/debts/save', dataGenerator: () => preEncashments)

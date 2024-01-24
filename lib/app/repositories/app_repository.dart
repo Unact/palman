@@ -29,6 +29,10 @@ class AppRepository extends BaseRepository {
     await dataStore.updatePref(newPref);
   }
 
+  Stream<List<VisitSkipReason>> watchVisitSkipReasons() {
+    return dataStore.watchVisitSkipReasons();
+  }
+
   Stream<List<Workdate>> watchWorkdates() {
     return dataStore.watchWorkdates();
   }
@@ -49,6 +53,7 @@ class AppRepository extends BaseRepository {
         final pricelistSetCategories = data.pricelistSetCategories.map((e) => e.toDatabaseEnt()).toList();
         final returnActTypes = data.returnActTypes.map((e) => e.toDatabaseEnt()).toList();
         final partnersReturnActTypes = data.partnersReturnActTypes.map((e) => e.toDatabaseEnt()).toList();
+        final visitSkipReasons = data.visitSkipReasons.map((e) => e.toDatabaseEnt()).toList();
 
         await dataStore.partnersDao.loadBuyers(buyers);
         await dataStore.partnersDao.loadPartners(partners);
@@ -61,6 +66,7 @@ class AppRepository extends BaseRepository {
         await dataStore.pricesDao.loadPricelistSetCategories(pricelistSetCategories);
         await dataStore.returnActsDao.loadReturnActTypes(returnActTypes);
         await dataStore.returnActsDao.loadPartnersReturnActTypes(partnersReturnActTypes);
+        await dataStore.loadVisitSkipReasons(visitSkipReasons);
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);

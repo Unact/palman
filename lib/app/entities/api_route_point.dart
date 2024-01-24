@@ -5,12 +5,14 @@ class ApiRoutePoint extends Equatable {
   final String name;
   final DateTime date;
   final int? buyerId;
+  final bool? visited;
 
   const ApiRoutePoint({
     required this.id,
     required this.name,
     required this.date,
-    this.buyerId
+    this.buyerId,
+    this.visited
   });
 
   factory ApiRoutePoint.fromJson(dynamic json) {
@@ -18,7 +20,8 @@ class ApiRoutePoint extends Equatable {
       id: json['id'],
       name: json['name'],
       date: Parsing.parseDate(json['date'])!,
-      buyerId: json['buyerId']
+      buyerId: json['buyerId'],
+      visited: json['visited']
     );
   }
 
@@ -27,7 +30,8 @@ class ApiRoutePoint extends Equatable {
       id: id,
       name: name,
       date: date,
-      buyerId: buyerId
+      buyerId: buyerId,
+      visited: visited
     );
   }
 
@@ -36,6 +40,7 @@ class ApiRoutePoint extends Equatable {
     id,
     name,
     date,
-    buyerId
+    buyerId,
+    visited
   ];
 }

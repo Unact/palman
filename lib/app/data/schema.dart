@@ -465,4 +465,10 @@ class RoutePoints extends Table {
   TextColumn get name => text()();
   DateTimeColumn get date => dateTime()();
   IntColumn get buyerId => integer().nullable()();
+  BoolColumn get visited => boolean().nullable()();
+}
+
+class VisitSkipReasons extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
 }
