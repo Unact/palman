@@ -126,8 +126,8 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
               onTap: (_) => setState(() {}),
               controller: tabController,
               tabs: const [
+                Tab(child: Text('Маршрут', style: Styles.tabStyle, softWrap: false)),
                 Tab(child: Text('Точки', style: Styles.tabStyle, softWrap: false)),
-                Tab(child: Text('Маршрут', style: Styles.tabStyle, softWrap: false))
               ],
             ),
           ),
@@ -145,8 +145,8 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
             childBuilder: (context, physics) => TabBarView(
               controller: tabController,
               children: [
+                buildRoutePointListView(context, physics),
                 buildPointListView(context, physics),
-                buildRoutePointListView(context, physics)
               ]
             )
           )
