@@ -57,7 +57,7 @@ void main() async {
   Initialization.intializeFlogs(isDebug: isDebug);
   await Initialization.initializeSentry(
     dsn: const String.fromEnvironment('PALMAN_SENTRY_DSN'),
-    isDebug: false,
+    isDebug: isDebug,
     userGenerator: () async {
       User user = await usersRepository.getCurrentUser();
 
