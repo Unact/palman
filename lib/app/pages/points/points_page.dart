@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:u_app_utils/u_app_utils.dart';
+import 'package:retry/retry.dart';
 import 'package:yandex_mapkit/yandex_mapkit.dart' as ym;
 
 import '/app/constants/strings.dart';
@@ -356,7 +357,14 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
             )
           );
 
-          await controller.moveCamera(ym.CameraUpdate.newGeometry(geometry));
+          await retry(
+            () async {
+              final result = await controller.moveCamera(ym.CameraUpdate.newGeometry(geometry));
+
+              if (!result) throw Exception('');
+            },
+            retryIf: (e) => true
+          );
         },
       ))]
     );
