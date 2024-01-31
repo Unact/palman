@@ -7,7 +7,7 @@ class ApiBuyer extends Equatable {
   final int partnerId;
   final int siteId;
   final int fridgeSiteId;
-  final int pointId;
+  final int? pointId;
 
   const ApiBuyer({
     required this.id,
