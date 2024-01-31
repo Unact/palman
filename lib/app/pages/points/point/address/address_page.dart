@@ -58,7 +58,7 @@ class AddressViewState extends State<_AddressView> {
             point: Point(latitude: state.latitude!, longitude: state.longitude!),
             consumeTapEvents: true,
             icon: PlacemarkIcon.single(PlacemarkIconStyle(
-              image: BitmapDescriptor.fromAssetImage('assets/placeicon.png'),
+              image: BitmapDescriptor.fromAssetImage('assets/blue_point.png'),
             ))
           ));
         }

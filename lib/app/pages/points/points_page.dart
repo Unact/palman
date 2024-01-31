@@ -1,17 +1,12 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart';
 import 'package:u_app_utils/u_app_utils.dart';
-import 'package:retry/retry.dart';
-import 'package:yandex_mapkit/yandex_mapkit.dart' as ym;
 
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
@@ -24,6 +19,7 @@ import '/app/repositories/points_repository.dart';
 import '/app/repositories/users_repository.dart';
 import '/app/widgets/widgets.dart';
 import 'point/point_page.dart';
+import 'map/map_page.dart';
 import '../orders_info/order/order_page.dart';
 
 part 'points_state.dart';
@@ -56,8 +52,6 @@ class _PointsView extends StatefulWidget {
 class _PointsViewState extends State<_PointsView> with SingleTickerProviderStateMixin {
   late final progressDialog = ProgressDialog(context: context);
   late TabController tabController;
-  static const int kSliverHeaderHeight = 104;
-  ym.PlacemarkMapObject? tappedPoint;
 
   @override
   void initState() {
@@ -119,6 +113,12 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
           appBar: AppBar(
             title: const Text(Strings.pointsPageName),
             actions: [
+              IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.map),
+                tooltip: 'Открыть карту',
+                onPressed: openMapPage
+              ),
               SaveButton(
                 onSave: state.isLoading ? null : vm.syncChanges,
                 pendingChanges: vm.state.pendingChanges,
@@ -299,26 +299,7 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
               );
             }).toList(),
             onChanged: (v) => vm.changeSelectedReason(v!)
-          ),
-          SegmentedButton(
-            segments: const <ButtonSegment<bool>>[
-              ButtonSegment<bool>(
-                value: true,
-                label: Text('Список', style: Styles.formStyle)
-              ),
-              ButtonSegment<bool>(
-                value: false,
-                label: Text('Карта', style: Styles.formStyle)
-              )
-            ],
-            showSelectedIcon: false,
-            selected: {vm.state.listView},
-            onSelectionChanged: (set) => vm.updateListView(set.first),
-            style: const ButtonStyle(
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              visualDensity: VisualDensity(horizontal: 0, vertical: 0),
-            ),
-          ),
+          )
         ]
       )
     );
@@ -326,73 +307,8 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
 
   SliverChildDelegate buildPointView(BuildContext context) {
     final vm = context.read<PointsViewModel>();
-    final height = MediaQuery.of(context).size.height -
-      kToolbarHeight -
-      MediaQuery.of(context).padding.top -
-      kBottomNavigationBarHeight -
-      kSliverHeaderHeight;
 
-    if (vm.state.listView) {
-      return SliverChildListDelegate(vm.state.filteredPointExList.map((e) => buildPointTile(context, e)).toList());
-    }
-
-    return SliverChildListDelegate([SizedBox(
-      height: height,
-      child: ym.YandexMap(
-        gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
-          Factory<OneSequenceGestureRecognizer>(() => EagerGestureRecognizer())
-        },
-        mapObjects: buildMapObjects(context),
-        onMapCreated: (ym.YandexMapController controller) async {
-          final pointsWithCoords = vm.state.filteredPointExList
-            .where((e) => e.point.latitude != null && e.point.longitude != null).toList();
-          final latitudes = pointsWithCoords.map((e) => e.point.latitude!).toList();
-          final longitudes = pointsWithCoords.map((e) => e.point.longitude!).toList();
-
-          if (latitudes.isEmpty || longitudes.isEmpty) return;
-
-          final geometry = ym.Geometry.fromBoundingBox(
-            ym.BoundingBox(
-              northEast: ym.Point(latitude: latitudes.reduce(max), longitude: longitudes.reduce(max)),
-              southWest: ym.Point(latitude: latitudes.reduce(min), longitude: longitudes.reduce(min)),
-            )
-          );
-
-          await retry(
-            () async {
-              final result = await controller.moveCamera(ym.CameraUpdate.newGeometry(geometry));
-
-              if (!result) throw Exception('');
-            },
-            retryIf: (e) => true
-          );
-        },
-      ))]
-    );
-  }
-
-  List<ym.PlacemarkMapObject> buildMapObjects(BuildContext context) {
-    final vm = context.read<PointsViewModel>();
-
-    return vm.state.filteredPointExList
-      .where((e) => e.point.latitude != null && e.point.longitude != null)
-      .map((e) {
-        final mapId = ym.MapObjectId('${e.point.id}');
-        const textStyle = ym.PlacemarkTextStyle(placement: ym.TextStylePlacement.top);
-        return ym.PlacemarkMapObject(
-          mapId: mapId,
-          point: ym.Point(latitude: e.point.latitude!, longitude: e.point.longitude!),
-          consumeTapEvents: true,
-          opacity: 0.75,
-          icon: ym.PlacemarkIcon.single(ym.PlacemarkIconStyle(
-            image: ym.BitmapDescriptor.fromAssetImage(
-              e.filled ? 'assets/filled_placeicon.png' : 'assets/not_filled_placeicon.png'
-            )
-          )),
-          text: ym.PlacemarkText(text: (tappedPoint?.mapId == mapId) ? e.point.buyerName : '', style: textStyle),
-          onTap: (self, point) => setState(() => tappedPoint = self)
-        );
-      }).toList();
+    return SliverChildListDelegate(vm.state.filteredPointExList.map((e) => buildPointTile(context, e)).toList());
   }
 
   Widget buildPointTile(BuildContext context, PointEx pointEx) {
@@ -457,6 +373,16 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => PointPage(pointEx: pointEx),
+        fullscreenDialog: false
+      )
+    );
+  }
+
+  Future<void> openMapPage() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => MapPage(),
         fullscreenDialog: false
       )
     );

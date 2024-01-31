@@ -128,7 +128,7 @@ class AppDataStore extends _$AppDataStore {
 
   AppDataStore({
     required bool logStatements
-  }) : super(_openConnection(logStatements));
+  }) : super(_openConnection(false));
 
   Stream<AppInfoResult> watchAppInfo() {
     return appInfo().watchSingle();
@@ -233,7 +233,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 21;
+  int get schemaVersion => 22;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

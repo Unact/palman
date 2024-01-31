@@ -56,13 +56,6 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     ));
   }
 
-  void updateListView(bool listView) {
-    emit(state.copyWith(
-      status: PointsStateStatus.listViewChanged,
-      listView: listView
-    ));
-  }
-
   Future<void> addNewOrder(RoutePointEx routePointEx) async {
     final workdate = state.workdates.where((el) => el.date.isAfter(routePointEx.routePoint.date)).firstOrNull;
     final newOrder = await ordersRepository.addOrder(

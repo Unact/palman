@@ -49,9 +49,35 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     return res.map(
       (row) => RoutePointEx(
         row.readTable(routePoints),
-        row.readTableOrNull(buyers)
+        row.readTable(buyers)
       )
     ).watch();
+  }
+
+  Stream<List<PointBuyerRoutePoint>> watchPointBuyerRoutePoints() {
+    final pointsRes = select(points).join([
+      leftOuterJoin(buyers, buyers.pointId.equalsExp(points.id))
+    ]).watch();
+    final routePointsRes = select(routePoints).join([
+      innerJoin(buyers, buyers.id.equalsExp(routePoints.buyerId))
+    ]).watch();
+
+    return Rx.combineLatest2(
+      pointsRes,
+      routePointsRes,
+      (pointRows, routePointRows) {
+        return pointRows.map(
+          (row) => PointBuyerRoutePoint(
+            row.readTable(points),
+            row.readTableOrNull(buyers),
+            routePointRows
+              .map((e) => e.readTable(routePoints))
+              .where((e) => e.buyerId == row.readTableOrNull(buyers)?.id)
+              .toList()
+          )
+        ).toList();
+      }
+    );
   }
 
   Future<void> updatePoint(String guid, PointsCompanion updatedPoint) async {
@@ -132,4 +158,12 @@ class RoutePointEx {
   final Buyer? buyer;
 
   RoutePointEx(this.routePoint, this.buyer);
+}
+
+class PointBuyerRoutePoint {
+  final Point point;
+  final Buyer? buyer;
+  final List<RoutePoint> routePoints;
+
+  PointBuyerRoutePoint(this.point, this.buyer, this.routePoints);
 }
