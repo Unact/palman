@@ -128,7 +128,7 @@ class AppDataStore extends _$AppDataStore {
 
   AppDataStore({
     required bool logStatements
-  }) : super(_openConnection(false));
+  }) : super(_openConnection(logStatements));
 
   Stream<AppInfoResult> watchAppInfo() {
     return appInfo().watchSingle();

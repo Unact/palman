@@ -120,7 +120,7 @@ class _MapViewState extends State<_MapView> {
   Color pointColor(PointBuyerRoutePoint pointBuyerRoutePoint) {
     final routePoints = pointBuyerRoutePoint.routePoints;
 
-    if (routePoints.any((e) => e.date == DateTime.now().date() && e.visited == null)) {
+    if (routePoints.any((e) => e.date == DateTime.now().date())) {
       return Styles.greenColor;
     }
 
@@ -128,7 +128,7 @@ class _MapViewState extends State<_MapView> {
       return Styles.yellowColor;
     }
 
-    if (routePoints.isEmpty || routePoints.any((e) => e.visited == false)) {
+    if (routePoints.isEmpty) {
       return Styles.greyColor;
     }
 
