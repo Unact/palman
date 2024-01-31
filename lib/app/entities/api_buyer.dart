@@ -7,6 +7,7 @@ class ApiBuyer extends Equatable {
   final int partnerId;
   final int siteId;
   final int fridgeSiteId;
+  final int pointId;
 
   const ApiBuyer({
     required this.id,
@@ -15,6 +16,7 @@ class ApiBuyer extends Equatable {
     required this.partnerId,
     required this.siteId,
     required this.fridgeSiteId,
+    required this.pointId,
   });
 
   factory ApiBuyer.fromJson(dynamic json) {
@@ -24,7 +26,8 @@ class ApiBuyer extends Equatable {
       loadto: json['loadto'],
       partnerId: json['partnerId'],
       siteId: json['siteId'],
-      fridgeSiteId: json['fridgeSiteId']
+      fridgeSiteId: json['fridgeSiteId'],
+      pointId: json['pointId']
     );
   }
 
@@ -35,7 +38,8 @@ class ApiBuyer extends Equatable {
       loadto: loadto,
       partnerId: partnerId,
       siteId: siteId,
-      fridgeSiteId: fridgeSiteId
+      fridgeSiteId: fridgeSiteId,
+      pointId: pointId
     );
   }
 
@@ -46,6 +50,7 @@ class ApiBuyer extends Equatable {
     loadto,
     partnerId,
     siteId,
-    fridgeSiteId
+    fridgeSiteId,
+    pointId
   ];
 }

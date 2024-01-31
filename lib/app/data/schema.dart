@@ -55,6 +55,7 @@ class Buyers extends Table {
   IntColumn get partnerId => integer()();
   IntColumn get siteId => integer()();
   IntColumn get fridgeSiteId => integer()();
+  IntColumn get pointId => integer().nullable()();
 }
 
 class PointFormats extends Table {

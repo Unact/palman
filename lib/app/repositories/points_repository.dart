@@ -33,6 +33,10 @@ class PointsRepository extends BaseRepository {
 
   PointsRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
 
+  Stream<List<PointBuyerRoutePoint>> watchPointBuyerRoutePoints() {
+    return dataStore.pointsDao.watchPointBuyerRoutePoints();
+  }
+
   Stream<List<PointEx>> watchPointExList() {
     return dataStore.pointsDao.watchPointExList();
   }

@@ -67,7 +67,8 @@ flutter_launcher_icons:
 
 flutter:
   assets:
-    - assets/placeicon.png
-    - assets/filled_placeicon.png
-    - assets/not_filled_placeicon.png
+    - assets/blue_point.png
+    - assets/green_point.png
+    - assets/grey_point.png
+    - assets/yellow_point.png
   uses-material-design: true
