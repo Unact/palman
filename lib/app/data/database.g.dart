@@ -38,6 +38,14 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'CHECK ("pre_order_mode" IN (0, 1))'));
+  static const VerificationMeta _closedMeta = const VerificationMeta('closed');
+  @override
+  late final GeneratedColumn<bool> closed = GeneratedColumn<bool>(
+      'closed', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("closed" IN (0, 1))'));
   static const VerificationMeta _emailMeta = const VerificationMeta('email');
   @override
   late final GeneratedColumn<String> email = GeneratedColumn<String>(
@@ -51,7 +59,7 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, username, salesmanName, preOrderMode, email, version];
+      [id, username, salesmanName, preOrderMode, closed, email, version];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -87,6 +95,12 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
     } else if (isInserting) {
       context.missing(_preOrderModeMeta);
     }
+    if (data.containsKey('closed')) {
+      context.handle(_closedMeta,
+          closed.isAcceptableOrUnknown(data['closed']!, _closedMeta));
+    } else if (isInserting) {
+      context.missing(_closedMeta);
+    }
     if (data.containsKey('email')) {
       context.handle(
           _emailMeta, email.isAcceptableOrUnknown(data['email']!, _emailMeta));
@@ -116,6 +130,8 @@ class $UsersTable extends Users with TableInfo<$UsersTable, User> {
           .read(DriftSqlType.string, data['${effectivePrefix}salesman_name'])!,
       preOrderMode: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}pre_order_mode'])!,
+      closed: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}closed'])!,
       email: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}email'])!,
       version: attachedDatabase.typeMapping
@@ -134,6 +150,7 @@ class User extends DataClass implements Insertable<User> {
   final String username;
   final String salesmanName;
   final bool preOrderMode;
+  final bool closed;
   final String email;
   final String version;
   const User(
@@ -141,6 +158,7 @@ class User extends DataClass implements Insertable<User> {
       required this.username,
       required this.salesmanName,
       required this.preOrderMode,
+      required this.closed,
       required this.email,
       required this.version});
   @override
@@ -150,6 +168,7 @@ class User extends DataClass implements Insertable<User> {
     map['username'] = Variable<String>(username);
     map['salesman_name'] = Variable<String>(salesmanName);
     map['pre_order_mode'] = Variable<bool>(preOrderMode);
+    map['closed'] = Variable<bool>(closed);
     map['email'] = Variable<String>(email);
     map['version'] = Variable<String>(version);
     return map;
@@ -161,6 +180,7 @@ class User extends DataClass implements Insertable<User> {
       username: Value(username),
       salesmanName: Value(salesmanName),
       preOrderMode: Value(preOrderMode),
+      closed: Value(closed),
       email: Value(email),
       version: Value(version),
     );
@@ -174,6 +194,7 @@ class User extends DataClass implements Insertable<User> {
       username: serializer.fromJson<String>(json['username']),
       salesmanName: serializer.fromJson<String>(json['salesmanName']),
       preOrderMode: serializer.fromJson<bool>(json['preOrderMode']),
+      closed: serializer.fromJson<bool>(json['closed']),
       email: serializer.fromJson<String>(json['email']),
       version: serializer.fromJson<String>(json['version']),
     );
@@ -186,6 +207,7 @@ class User extends DataClass implements Insertable<User> {
       'username': serializer.toJson<String>(username),
       'salesmanName': serializer.toJson<String>(salesmanName),
       'preOrderMode': serializer.toJson<bool>(preOrderMode),
+      'closed': serializer.toJson<bool>(closed),
       'email': serializer.toJson<String>(email),
       'version': serializer.toJson<String>(version),
     };
@@ -196,6 +218,7 @@ class User extends DataClass implements Insertable<User> {
           String? username,
           String? salesmanName,
           bool? preOrderMode,
+          bool? closed,
           String? email,
           String? version}) =>
       User(
@@ -203,6 +226,7 @@ class User extends DataClass implements Insertable<User> {
         username: username ?? this.username,
         salesmanName: salesmanName ?? this.salesmanName,
         preOrderMode: preOrderMode ?? this.preOrderMode,
+        closed: closed ?? this.closed,
         email: email ?? this.email,
         version: version ?? this.version,
       );
@@ -213,6 +237,7 @@ class User extends DataClass implements Insertable<User> {
           ..write('username: $username, ')
           ..write('salesmanName: $salesmanName, ')
           ..write('preOrderMode: $preOrderMode, ')
+          ..write('closed: $closed, ')
           ..write('email: $email, ')
           ..write('version: $version')
           ..write(')'))
@@ -220,8 +245,8 @@ class User extends DataClass implements Insertable<User> {
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, username, salesmanName, preOrderMode, email, version);
+  int get hashCode => Object.hash(
+      id, username, salesmanName, preOrderMode, closed, email, version);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -230,6 +255,7 @@ class User extends DataClass implements Insertable<User> {
           other.username == this.username &&
           other.salesmanName == this.salesmanName &&
           other.preOrderMode == this.preOrderMode &&
+          other.closed == this.closed &&
           other.email == this.email &&
           other.version == this.version);
 }
@@ -239,6 +265,7 @@ class UsersCompanion extends UpdateCompanion<User> {
   final Value<String> username;
   final Value<String> salesmanName;
   final Value<bool> preOrderMode;
+  final Value<bool> closed;
   final Value<String> email;
   final Value<String> version;
   const UsersCompanion({
@@ -246,6 +273,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     this.username = const Value.absent(),
     this.salesmanName = const Value.absent(),
     this.preOrderMode = const Value.absent(),
+    this.closed = const Value.absent(),
     this.email = const Value.absent(),
     this.version = const Value.absent(),
   });
@@ -254,11 +282,13 @@ class UsersCompanion extends UpdateCompanion<User> {
     required String username,
     required String salesmanName,
     required bool preOrderMode,
+    required bool closed,
     required String email,
     required String version,
   })  : username = Value(username),
         salesmanName = Value(salesmanName),
         preOrderMode = Value(preOrderMode),
+        closed = Value(closed),
         email = Value(email),
         version = Value(version);
   static Insertable<User> custom({
@@ -266,6 +296,7 @@ class UsersCompanion extends UpdateCompanion<User> {
     Expression<String>? username,
     Expression<String>? salesmanName,
     Expression<bool>? preOrderMode,
+    Expression<bool>? closed,
     Expression<String>? email,
     Expression<String>? version,
   }) {
@@ -274,6 +305,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       if (username != null) 'username': username,
       if (salesmanName != null) 'salesman_name': salesmanName,
       if (preOrderMode != null) 'pre_order_mode': preOrderMode,
+      if (closed != null) 'closed': closed,
       if (email != null) 'email': email,
       if (version != null) 'version': version,
     });
@@ -284,6 +316,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       Value<String>? username,
       Value<String>? salesmanName,
       Value<bool>? preOrderMode,
+      Value<bool>? closed,
       Value<String>? email,
       Value<String>? version}) {
     return UsersCompanion(
@@ -291,6 +324,7 @@ class UsersCompanion extends UpdateCompanion<User> {
       username: username ?? this.username,
       salesmanName: salesmanName ?? this.salesmanName,
       preOrderMode: preOrderMode ?? this.preOrderMode,
+      closed: closed ?? this.closed,
       email: email ?? this.email,
       version: version ?? this.version,
     );
@@ -311,6 +345,9 @@ class UsersCompanion extends UpdateCompanion<User> {
     if (preOrderMode.present) {
       map['pre_order_mode'] = Variable<bool>(preOrderMode.value);
     }
+    if (closed.present) {
+      map['closed'] = Variable<bool>(closed.value);
+    }
     if (email.present) {
       map['email'] = Variable<String>(email.value);
     }
@@ -327,6 +364,7 @@ class UsersCompanion extends UpdateCompanion<User> {
           ..write('username: $username, ')
           ..write('salesmanName: $salesmanName, ')
           ..write('preOrderMode: $preOrderMode, ')
+          ..write('closed: $closed, ')
           ..write('email: $email, ')
           ..write('version: $version')
           ..write(')'))

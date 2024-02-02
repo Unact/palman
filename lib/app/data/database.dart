@@ -201,6 +201,7 @@ class AppDataStore extends _$AppDataStore {
         email: '',
         salesmanName: '',
         preOrderMode: false,
+        closed: true,
         version: '0.0.0'
       ));
       batch.insert(prefs, const Pref(showLocalImage: true, showWithPrice: false));
@@ -233,7 +234,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 22;
+  int get schemaVersion => 23;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -321,7 +322,7 @@ LazyDatabase _openConnection(bool logStatements) {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, '${Strings.appName}.sqlite'));
 
-    return NativeDatabase.createInBackground(file, logStatements: logStatements, cachePreparedStatements: true);
+    return NativeDatabase.createInBackground(file, logStatements: false, cachePreparedStatements: true);
   });
 }
 

@@ -14,7 +14,10 @@ enum InfoStateStatus {
   guidRegenerateSuccess,
   guidRegenerateFailure,
   reloadNeeded,
-  locationUpdateFailure
+  locationUpdateFailure,
+  reverseInProgress,
+  reverseSuccess,
+  reverseFailure
 }
 
 class InfoState {
@@ -67,6 +70,8 @@ class InfoState {
   int get shipmentsTotal => appInfo == null ? 0 : appInfo!.shipmentsTotal;
   int get pointsTotal => appInfo == null ? 0 : appInfo!.pointsTotal;
   int get routePointsTotal => appInfo == null ? 0 : appInfo!.routePointsTotal;
+  bool get closed => user?.closed ?? true;
+  bool get preOrderMode => user?.preOrderMode ?? false;
 
   InfoState copyWith({
     InfoStateStatus? status,

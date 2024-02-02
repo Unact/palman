@@ -6,6 +6,7 @@ class ApiUserData extends Equatable {
   final String email;
   final String salesmanName;
   final bool preOrderMode;
+  final bool closed;
   final String version;
 
   const ApiUserData({
@@ -14,6 +15,7 @@ class ApiUserData extends Equatable {
     required this.email,
     required this.salesmanName,
     required this.preOrderMode,
+    required this.closed,
     required this.version
   });
 
@@ -24,6 +26,7 @@ class ApiUserData extends Equatable {
       email: json['email'],
       salesmanName: json['salesmanName'],
       preOrderMode: json['preOrderMode'],
+      closed: json['closed'],
       version: json['app']['version']
     );
   }
@@ -35,6 +38,7 @@ class ApiUserData extends Equatable {
       email: email,
       salesmanName: salesmanName,
       preOrderMode: preOrderMode,
+      closed: closed,
       version: version
     );
   }
@@ -46,6 +50,7 @@ class ApiUserData extends Equatable {
     email,
     salesmanName,
     preOrderMode,
+    closed,
     version
   ];
 }
