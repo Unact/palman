@@ -83,4 +83,19 @@ class UsersRepository extends BaseRepository {
       throw AppError(Strings.genericErrorMsg);
     }
   }
+
+  Future<void> reverseDay() async {
+    try {
+      User user = await dataStore.usersDao.getCurrentUser();
+      bool closed = !user.closed;
+
+      await api.closeDay(closed: closed);
+      await dataStore.usersDao.loadUser(user.copyWith(closed: !user.closed));
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
 }

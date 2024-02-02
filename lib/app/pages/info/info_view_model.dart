@@ -315,4 +315,18 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       message: 'Идентификаторы пересозданы'
     ));
   }
+
+  Future<void> reverseDay() async {
+    emit(state.copyWith(status: InfoStateStatus.reverseInProgress));
+
+    try {
+      await usersRepository.reverseDay();
+      emit(state.copyWith(
+        status: InfoStateStatus.reverseSuccess,
+        message: 'День успешно ${state.closed ? 'открыт' : 'закрыт'}'
+      ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: InfoStateStatus.reverseFailure, message: e.message));
+    }
+  }
 }

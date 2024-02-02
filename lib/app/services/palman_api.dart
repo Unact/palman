@@ -93,4 +93,8 @@ extension PalmanApi on RenewApi {
   Future<void> locations(List<Map<String, dynamic>> locations) async {
     await post('v1/palman/locations', dataGenerator: () => locations);
   }
+
+  Future<void> closeDay({required bool closed}) async {
+    await post('v1/palman/close_day', dataGenerator: () => { 'closed': closed });
+  }
 }

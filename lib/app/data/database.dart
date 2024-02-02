@@ -201,6 +201,7 @@ class AppDataStore extends _$AppDataStore {
         email: '',
         salesmanName: '',
         preOrderMode: false,
+        closed: true,
         version: '0.0.0'
       ));
       batch.insert(prefs, const Pref(showLocalImage: true, showWithPrice: false));
@@ -233,7 +234,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 22;
+  int get schemaVersion => 23;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

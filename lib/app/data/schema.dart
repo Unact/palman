@@ -39,6 +39,7 @@ class Users extends Table {
   TextColumn get username => text()();
   TextColumn get salesmanName => text()();
   BoolColumn get preOrderMode => boolean()();
+  BoolColumn get closed => boolean()();
   TextColumn get email => text()();
   TextColumn get version => text()();
 }

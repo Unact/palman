@@ -61,6 +61,13 @@ class _InfoView extends StatefulWidget {
 class _InfoViewState extends State<_InfoView> {
   final ScrollController scrollController = ScrollController();
   final EasyRefreshController refreshController = EasyRefreshController();
+  late final progressDialog = ProgressDialog(context: context);
+
+  @override
+  void dispose() {
+    progressDialog.close();
+    super.dispose();
+  }
 
   void changePage(int index) {
     final homeVm = context.read<HomeViewModel>();
@@ -159,6 +166,14 @@ class _InfoViewState extends State<_InfoView> {
               ),
             ));
             break;
+          case InfoStateStatus.reverseInProgress:
+            progressDialog.open();
+            break;
+          case InfoStateStatus.reverseSuccess:
+          case InfoStateStatus.reverseFailure:
+            progressDialog.close();
+            Misc.showMessage(context, state.message);
+            break;
           case InfoStateStatus.locationUpdateFailure:
           case InfoStateStatus.imageLoadInProgress:
           case InfoStateStatus.imageLoadSuccess:
@@ -209,6 +224,14 @@ class _InfoViewState extends State<_InfoView> {
               )
             ]
           )
+        ),
+        trailing: vm.state.preOrderMode ? null : ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30.0)),
+            backgroundColor: Theme.of(context).colorScheme.primary
+          ),
+          onPressed: vm.reverseDay,
+          child: Text('${vm.state.closed ? 'Открыть' : 'Закрыть'} день')
         )
       )
     );
