@@ -183,4 +183,18 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   void _notifyPointUpdated() {
     emit(state.copyWith(status: PointStateStatus.pointUpdated));
   }
+
+  Future<void> openLink() async {
+    Uri uri = Uri.parse(state.pointEx.point.formsLink!);
+
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      emit(state.copyWith(
+        status: PointStateStatus.openLinkError,
+        message: Strings.openLinkError
+      ));
+      return;
+    }
+  }
 }

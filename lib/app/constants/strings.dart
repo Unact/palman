@@ -17,6 +17,7 @@ class Strings {
   static const locationNotFound = 'Не удалось определить местоположение';
   static const locationPermissionError = 'Не разрешено использование местоположения';
   static const cameraPermissionError = 'Не разрешено использование камеры';
+  static const openLinkError = 'Не удалось открыть ссылку';
   static const newPointName = 'Новая точка';
   static const changesSaved = 'Изменения успешно сохранены';
 

@@ -94,6 +94,7 @@ class Points extends Table with Syncable {
   IntColumn get maxdebt => integer().nullable()();
   IntColumn get nds10 => integer().nullable()();
   IntColumn get nds20 => integer().nullable()();
+  TextColumn get formsLink => text().nullable()();
 }
 
 class PointImages extends Table with Syncable {
