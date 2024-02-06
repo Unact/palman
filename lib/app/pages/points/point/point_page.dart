@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
@@ -103,6 +104,13 @@ class _PointViewState extends State<_PointView> {
           appBar: AppBar(
             title: const Text('Точка'),
             actions: [
+              IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.poll),
+                splashRadius: 12,
+                tooltip: 'Провести опрос',
+                onPressed: state.pointEx.point.formsLink != null ? vm.openLink : null
+              ),
               SaveButton(
                 onSave: vm.syncChanges,
                 pendingChanges: state.needSync ? 1 : 0
@@ -130,6 +138,7 @@ class _PointViewState extends State<_PointView> {
               Misc.showMessage(context, 'Акт возврата не доступен для редактирования');
             });
             break;
+          case PointStateStatus.openLinkError:
           case PointStateStatus.cameraError:
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Misc.showMessage(context, state.message);

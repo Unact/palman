@@ -6,7 +6,8 @@ enum PointStateStatus {
   pointUpdated,
   pointRemoved,
   cameraError,
-  cameraOpened
+  cameraOpened,
+  openLinkError
 }
 
 class PointState {

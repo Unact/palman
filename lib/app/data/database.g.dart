@@ -1874,6 +1874,12 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
   late final GeneratedColumn<int> nds20 = GeneratedColumn<int>(
       'nds20', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _formsLinkMeta =
+      const VerificationMeta('formsLink');
+  @override
+  late final GeneratedColumn<String> formsLink = GeneratedColumn<String>(
+      'forms_link', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         guid,
@@ -1900,7 +1906,8 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
         plong,
         maxdebt,
         nds10,
-        nds20
+        nds20,
+        formsLink
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2031,6 +2038,10 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
       context.handle(
           _nds20Meta, nds20.isAcceptableOrUnknown(data['nds20']!, _nds20Meta));
     }
+    if (data.containsKey('forms_link')) {
+      context.handle(_formsLinkMeta,
+          formsLink.isAcceptableOrUnknown(data['forms_link']!, _formsLinkMeta));
+    }
     return context;
   }
 
@@ -2090,6 +2101,8 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
           .read(DriftSqlType.int, data['${effectivePrefix}nds10']),
       nds20: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}nds20']),
+      formsLink: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}forms_link']),
     );
   }
 
@@ -2125,6 +2138,7 @@ class Point extends DataClass implements Insertable<Point> {
   final int? maxdebt;
   final int? nds10;
   final int? nds20;
+  final String? formsLink;
   const Point(
       {required this.guid,
       required this.isDeleted,
@@ -2150,7 +2164,8 @@ class Point extends DataClass implements Insertable<Point> {
       this.plong,
       this.maxdebt,
       this.nds10,
-      this.nds20});
+      this.nds20,
+      this.formsLink});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2209,6 +2224,9 @@ class Point extends DataClass implements Insertable<Point> {
     if (!nullToAbsent || nds20 != null) {
       map['nds20'] = Variable<int>(nds20);
     }
+    if (!nullToAbsent || formsLink != null) {
+      map['forms_link'] = Variable<String>(formsLink);
+    }
     return map;
   }
 
@@ -2259,6 +2277,9 @@ class Point extends DataClass implements Insertable<Point> {
           nds10 == null && nullToAbsent ? const Value.absent() : Value(nds10),
       nds20:
           nds20 == null && nullToAbsent ? const Value.absent() : Value(nds20),
+      formsLink: formsLink == null && nullToAbsent
+          ? const Value.absent()
+          : Value(formsLink),
     );
   }
 
@@ -2291,6 +2312,7 @@ class Point extends DataClass implements Insertable<Point> {
       maxdebt: serializer.fromJson<int?>(json['maxdebt']),
       nds10: serializer.fromJson<int?>(json['nds10']),
       nds20: serializer.fromJson<int?>(json['nds20']),
+      formsLink: serializer.fromJson<String?>(json['formsLink']),
     );
   }
   @override
@@ -2322,6 +2344,7 @@ class Point extends DataClass implements Insertable<Point> {
       'maxdebt': serializer.toJson<int?>(maxdebt),
       'nds10': serializer.toJson<int?>(nds10),
       'nds20': serializer.toJson<int?>(nds20),
+      'formsLink': serializer.toJson<String?>(formsLink),
     };
   }
 
@@ -2350,7 +2373,8 @@ class Point extends DataClass implements Insertable<Point> {
           Value<int?> plong = const Value.absent(),
           Value<int?> maxdebt = const Value.absent(),
           Value<int?> nds10 = const Value.absent(),
-          Value<int?> nds20 = const Value.absent()}) =>
+          Value<int?> nds20 = const Value.absent(),
+          Value<String?> formsLink = const Value.absent()}) =>
       Point(
         guid: guid ?? this.guid,
         isDeleted: isDeleted ?? this.isDeleted,
@@ -2383,6 +2407,7 @@ class Point extends DataClass implements Insertable<Point> {
         maxdebt: maxdebt.present ? maxdebt.value : this.maxdebt,
         nds10: nds10.present ? nds10.value : this.nds10,
         nds20: nds20.present ? nds20.value : this.nds20,
+        formsLink: formsLink.present ? formsLink.value : this.formsLink,
       );
   @override
   String toString() {
@@ -2411,7 +2436,8 @@ class Point extends DataClass implements Insertable<Point> {
           ..write('plong: $plong, ')
           ..write('maxdebt: $maxdebt, ')
           ..write('nds10: $nds10, ')
-          ..write('nds20: $nds20')
+          ..write('nds20: $nds20, ')
+          ..write('formsLink: $formsLink')
           ..write(')'))
         .toString();
   }
@@ -2442,7 +2468,8 @@ class Point extends DataClass implements Insertable<Point> {
         plong,
         maxdebt,
         nds10,
-        nds20
+        nds20,
+        formsLink
       ]);
   @override
   bool operator ==(Object other) =>
@@ -2472,7 +2499,8 @@ class Point extends DataClass implements Insertable<Point> {
           other.plong == this.plong &&
           other.maxdebt == this.maxdebt &&
           other.nds10 == this.nds10 &&
-          other.nds20 == this.nds20);
+          other.nds20 == this.nds20 &&
+          other.formsLink == this.formsLink);
 }
 
 class PointsCompanion extends UpdateCompanion<Point> {
@@ -2499,6 +2527,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
   final Value<int?> maxdebt;
   final Value<int?> nds10;
   final Value<int?> nds20;
+  final Value<String?> formsLink;
   final Value<int> rowid;
   const PointsCompanion({
     this.guid = const Value.absent(),
@@ -2524,6 +2553,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
     this.maxdebt = const Value.absent(),
     this.nds10 = const Value.absent(),
     this.nds20 = const Value.absent(),
+    this.formsLink = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PointsCompanion.insert({
@@ -2550,6 +2580,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
     this.maxdebt = const Value.absent(),
     this.nds10 = const Value.absent(),
     this.nds20 = const Value.absent(),
+    this.formsLink = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : guid = Value(guid),
         name = Value(name),
@@ -2579,6 +2610,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
     Expression<int>? maxdebt,
     Expression<int>? nds10,
     Expression<int>? nds20,
+    Expression<String>? formsLink,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2605,6 +2637,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
       if (maxdebt != null) 'maxdebt': maxdebt,
       if (nds10 != null) 'nds10': nds10,
       if (nds20 != null) 'nds20': nds20,
+      if (formsLink != null) 'forms_link': formsLink,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2633,6 +2666,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
       Value<int?>? maxdebt,
       Value<int?>? nds10,
       Value<int?>? nds20,
+      Value<String?>? formsLink,
       Value<int>? rowid}) {
     return PointsCompanion(
       guid: guid ?? this.guid,
@@ -2658,6 +2692,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
       maxdebt: maxdebt ?? this.maxdebt,
       nds10: nds10 ?? this.nds10,
       nds20: nds20 ?? this.nds20,
+      formsLink: formsLink ?? this.formsLink,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2734,6 +2769,9 @@ class PointsCompanion extends UpdateCompanion<Point> {
     if (nds20.present) {
       map['nds20'] = Variable<int>(nds20.value);
     }
+    if (formsLink.present) {
+      map['forms_link'] = Variable<String>(formsLink.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2766,6 +2804,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
           ..write('maxdebt: $maxdebt, ')
           ..write('nds10: $nds10, ')
           ..write('nds20: $nds20, ')
+          ..write('formsLink: $formsLink, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
