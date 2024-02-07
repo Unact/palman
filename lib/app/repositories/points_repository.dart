@@ -53,6 +53,10 @@ class PointsRepository extends BaseRepository {
     return dataStore.pointsDao.watchRoutePoints();
   }
 
+  Stream<List<VisitEx>> watchVisitExList() {
+    return dataStore.pointsDao.watchVisitExList();
+  }
+
   Future<void> loadPoints() async {
     try {
       final data = await api.getPoints();
@@ -63,10 +67,12 @@ class PointsRepository extends BaseRepository {
           .map((e) => e.images.map((i) => i.toDatabaseEnt(e.guid))).expand((e) => e)
           .toList();
         final routePoints = data.routePoints.map((e) => e.toDatabaseEnt()).toList();
+        final visits = data.visits.map((e) => e.toDatabaseEnt()).toList();
 
         await dataStore.pointsDao.loadPoints(points);
         await dataStore.pointsDao.loadPointImages(pointImages);
         await dataStore.pointsDao.loadRoutePoints(routePoints);
+        await dataStore.pointsDao.loadVisits(visits);
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
@@ -184,7 +190,8 @@ class PointsRepository extends BaseRepository {
   }
 
   Future<void> visit({
-    required RoutePoint routePoint,
+    required Buyer? buyer,
+    required RoutePoint? routePoint,
     required VisitSkipReason? visitSkipReason,
     required double latitude,
     required double longitude,
@@ -196,7 +203,8 @@ class PointsRepository extends BaseRepository {
   }) async {
     try {
       Map<String, dynamic> visitData = {
-        'routePointId': routePoint.id,
+        'buyerId': buyer?.id,
+        'routePointId': routePoint?.id,
         'visitSkipReasonId': visitSkipReason?.id,
         'latitude': latitude,
         'longitude': longitude,
@@ -210,7 +218,10 @@ class PointsRepository extends BaseRepository {
 
       await dataStore.transaction(() async {
         final routePoints = data.routePoints.map((e) => e.toDatabaseEnt()).toList();
+        final visits = data.visits.map((e) => e.toDatabaseEnt()).toList();
+
         await dataStore.pointsDao.loadRoutePoints(routePoints);
+        await dataStore.pointsDao.loadVisits(visits);
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
