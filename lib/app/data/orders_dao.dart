@@ -388,12 +388,12 @@ class GoodsDetail {
     int? totalDiscount = goodsBonusPrograms.isNotEmpty ?
       goodsBonusPrograms.fold<int>(0, (acc, e) => (e.discountPercent ?? 0) + acc) :
       null;
-    double? maxCoef = goodsBonusPrograms.map((e) => e.coef ?? 0).maxOrNull;
+    double? minCoef = goodsBonusPrograms.map((e) => e.coef ?? 0).minOrNull;
     double bonusPrice =
       goodsBonusPrograms.where((e) => e.goodsPrice != null).map((e) => e.goodsPrice!).maxOrNull ??
       [
         (totalDiscount != null ? (1 - totalDiscount / 100) * pricelistPrice : null),
-        (maxCoef != null ? maxCoef * goods.cost : null)
+        (minCoef != null ? minCoef * goods.cost : null)
       ].whereNotNull().maxOrNull ??
       pricelistPrice;
 
