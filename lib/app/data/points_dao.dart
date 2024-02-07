@@ -6,7 +6,8 @@ part of 'database.dart';
     Points,
     PointImages,
     PointFormats,
-    RoutePoints
+    RoutePoints,
+    Visits
   ]
 )
 class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
@@ -36,8 +37,26 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     await db._loadData(routePoints, list, clearTable);
   }
 
+  Future<void> loadVisits(List<Visit> list, [bool clearTable = true]) async {
+    await db._loadData(visits, list, clearTable);
+  }
+
   Stream<List<PointFormat>> watchPointFormats() {
     return select(pointFormats).watch();
+  }
+
+  Stream<List<VisitEx>> watchVisitExList() {
+    final res = select(visits).join([
+      innerJoin(buyers, buyers.id.equalsExp(visits.buyerId))
+    ])
+    ..orderBy([OrderingTerm(expression: buyers.name)]);
+
+    return res.map(
+      (row) => VisitEx(
+        row.readTable(visits),
+        row.readTable(buyers)
+      )
+    ).watch();
   }
 
   Stream<List<RoutePointEx>> watchRoutePoints() {
@@ -166,4 +185,11 @@ class PointBuyerRoutePoint {
   final List<RoutePoint> routePoints;
 
   PointBuyerRoutePoint(this.point, this.buyer, this.routePoints);
+}
+
+class VisitEx {
+  final Visit visit;
+  final Buyer? buyer;
+
+  VisitEx(this.visit, this.buyer);
 }

@@ -74,7 +74,8 @@ part 'users_dao.dart';
     ReturnActTypes,
     PartnersReturnActTypes,
     RoutePoints,
-    VisitSkipReasons
+    VisitSkipReasons,
+    Visits
   ],
   daos: [
     BonusProgramsDao,
@@ -234,7 +235,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 24;
+  int get schemaVersion => 25;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -322,7 +323,7 @@ LazyDatabase _openConnection(bool logStatements) {
     final dbFolder = await getApplicationDocumentsDirectory();
     final file = File(p.join(dbFolder.path, '${Strings.appName}.sqlite'));
 
-    return NativeDatabase.createInBackground(file, logStatements: logStatements, cachePreparedStatements: true);
+    return NativeDatabase.createInBackground(file, logStatements: false, cachePreparedStatements: true);
   });
 }
 

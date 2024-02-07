@@ -15,6 +15,7 @@ import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
+import '/app/repositories/partners_repository.dart';
 import '/app/repositories/points_repository.dart';
 import '/app/repositories/users_repository.dart';
 import '/app/widgets/widgets.dart';
@@ -36,6 +37,7 @@ class PointsPage extends StatelessWidget {
       create: (context) => PointsViewModel(
         RepositoryProvider.of<AppRepository>(context),
         RepositoryProvider.of<OrdersRepository>(context),
+        RepositoryProvider.of<PartnersRepository>(context),
         RepositoryProvider.of<PointsRepository>(context),
         RepositoryProvider.of<UsersRepository>(context),
       ),
@@ -56,7 +58,7 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
   @override
   void initState() {
     super.initState();
-    tabController = TabController(vsync: this, length: 2);
+    tabController = TabController(vsync: this, length: 3);
   }
 
   @override
@@ -100,7 +102,39 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
       }
     );
 
-    if (result != null) await vm.visit(routePointEx, result);
+    if (result != null) await vm.visit(routePointEx: routePointEx, visitSkipReason: result);
+  }
+
+  Future<void> showBuyerDialog() async {
+    final vm = context.read<PointsViewModel>();
+    final result = await showDialog<Buyer>(
+      context: context,
+      builder: (BuildContext context) {
+        Buyer? buyer;
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              title: const Text('Необходимо указать клиента'),
+              content: SingleChildScrollView(
+                child: BuyerField(
+                  buyerExList: vm.state.buyerExList,
+                  onSelect: (selectedBuyer) => setState(() => buyer = selectedBuyer)
+                )
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: buyer != null ? () => Navigator.of(context).pop(buyer) : null,
+                  child: const Text(Strings.ok)
+                )
+              ]
+            );
+          }
+        );
+      }
+    );
+
+    if (result != null) await vm.visit(buyer: result);
   }
 
   @override
@@ -119,6 +153,11 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
                 tooltip: 'Открыть карту',
                 onPressed: openMapPage
               ),
+              IconButton(
+                icon: const Icon(Icons.check_box),
+                onPressed: showBuyerDialog,
+                tooltip: 'Отметить посещение'
+              ),
               SaveButton(
                 onSave: state.isLoading ? null : vm.syncChanges,
                 pendingChanges: vm.state.pendingChanges,
@@ -129,11 +168,12 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
               controller: tabController,
               tabs: const [
                 Tab(child: Text('Маршрут', style: Styles.tabStyle, softWrap: false)),
+                Tab(child: Text('Посещения', style: Styles.tabStyle, softWrap: false)),
                 Tab(child: Text('Точки', style: Styles.tabStyle, softWrap: false)),
               ],
             ),
           ),
-          floatingActionButton: tabController.index == 0 ? FloatingActionButton(
+          floatingActionButton: tabController.index == 2 ? FloatingActionButton(
             heroTag: null,
             onPressed: vm.addNewPoint,
             child: const Icon(Icons.add),
@@ -148,6 +188,7 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
               controller: tabController,
               children: [
                 buildRoutePointListView(context, physics),
+                buildVisitListView(context, physics),
                 buildPointListView(context, physics),
               ]
             )
@@ -262,7 +303,7 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
           ),
           IconButton(
             icon: const Icon(Icons.check_box),
-            onPressed: routePointEx.routePoint.visited == null ? () => vm.visit(routePointEx) : null,
+            onPressed: routePointEx.routePoint.visited == null ? () => vm.visit(routePointEx: routePointEx) : null,
             tooltip: 'Отметить посещение',
             constraints: const BoxConstraints(),
             padding: const EdgeInsets.only(right: 16)
@@ -275,6 +316,60 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
             padding: const EdgeInsets.only(right: 16)
           )
         ]
+      ),
+      dense: false
+    );
+  }
+
+  Widget buildVisitListView(BuildContext context, ScrollPhysics physics) {
+    final vm = context.read<PointsViewModel>();
+    final routePointDate = vm.state.visitExList
+      .groupFoldBy<DateTime, List<VisitEx>>((e) => e.visit.date, (acc, e) => (acc ?? [])..add(e));
+
+    return ListView(
+      physics: physics,
+      padding: const EdgeInsets.only(top: 16),
+      children: routePointDate.entries.sorted(
+        (a, b) => a.key.compareTo(b.key)
+      ).map((e) => buildVisitDateTile(context, e.key, e.value)).toList()
+    );
+  }
+
+  Widget buildVisitDateTile(BuildContext context, DateTime date, List<VisitEx> visitExList) {
+    return ExpansionTile(
+      initiallyExpanded: false,
+      title: Text.rich(
+        TextSpan(
+          children: <TextSpan>[
+            TextSpan(
+              text: Format.dateStr(date),
+              style: const TextStyle(color: Colors.black)
+            ),
+            const TextSpan(text: ' ('),
+            TextSpan(
+              text: DateFormat.E('ru').format(date),
+              style: const TextStyle(color: Colors.black, fontWeight: FontWeight.bold)
+            ),
+            const TextSpan(text: ')')
+          ]
+        )
+      ),
+      children: visitExList.map((e) => buildVisitTile(context, e)).toList()
+    );
+  }
+
+  Widget buildVisitTile(BuildContext context, VisitEx visitEx) {
+    return ListTile(
+      minLeadingWidth: 1,
+      leading: Padding(
+        padding: const EdgeInsets.only(left: 4),
+        child: visitEx.visit.visited ?
+          const Icon(Icons.check, color: Colors.green) :
+          const Icon(Icons.clear, color: Colors.red)
+      ),
+      title: Text(
+        visitEx.buyer != null ? visitEx.buyer!.fullname : visitEx.visit.name,
+        style: Styles.tileText
       ),
       dense: false
     );

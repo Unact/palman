@@ -3,16 +3,24 @@ part of 'points_page.dart';
 class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   final AppRepository appRepository;
   final OrdersRepository ordersRepository;
+  final PartnersRepository partnersRepository;
   final PointsRepository pointsRepository;
   final UsersRepository usersRepository;
   StreamSubscription<List<VisitSkipReason>>? visitSkipReasonsSubscription;
   StreamSubscription<List<Workdate>>? workdatesSubscription;
   StreamSubscription<List<PointEx>>? pointExListSubscription;
+  StreamSubscription<List<BuyerEx>>? buyersSubscription;
   StreamSubscription<List<RoutePointEx>>? routePointListSubscription;
+  StreamSubscription<List<VisitEx>>? visitListSubcription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
 
-  PointsViewModel(this.appRepository, this.ordersRepository, this.pointsRepository, this.usersRepository) :
-    super(PointsState(selectedReason: PointsState.kReasonFilter.first));
+  PointsViewModel(
+    this.appRepository,
+    this.ordersRepository,
+    this.partnersRepository,
+    this.pointsRepository,
+    this.usersRepository
+  ) : super(PointsState(selectedReason: PointsState.kReasonFilter.first));
 
   @override
   PointsStateStatus get status => state.status;
@@ -27,8 +35,14 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     workdatesSubscription = appRepository.watchWorkdates().listen((event) {
       emit(state.copyWith(status: PointsStateStatus.dataLoaded, workdates: event));
     });
+    buyersSubscription = partnersRepository.watchBuyers().listen((event) {
+      emit(state.copyWith(status: PointsStateStatus.dataLoaded, buyerExList: event));
+    });
     routePointListSubscription = pointsRepository.watchRoutePointExList().listen((event) {
       emit(state.copyWith(status: PointsStateStatus.dataLoaded, routePointExList: event));
+    });
+    visitListSubcription = pointsRepository.watchVisitExList().listen((event) {
+      emit(state.copyWith(status: PointsStateStatus.dataLoaded, visitExList: event));
     });
     pointExListSubscription = pointsRepository.watchPointExList().listen((event) {
       emit(state.copyWith(status: PointsStateStatus.dataLoaded, pointExList: event));
@@ -44,7 +58,9 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
 
     await visitSkipReasonsSubscription?.cancel();
     await workdatesSubscription?.cancel();
+    await buyersSubscription?.cancel();
     await routePointListSubscription?.cancel();
+    await visitListSubcription?.cancel();
     await pointExListSubscription?.cancel();
     await appInfoSubscription?.cancel();
   }
@@ -110,7 +126,7 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     }
   }
 
-  Future<void> visit(RoutePointEx routePointEx, [VisitSkipReason? visitSkipReason]) async {
+  Future<void> visit({RoutePointEx? routePointEx, Buyer? buyer, VisitSkipReason? visitSkipReason}) async {
     final result = Platform.isIOS ?
       await Geolocator.requestTemporaryFullAccuracy(purposeKey: 'route point') :
       LocationAccuracyStatus.precise;
@@ -129,7 +145,8 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
 
     try {
       await pointsRepository.visit(
-        routePoint: routePointEx.routePoint,
+        buyer: buyer,
+        routePoint: routePointEx?.routePoint,
         visitSkipReason: visitSkipReason,
         latitude: position.latitude,
         longitude: position.longitude,

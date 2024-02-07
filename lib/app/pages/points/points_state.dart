@@ -31,7 +31,9 @@ class PointsState {
     this.isLoading = false,
     this.workdates = const [],
     this.visitSkipReasons = const [],
-    this.message = ''
+    this.message = '',
+    this.visitExList = const [],
+    this.buyerExList = const []
   });
 
   final PointsStateStatus status;
@@ -45,6 +47,8 @@ class PointsState {
   final List<Workdate> workdates;
   final List<VisitSkipReason> visitSkipReasons;
   final String message;
+  final List<VisitEx> visitExList;
+  final List<BuyerEx> buyerExList;
 
   int get pendingChanges => appInfo == null ? 0 : appInfo!.pointsToSync;
 
@@ -63,8 +67,9 @@ class PointsState {
     AppInfoResult? appInfo,
     List<Workdate>? workdates,
     List<VisitSkipReason>? visitSkipReasons,
-    List<Buyer>? buyers,
-    String? message
+    String? message,
+    List<VisitEx>? visitExList,
+    List<BuyerEx>? buyerExList,
   }) {
     return PointsState(
       status: status ?? this.status,
@@ -78,6 +83,8 @@ class PointsState {
       workdates: workdates ?? this.workdates,
       visitSkipReasons: visitSkipReasons ?? this.visitSkipReasons,
       message: message ?? this.message,
+      visitExList: visitExList ?? this.visitExList,
+      buyerExList: buyerExList ?? this.buyerExList
     );
   }
 }

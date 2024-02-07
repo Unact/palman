@@ -475,3 +475,14 @@ class VisitSkipReasons extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
 }
+
+class Visits extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+  DateTimeColumn get date => dateTime()();
+  IntColumn get buyerId => integer().nullable()();
+  IntColumn get routePointId => integer().nullable()();
+  IntColumn get visitSkipReasonId => integer().nullable()();
+
+  BoolColumn get visited => boolean().generatedAs(visitSkipReasonId.isNull())();
+}

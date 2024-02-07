@@ -17352,6 +17352,363 @@ class VisitSkipReasonsCompanion extends UpdateCompanion<VisitSkipReason> {
   }
 }
 
+class $VisitsTable extends Visits with TableInfo<$VisitsTable, Visit> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VisitsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _dateMeta = const VerificationMeta('date');
+  @override
+  late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
+      'date', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _buyerIdMeta =
+      const VerificationMeta('buyerId');
+  @override
+  late final GeneratedColumn<int> buyerId = GeneratedColumn<int>(
+      'buyer_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _routePointIdMeta =
+      const VerificationMeta('routePointId');
+  @override
+  late final GeneratedColumn<int> routePointId = GeneratedColumn<int>(
+      'route_point_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _visitSkipReasonIdMeta =
+      const VerificationMeta('visitSkipReasonId');
+  @override
+  late final GeneratedColumn<int> visitSkipReasonId = GeneratedColumn<int>(
+      'visit_skip_reason_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _visitedMeta =
+      const VerificationMeta('visited');
+  @override
+  late final GeneratedColumn<bool> visited = GeneratedColumn<bool>(
+      'visited', aliasedName, false,
+      generatedAs: GeneratedAs(visitSkipReasonId.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("visited" IN (0, 1))'));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, name, date, buyerId, routePointId, visitSkipReasonId, visited];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'visits';
+  @override
+  VerificationContext validateIntegrity(Insertable<Visit> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('date')) {
+      context.handle(
+          _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
+    } else if (isInserting) {
+      context.missing(_dateMeta);
+    }
+    if (data.containsKey('buyer_id')) {
+      context.handle(_buyerIdMeta,
+          buyerId.isAcceptableOrUnknown(data['buyer_id']!, _buyerIdMeta));
+    }
+    if (data.containsKey('route_point_id')) {
+      context.handle(
+          _routePointIdMeta,
+          routePointId.isAcceptableOrUnknown(
+              data['route_point_id']!, _routePointIdMeta));
+    }
+    if (data.containsKey('visit_skip_reason_id')) {
+      context.handle(
+          _visitSkipReasonIdMeta,
+          visitSkipReasonId.isAcceptableOrUnknown(
+              data['visit_skip_reason_id']!, _visitSkipReasonIdMeta));
+    }
+    if (data.containsKey('visited')) {
+      context.handle(_visitedMeta,
+          visited.isAcceptableOrUnknown(data['visited']!, _visitedMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Visit map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Visit(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      date: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
+      buyerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}buyer_id']),
+      routePointId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}route_point_id']),
+      visitSkipReasonId: attachedDatabase.typeMapping.read(
+          DriftSqlType.int, data['${effectivePrefix}visit_skip_reason_id']),
+      visited: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}visited'])!,
+    );
+  }
+
+  @override
+  $VisitsTable createAlias(String alias) {
+    return $VisitsTable(attachedDatabase, alias);
+  }
+}
+
+class Visit extends DataClass implements Insertable<Visit> {
+  final int id;
+  final String name;
+  final DateTime date;
+  final int? buyerId;
+  final int? routePointId;
+  final int? visitSkipReasonId;
+  final bool visited;
+  const Visit(
+      {required this.id,
+      required this.name,
+      required this.date,
+      this.buyerId,
+      this.routePointId,
+      this.visitSkipReasonId,
+      required this.visited});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['date'] = Variable<DateTime>(date);
+    if (!nullToAbsent || buyerId != null) {
+      map['buyer_id'] = Variable<int>(buyerId);
+    }
+    if (!nullToAbsent || routePointId != null) {
+      map['route_point_id'] = Variable<int>(routePointId);
+    }
+    if (!nullToAbsent || visitSkipReasonId != null) {
+      map['visit_skip_reason_id'] = Variable<int>(visitSkipReasonId);
+    }
+    return map;
+  }
+
+  VisitsCompanion toCompanion(bool nullToAbsent) {
+    return VisitsCompanion(
+      id: Value(id),
+      name: Value(name),
+      date: Value(date),
+      buyerId: buyerId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(buyerId),
+      routePointId: routePointId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(routePointId),
+      visitSkipReasonId: visitSkipReasonId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(visitSkipReasonId),
+    );
+  }
+
+  factory Visit.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Visit(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      date: serializer.fromJson<DateTime>(json['date']),
+      buyerId: serializer.fromJson<int?>(json['buyerId']),
+      routePointId: serializer.fromJson<int?>(json['routePointId']),
+      visitSkipReasonId: serializer.fromJson<int?>(json['visitSkipReasonId']),
+      visited: serializer.fromJson<bool>(json['visited']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'date': serializer.toJson<DateTime>(date),
+      'buyerId': serializer.toJson<int?>(buyerId),
+      'routePointId': serializer.toJson<int?>(routePointId),
+      'visitSkipReasonId': serializer.toJson<int?>(visitSkipReasonId),
+      'visited': serializer.toJson<bool>(visited),
+    };
+  }
+
+  Visit copyWith(
+          {int? id,
+          String? name,
+          DateTime? date,
+          Value<int?> buyerId = const Value.absent(),
+          Value<int?> routePointId = const Value.absent(),
+          Value<int?> visitSkipReasonId = const Value.absent(),
+          bool? visited}) =>
+      Visit(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        date: date ?? this.date,
+        buyerId: buyerId.present ? buyerId.value : this.buyerId,
+        routePointId:
+            routePointId.present ? routePointId.value : this.routePointId,
+        visitSkipReasonId: visitSkipReasonId.present
+            ? visitSkipReasonId.value
+            : this.visitSkipReasonId,
+        visited: visited ?? this.visited,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Visit(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('date: $date, ')
+          ..write('buyerId: $buyerId, ')
+          ..write('routePointId: $routePointId, ')
+          ..write('visitSkipReasonId: $visitSkipReasonId, ')
+          ..write('visited: $visited')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, name, date, buyerId, routePointId, visitSkipReasonId, visited);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Visit &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.date == this.date &&
+          other.buyerId == this.buyerId &&
+          other.routePointId == this.routePointId &&
+          other.visitSkipReasonId == this.visitSkipReasonId &&
+          other.visited == this.visited);
+}
+
+class VisitsCompanion extends UpdateCompanion<Visit> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<DateTime> date;
+  final Value<int?> buyerId;
+  final Value<int?> routePointId;
+  final Value<int?> visitSkipReasonId;
+  const VisitsCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.date = const Value.absent(),
+    this.buyerId = const Value.absent(),
+    this.routePointId = const Value.absent(),
+    this.visitSkipReasonId = const Value.absent(),
+  });
+  VisitsCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    required DateTime date,
+    this.buyerId = const Value.absent(),
+    this.routePointId = const Value.absent(),
+    this.visitSkipReasonId = const Value.absent(),
+  })  : name = Value(name),
+        date = Value(date);
+  static Insertable<Visit> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<DateTime>? date,
+    Expression<int>? buyerId,
+    Expression<int>? routePointId,
+    Expression<int>? visitSkipReasonId,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (date != null) 'date': date,
+      if (buyerId != null) 'buyer_id': buyerId,
+      if (routePointId != null) 'route_point_id': routePointId,
+      if (visitSkipReasonId != null) 'visit_skip_reason_id': visitSkipReasonId,
+    });
+  }
+
+  VisitsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? name,
+      Value<DateTime>? date,
+      Value<int?>? buyerId,
+      Value<int?>? routePointId,
+      Value<int?>? visitSkipReasonId}) {
+    return VisitsCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      date: date ?? this.date,
+      buyerId: buyerId ?? this.buyerId,
+      routePointId: routePointId ?? this.routePointId,
+      visitSkipReasonId: visitSkipReasonId ?? this.visitSkipReasonId,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (date.present) {
+      map['date'] = Variable<DateTime>(date.value);
+    }
+    if (buyerId.present) {
+      map['buyer_id'] = Variable<int>(buyerId.value);
+    }
+    if (routePointId.present) {
+      map['route_point_id'] = Variable<int>(routePointId.value);
+    }
+    if (visitSkipReasonId.present) {
+      map['visit_skip_reason_id'] = Variable<int>(visitSkipReasonId.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VisitsCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('date: $date, ')
+          ..write('buyerId: $buyerId, ')
+          ..write('routePointId: $routePointId, ')
+          ..write('visitSkipReasonId: $visitSkipReasonId')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDataStore extends GeneratedDatabase {
   _$AppDataStore(QueryExecutor e) : super(e);
   late final $UsersTable users = $UsersTable(this);
@@ -17414,6 +17771,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final $RoutePointsTable routePoints = $RoutePointsTable(this);
   late final $VisitSkipReasonsTable visitSkipReasons =
       $VisitSkipReasonsTable(this);
+  late final $VisitsTable visits = $VisitsTable(this);
   late final BonusProgramsDao bonusProgramsDao =
       BonusProgramsDao(this as AppDataStore);
   late final DebtsDao debtsDao = DebtsDao(this as AppDataStore);
@@ -17515,7 +17873,8 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         returnActTypes,
         partnersReturnActTypes,
         routePoints,
-        visitSkipReasons
+        visitSkipReasons,
+        visits
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -17938,6 +18297,7 @@ mixin _$PointsDaoMixin on DatabaseAccessor<AppDataStore> {
   $PointImagesTable get pointImages => attachedDatabase.pointImages;
   $PointFormatsTable get pointFormats => attachedDatabase.pointFormats;
   $RoutePointsTable get routePoints => attachedDatabase.routePoints;
+  $VisitsTable get visits => attachedDatabase.visits;
 }
 mixin _$PricesDaoMixin on DatabaseAccessor<AppDataStore> {
   $BuyersTable get buyers => attachedDatabase.buyers;
