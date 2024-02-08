@@ -11,7 +11,6 @@ class ApiGoods extends Equatable {
   final int pricelistSetId;
   final double cost;
   final double minPrice;
-  final double? handPrice;
   final String extraLabel;
   final int rel;
   final int package;
@@ -39,7 +38,6 @@ class ApiGoods extends Equatable {
     required this.pricelistSetId,
     required this.cost,
     required this.minPrice,
-    this.handPrice,
     required this.extraLabel,
     required this.rel,
     required this.package,
@@ -69,7 +67,6 @@ class ApiGoods extends Equatable {
       pricelistSetId: json['pricelistSetId'],
       cost: Parsing.parseDouble(json['cost'])!,
       minPrice: Parsing.parseDouble(json['minPrice'])!,
-      handPrice: Parsing.parseDouble(json['handPrice']),
       extraLabel: json['extraLabel'],
       rel: json['rel'],
       package: json['package'],
@@ -100,7 +97,6 @@ class ApiGoods extends Equatable {
       pricelistSetId: pricelistSetId,
       cost: cost,
       minPrice: minPrice,
-      handPrice: handPrice,
       extraLabel: extraLabel,
       rel: rel,
       package: package,
@@ -131,7 +127,6 @@ class ApiGoods extends Equatable {
     pricelistSetId,
     cost,
     minPrice,
-    handPrice,
     extraLabel,
     rel,
     package,

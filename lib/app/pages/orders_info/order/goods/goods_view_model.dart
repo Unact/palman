@@ -230,8 +230,4 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       package: goodsDetail.package
     );
   }
-
-  Future<void> updateOrderLinePrice(OrderLineExResult orderLineEx, double price) async {
-    await ordersRepository.updateOrderLine(orderLineEx.line, price: Optional.of(price), handPrice: Optional.of(price));
-  }
 }

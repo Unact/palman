@@ -181,7 +181,6 @@ class AllGoods extends Table {
   IntColumn get pricelistSetId => integer()();
   RealColumn get cost => real()();
   RealColumn get minPrice => real()();
-  RealColumn get handPrice => real().nullable()();
   TextColumn get extraLabel => text()();
   IntColumn get package => integer()();
   IntColumn get rel => integer()();
@@ -379,7 +378,6 @@ class OrderLines extends Table with Syncable {
   RealColumn get priceOriginal => real()();
   IntColumn get package => integer()();
   IntColumn get rel => integer()();
-  RealColumn get handPrice => real().nullable()();
 
   @override
   List<Set<Column>> get uniqueKeys => [{orderGuid, goodsId}];
