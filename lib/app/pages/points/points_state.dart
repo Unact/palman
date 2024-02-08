@@ -17,7 +17,6 @@ class PointsState {
   static const List<(String code, String value)> kReasonFilter = [
     (Strings.pointReasonActive, 'Актив'),
     (Strings.pointReasonArchive, 'Архив'),
-    (Strings.pointReasonZone, 'На территории')
   ];
 
   PointsState({
