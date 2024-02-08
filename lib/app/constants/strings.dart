@@ -23,7 +23,6 @@ class Strings {
 
   static const pointReasonActive = 'active';
   static const pointReasonArchive = 'archive';
-  static const pointReasonZone = 'zone';
 
   static const incRequestDefaultStatus = 'Не отправлен';
 

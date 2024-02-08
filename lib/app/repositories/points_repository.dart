@@ -106,7 +106,7 @@ class PointsRepository extends BaseRepository {
         guid: guid,
         name: Strings.newPointName,
         buyerName: Strings.newPointName,
-        reason: Strings.pointReasonZone
+        reason: Strings.pointReasonArchive
       )
     );
     final point = await dataStore.pointsDao.getPointEx(guid);
