@@ -17,7 +17,6 @@ import '/app/repositories/orders_repository.dart';
 import '/app/widgets/widgets.dart';
 import 'bonus_programs/bonus_programs_page.dart';
 import 'goods_info/goods_info_page.dart';
-import 'hand_price_change/hand_price_change_page.dart';
 
 part 'goods_state.dart';
 part 'goods_view_model.dart';
@@ -895,21 +894,6 @@ class _GoodsSubtitle extends StatefulWidget {
 class _GoodsSubtitleState extends State<_GoodsSubtitle> {
   bool expanded = false;
 
-  Future<void> showPriceChangeDialog() async {
-    final vm = context.read<GoodsViewModel>();
-
-    final result = await showDialog<double?>(
-      context: context,
-      barrierDismissible: true,
-      builder: (BuildContext context) => HandPriceChangePage(
-        minHandPrice: widget.goodsDetail.goods.handPrice!,
-        handPrice: widget.orderLineEx!.line.price,
-      )
-    );
-
-    if (result != null) await vm.updateOrderLinePrice(widget.orderLineEx!, result);
-  }
-
   @override
   Widget build(BuildContext context) {
     final goodsEx = widget.goodsDetail.goodsEx;
@@ -917,7 +901,7 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
     final stock = widget.goodsDetail.stock;
     final stockVol = stock?.vol ?? 0;
     final price = widget.goodsDetail.pricelistPrice;
-    final minPrice = min(goods.handPrice ?? double.infinity, goods.minPrice);
+    final minPrice = goods.minPrice;
     final bonusPrice = widget.goodsDetail.price;
     final effPrice = (bonusPrice - (widget.orderLineEx?.line.priceOriginal ?? price)).abs();
     final linePrice = widget.orderLineEx?.line.price ?? bonusPrice;
@@ -939,29 +923,7 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
               style: Styles.tileText.copyWith(fontWeight: FontWeight.w500, color: color),
               children: <InlineSpan>[
                 const TextSpan(text: 'Цена: '),
-                (goods.handPrice ?? 0) > 0 ?
-                  WidgetSpan(
-                    alignment: PlaceholderAlignment.middle,
-                    child: Padding(
-                      padding: const EdgeInsets.all(1),
-                      child: ActionChip(
-                        onPressed: widget.orderLineEx == null ? null : showPriceChangeDialog,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        labelPadding: EdgeInsets.zero,
-                        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                        label: Text(
-                          Format.numberStr(linePrice),
-                          style: Styles.chipStyle.copyWith(
-                            color: widget.orderLineEx == null ? Colors.black : Colors.white,
-                            fontWeight: FontWeight.w500
-                          )
-                        ),
-                        backgroundColor: Colors.black,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
-                      )
-                    )
-                  ) :
-                  TextSpan(text: Format.numberStr(linePrice)),
+                TextSpan(text: Format.numberStr(linePrice)),
                 TextSpan(
                   text: effPrice > 0 ? '(${Format.numberStr(price)})' : null,
                   style: TextStyle(
@@ -1006,29 +968,7 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
               style: Styles.tileText.copyWith(fontWeight: FontWeight.w500, color: color),
               children: <InlineSpan>[
                 const TextSpan(text: 'Цена: '),
-                (goods.handPrice ?? 0) > 0 ?
-                  WidgetSpan(
-                    alignment: PlaceholderAlignment.middle,
-                    child: Padding(
-                      padding: const EdgeInsets.all(1),
-                      child: ActionChip(
-                        onPressed: widget.orderLineEx == null ? null : showPriceChangeDialog,
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        labelPadding: EdgeInsets.zero,
-                        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-                        label: Text(
-                          Format.numberStr(linePrice),
-                          style: Styles.chipStyle.copyWith(
-                            color: widget.orderLineEx == null ? Colors.black : Colors.white,
-                            fontWeight: FontWeight.w500
-                          )
-                        ),
-                        backgroundColor: Colors.black87,
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))
-                      )
-                    )
-                  ) :
-                  TextSpan(text: Format.numberStr(linePrice)),
+                TextSpan(text: Format.numberStr(linePrice)),
                 TextSpan(
                   text: effPrice > 0 ? '(${Format.numberStr(price)})' : null,
                   style: TextStyle(

@@ -6124,12 +6124,6 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
   late final GeneratedColumn<double> minPrice = GeneratedColumn<double>(
       'min_price', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _handPriceMeta =
-      const VerificationMeta('handPrice');
-  @override
-  late final GeneratedColumn<double> handPrice = GeneratedColumn<double>(
-      'hand_price', aliasedName, true,
-      type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _extraLabelMeta =
       const VerificationMeta('extraLabel');
   @override
@@ -6234,7 +6228,6 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
         pricelistSetId,
         cost,
         minPrice,
-        handPrice,
         extraLabel,
         package,
         rel,
@@ -6328,10 +6321,6 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           minPrice.isAcceptableOrUnknown(data['min_price']!, _minPriceMeta));
     } else if (isInserting) {
       context.missing(_minPriceMeta);
-    }
-    if (data.containsKey('hand_price')) {
-      context.handle(_handPriceMeta,
-          handPrice.isAcceptableOrUnknown(data['hand_price']!, _handPriceMeta));
     }
     if (data.containsKey('extra_label')) {
       context.handle(
@@ -6457,8 +6446,6 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           .read(DriftSqlType.double, data['${effectivePrefix}cost'])!,
       minPrice: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}min_price'])!,
-      handPrice: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}hand_price']),
       extraLabel: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}extra_label'])!,
       package: attachedDatabase.typeMapping
@@ -6513,7 +6500,6 @@ class Goods extends DataClass implements Insertable<Goods> {
   final int pricelistSetId;
   final double cost;
   final double minPrice;
-  final double? handPrice;
   final String extraLabel;
   final int package;
   final int rel;
@@ -6540,7 +6526,6 @@ class Goods extends DataClass implements Insertable<Goods> {
       required this.pricelistSetId,
       required this.cost,
       required this.minPrice,
-      this.handPrice,
       required this.extraLabel,
       required this.package,
       required this.rel,
@@ -6571,9 +6556,6 @@ class Goods extends DataClass implements Insertable<Goods> {
     map['pricelist_set_id'] = Variable<int>(pricelistSetId);
     map['cost'] = Variable<double>(cost);
     map['min_price'] = Variable<double>(minPrice);
-    if (!nullToAbsent || handPrice != null) {
-      map['hand_price'] = Variable<double>(handPrice);
-    }
     map['extra_label'] = Variable<String>(extraLabel);
     map['package'] = Variable<int>(package);
     map['rel'] = Variable<int>(rel);
@@ -6609,9 +6591,6 @@ class Goods extends DataClass implements Insertable<Goods> {
       pricelistSetId: Value(pricelistSetId),
       cost: Value(cost),
       minPrice: Value(minPrice),
-      handPrice: handPrice == null && nullToAbsent
-          ? const Value.absent()
-          : Value(handPrice),
       extraLabel: Value(extraLabel),
       package: Value(package),
       rel: Value(rel),
@@ -6644,7 +6623,6 @@ class Goods extends DataClass implements Insertable<Goods> {
       pricelistSetId: serializer.fromJson<int>(json['pricelistSetId']),
       cost: serializer.fromJson<double>(json['cost']),
       minPrice: serializer.fromJson<double>(json['minPrice']),
-      handPrice: serializer.fromJson<double?>(json['handPrice']),
       extraLabel: serializer.fromJson<String>(json['extraLabel']),
       package: serializer.fromJson<int>(json['package']),
       rel: serializer.fromJson<int>(json['rel']),
@@ -6677,7 +6655,6 @@ class Goods extends DataClass implements Insertable<Goods> {
       'pricelistSetId': serializer.toJson<int>(pricelistSetId),
       'cost': serializer.toJson<double>(cost),
       'minPrice': serializer.toJson<double>(minPrice),
-      'handPrice': serializer.toJson<double?>(handPrice),
       'extraLabel': serializer.toJson<String>(extraLabel),
       'package': serializer.toJson<int>(package),
       'rel': serializer.toJson<int>(rel),
@@ -6707,7 +6684,6 @@ class Goods extends DataClass implements Insertable<Goods> {
           int? pricelistSetId,
           double? cost,
           double? minPrice,
-          Value<double?> handPrice = const Value.absent(),
           String? extraLabel,
           int? package,
           int? rel,
@@ -6735,7 +6711,6 @@ class Goods extends DataClass implements Insertable<Goods> {
         pricelistSetId: pricelistSetId ?? this.pricelistSetId,
         cost: cost ?? this.cost,
         minPrice: minPrice ?? this.minPrice,
-        handPrice: handPrice.present ? handPrice.value : this.handPrice,
         extraLabel: extraLabel ?? this.extraLabel,
         package: package ?? this.package,
         rel: rel ?? this.rel,
@@ -6766,7 +6741,6 @@ class Goods extends DataClass implements Insertable<Goods> {
           ..write('pricelistSetId: $pricelistSetId, ')
           ..write('cost: $cost, ')
           ..write('minPrice: $minPrice, ')
-          ..write('handPrice: $handPrice, ')
           ..write('extraLabel: $extraLabel, ')
           ..write('package: $package, ')
           ..write('rel: $rel, ')
@@ -6798,7 +6772,6 @@ class Goods extends DataClass implements Insertable<Goods> {
         pricelistSetId,
         cost,
         minPrice,
-        handPrice,
         extraLabel,
         package,
         rel,
@@ -6829,7 +6802,6 @@ class Goods extends DataClass implements Insertable<Goods> {
           other.pricelistSetId == this.pricelistSetId &&
           other.cost == this.cost &&
           other.minPrice == this.minPrice &&
-          other.handPrice == this.handPrice &&
           other.extraLabel == this.extraLabel &&
           other.package == this.package &&
           other.rel == this.rel &&
@@ -6858,7 +6830,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   final Value<int> pricelistSetId;
   final Value<double> cost;
   final Value<double> minPrice;
-  final Value<double?> handPrice;
   final Value<String> extraLabel;
   final Value<int> package;
   final Value<int> rel;
@@ -6885,7 +6856,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     this.pricelistSetId = const Value.absent(),
     this.cost = const Value.absent(),
     this.minPrice = const Value.absent(),
-    this.handPrice = const Value.absent(),
     this.extraLabel = const Value.absent(),
     this.package = const Value.absent(),
     this.rel = const Value.absent(),
@@ -6913,7 +6883,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     required int pricelistSetId,
     required double cost,
     required double minPrice,
-    this.handPrice = const Value.absent(),
     required String extraLabel,
     required int package,
     required int rel,
@@ -6963,7 +6932,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     Expression<int>? pricelistSetId,
     Expression<double>? cost,
     Expression<double>? minPrice,
-    Expression<double>? handPrice,
     Expression<String>? extraLabel,
     Expression<int>? package,
     Expression<int>? rel,
@@ -6991,7 +6959,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       if (pricelistSetId != null) 'pricelist_set_id': pricelistSetId,
       if (cost != null) 'cost': cost,
       if (minPrice != null) 'min_price': minPrice,
-      if (handPrice != null) 'hand_price': handPrice,
       if (extraLabel != null) 'extra_label': extraLabel,
       if (package != null) 'package': package,
       if (rel != null) 'rel': rel,
@@ -7023,7 +6990,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       Value<int>? pricelistSetId,
       Value<double>? cost,
       Value<double>? minPrice,
-      Value<double?>? handPrice,
       Value<String>? extraLabel,
       Value<int>? package,
       Value<int>? rel,
@@ -7050,7 +7016,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       pricelistSetId: pricelistSetId ?? this.pricelistSetId,
       cost: cost ?? this.cost,
       minPrice: minPrice ?? this.minPrice,
-      handPrice: handPrice ?? this.handPrice,
       extraLabel: extraLabel ?? this.extraLabel,
       package: package ?? this.package,
       rel: rel ?? this.rel,
@@ -7104,9 +7069,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     }
     if (minPrice.present) {
       map['min_price'] = Variable<double>(minPrice.value);
-    }
-    if (handPrice.present) {
-      map['hand_price'] = Variable<double>(handPrice.value);
     }
     if (extraLabel.present) {
       map['extra_label'] = Variable<String>(extraLabel.value);
@@ -7170,7 +7132,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
           ..write('pricelistSetId: $pricelistSetId, ')
           ..write('cost: $cost, ')
           ..write('minPrice: $minPrice, ')
-          ..write('handPrice: $handPrice, ')
           ..write('extraLabel: $extraLabel, ')
           ..write('package: $package, ')
           ..write('rel: $rel, ')
@@ -9034,12 +8995,6 @@ class $OrderLinesTable extends OrderLines
   late final GeneratedColumn<int> rel = GeneratedColumn<int>(
       'rel', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _handPriceMeta =
-      const VerificationMeta('handPrice');
-  @override
-  late final GeneratedColumn<double> handPrice = GeneratedColumn<double>(
-      'hand_price', aliasedName, true,
-      type: DriftSqlType.double, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         guid,
@@ -9056,8 +9011,7 @@ class $OrderLinesTable extends OrderLines
         price,
         priceOriginal,
         package,
-        rel,
-        handPrice
+        rel
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -9150,10 +9104,6 @@ class $OrderLinesTable extends OrderLines
     } else if (isInserting) {
       context.missing(_relMeta);
     }
-    if (data.containsKey('hand_price')) {
-      context.handle(_handPriceMeta,
-          handPrice.isAcceptableOrUnknown(data['hand_price']!, _handPriceMeta));
-    }
     return context;
   }
 
@@ -9197,8 +9147,6 @@ class $OrderLinesTable extends OrderLines
           .read(DriftSqlType.int, data['${effectivePrefix}package'])!,
       rel: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}rel'])!,
-      handPrice: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}hand_price']),
     );
   }
 
@@ -9224,7 +9172,6 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
   final double priceOriginal;
   final int package;
   final int rel;
-  final double? handPrice;
   const OrderLine(
       {required this.guid,
       required this.isDeleted,
@@ -9240,8 +9187,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       required this.price,
       required this.priceOriginal,
       required this.package,
-      required this.rel,
-      this.handPrice});
+      required this.rel});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -9262,9 +9208,6 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
     map['price_original'] = Variable<double>(priceOriginal);
     map['package'] = Variable<int>(package);
     map['rel'] = Variable<int>(rel);
-    if (!nullToAbsent || handPrice != null) {
-      map['hand_price'] = Variable<double>(handPrice);
-    }
     return map;
   }
 
@@ -9285,9 +9228,6 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       priceOriginal: Value(priceOriginal),
       package: Value(package),
       rel: Value(rel),
-      handPrice: handPrice == null && nullToAbsent
-          ? const Value.absent()
-          : Value(handPrice),
     );
   }
 
@@ -9310,7 +9250,6 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       priceOriginal: serializer.fromJson<double>(json['priceOriginal']),
       package: serializer.fromJson<int>(json['package']),
       rel: serializer.fromJson<int>(json['rel']),
-      handPrice: serializer.fromJson<double?>(json['handPrice']),
     );
   }
   @override
@@ -9332,7 +9271,6 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       'priceOriginal': serializer.toJson<double>(priceOriginal),
       'package': serializer.toJson<int>(package),
       'rel': serializer.toJson<int>(rel),
-      'handPrice': serializer.toJson<double?>(handPrice),
     };
   }
 
@@ -9351,8 +9289,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           double? price,
           double? priceOriginal,
           int? package,
-          int? rel,
-          Value<double?> handPrice = const Value.absent()}) =>
+          int? rel}) =>
       OrderLine(
         guid: guid ?? this.guid,
         isDeleted: isDeleted ?? this.isDeleted,
@@ -9370,7 +9307,6 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
         priceOriginal: priceOriginal ?? this.priceOriginal,
         package: package ?? this.package,
         rel: rel ?? this.rel,
-        handPrice: handPrice.present ? handPrice.value : this.handPrice,
       );
   @override
   String toString() {
@@ -9389,8 +9325,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           ..write('price: $price, ')
           ..write('priceOriginal: $priceOriginal, ')
           ..write('package: $package, ')
-          ..write('rel: $rel, ')
-          ..write('handPrice: $handPrice')
+          ..write('rel: $rel')
           ..write(')'))
         .toString();
   }
@@ -9411,8 +9346,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
       price,
       priceOriginal,
       package,
-      rel,
-      handPrice);
+      rel);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -9431,8 +9365,7 @@ class OrderLine extends DataClass implements Insertable<OrderLine> {
           other.price == this.price &&
           other.priceOriginal == this.priceOriginal &&
           other.package == this.package &&
-          other.rel == this.rel &&
-          other.handPrice == this.handPrice);
+          other.rel == this.rel);
 }
 
 class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
@@ -9449,7 +9382,6 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
   final Value<double> priceOriginal;
   final Value<int> package;
   final Value<int> rel;
-  final Value<double?> handPrice;
   final Value<int> rowid;
   const OrderLinesCompanion({
     this.guid = const Value.absent(),
@@ -9465,7 +9397,6 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     this.priceOriginal = const Value.absent(),
     this.package = const Value.absent(),
     this.rel = const Value.absent(),
-    this.handPrice = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OrderLinesCompanion.insert({
@@ -9482,7 +9413,6 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     required double priceOriginal,
     required int package,
     required int rel,
-    this.handPrice = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : guid = Value(guid),
         orderGuid = Value(orderGuid),
@@ -9506,7 +9436,6 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     Expression<double>? priceOriginal,
     Expression<int>? package,
     Expression<int>? rel,
-    Expression<double>? handPrice,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -9523,7 +9452,6 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
       if (priceOriginal != null) 'price_original': priceOriginal,
       if (package != null) 'package': package,
       if (rel != null) 'rel': rel,
-      if (handPrice != null) 'hand_price': handPrice,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -9542,7 +9470,6 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
       Value<double>? priceOriginal,
       Value<int>? package,
       Value<int>? rel,
-      Value<double?>? handPrice,
       Value<int>? rowid}) {
     return OrderLinesCompanion(
       guid: guid ?? this.guid,
@@ -9558,7 +9485,6 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
       priceOriginal: priceOriginal ?? this.priceOriginal,
       package: package ?? this.package,
       rel: rel ?? this.rel,
-      handPrice: handPrice ?? this.handPrice,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -9605,9 +9531,6 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
     if (rel.present) {
       map['rel'] = Variable<int>(rel.value);
     }
-    if (handPrice.present) {
-      map['hand_price'] = Variable<double>(handPrice.value);
-    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -9630,7 +9553,6 @@ class OrderLinesCompanion extends UpdateCompanion<OrderLine> {
           ..write('priceOriginal: $priceOriginal, ')
           ..write('package: $package, ')
           ..write('rel: $rel, ')
-          ..write('handPrice: $handPrice, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -18112,7 +18034,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
 
   Selectable<OrderLineExResult> orderLineEx(String orderGuid) {
     return customSelect(
-        'SELECT"order_lines"."guid" AS "nested_0.guid", "order_lines"."is_deleted" AS "nested_0.is_deleted", "order_lines"."timestamp" AS "nested_0.timestamp", "order_lines"."current_timestamp" AS "nested_0.current_timestamp", "order_lines"."last_sync_time" AS "nested_0.last_sync_time", "order_lines"."need_sync" AS "nested_0.need_sync", "order_lines"."is_new" AS "nested_0.is_new", "order_lines"."id" AS "nested_0.id", "order_lines"."order_guid" AS "nested_0.order_guid", "order_lines"."goods_id" AS "nested_0.goods_id", "order_lines"."vol" AS "nested_0.vol", "order_lines"."price" AS "nested_0.price", "order_lines"."price_original" AS "nested_0.price_original", "order_lines"."package" AS "nested_0.package", "order_lines"."rel" AS "nested_0.rel", "order_lines"."hand_price" AS "nested_0.hand_price", goods.name AS goods_name FROM order_lines JOIN goods ON goods.id = order_lines.goods_id WHERE order_lines.order_guid = ?1 ORDER BY goods.name',
+        'SELECT"order_lines"."guid" AS "nested_0.guid", "order_lines"."is_deleted" AS "nested_0.is_deleted", "order_lines"."timestamp" AS "nested_0.timestamp", "order_lines"."current_timestamp" AS "nested_0.current_timestamp", "order_lines"."last_sync_time" AS "nested_0.last_sync_time", "order_lines"."need_sync" AS "nested_0.need_sync", "order_lines"."is_new" AS "nested_0.is_new", "order_lines"."id" AS "nested_0.id", "order_lines"."order_guid" AS "nested_0.order_guid", "order_lines"."goods_id" AS "nested_0.goods_id", "order_lines"."vol" AS "nested_0.vol", "order_lines"."price" AS "nested_0.price", "order_lines"."price_original" AS "nested_0.price_original", "order_lines"."package" AS "nested_0.package", "order_lines"."rel" AS "nested_0.rel", goods.name AS goods_name FROM order_lines JOIN goods ON goods.id = order_lines.goods_id WHERE order_lines.order_guid = ?1 ORDER BY goods.name',
         variables: [
           Variable<String>(orderGuid)
         ],
@@ -18165,7 +18087,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."is_orderable" AS "nested_0.is_orderable", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."hand_price" AS "nested_0.hand_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."volume" AS "nested_0.volume", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."for_physical" AS "nested_0.for_physical", "goods"."only_with_docs" AS "nested_0.only_with_docs", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
+        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."is_orderable" AS "nested_0.is_orderable", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."volume" AS "nested_0.volume", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."for_physical" AS "nested_0.for_physical", "goods"."only_with_docs" AS "nested_0.only_with_docs", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
         variables: [
           Variable<int>(buyerId),
           for (var $ in goodsIds) Variable<int>($)
