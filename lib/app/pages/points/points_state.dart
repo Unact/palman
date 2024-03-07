@@ -32,7 +32,8 @@ class PointsState {
     this.visitSkipReasons = const [],
     this.message = '',
     this.visitExList = const [],
-    this.buyerExList = const []
+    this.buyerExList = const [],
+    this.user,
   });
 
   final PointsStateStatus status;
@@ -48,8 +49,10 @@ class PointsState {
   final String message;
   final List<VisitEx> visitExList;
   final List<BuyerEx> buyerExList;
+  final User? user;
 
   int get pendingChanges => appInfo == null ? 0 : appInfo!.pointsToSync;
+  bool get preOrderMode => user?.preOrderMode ?? false;
 
   List<PointEx> get filteredPointExList => pointExList
     .where((e) => !e.point.isDeleted)
@@ -69,6 +72,7 @@ class PointsState {
     String? message,
     List<VisitEx>? visitExList,
     List<BuyerEx>? buyerExList,
+    User? user
   }) {
     return PointsState(
       status: status ?? this.status,
@@ -83,7 +87,8 @@ class PointsState {
       visitSkipReasons: visitSkipReasons ?? this.visitSkipReasons,
       message: message ?? this.message,
       visitExList: visitExList ?? this.visitExList,
-      buyerExList: buyerExList ?? this.buyerExList
+      buyerExList: buyerExList ?? this.buyerExList,
+      user: user ?? this.user
     );
   }
 }

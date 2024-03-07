@@ -153,7 +153,7 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
                 tooltip: 'Открыть карту',
                 onPressed: openMapPage
               ),
-              IconButton(
+              state.preOrderMode ? Container() : IconButton(
                 icon: const Icon(Icons.check_box),
                 onPressed: showBuyerDialog,
                 tooltip: 'Отметить посещение'
@@ -163,7 +163,7 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
                 pendingChanges: vm.state.pendingChanges,
               )
             ],
-            bottom: TabBar(
+            bottom: state.preOrderMode ? null : TabBar(
               onTap: (_) => setState(() {}),
               controller: tabController,
               tabs: const [
@@ -173,7 +173,7 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
               ],
             ),
           ),
-          floatingActionButton: tabController.index == 2 ? FloatingActionButton(
+          floatingActionButton: state.preOrderMode || tabController.index == 2 ? FloatingActionButton(
             heroTag: null,
             onPressed: vm.addNewPoint,
             child: const Icon(Icons.add),
@@ -184,14 +184,18 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
             onError: (error, stackTrace) {
               if (error is! AppError) Misc.reportError(error, stackTrace);
             },
-            childBuilder: (context, physics) => TabBarView(
-              controller: tabController,
-              children: [
-                buildRoutePointListView(context, physics),
-                buildVisitListView(context, physics),
-                buildPointListView(context, physics),
-              ]
-            )
+            childBuilder: (context, physics) {
+              if (state.preOrderMode) return buildPointListView(context, physics);
+
+              return TabBarView(
+                controller: tabController,
+                children: [
+                  buildRoutePointListView(context, physics),
+                  buildVisitListView(context, physics),
+                  buildPointListView(context, physics),
+                ]
+              );
+            }
           )
         );
       },

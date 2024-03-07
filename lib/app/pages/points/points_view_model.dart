@@ -13,6 +13,7 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   StreamSubscription<List<RoutePointEx>>? routePointListSubscription;
   StreamSubscription<List<VisitEx>>? visitListSubcription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
+  StreamSubscription<User>? userSubscription;
 
   PointsViewModel(
     this.appRepository,
@@ -50,6 +51,9 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     appInfoSubscription = appRepository.watchAppInfo().listen((event) {
       emit(state.copyWith(status: PointsStateStatus.dataLoaded, appInfo: event));
     });
+    userSubscription = usersRepository.watchUser().listen((event) {
+      emit(state.copyWith(status: PointsStateStatus.dataLoaded, user: event));
+    });
   }
 
   @override
@@ -63,6 +67,7 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     await visitListSubcription?.cancel();
     await pointExListSubscription?.cancel();
     await appInfoSubscription?.cancel();
+    await userSubscription?.cancel();
   }
 
   void changeSelectedReason((String code, String value) selectedReason) {
