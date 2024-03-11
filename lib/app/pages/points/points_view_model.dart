@@ -132,17 +132,17 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   }
 
   Future<void> visit({RoutePointEx? routePointEx, Buyer? buyer, VisitSkipReason? visitSkipReason}) async {
-    //final result = Platform.isIOS ?
-    //  await Geolocator.requestTemporaryFullAccuracy(purposeKey: 'route point') :
-    //  LocationAccuracyStatus.precise;
-//
-    //if (result != LocationAccuracyStatus.precise) {
-    //  emit(state.copyWith(
-    //    status: PointsStateStatus.visitFailure,
-    //    message: 'Не выдано разрешение на получение местоположения'
-    //  ));
-    //  return;
-    //}
+    final result = Platform.isIOS ?
+      await Geolocator.requestTemporaryFullAccuracy(purposeKey: 'route point') :
+      LocationAccuracyStatus.precise;
+
+    if (result != LocationAccuracyStatus.precise) {
+      emit(state.copyWith(
+        status: PointsStateStatus.visitFailure,
+        message: 'Не выдано разрешение на получение местоположения'
+      ));
+      return;
+    }
 
     emit(state.copyWith(status: PointsStateStatus.visitInProgress));
 

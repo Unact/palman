@@ -10,6 +10,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   final ReturnActsRepository returnActsRepository;
   final ShipmentsRepository shipmentsRepository;
   final UsersRepository usersRepository;
+  final battery = Battery();
   StreamSubscription<Position>? positionSubscription;
   StreamSubscription<User>? userSubscription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
@@ -86,7 +87,9 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       altitude: position.altitude,
       heading: position.heading,
       speed: position.speed,
-      timestamp: position.timestamp!
+      timestamp: position.timestamp!,
+      batteryLevel: await battery.batteryLevel,
+      batteryState: (await battery.batteryState).name
     );
   }
 
