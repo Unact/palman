@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:battery_plus/battery_plus.dart';
 import 'package:easy_refresh/easy_refresh.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

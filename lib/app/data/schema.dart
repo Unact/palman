@@ -73,6 +73,8 @@ class Locations extends Table {
   RealColumn get heading => real()();
   RealColumn get speed => real()();
   DateTimeColumn get timestamp => dateTime()();
+  IntColumn get batteryLevel => integer()();
+  TextColumn get batteryState => text()();
 }
 
 class Points extends Table with Syncable {

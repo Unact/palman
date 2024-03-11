@@ -146,20 +146,20 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
 
     emit(state.copyWith(status: PointsStateStatus.visitInProgress));
 
-    final position = await Geolocator.getCurrentPosition();
+    final position = await l.Location().getLocation();
 
     try {
       await pointsRepository.visit(
         buyer: buyer,
         routePoint: routePointEx?.routePoint,
         visitSkipReason: visitSkipReason,
-        latitude: position.latitude,
-        longitude: position.longitude,
-        accuracy: position.accuracy,
-        altitude: position.altitude,
-        heading: position.heading,
-        speed: position.speed,
-        timestamp: position.timestamp ?? DateTime.now()
+        latitude: position.latitude ?? 0,
+        longitude: position.longitude ?? 0,
+        accuracy: position.accuracy ?? 0,
+        altitude: position.altitude ?? 0,
+        heading: position.heading ?? 0,
+        speed: position.speed ?? 0,
+        timestamp: DateTime.fromMillisecondsSinceEpoch(position.time?.toInt() ?? 0)
       );
 
       emit(state.copyWith(status: PointsStateStatus.visitSuccess, message: 'Отметка сохранена'));

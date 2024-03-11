@@ -19,7 +19,9 @@ class LocationsRepository extends BaseRepository {
     required double altitude,
     required double heading,
     required double speed,
-    required DateTime timestamp
+    required DateTime timestamp,
+    required int batteryLevel,
+    required String batteryState
   }) async {
     await dataStore.insertLocation(
       LocationsCompanion(
@@ -29,7 +31,9 @@ class LocationsRepository extends BaseRepository {
         altitude: Value(altitude),
         heading: Value(heading),
         speed: Value(speed),
-        timestamp: Value(timestamp)
+        timestamp: Value(timestamp),
+        batteryLevel: Value(batteryLevel),
+        batteryState: Value(batteryState)
       )
     );
   }
@@ -43,7 +47,9 @@ class LocationsRepository extends BaseRepository {
         'altitude': e.altitude,
         'heading': e.heading,
         'speed': e.speed,
-        'timestamp': e.timestamp.toIso8601String()
+        'timestamp': e.timestamp.toIso8601String(),
+        'batteryLevel': e.batteryLevel,
+        'batteryState': e.batteryState,
       }).toList();
       await api.locations(locationsData);
 

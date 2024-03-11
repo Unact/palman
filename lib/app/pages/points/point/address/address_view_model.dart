@@ -32,7 +32,7 @@ class AddressViewModel extends PageViewModel<AddressState, AddressStateStatus> {
   }
 
   Future<void> changeCoordsToMyPosition() async {
-    final position = await Geolocator.getCurrentPosition();
-    changeCoords(position.latitude, position.longitude);
+    final position = await l.Location().getLocation();
+    changeCoords(position.latitude ?? 0, position.longitude ?? 0);
   }
 }

@@ -1200,9 +1200,31 @@ class $LocationsTable extends Locations
   late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
       'timestamp', aliasedName, false,
       type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _batteryLevelMeta =
+      const VerificationMeta('batteryLevel');
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, latitude, longitude, accuracy, altitude, heading, speed, timestamp];
+  late final GeneratedColumn<int> batteryLevel = GeneratedColumn<int>(
+      'battery_level', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _batteryStateMeta =
+      const VerificationMeta('batteryState');
+  @override
+  late final GeneratedColumn<String> batteryState = GeneratedColumn<String>(
+      'battery_state', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        latitude,
+        longitude,
+        accuracy,
+        altitude,
+        heading,
+        speed,
+        timestamp,
+        batteryLevel,
+        batteryState
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -1258,6 +1280,22 @@ class $LocationsTable extends Locations
     } else if (isInserting) {
       context.missing(_timestampMeta);
     }
+    if (data.containsKey('battery_level')) {
+      context.handle(
+          _batteryLevelMeta,
+          batteryLevel.isAcceptableOrUnknown(
+              data['battery_level']!, _batteryLevelMeta));
+    } else if (isInserting) {
+      context.missing(_batteryLevelMeta);
+    }
+    if (data.containsKey('battery_state')) {
+      context.handle(
+          _batteryStateMeta,
+          batteryState.isAcceptableOrUnknown(
+              data['battery_state']!, _batteryStateMeta));
+    } else if (isInserting) {
+      context.missing(_batteryStateMeta);
+    }
     return context;
   }
 
@@ -1283,6 +1321,10 @@ class $LocationsTable extends Locations
           .read(DriftSqlType.double, data['${effectivePrefix}speed'])!,
       timestamp: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      batteryLevel: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}battery_level'])!,
+      batteryState: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}battery_state'])!,
     );
   }
 
@@ -1301,6 +1343,8 @@ class Location extends DataClass implements Insertable<Location> {
   final double heading;
   final double speed;
   final DateTime timestamp;
+  final int batteryLevel;
+  final String batteryState;
   const Location(
       {required this.id,
       required this.latitude,
@@ -1309,7 +1353,9 @@ class Location extends DataClass implements Insertable<Location> {
       required this.altitude,
       required this.heading,
       required this.speed,
-      required this.timestamp});
+      required this.timestamp,
+      required this.batteryLevel,
+      required this.batteryState});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -1321,6 +1367,8 @@ class Location extends DataClass implements Insertable<Location> {
     map['heading'] = Variable<double>(heading);
     map['speed'] = Variable<double>(speed);
     map['timestamp'] = Variable<DateTime>(timestamp);
+    map['battery_level'] = Variable<int>(batteryLevel);
+    map['battery_state'] = Variable<String>(batteryState);
     return map;
   }
 
@@ -1334,6 +1382,8 @@ class Location extends DataClass implements Insertable<Location> {
       heading: Value(heading),
       speed: Value(speed),
       timestamp: Value(timestamp),
+      batteryLevel: Value(batteryLevel),
+      batteryState: Value(batteryState),
     );
   }
 
@@ -1349,6 +1399,8 @@ class Location extends DataClass implements Insertable<Location> {
       heading: serializer.fromJson<double>(json['heading']),
       speed: serializer.fromJson<double>(json['speed']),
       timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      batteryLevel: serializer.fromJson<int>(json['batteryLevel']),
+      batteryState: serializer.fromJson<String>(json['batteryState']),
     );
   }
   @override
@@ -1363,6 +1415,8 @@ class Location extends DataClass implements Insertable<Location> {
       'heading': serializer.toJson<double>(heading),
       'speed': serializer.toJson<double>(speed),
       'timestamp': serializer.toJson<DateTime>(timestamp),
+      'batteryLevel': serializer.toJson<int>(batteryLevel),
+      'batteryState': serializer.toJson<String>(batteryState),
     };
   }
 
@@ -1374,7 +1428,9 @@ class Location extends DataClass implements Insertable<Location> {
           double? altitude,
           double? heading,
           double? speed,
-          DateTime? timestamp}) =>
+          DateTime? timestamp,
+          int? batteryLevel,
+          String? batteryState}) =>
       Location(
         id: id ?? this.id,
         latitude: latitude ?? this.latitude,
@@ -1384,6 +1440,8 @@ class Location extends DataClass implements Insertable<Location> {
         heading: heading ?? this.heading,
         speed: speed ?? this.speed,
         timestamp: timestamp ?? this.timestamp,
+        batteryLevel: batteryLevel ?? this.batteryLevel,
+        batteryState: batteryState ?? this.batteryState,
       );
   @override
   String toString() {
@@ -1395,14 +1453,16 @@ class Location extends DataClass implements Insertable<Location> {
           ..write('altitude: $altitude, ')
           ..write('heading: $heading, ')
           ..write('speed: $speed, ')
-          ..write('timestamp: $timestamp')
+          ..write('timestamp: $timestamp, ')
+          ..write('batteryLevel: $batteryLevel, ')
+          ..write('batteryState: $batteryState')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, latitude, longitude, accuracy, altitude, heading, speed, timestamp);
+  int get hashCode => Object.hash(id, latitude, longitude, accuracy, altitude,
+      heading, speed, timestamp, batteryLevel, batteryState);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -1414,7 +1474,9 @@ class Location extends DataClass implements Insertable<Location> {
           other.altitude == this.altitude &&
           other.heading == this.heading &&
           other.speed == this.speed &&
-          other.timestamp == this.timestamp);
+          other.timestamp == this.timestamp &&
+          other.batteryLevel == this.batteryLevel &&
+          other.batteryState == this.batteryState);
 }
 
 class LocationsCompanion extends UpdateCompanion<Location> {
@@ -1426,6 +1488,8 @@ class LocationsCompanion extends UpdateCompanion<Location> {
   final Value<double> heading;
   final Value<double> speed;
   final Value<DateTime> timestamp;
+  final Value<int> batteryLevel;
+  final Value<String> batteryState;
   const LocationsCompanion({
     this.id = const Value.absent(),
     this.latitude = const Value.absent(),
@@ -1435,6 +1499,8 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     this.heading = const Value.absent(),
     this.speed = const Value.absent(),
     this.timestamp = const Value.absent(),
+    this.batteryLevel = const Value.absent(),
+    this.batteryState = const Value.absent(),
   });
   LocationsCompanion.insert({
     this.id = const Value.absent(),
@@ -1445,13 +1511,17 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     required double heading,
     required double speed,
     required DateTime timestamp,
+    required int batteryLevel,
+    required String batteryState,
   })  : latitude = Value(latitude),
         longitude = Value(longitude),
         accuracy = Value(accuracy),
         altitude = Value(altitude),
         heading = Value(heading),
         speed = Value(speed),
-        timestamp = Value(timestamp);
+        timestamp = Value(timestamp),
+        batteryLevel = Value(batteryLevel),
+        batteryState = Value(batteryState);
   static Insertable<Location> custom({
     Expression<int>? id,
     Expression<double>? latitude,
@@ -1461,6 +1531,8 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     Expression<double>? heading,
     Expression<double>? speed,
     Expression<DateTime>? timestamp,
+    Expression<int>? batteryLevel,
+    Expression<String>? batteryState,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -1471,6 +1543,8 @@ class LocationsCompanion extends UpdateCompanion<Location> {
       if (heading != null) 'heading': heading,
       if (speed != null) 'speed': speed,
       if (timestamp != null) 'timestamp': timestamp,
+      if (batteryLevel != null) 'battery_level': batteryLevel,
+      if (batteryState != null) 'battery_state': batteryState,
     });
   }
 
@@ -1482,7 +1556,9 @@ class LocationsCompanion extends UpdateCompanion<Location> {
       Value<double>? altitude,
       Value<double>? heading,
       Value<double>? speed,
-      Value<DateTime>? timestamp}) {
+      Value<DateTime>? timestamp,
+      Value<int>? batteryLevel,
+      Value<String>? batteryState}) {
     return LocationsCompanion(
       id: id ?? this.id,
       latitude: latitude ?? this.latitude,
@@ -1492,6 +1568,8 @@ class LocationsCompanion extends UpdateCompanion<Location> {
       heading: heading ?? this.heading,
       speed: speed ?? this.speed,
       timestamp: timestamp ?? this.timestamp,
+      batteryLevel: batteryLevel ?? this.batteryLevel,
+      batteryState: batteryState ?? this.batteryState,
     );
   }
 
@@ -1522,6 +1600,12 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     if (timestamp.present) {
       map['timestamp'] = Variable<DateTime>(timestamp.value);
     }
+    if (batteryLevel.present) {
+      map['battery_level'] = Variable<int>(batteryLevel.value);
+    }
+    if (batteryState.present) {
+      map['battery_state'] = Variable<String>(batteryState.value);
+    }
     return map;
   }
 
@@ -1535,7 +1619,9 @@ class LocationsCompanion extends UpdateCompanion<Location> {
           ..write('altitude: $altitude, ')
           ..write('heading: $heading, ')
           ..write('speed: $speed, ')
-          ..write('timestamp: $timestamp')
+          ..write('timestamp: $timestamp, ')
+          ..write('batteryLevel: $batteryLevel, ')
+          ..write('batteryState: $batteryState')
           ..write(')'))
         .toString();
   }
