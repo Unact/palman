@@ -57,15 +57,15 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   }
 
   Future<void> addPointImage(XFile file) async {
-    final position = await Geolocator.getCurrentPosition();
+    final position = await l.Location().getLocation();
 
     await pointsRepository.addPointImage(
       state.pointEx.point,
       file: file,
-      latitude: position.latitude,
-      longitude: position.longitude,
-      accuracy: position.accuracy,
-      timestamp: position.timestamp ?? DateTime.now()
+      latitude: position.latitude ?? 0,
+      longitude: position.longitude ?? 0,
+      accuracy: position.accuracy ?? 0,
+      timestamp: position.time != null ? DateTime.fromMillisecondsSinceEpoch(position.time!.toInt()) : DateTime.now()
     );
     _notifyPointUpdated();
   }
