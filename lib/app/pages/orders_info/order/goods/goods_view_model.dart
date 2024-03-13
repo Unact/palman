@@ -84,10 +84,10 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       showOnlyActive: false,
       showOnlyOrder: false,
       showOnlyLatest: false,
-      goodsNameSearch: const Optional.absent(),
-      visibleGoodsDetails: [],
-      visibleCategories: state.allCategories
+      goodsNameSearch: const Optional.absent()
     ));
+
+    await searchGoods();
   }
 
   Future<void> selectBonusProgram(FilteredBonusProgramsResult? bonusProgram) async {

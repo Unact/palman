@@ -90,10 +90,10 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       selectedGoodsFilter: const Optional.absent(),
       showOnlyReturnAct: false,
       showOnlyLatest: false,
-      goodsNameSearch: const Optional.absent(),
-      visibleGoodsDetails: List.empty(),
-      visibleCategories: state.allCategories
+      goodsNameSearch: const Optional.absent()
     ));
+
+    await searchGoods();
   }
 
   Future<void> selectCategory(CategoriesExResult? categoryEx) async {
