@@ -407,10 +407,15 @@ class _CategoriesViewState extends State<_CategoriesView> {
     String name,
     List<CategoriesExResult> groupCategories
   ) {
+    final keyStr = Object.hashAll([
+      ...groupCategories.map((e) => e.category.id),
+      name
+    ]).toString();
+
     return AutoScrollTag(
       controller: categoriesController,
       index: index,
-      key: Key(name),
+      key: Key(keyStr),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 2),
         child: CustomScrollView(
@@ -513,10 +518,15 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
   }
 
   Widget buildGoodsViewGroup(BuildContext context, int index, String name, List<GoodsReturnDetail> groupGoods) {
+    final keyStr = Object.hashAll([
+      ...groupGoods.map((e) => e.goods.id),
+      name
+    ]).toString();
+
     return AutoScrollTag(
       controller: goodsController,
       index: index,
-      key: Key(name),
+      key: Key(keyStr),
       child: Padding(
         padding: const EdgeInsets.only(bottom: 2),
         child: CustomScrollView(
