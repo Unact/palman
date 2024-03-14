@@ -443,8 +443,10 @@ class ReturnActLines extends Table with Syncable {
     .references(ReturnActs, #guid, onUpdate: KeyAction.cascade, onDelete: KeyAction.cascade)();
   IntColumn get goodsId => integer()();
   RealColumn get vol => real()();
+  RealColumn get price => real()();
   DateTimeColumn get productionDate => dateTime().nullable()();
   BoolColumn get isBad => boolean().nullable()();
+  IntColumn get rel => integer()();
 
   @override
   List<Set<Column>> get uniqueKeys => [{returnActGuid, goodsId}];

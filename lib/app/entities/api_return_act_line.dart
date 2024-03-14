@@ -4,6 +4,8 @@ class ApiReturnActLine extends Equatable {
   final int id;
   final int goodsId;
   final double vol;
+  final int rel;
+  final double price;
   final DateTime? productionDate;
   final bool isBad;
   final String guid;
@@ -13,6 +15,8 @@ class ApiReturnActLine extends Equatable {
     required this.id,
     required this.goodsId,
     required this.vol,
+    required this.rel,
+    required this.price,
     required this.productionDate,
     required this.isBad,
     required this.guid,
@@ -24,6 +28,8 @@ class ApiReturnActLine extends Equatable {
       id: json['id'],
       goodsId: json['goodsId'],
       vol: Parsing.parseDouble(json['vol'])!,
+      rel: json['rel'],
+      price: Parsing.parseDouble(json['price'])!,
       productionDate: Parsing.parseDate(json['productionDate']),
       isBad: json['isBad'],
       guid: json['guid'],
@@ -37,6 +43,8 @@ class ApiReturnActLine extends Equatable {
       returnActGuid: returnActGuid,
       goodsId: goodsId,
       vol: vol,
+      rel: rel,
+      price: price,
       productionDate: productionDate,
       isBad: isBad,
       guid: guid,
@@ -54,6 +62,8 @@ class ApiReturnActLine extends Equatable {
     id,
     goodsId,
     vol,
+    rel,
+    price,
     productionDate,
     isBad,
     guid,

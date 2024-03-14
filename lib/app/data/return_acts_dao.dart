@@ -16,20 +16,28 @@ part of 'database.dart';
       SELECT
         return_acts.** AS "return_act",
         COALESCE(
-          (SELECT name FROM return_act_types WHERE id = return_acts.return_act_type_id),
+          (SELECT name FROM return_act_types WHERE return_act_types.id = return_acts.return_act_type_id),
           'Не указан'
         ) AS "return_act_type_name",
         buyers.** AS "buyer",
+        COALESCE(
+          (
+            SELECT SUM(return_act_lines.rel * return_act_lines.vol * return_act_lines.price)
+            FROM return_act_lines
+            WHERE return_act_lines.return_act_guid = return_acts.guid AND return_act_lines.is_deleted = 0
+          ),
+          0
+        ) AS "lines_total",
         (
           SELECT COUNT(*)
           FROM return_act_lines
-          WHERE return_act_guid = return_acts.guid AND return_act_lines.is_deleted = 0
+          WHERE return_act_lines.return_act_guid = return_acts.guid AND return_act_lines.is_deleted = 0
         ) AS "lines_count",
         COALESCE(
           (
             SELECT MAX(need_sync)
             FROM return_act_lines
-            WHERE return_act_guid = return_acts.guid
+            WHERE return_act_lines.return_act_guid = return_acts.guid
           ),
           0
         ) AS "lines_need_sync"
