@@ -193,6 +193,8 @@ class ReturnActsRepository extends BaseRepository {
   Future<void> addReturnActLine(ReturnAct returnAct, {
     required int goodsId,
     required double vol,
+    required int rel,
+    required double price,
     required DateTime? productionDate,
     required bool? isBad
   }) async {
@@ -203,6 +205,8 @@ class ReturnActsRepository extends BaseRepository {
         returnActGuid: returnAct.guid,
         goodsId: goodsId,
         vol: vol,
+        rel: rel,
+        price: price,
         productionDate: Value(productionDate),
         isBad: Value(isBad)
       )
@@ -237,6 +241,8 @@ class ReturnActsRepository extends BaseRepository {
   Future<void> updateReturnActLine(ReturnActLine returnActLine, {
     Optional<int>? goodsId,
     Optional<double>? vol,
+    Optional<int>? rel,
+    Optional<double>? price,
     Optional<DateTime?>? productionDate,
     Optional<bool?>? isBad,
     bool restoreDeleted = true
@@ -244,6 +250,8 @@ class ReturnActsRepository extends BaseRepository {
     final updatedReturnActLine = ReturnActLinesCompanion(
       goodsId: goodsId == null ? const Value.absent() : Value(goodsId.value),
       vol: vol == null ? const Value.absent() : Value(vol.value),
+      rel: rel == null ? const Value.absent() : Value(rel.value),
+      price: price == null ? const Value.absent() : Value(price.value),
       productionDate: productionDate == null ? const Value.absent() : Value(productionDate.orNull),
       isBad: isBad == null ? const Value.absent() : Value(isBad.orNull),
       isDeleted: restoreDeleted ? const Value(false) : const Value.absent()

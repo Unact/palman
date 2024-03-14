@@ -158,6 +158,10 @@ class _ReturnActsViewState extends State<_ReturnActsView> {
               style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
             ),
             TextSpan(
+              text: 'Сумма: ${Format.numberStr(returnActEx.linesTotal)}\n',
+              style: Styles.tileText.copyWith(fontWeight: FontWeight.bold)
+            ),
+            TextSpan(
               text: 'Позиций: ${returnActEx.linesCount}\n',
               style: Styles.tileText
             ),

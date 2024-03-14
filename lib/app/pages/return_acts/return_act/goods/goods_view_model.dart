@@ -245,6 +245,8 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       state.returnActEx.returnAct,
       goodsId: goodsReturnDetail.goods.id,
       vol: vol?.value ?? 1,
+      rel: 1,
+      price: 0,
       productionDate: productionDate?.orNull,
       isBad: isBad?.orNull
     );

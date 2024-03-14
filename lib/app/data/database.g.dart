@@ -16015,6 +16015,11 @@ class $ReturnActLinesTable extends ReturnActLines
   late final GeneratedColumn<double> vol = GeneratedColumn<double>(
       'vol', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _priceMeta = const VerificationMeta('price');
+  @override
+  late final GeneratedColumn<double> price = GeneratedColumn<double>(
+      'price', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
   static const VerificationMeta _productionDateMeta =
       const VerificationMeta('productionDate');
   @override
@@ -16029,6 +16034,11 @@ class $ReturnActLinesTable extends ReturnActLines
       requiredDuringInsert: false,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_bad" IN (0, 1))'));
+  static const VerificationMeta _relMeta = const VerificationMeta('rel');
+  @override
+  late final GeneratedColumn<int> rel = GeneratedColumn<int>(
+      'rel', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
         guid,
@@ -16042,8 +16052,10 @@ class $ReturnActLinesTable extends ReturnActLines
         returnActGuid,
         goodsId,
         vol,
+        price,
         productionDate,
-        isBad
+        isBad,
+        rel
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -16112,6 +16124,12 @@ class $ReturnActLinesTable extends ReturnActLines
     } else if (isInserting) {
       context.missing(_volMeta);
     }
+    if (data.containsKey('price')) {
+      context.handle(
+          _priceMeta, price.isAcceptableOrUnknown(data['price']!, _priceMeta));
+    } else if (isInserting) {
+      context.missing(_priceMeta);
+    }
     if (data.containsKey('production_date')) {
       context.handle(
           _productionDateMeta,
@@ -16121,6 +16139,12 @@ class $ReturnActLinesTable extends ReturnActLines
     if (data.containsKey('is_bad')) {
       context.handle(
           _isBadMeta, isBad.isAcceptableOrUnknown(data['is_bad']!, _isBadMeta));
+    }
+    if (data.containsKey('rel')) {
+      context.handle(
+          _relMeta, rel.isAcceptableOrUnknown(data['rel']!, _relMeta));
+    } else if (isInserting) {
+      context.missing(_relMeta);
     }
     return context;
   }
@@ -16157,10 +16181,14 @@ class $ReturnActLinesTable extends ReturnActLines
           .read(DriftSqlType.int, data['${effectivePrefix}goods_id'])!,
       vol: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}vol'])!,
+      price: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}price'])!,
       productionDate: attachedDatabase.typeMapping.read(
           DriftSqlType.dateTime, data['${effectivePrefix}production_date']),
       isBad: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_bad']),
+      rel: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}rel'])!,
     );
   }
 
@@ -16182,8 +16210,10 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
   final String returnActGuid;
   final int goodsId;
   final double vol;
+  final double price;
   final DateTime? productionDate;
   final bool? isBad;
+  final int rel;
   const ReturnActLine(
       {required this.guid,
       required this.isDeleted,
@@ -16196,8 +16226,10 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
       required this.returnActGuid,
       required this.goodsId,
       required this.vol,
+      required this.price,
       this.productionDate,
-      this.isBad});
+      this.isBad,
+      required this.rel});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -16214,12 +16246,14 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
     map['return_act_guid'] = Variable<String>(returnActGuid);
     map['goods_id'] = Variable<int>(goodsId);
     map['vol'] = Variable<double>(vol);
+    map['price'] = Variable<double>(price);
     if (!nullToAbsent || productionDate != null) {
       map['production_date'] = Variable<DateTime>(productionDate);
     }
     if (!nullToAbsent || isBad != null) {
       map['is_bad'] = Variable<bool>(isBad);
     }
+    map['rel'] = Variable<int>(rel);
     return map;
   }
 
@@ -16236,11 +16270,13 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
       returnActGuid: Value(returnActGuid),
       goodsId: Value(goodsId),
       vol: Value(vol),
+      price: Value(price),
       productionDate: productionDate == null && nullToAbsent
           ? const Value.absent()
           : Value(productionDate),
       isBad:
           isBad == null && nullToAbsent ? const Value.absent() : Value(isBad),
+      rel: Value(rel),
     );
   }
 
@@ -16259,8 +16295,10 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
       returnActGuid: serializer.fromJson<String>(json['returnActGuid']),
       goodsId: serializer.fromJson<int>(json['goodsId']),
       vol: serializer.fromJson<double>(json['vol']),
+      price: serializer.fromJson<double>(json['price']),
       productionDate: serializer.fromJson<DateTime?>(json['productionDate']),
       isBad: serializer.fromJson<bool?>(json['isBad']),
+      rel: serializer.fromJson<int>(json['rel']),
     );
   }
   @override
@@ -16278,8 +16316,10 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
       'returnActGuid': serializer.toJson<String>(returnActGuid),
       'goodsId': serializer.toJson<int>(goodsId),
       'vol': serializer.toJson<double>(vol),
+      'price': serializer.toJson<double>(price),
       'productionDate': serializer.toJson<DateTime?>(productionDate),
       'isBad': serializer.toJson<bool?>(isBad),
+      'rel': serializer.toJson<int>(rel),
     };
   }
 
@@ -16295,8 +16335,10 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
           String? returnActGuid,
           int? goodsId,
           double? vol,
+          double? price,
           Value<DateTime?> productionDate = const Value.absent(),
-          Value<bool?> isBad = const Value.absent()}) =>
+          Value<bool?> isBad = const Value.absent(),
+          int? rel}) =>
       ReturnActLine(
         guid: guid ?? this.guid,
         isDeleted: isDeleted ?? this.isDeleted,
@@ -16310,9 +16352,11 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
         returnActGuid: returnActGuid ?? this.returnActGuid,
         goodsId: goodsId ?? this.goodsId,
         vol: vol ?? this.vol,
+        price: price ?? this.price,
         productionDate:
             productionDate.present ? productionDate.value : this.productionDate,
         isBad: isBad.present ? isBad.value : this.isBad,
+        rel: rel ?? this.rel,
       );
   @override
   String toString() {
@@ -16328,8 +16372,10 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
           ..write('returnActGuid: $returnActGuid, ')
           ..write('goodsId: $goodsId, ')
           ..write('vol: $vol, ')
+          ..write('price: $price, ')
           ..write('productionDate: $productionDate, ')
-          ..write('isBad: $isBad')
+          ..write('isBad: $isBad, ')
+          ..write('rel: $rel')
           ..write(')'))
         .toString();
   }
@@ -16347,8 +16393,10 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
       returnActGuid,
       goodsId,
       vol,
+      price,
       productionDate,
-      isBad);
+      isBad,
+      rel);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -16364,8 +16412,10 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
           other.returnActGuid == this.returnActGuid &&
           other.goodsId == this.goodsId &&
           other.vol == this.vol &&
+          other.price == this.price &&
           other.productionDate == this.productionDate &&
-          other.isBad == this.isBad);
+          other.isBad == this.isBad &&
+          other.rel == this.rel);
 }
 
 class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
@@ -16378,8 +16428,10 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
   final Value<String> returnActGuid;
   final Value<int> goodsId;
   final Value<double> vol;
+  final Value<double> price;
   final Value<DateTime?> productionDate;
   final Value<bool?> isBad;
+  final Value<int> rel;
   final Value<int> rowid;
   const ReturnActLinesCompanion({
     this.guid = const Value.absent(),
@@ -16391,8 +16443,10 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
     this.returnActGuid = const Value.absent(),
     this.goodsId = const Value.absent(),
     this.vol = const Value.absent(),
+    this.price = const Value.absent(),
     this.productionDate = const Value.absent(),
     this.isBad = const Value.absent(),
+    this.rel = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ReturnActLinesCompanion.insert({
@@ -16405,13 +16459,17 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
     required String returnActGuid,
     required int goodsId,
     required double vol,
+    required double price,
     this.productionDate = const Value.absent(),
     this.isBad = const Value.absent(),
+    required int rel,
     this.rowid = const Value.absent(),
   })  : guid = Value(guid),
         returnActGuid = Value(returnActGuid),
         goodsId = Value(goodsId),
-        vol = Value(vol);
+        vol = Value(vol),
+        price = Value(price),
+        rel = Value(rel);
   static Insertable<ReturnActLine> custom({
     Expression<String>? guid,
     Expression<bool>? isDeleted,
@@ -16422,8 +16480,10 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
     Expression<String>? returnActGuid,
     Expression<int>? goodsId,
     Expression<double>? vol,
+    Expression<double>? price,
     Expression<DateTime>? productionDate,
     Expression<bool>? isBad,
+    Expression<int>? rel,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -16436,8 +16496,10 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
       if (returnActGuid != null) 'return_act_guid': returnActGuid,
       if (goodsId != null) 'goods_id': goodsId,
       if (vol != null) 'vol': vol,
+      if (price != null) 'price': price,
       if (productionDate != null) 'production_date': productionDate,
       if (isBad != null) 'is_bad': isBad,
+      if (rel != null) 'rel': rel,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -16452,8 +16514,10 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
       Value<String>? returnActGuid,
       Value<int>? goodsId,
       Value<double>? vol,
+      Value<double>? price,
       Value<DateTime?>? productionDate,
       Value<bool?>? isBad,
+      Value<int>? rel,
       Value<int>? rowid}) {
     return ReturnActLinesCompanion(
       guid: guid ?? this.guid,
@@ -16465,8 +16529,10 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
       returnActGuid: returnActGuid ?? this.returnActGuid,
       goodsId: goodsId ?? this.goodsId,
       vol: vol ?? this.vol,
+      price: price ?? this.price,
       productionDate: productionDate ?? this.productionDate,
       isBad: isBad ?? this.isBad,
+      rel: rel ?? this.rel,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -16501,11 +16567,17 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
     if (vol.present) {
       map['vol'] = Variable<double>(vol.value);
     }
+    if (price.present) {
+      map['price'] = Variable<double>(price.value);
+    }
     if (productionDate.present) {
       map['production_date'] = Variable<DateTime>(productionDate.value);
     }
     if (isBad.present) {
       map['is_bad'] = Variable<bool>(isBad.value);
+    }
+    if (rel.present) {
+      map['rel'] = Variable<int>(rel.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -16525,8 +16597,10 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
           ..write('returnActGuid: $returnActGuid, ')
           ..write('goodsId: $goodsId, ')
           ..write('vol: $vol, ')
+          ..write('price: $price, ')
           ..write('productionDate: $productionDate, ')
           ..write('isBad: $isBad, ')
+          ..write('rel: $rel, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -18463,7 +18537,7 @@ mixin _$ReturnActsDaoMixin on DatabaseAccessor<AppDataStore> {
       attachedDatabase.partnersReturnActTypes;
   Selectable<ReturnActExResult> returnActEx() {
     return customSelect(
-        'SELECT"return_acts"."guid" AS "nested_0.guid", "return_acts"."is_deleted" AS "nested_0.is_deleted", "return_acts"."timestamp" AS "nested_0.timestamp", "return_acts"."current_timestamp" AS "nested_0.current_timestamp", "return_acts"."last_sync_time" AS "nested_0.last_sync_time", "return_acts"."need_sync" AS "nested_0.need_sync", "return_acts"."is_new" AS "nested_0.is_new", "return_acts"."id" AS "nested_0.id", "return_acts"."date" AS "nested_0.date", "return_acts"."number" AS "nested_0.number", "return_acts"."buyer_id" AS "nested_0.buyer_id", "return_acts"."need_pickup" AS "nested_0.need_pickup", "return_acts"."return_act_type_id" AS "nested_0.return_act_type_id", "return_acts"."recept_id" AS "nested_0.recept_id", "return_acts"."recept_ndoc" AS "nested_0.recept_ndoc", "return_acts"."recept_date" AS "nested_0.recept_date", COALESCE((SELECT name FROM return_act_types WHERE id = return_acts.return_act_type_id), \'Не указан\') AS return_act_type_name,"buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", "buyers"."point_id" AS "nested_1.point_id", (SELECT COUNT(*) FROM return_act_lines WHERE return_act_guid = return_acts.guid AND return_act_lines.is_deleted = 0) AS lines_count, COALESCE((SELECT MAX(need_sync) FROM return_act_lines WHERE return_act_guid = return_acts.guid), 0) AS lines_need_sync FROM return_acts LEFT JOIN buyers ON buyers.id = return_acts.buyer_id ORDER BY return_acts.date DESC, buyers.name',
+        'SELECT"return_acts"."guid" AS "nested_0.guid", "return_acts"."is_deleted" AS "nested_0.is_deleted", "return_acts"."timestamp" AS "nested_0.timestamp", "return_acts"."current_timestamp" AS "nested_0.current_timestamp", "return_acts"."last_sync_time" AS "nested_0.last_sync_time", "return_acts"."need_sync" AS "nested_0.need_sync", "return_acts"."is_new" AS "nested_0.is_new", "return_acts"."id" AS "nested_0.id", "return_acts"."date" AS "nested_0.date", "return_acts"."number" AS "nested_0.number", "return_acts"."buyer_id" AS "nested_0.buyer_id", "return_acts"."need_pickup" AS "nested_0.need_pickup", "return_acts"."return_act_type_id" AS "nested_0.return_act_type_id", "return_acts"."recept_id" AS "nested_0.recept_id", "return_acts"."recept_ndoc" AS "nested_0.recept_ndoc", "return_acts"."recept_date" AS "nested_0.recept_date", COALESCE((SELECT name FROM return_act_types WHERE return_act_types.id = return_acts.return_act_type_id), \'Не указан\') AS return_act_type_name,"buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", "buyers"."point_id" AS "nested_1.point_id", COALESCE((SELECT SUM(return_act_lines.rel * return_act_lines.vol * return_act_lines.price) FROM return_act_lines WHERE return_act_lines.return_act_guid = return_acts.guid AND return_act_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM return_act_lines WHERE return_act_lines.return_act_guid = return_acts.guid AND return_act_lines.is_deleted = 0) AS lines_count, COALESCE((SELECT MAX(need_sync) FROM return_act_lines WHERE return_act_lines.return_act_guid = return_acts.guid), 0) AS lines_need_sync FROM return_acts LEFT JOIN buyers ON buyers.id = return_acts.buyer_id ORDER BY return_acts.date DESC, buyers.name',
         variables: [],
         readsFrom: {
           returnActTypes,
@@ -18474,6 +18548,7 @@ mixin _$ReturnActsDaoMixin on DatabaseAccessor<AppDataStore> {
           returnAct: await returnActs.mapFromRow(row, tablePrefix: 'nested_0'),
           returnActTypeName: row.read<String>('return_act_type_name'),
           buyer: await buyers.mapFromRowOrNull(row, tablePrefix: 'nested_1'),
+          linesTotal: row.read<double>('lines_total'),
           linesCount: row.read<int>('lines_count'),
           linesNeedSync: row.read<bool>('lines_need_sync'),
         ));
@@ -18481,7 +18556,7 @@ mixin _$ReturnActsDaoMixin on DatabaseAccessor<AppDataStore> {
 
   Selectable<ReturnActLineExResult> returnActLineEx(String returnActGuid) {
     return customSelect(
-        'SELECT"return_act_lines"."guid" AS "nested_0.guid", "return_act_lines"."is_deleted" AS "nested_0.is_deleted", "return_act_lines"."timestamp" AS "nested_0.timestamp", "return_act_lines"."current_timestamp" AS "nested_0.current_timestamp", "return_act_lines"."last_sync_time" AS "nested_0.last_sync_time", "return_act_lines"."need_sync" AS "nested_0.need_sync", "return_act_lines"."is_new" AS "nested_0.is_new", "return_act_lines"."id" AS "nested_0.id", "return_act_lines"."return_act_guid" AS "nested_0.return_act_guid", "return_act_lines"."goods_id" AS "nested_0.goods_id", "return_act_lines"."vol" AS "nested_0.vol", "return_act_lines"."production_date" AS "nested_0.production_date", "return_act_lines"."is_bad" AS "nested_0.is_bad", goods.name AS goods_name FROM return_act_lines JOIN goods ON goods.id = return_act_lines.goods_id WHERE return_act_lines.return_act_guid = ?1 ORDER BY goods.name',
+        'SELECT"return_act_lines"."guid" AS "nested_0.guid", "return_act_lines"."is_deleted" AS "nested_0.is_deleted", "return_act_lines"."timestamp" AS "nested_0.timestamp", "return_act_lines"."current_timestamp" AS "nested_0.current_timestamp", "return_act_lines"."last_sync_time" AS "nested_0.last_sync_time", "return_act_lines"."need_sync" AS "nested_0.need_sync", "return_act_lines"."is_new" AS "nested_0.is_new", "return_act_lines"."id" AS "nested_0.id", "return_act_lines"."return_act_guid" AS "nested_0.return_act_guid", "return_act_lines"."goods_id" AS "nested_0.goods_id", "return_act_lines"."vol" AS "nested_0.vol", "return_act_lines"."price" AS "nested_0.price", "return_act_lines"."production_date" AS "nested_0.production_date", "return_act_lines"."is_bad" AS "nested_0.is_bad", "return_act_lines"."rel" AS "nested_0.rel", goods.name AS goods_name FROM return_act_lines JOIN goods ON goods.id = return_act_lines.goods_id WHERE return_act_lines.return_act_guid = ?1 ORDER BY goods.name',
         variables: [
           Variable<String>(returnActGuid)
         ],
@@ -18515,12 +18590,14 @@ class ReturnActExResult {
   final ReturnAct returnAct;
   final String returnActTypeName;
   final Buyer? buyer;
+  final double linesTotal;
   final int linesCount;
   final bool linesNeedSync;
   ReturnActExResult({
     required this.returnAct,
     required this.returnActTypeName,
     this.buyer,
+    required this.linesTotal,
     required this.linesCount,
     required this.linesNeedSync,
   });
