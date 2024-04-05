@@ -25,6 +25,8 @@ class PointState {
   final String message;
   final AppInfoResult? appInfo;
 
+  List<PointImage> get images => pointEx.images.where((e) => !e.isDeleted).toList();
+
   bool get showLocalImage => appInfo?.showLocalImage ?? true;
 
   bool get needSync => pointEx.point.needSync || pointEx.images.any((e) => e.needSync);
