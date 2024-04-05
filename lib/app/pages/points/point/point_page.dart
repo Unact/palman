@@ -17,6 +17,7 @@ import '/app/repositories/app_repository.dart';
 import '/app/repositories/points_repository.dart';
 import '/app/widgets/widgets.dart';
 import 'address/address_page.dart';
+import 'point_images/point_images_page.dart';
 
 part 'point_state.dart';
 part 'point_view_model.dart';
@@ -305,7 +306,7 @@ class _PointViewState extends State<_PointView> {
 
   List<Widget> buildImages(BuildContext context) {
     final vm = context.read<PointViewModel>();
-    final images = vm.state.pointEx.images.map((image) => RetryableImage(
+    final images = vm.state.images.map((image) => RetryableImage(
       color: Theme.of(context).colorScheme.primary,
       cached: image.needSync || vm.state.showLocalImage,
       imageUrl: image.imageUrl,
@@ -320,7 +321,7 @@ class _PointViewState extends State<_PointView> {
             context,
             MaterialPageRoute(
               fullscreenDialog: false,
-              builder: (BuildContext context) => ImagesView(images: images, idx: idx)
+              builder: (BuildContext context) => PointImagesPage(pointEx: vm.state.pointEx, curIdx: idx)
             )
           );
         },
