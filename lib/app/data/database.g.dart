@@ -649,12 +649,6 @@ class $BuyersTable extends Buyers with TableInfo<$BuyersTable, Buyer> {
   late final GeneratedColumn<int> siteId = GeneratedColumn<int>(
       'site_id', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _fridgeSiteIdMeta =
-      const VerificationMeta('fridgeSiteId');
-  @override
-  late final GeneratedColumn<int> fridgeSiteId = GeneratedColumn<int>(
-      'fridge_site_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _pointIdMeta =
       const VerificationMeta('pointId');
   @override
@@ -663,7 +657,7 @@ class $BuyersTable extends Buyers with TableInfo<$BuyersTable, Buyer> {
       type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, name, loadto, partnerId, siteId, fridgeSiteId, pointId];
+      [id, name, loadto, partnerId, siteId, pointId];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -701,14 +695,6 @@ class $BuyersTable extends Buyers with TableInfo<$BuyersTable, Buyer> {
     } else if (isInserting) {
       context.missing(_siteIdMeta);
     }
-    if (data.containsKey('fridge_site_id')) {
-      context.handle(
-          _fridgeSiteIdMeta,
-          fridgeSiteId.isAcceptableOrUnknown(
-              data['fridge_site_id']!, _fridgeSiteIdMeta));
-    } else if (isInserting) {
-      context.missing(_fridgeSiteIdMeta);
-    }
     if (data.containsKey('point_id')) {
       context.handle(_pointIdMeta,
           pointId.isAcceptableOrUnknown(data['point_id']!, _pointIdMeta));
@@ -732,8 +718,6 @@ class $BuyersTable extends Buyers with TableInfo<$BuyersTable, Buyer> {
           .read(DriftSqlType.int, data['${effectivePrefix}partner_id'])!,
       siteId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}site_id'])!,
-      fridgeSiteId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}fridge_site_id'])!,
       pointId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}point_id']),
     );
@@ -751,7 +735,6 @@ class Buyer extends DataClass implements Insertable<Buyer> {
   final String loadto;
   final int partnerId;
   final int siteId;
-  final int fridgeSiteId;
   final int? pointId;
   const Buyer(
       {required this.id,
@@ -759,7 +742,6 @@ class Buyer extends DataClass implements Insertable<Buyer> {
       required this.loadto,
       required this.partnerId,
       required this.siteId,
-      required this.fridgeSiteId,
       this.pointId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -769,7 +751,6 @@ class Buyer extends DataClass implements Insertable<Buyer> {
     map['loadto'] = Variable<String>(loadto);
     map['partner_id'] = Variable<int>(partnerId);
     map['site_id'] = Variable<int>(siteId);
-    map['fridge_site_id'] = Variable<int>(fridgeSiteId);
     if (!nullToAbsent || pointId != null) {
       map['point_id'] = Variable<int>(pointId);
     }
@@ -783,7 +764,6 @@ class Buyer extends DataClass implements Insertable<Buyer> {
       loadto: Value(loadto),
       partnerId: Value(partnerId),
       siteId: Value(siteId),
-      fridgeSiteId: Value(fridgeSiteId),
       pointId: pointId == null && nullToAbsent
           ? const Value.absent()
           : Value(pointId),
@@ -799,7 +779,6 @@ class Buyer extends DataClass implements Insertable<Buyer> {
       loadto: serializer.fromJson<String>(json['loadto']),
       partnerId: serializer.fromJson<int>(json['partnerId']),
       siteId: serializer.fromJson<int>(json['siteId']),
-      fridgeSiteId: serializer.fromJson<int>(json['fridgeSiteId']),
       pointId: serializer.fromJson<int?>(json['pointId']),
     );
   }
@@ -812,7 +791,6 @@ class Buyer extends DataClass implements Insertable<Buyer> {
       'loadto': serializer.toJson<String>(loadto),
       'partnerId': serializer.toJson<int>(partnerId),
       'siteId': serializer.toJson<int>(siteId),
-      'fridgeSiteId': serializer.toJson<int>(fridgeSiteId),
       'pointId': serializer.toJson<int?>(pointId),
     };
   }
@@ -823,7 +801,6 @@ class Buyer extends DataClass implements Insertable<Buyer> {
           String? loadto,
           int? partnerId,
           int? siteId,
-          int? fridgeSiteId,
           Value<int?> pointId = const Value.absent()}) =>
       Buyer(
         id: id ?? this.id,
@@ -831,7 +808,6 @@ class Buyer extends DataClass implements Insertable<Buyer> {
         loadto: loadto ?? this.loadto,
         partnerId: partnerId ?? this.partnerId,
         siteId: siteId ?? this.siteId,
-        fridgeSiteId: fridgeSiteId ?? this.fridgeSiteId,
         pointId: pointId.present ? pointId.value : this.pointId,
       );
   @override
@@ -842,15 +818,13 @@ class Buyer extends DataClass implements Insertable<Buyer> {
           ..write('loadto: $loadto, ')
           ..write('partnerId: $partnerId, ')
           ..write('siteId: $siteId, ')
-          ..write('fridgeSiteId: $fridgeSiteId, ')
           ..write('pointId: $pointId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, loadto, partnerId, siteId, fridgeSiteId, pointId);
+  int get hashCode => Object.hash(id, name, loadto, partnerId, siteId, pointId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -860,7 +834,6 @@ class Buyer extends DataClass implements Insertable<Buyer> {
           other.loadto == this.loadto &&
           other.partnerId == this.partnerId &&
           other.siteId == this.siteId &&
-          other.fridgeSiteId == this.fridgeSiteId &&
           other.pointId == this.pointId);
 }
 
@@ -870,7 +843,6 @@ class BuyersCompanion extends UpdateCompanion<Buyer> {
   final Value<String> loadto;
   final Value<int> partnerId;
   final Value<int> siteId;
-  final Value<int> fridgeSiteId;
   final Value<int?> pointId;
   const BuyersCompanion({
     this.id = const Value.absent(),
@@ -878,7 +850,6 @@ class BuyersCompanion extends UpdateCompanion<Buyer> {
     this.loadto = const Value.absent(),
     this.partnerId = const Value.absent(),
     this.siteId = const Value.absent(),
-    this.fridgeSiteId = const Value.absent(),
     this.pointId = const Value.absent(),
   });
   BuyersCompanion.insert({
@@ -887,20 +858,17 @@ class BuyersCompanion extends UpdateCompanion<Buyer> {
     required String loadto,
     required int partnerId,
     required int siteId,
-    required int fridgeSiteId,
     this.pointId = const Value.absent(),
   })  : name = Value(name),
         loadto = Value(loadto),
         partnerId = Value(partnerId),
-        siteId = Value(siteId),
-        fridgeSiteId = Value(fridgeSiteId);
+        siteId = Value(siteId);
   static Insertable<Buyer> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? loadto,
     Expression<int>? partnerId,
     Expression<int>? siteId,
-    Expression<int>? fridgeSiteId,
     Expression<int>? pointId,
   }) {
     return RawValuesInsertable({
@@ -909,7 +877,6 @@ class BuyersCompanion extends UpdateCompanion<Buyer> {
       if (loadto != null) 'loadto': loadto,
       if (partnerId != null) 'partner_id': partnerId,
       if (siteId != null) 'site_id': siteId,
-      if (fridgeSiteId != null) 'fridge_site_id': fridgeSiteId,
       if (pointId != null) 'point_id': pointId,
     });
   }
@@ -920,7 +887,6 @@ class BuyersCompanion extends UpdateCompanion<Buyer> {
       Value<String>? loadto,
       Value<int>? partnerId,
       Value<int>? siteId,
-      Value<int>? fridgeSiteId,
       Value<int?>? pointId}) {
     return BuyersCompanion(
       id: id ?? this.id,
@@ -928,7 +894,6 @@ class BuyersCompanion extends UpdateCompanion<Buyer> {
       loadto: loadto ?? this.loadto,
       partnerId: partnerId ?? this.partnerId,
       siteId: siteId ?? this.siteId,
-      fridgeSiteId: fridgeSiteId ?? this.fridgeSiteId,
       pointId: pointId ?? this.pointId,
     );
   }
@@ -951,9 +916,6 @@ class BuyersCompanion extends UpdateCompanion<Buyer> {
     if (siteId.present) {
       map['site_id'] = Variable<int>(siteId.value);
     }
-    if (fridgeSiteId.present) {
-      map['fridge_site_id'] = Variable<int>(fridgeSiteId.value);
-    }
     if (pointId.present) {
       map['point_id'] = Variable<int>(pointId.value);
     }
@@ -968,7 +930,6 @@ class BuyersCompanion extends UpdateCompanion<Buyer> {
           ..write('loadto: $loadto, ')
           ..write('partnerId: $partnerId, ')
           ..write('siteId: $siteId, ')
-          ..write('fridgeSiteId: $fridgeSiteId, ')
           ..write('pointId: $pointId')
           ..write(')'))
         .toString();
@@ -6255,15 +6216,6 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
   late final GeneratedColumn<double> volume = GeneratedColumn<double>(
       'volume', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _isFridgeMeta =
-      const VerificationMeta('isFridge');
-  @override
-  late final GeneratedColumn<bool> isFridge = GeneratedColumn<bool>(
-      'is_fridge', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_fridge" IN (0, 1))'));
   static const VerificationMeta _forPhysicalMeta =
       const VerificationMeta('forPhysical');
   @override
@@ -6322,7 +6274,6 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
         categoryBlockRel,
         weight,
         volume,
-        isFridge,
         forPhysical,
         onlyWithDocs,
         shelfLife,
@@ -6464,12 +6415,6 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
     } else if (isInserting) {
       context.missing(_volumeMeta);
     }
-    if (data.containsKey('is_fridge')) {
-      context.handle(_isFridgeMeta,
-          isFridge.isAcceptableOrUnknown(data['is_fridge']!, _isFridgeMeta));
-    } else if (isInserting) {
-      context.missing(_isFridgeMeta);
-    }
     if (data.containsKey('for_physical')) {
       context.handle(
           _forPhysicalMeta,
@@ -6549,8 +6494,6 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           .read(DriftSqlType.double, data['${effectivePrefix}weight'])!,
       volume: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}volume'])!,
-      isFridge: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_fridge'])!,
       forPhysical: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}for_physical'])!,
       onlyWithDocs: attachedDatabase.typeMapping
@@ -6594,7 +6537,6 @@ class Goods extends DataClass implements Insertable<Goods> {
   final int categoryBlockRel;
   final double weight;
   final double volume;
-  final bool isFridge;
   final bool forPhysical;
   final bool onlyWithDocs;
   final int shelfLife;
@@ -6620,7 +6562,6 @@ class Goods extends DataClass implements Insertable<Goods> {
       required this.categoryBlockRel,
       required this.weight,
       required this.volume,
-      required this.isFridge,
       required this.forPhysical,
       required this.onlyWithDocs,
       required this.shelfLife,
@@ -6650,7 +6591,6 @@ class Goods extends DataClass implements Insertable<Goods> {
     map['category_block_rel'] = Variable<int>(categoryBlockRel);
     map['weight'] = Variable<double>(weight);
     map['volume'] = Variable<double>(volume);
-    map['is_fridge'] = Variable<bool>(isFridge);
     map['for_physical'] = Variable<bool>(forPhysical);
     map['only_with_docs'] = Variable<bool>(onlyWithDocs);
     map['shelf_life'] = Variable<int>(shelfLife);
@@ -6685,7 +6625,6 @@ class Goods extends DataClass implements Insertable<Goods> {
       categoryBlockRel: Value(categoryBlockRel),
       weight: Value(weight),
       volume: Value(volume),
-      isFridge: Value(isFridge),
       forPhysical: Value(forPhysical),
       onlyWithDocs: Value(onlyWithDocs),
       shelfLife: Value(shelfLife),
@@ -6718,7 +6657,6 @@ class Goods extends DataClass implements Insertable<Goods> {
       categoryBlockRel: serializer.fromJson<int>(json['categoryBlockRel']),
       weight: serializer.fromJson<double>(json['weight']),
       volume: serializer.fromJson<double>(json['volume']),
-      isFridge: serializer.fromJson<bool>(json['isFridge']),
       forPhysical: serializer.fromJson<bool>(json['forPhysical']),
       onlyWithDocs: serializer.fromJson<bool>(json['onlyWithDocs']),
       shelfLife: serializer.fromJson<int>(json['shelfLife']),
@@ -6749,7 +6687,6 @@ class Goods extends DataClass implements Insertable<Goods> {
       'categoryBlockRel': serializer.toJson<int>(categoryBlockRel),
       'weight': serializer.toJson<double>(weight),
       'volume': serializer.toJson<double>(volume),
-      'isFridge': serializer.toJson<bool>(isFridge),
       'forPhysical': serializer.toJson<bool>(forPhysical),
       'onlyWithDocs': serializer.toJson<bool>(onlyWithDocs),
       'shelfLife': serializer.toJson<int>(shelfLife),
@@ -6778,7 +6715,6 @@ class Goods extends DataClass implements Insertable<Goods> {
           int? categoryBlockRel,
           double? weight,
           double? volume,
-          bool? isFridge,
           bool? forPhysical,
           bool? onlyWithDocs,
           int? shelfLife,
@@ -6806,7 +6742,6 @@ class Goods extends DataClass implements Insertable<Goods> {
         categoryBlockRel: categoryBlockRel ?? this.categoryBlockRel,
         weight: weight ?? this.weight,
         volume: volume ?? this.volume,
-        isFridge: isFridge ?? this.isFridge,
         forPhysical: forPhysical ?? this.forPhysical,
         onlyWithDocs: onlyWithDocs ?? this.onlyWithDocs,
         shelfLife: shelfLife ?? this.shelfLife,
@@ -6835,7 +6770,6 @@ class Goods extends DataClass implements Insertable<Goods> {
           ..write('categoryBlockRel: $categoryBlockRel, ')
           ..write('weight: $weight, ')
           ..write('volume: $volume, ')
-          ..write('isFridge: $isFridge, ')
           ..write('forPhysical: $forPhysical, ')
           ..write('onlyWithDocs: $onlyWithDocs, ')
           ..write('shelfLife: $shelfLife, ')
@@ -6866,7 +6800,6 @@ class Goods extends DataClass implements Insertable<Goods> {
         categoryBlockRel,
         weight,
         volume,
-        isFridge,
         forPhysical,
         onlyWithDocs,
         shelfLife,
@@ -6896,7 +6829,6 @@ class Goods extends DataClass implements Insertable<Goods> {
           other.categoryBlockRel == this.categoryBlockRel &&
           other.weight == this.weight &&
           other.volume == this.volume &&
-          other.isFridge == this.isFridge &&
           other.forPhysical == this.forPhysical &&
           other.onlyWithDocs == this.onlyWithDocs &&
           other.shelfLife == this.shelfLife &&
@@ -6924,7 +6856,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   final Value<int> categoryBlockRel;
   final Value<double> weight;
   final Value<double> volume;
-  final Value<bool> isFridge;
   final Value<bool> forPhysical;
   final Value<bool> onlyWithDocs;
   final Value<int> shelfLife;
@@ -6950,7 +6881,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     this.categoryBlockRel = const Value.absent(),
     this.weight = const Value.absent(),
     this.volume = const Value.absent(),
-    this.isFridge = const Value.absent(),
     this.forPhysical = const Value.absent(),
     this.onlyWithDocs = const Value.absent(),
     this.shelfLife = const Value.absent(),
@@ -6977,7 +6907,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     required int categoryBlockRel,
     required double weight,
     required double volume,
-    required bool isFridge,
     required bool forPhysical,
     required bool onlyWithDocs,
     required int shelfLife,
@@ -7000,7 +6929,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
         categoryBlockRel = Value(categoryBlockRel),
         weight = Value(weight),
         volume = Value(volume),
-        isFridge = Value(isFridge),
         forPhysical = Value(forPhysical),
         onlyWithDocs = Value(onlyWithDocs),
         shelfLife = Value(shelfLife),
@@ -7026,7 +6954,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     Expression<int>? categoryBlockRel,
     Expression<double>? weight,
     Expression<double>? volume,
-    Expression<bool>? isFridge,
     Expression<bool>? forPhysical,
     Expression<bool>? onlyWithDocs,
     Expression<int>? shelfLife,
@@ -7055,7 +6982,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       if (categoryBlockRel != null) 'category_block_rel': categoryBlockRel,
       if (weight != null) 'weight': weight,
       if (volume != null) 'volume': volume,
-      if (isFridge != null) 'is_fridge': isFridge,
       if (forPhysical != null) 'for_physical': forPhysical,
       if (onlyWithDocs != null) 'only_with_docs': onlyWithDocs,
       if (shelfLife != null) 'shelf_life': shelfLife,
@@ -7084,7 +7010,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       Value<int>? categoryBlockRel,
       Value<double>? weight,
       Value<double>? volume,
-      Value<bool>? isFridge,
       Value<bool>? forPhysical,
       Value<bool>? onlyWithDocs,
       Value<int>? shelfLife,
@@ -7111,7 +7036,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       categoryBlockRel: categoryBlockRel ?? this.categoryBlockRel,
       weight: weight ?? this.weight,
       volume: volume ?? this.volume,
-      isFridge: isFridge ?? this.isFridge,
       forPhysical: forPhysical ?? this.forPhysical,
       onlyWithDocs: onlyWithDocs ?? this.onlyWithDocs,
       shelfLife: shelfLife ?? this.shelfLife,
@@ -7181,9 +7105,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     if (volume.present) {
       map['volume'] = Variable<double>(volume.value);
     }
-    if (isFridge.present) {
-      map['is_fridge'] = Variable<bool>(isFridge.value);
-    }
     if (forPhysical.present) {
       map['for_physical'] = Variable<bool>(forPhysical.value);
     }
@@ -7226,7 +7147,6 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
           ..write('categoryBlockRel: $categoryBlockRel, ')
           ..write('weight: $weight, ')
           ..write('volume: $volume, ')
-          ..write('isFridge: $isFridge, ')
           ..write('forPhysical: $forPhysical, ')
           ..write('onlyWithDocs: $onlyWithDocs, ')
           ..write('shelfLife: $shelfLife, ')
@@ -17791,6 +17711,175 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
   }
 }
 
+class $SitesTable extends Sites with TableInfo<$SitesTable, Site> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SitesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, name];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sites';
+  @override
+  VerificationContext validateIntegrity(Insertable<Site> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Site map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Site(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+    );
+  }
+
+  @override
+  $SitesTable createAlias(String alias) {
+    return $SitesTable(attachedDatabase, alias);
+  }
+}
+
+class Site extends DataClass implements Insertable<Site> {
+  final int id;
+  final String name;
+  const Site({required this.id, required this.name});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    return map;
+  }
+
+  SitesCompanion toCompanion(bool nullToAbsent) {
+    return SitesCompanion(
+      id: Value(id),
+      name: Value(name),
+    );
+  }
+
+  factory Site.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Site(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+    };
+  }
+
+  Site copyWith({int? id, String? name}) => Site(
+        id: id ?? this.id,
+        name: name ?? this.name,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('Site(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Site && other.id == this.id && other.name == this.name);
+}
+
+class SitesCompanion extends UpdateCompanion<Site> {
+  final Value<int> id;
+  final Value<String> name;
+  const SitesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+  });
+  SitesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+  }) : name = Value(name);
+  static Insertable<Site> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+    });
+  }
+
+  SitesCompanion copyWith({Value<int>? id, Value<String>? name}) {
+    return SitesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SitesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDataStore extends GeneratedDatabase {
   _$AppDataStore(QueryExecutor e) : super(e);
   late final $UsersTable users = $UsersTable(this);
@@ -17854,6 +17943,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final $VisitSkipReasonsTable visitSkipReasons =
       $VisitSkipReasonsTable(this);
   late final $VisitsTable visits = $VisitsTable(this);
+  late final $SitesTable sites = $SitesTable(this);
   late final BonusProgramsDao bonusProgramsDao =
       BonusProgramsDao(this as AppDataStore);
   late final DebtsDao debtsDao = DebtsDao(this as AppDataStore);
@@ -17956,7 +18046,8 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         partnersReturnActTypes,
         routePoints,
         visitSkipReasons,
-        visits
+        visits,
+        sites
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -18177,7 +18268,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
   $SeenPreOrdersTable get seenPreOrders => attachedDatabase.seenPreOrders;
   Selectable<OrderExResult> orderEx() {
     return customSelect(
-        'SELECT"orders"."guid" AS "nested_0.guid", "orders"."is_deleted" AS "nested_0.is_deleted", "orders"."timestamp" AS "nested_0.timestamp", "orders"."current_timestamp" AS "nested_0.current_timestamp", "orders"."last_sync_time" AS "nested_0.last_sync_time", "orders"."need_sync" AS "nested_0.need_sync", "orders"."is_new" AS "nested_0.is_new", "orders"."id" AS "nested_0.id", "orders"."date" AS "nested_0.date", "orders"."status" AS "nested_0.status", "orders"."pre_order_id" AS "nested_0.pre_order_id", "orders"."need_docs" AS "nested_0.need_docs", "orders"."need_inc" AS "nested_0.need_inc", "orders"."is_bonus" AS "nested_0.is_bonus", "orders"."is_physical" AS "nested_0.is_physical", "orders"."buyer_id" AS "nested_0.buyer_id", "orders"."info" AS "nested_0.info", "orders"."need_processing" AS "nested_0.need_processing", "orders"."is_editable" AS "nested_0.is_editable","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", "buyers"."point_id" AS "nested_1.point_id", COALESCE((SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price) FROM order_lines WHERE order_lines.order_guid = orders.guid AND order_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM order_lines WHERE order_guid = orders.guid AND order_lines.is_deleted = 0) AS lines_count, COALESCE((SELECT MAX(need_sync) FROM order_lines WHERE order_guid = orders.guid), 0) AS lines_need_sync FROM orders LEFT JOIN buyers ON buyers.id = orders.buyer_id ORDER BY orders.date DESC, buyers.name',
+        'SELECT"orders"."guid" AS "nested_0.guid", "orders"."is_deleted" AS "nested_0.is_deleted", "orders"."timestamp" AS "nested_0.timestamp", "orders"."current_timestamp" AS "nested_0.current_timestamp", "orders"."last_sync_time" AS "nested_0.last_sync_time", "orders"."need_sync" AS "nested_0.need_sync", "orders"."is_new" AS "nested_0.is_new", "orders"."id" AS "nested_0.id", "orders"."date" AS "nested_0.date", "orders"."status" AS "nested_0.status", "orders"."pre_order_id" AS "nested_0.pre_order_id", "orders"."need_docs" AS "nested_0.need_docs", "orders"."need_inc" AS "nested_0.need_inc", "orders"."is_bonus" AS "nested_0.is_bonus", "orders"."is_physical" AS "nested_0.is_physical", "orders"."buyer_id" AS "nested_0.buyer_id", "orders"."info" AS "nested_0.info", "orders"."need_processing" AS "nested_0.need_processing", "orders"."is_editable" AS "nested_0.is_editable","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."point_id" AS "nested_1.point_id", COALESCE((SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price) FROM order_lines WHERE order_lines.order_guid = orders.guid AND order_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM order_lines WHERE order_guid = orders.guid AND order_lines.is_deleted = 0) AS lines_count, COALESCE((SELECT MAX(need_sync) FROM order_lines WHERE order_guid = orders.guid), 0) AS lines_need_sync FROM orders LEFT JOIN buyers ON buyers.id = orders.buyer_id ORDER BY orders.date DESC, buyers.name',
         variables: [],
         readsFrom: {
           orderLines,
@@ -18209,7 +18300,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
 
   Selectable<PreOrderExResult> preOrderEx() {
     return customSelect(
-        'SELECT"pre_orders"."id" AS "nested_0.id", "pre_orders"."date" AS "nested_0.date", "pre_orders"."buyer_id" AS "nested_0.buyer_id", "pre_orders"."need_docs" AS "nested_0.need_docs", "pre_orders"."info" AS "nested_0.info","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", "buyers"."point_id" AS "nested_1.point_id", COALESCE((SELECT SUM(pre_order_lines.rel * pre_order_lines.vol * pre_order_lines.price) FROM pre_order_lines WHERE pre_order_lines.pre_order_id = pre_orders.id), 0) AS lines_total, (SELECT COUNT(*) FROM pre_order_lines WHERE pre_order_id = pre_orders.id) AS lines_count, EXISTS (SELECT 1 AS _c0 FROM orders WHERE pre_order_id = pre_orders.id) AS has_order, EXISTS (SELECT 1 AS _c1 FROM seen_pre_orders WHERE id = pre_orders.id) AS was_seen FROM pre_orders JOIN buyers ON buyers.id = pre_orders.buyer_id ORDER BY pre_orders.date DESC, buyers.name',
+        'SELECT"pre_orders"."id" AS "nested_0.id", "pre_orders"."date" AS "nested_0.date", "pre_orders"."buyer_id" AS "nested_0.buyer_id", "pre_orders"."need_docs" AS "nested_0.need_docs", "pre_orders"."info" AS "nested_0.info","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."point_id" AS "nested_1.point_id", COALESCE((SELECT SUM(pre_order_lines.rel * pre_order_lines.vol * pre_order_lines.price) FROM pre_order_lines WHERE pre_order_lines.pre_order_id = pre_orders.id), 0) AS lines_total, (SELECT COUNT(*) FROM pre_order_lines WHERE pre_order_id = pre_orders.id) AS lines_count, EXISTS (SELECT 1 AS _c0 FROM orders WHERE pre_order_id = pre_orders.id) AS has_order, EXISTS (SELECT 1 AS _c1 FROM seen_pre_orders WHERE id = pre_orders.id) AS was_seen FROM pre_orders JOIN buyers ON buyers.id = pre_orders.buyer_id ORDER BY pre_orders.date DESC, buyers.name',
         variables: [],
         readsFrom: {
           preOrderLines,
@@ -18247,7 +18338,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."is_orderable" AS "nested_0.is_orderable", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."volume" AS "nested_0.volume", "goods"."is_fridge" AS "nested_0.is_fridge", "goods"."for_physical" AS "nested_0.for_physical", "goods"."only_with_docs" AS "nested_0.only_with_docs", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"normal_stocks"."goods_id" AS "nested_1.goods_id", "normal_stocks"."site_id" AS "nested_1.site_id", "normal_stocks"."is_vollow" AS "nested_1.is_vollow", "normal_stocks"."factor" AS "nested_1.factor", "normal_stocks"."vol" AS "nested_1.vol","fridge_stocks"."goods_id" AS "nested_2.goods_id", "fridge_stocks"."site_id" AS "nested_2.site_id", "fridge_stocks"."is_vollow" AS "nested_2.is_vollow", "fridge_stocks"."factor" AS "nested_2.factor", "fridge_stocks"."vol" AS "nested_2.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks AS normal_stocks ON normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id LEFT JOIN goods_stocks AS fridge_stocks ON fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
+        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."is_orderable" AS "nested_0.is_orderable", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."volume" AS "nested_0.volume", "goods"."for_physical" AS "nested_0.for_physical", "goods"."only_with_docs" AS "nested_0.only_with_docs", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"goods_stocks"."goods_id" AS "nested_1.goods_id", "goods_stocks"."site_id" AS "nested_1.site_id", "goods_stocks"."is_vollow" AS "nested_1.is_vollow", "goods_stocks"."factor" AS "nested_1.factor", "goods_stocks"."vol" AS "nested_1.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks ON goods_stocks.goods_id = goods.id AND goods_stocks.site_id = buyers.site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
         variables: [
           Variable<int>(buyerId),
           for (var $ in goodsIds) Variable<int>($)
@@ -18264,10 +18355,8 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
           goods: await allGoods.mapFromRow(row, tablePrefix: 'nested_0'),
           categoryPackage: row.read<int>('categoryPackage'),
           categoryUserPackage: row.read<int>('categoryUserPackage'),
-          normalStock:
+          stock:
               await goodsStocks.mapFromRowOrNull(row, tablePrefix: 'nested_1'),
-          fridgeStock:
-              await goodsStocks.mapFromRowOrNull(row, tablePrefix: 'nested_2'),
           restricted: row.read<bool>('restricted'),
           lastShipmentDate: row.readNullable<DateTime>('last_shipment_date'),
         ));
@@ -18345,16 +18434,14 @@ class GoodsExResult {
   final Goods goods;
   final int categoryPackage;
   final int categoryUserPackage;
-  final GoodsStock? normalStock;
-  final GoodsStock? fridgeStock;
+  final GoodsStock? stock;
   final bool restricted;
   final DateTime? lastShipmentDate;
   GoodsExResult({
     required this.goods,
     required this.categoryPackage,
     required this.categoryUserPackage,
-    this.normalStock,
-    this.fridgeStock,
+    this.stock,
     required this.restricted,
     this.lastShipmentDate,
   });
@@ -18372,9 +18459,12 @@ class CategoriesExResult {
 mixin _$PartnersDaoMixin on DatabaseAccessor<AppDataStore> {
   $BuyersTable get buyers => attachedDatabase.buyers;
   $PartnersTable get partners => attachedDatabase.partners;
+  $SitesTable get sites => attachedDatabase.sites;
 }
 mixin _$PointsDaoMixin on DatabaseAccessor<AppDataStore> {
   $BuyersTable get buyers => attachedDatabase.buyers;
+  $PartnersTable get partners => attachedDatabase.partners;
+  $SitesTable get sites => attachedDatabase.sites;
   $PointsTable get points => attachedDatabase.points;
   $PointImagesTable get pointImages => attachedDatabase.pointImages;
   $PointFormatsTable get pointFormats => attachedDatabase.pointFormats;
@@ -18471,7 +18561,7 @@ mixin _$ShipmentsDaoMixin on DatabaseAccessor<AppDataStore> {
   $WorkdatesTable get workdates => attachedDatabase.workdates;
   Selectable<ShipmentExResult> shipmentEx() {
     return customSelect(
-        'SELECT"shipments"."id" AS "nested_0.id", "shipments"."date" AS "nested_0.date", "shipments"."ndoc" AS "nested_0.ndoc", "shipments"."info" AS "nested_0.info", "shipments"."status" AS "nested_0.status", "shipments"."debt_sum" AS "nested_0.debt_sum", "shipments"."shipment_sum" AS "nested_0.shipment_sum", "shipments"."buyer_id" AS "nested_0.buyer_id","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", "buyers"."point_id" AS "nested_1.point_id", (SELECT COUNT(*) FROM shipment_lines WHERE shipments.id = shipment_lines.shipment_id) AS lines_count FROM shipments JOIN buyers ON buyers.id = shipments.buyer_id ORDER BY shipments.date DESC, buyers.name',
+        'SELECT"shipments"."id" AS "nested_0.id", "shipments"."date" AS "nested_0.date", "shipments"."ndoc" AS "nested_0.ndoc", "shipments"."info" AS "nested_0.info", "shipments"."status" AS "nested_0.status", "shipments"."debt_sum" AS "nested_0.debt_sum", "shipments"."shipment_sum" AS "nested_0.shipment_sum", "shipments"."buyer_id" AS "nested_0.buyer_id","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."point_id" AS "nested_1.point_id", (SELECT COUNT(*) FROM shipment_lines WHERE shipments.id = shipment_lines.shipment_id) AS lines_count FROM shipments JOIN buyers ON buyers.id = shipments.buyer_id ORDER BY shipments.date DESC, buyers.name',
         variables: [],
         readsFrom: {
           shipmentLines,
@@ -18537,7 +18627,7 @@ mixin _$ReturnActsDaoMixin on DatabaseAccessor<AppDataStore> {
       attachedDatabase.partnersReturnActTypes;
   Selectable<ReturnActExResult> returnActEx() {
     return customSelect(
-        'SELECT"return_acts"."guid" AS "nested_0.guid", "return_acts"."is_deleted" AS "nested_0.is_deleted", "return_acts"."timestamp" AS "nested_0.timestamp", "return_acts"."current_timestamp" AS "nested_0.current_timestamp", "return_acts"."last_sync_time" AS "nested_0.last_sync_time", "return_acts"."need_sync" AS "nested_0.need_sync", "return_acts"."is_new" AS "nested_0.is_new", "return_acts"."id" AS "nested_0.id", "return_acts"."date" AS "nested_0.date", "return_acts"."number" AS "nested_0.number", "return_acts"."buyer_id" AS "nested_0.buyer_id", "return_acts"."need_pickup" AS "nested_0.need_pickup", "return_acts"."return_act_type_id" AS "nested_0.return_act_type_id", "return_acts"."recept_id" AS "nested_0.recept_id", "return_acts"."recept_ndoc" AS "nested_0.recept_ndoc", "return_acts"."recept_date" AS "nested_0.recept_date", COALESCE((SELECT name FROM return_act_types WHERE return_act_types.id = return_acts.return_act_type_id), \'Не указан\') AS return_act_type_name,"buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."fridge_site_id" AS "nested_1.fridge_site_id", "buyers"."point_id" AS "nested_1.point_id", COALESCE((SELECT SUM(return_act_lines.rel * return_act_lines.vol * return_act_lines.price) FROM return_act_lines WHERE return_act_lines.return_act_guid = return_acts.guid AND return_act_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM return_act_lines WHERE return_act_lines.return_act_guid = return_acts.guid AND return_act_lines.is_deleted = 0) AS lines_count, COALESCE((SELECT MAX(need_sync) FROM return_act_lines WHERE return_act_lines.return_act_guid = return_acts.guid), 0) AS lines_need_sync FROM return_acts LEFT JOIN buyers ON buyers.id = return_acts.buyer_id ORDER BY return_acts.date DESC, buyers.name',
+        'SELECT"return_acts"."guid" AS "nested_0.guid", "return_acts"."is_deleted" AS "nested_0.is_deleted", "return_acts"."timestamp" AS "nested_0.timestamp", "return_acts"."current_timestamp" AS "nested_0.current_timestamp", "return_acts"."last_sync_time" AS "nested_0.last_sync_time", "return_acts"."need_sync" AS "nested_0.need_sync", "return_acts"."is_new" AS "nested_0.is_new", "return_acts"."id" AS "nested_0.id", "return_acts"."date" AS "nested_0.date", "return_acts"."number" AS "nested_0.number", "return_acts"."buyer_id" AS "nested_0.buyer_id", "return_acts"."need_pickup" AS "nested_0.need_pickup", "return_acts"."return_act_type_id" AS "nested_0.return_act_type_id", "return_acts"."recept_id" AS "nested_0.recept_id", "return_acts"."recept_ndoc" AS "nested_0.recept_ndoc", "return_acts"."recept_date" AS "nested_0.recept_date", COALESCE((SELECT name FROM return_act_types WHERE return_act_types.id = return_acts.return_act_type_id), \'Не указан\') AS return_act_type_name,"buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."point_id" AS "nested_1.point_id", COALESCE((SELECT SUM(return_act_lines.rel * return_act_lines.vol * return_act_lines.price) FROM return_act_lines WHERE return_act_lines.return_act_guid = return_acts.guid AND return_act_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM return_act_lines WHERE return_act_lines.return_act_guid = return_acts.guid AND return_act_lines.is_deleted = 0) AS lines_count, COALESCE((SELECT MAX(need_sync) FROM return_act_lines WHERE return_act_lines.return_act_guid = return_acts.guid), 0) AS lines_need_sync FROM return_acts LEFT JOIN buyers ON buyers.id = return_acts.buyer_id ORDER BY return_acts.date DESC, buyers.name',
         variables: [],
         readsFrom: {
           returnActTypes,

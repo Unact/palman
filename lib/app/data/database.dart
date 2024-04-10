@@ -75,7 +75,8 @@ part 'users_dao.dart';
     PartnersReturnActTypes,
     RoutePoints,
     VisitSkipReasons,
-    Visits
+    Visits,
+    Sites
   ],
   daos: [
     BonusProgramsDao,
@@ -235,7 +236,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 28;
+  int get schemaVersion => 29;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

@@ -19,7 +19,6 @@ class ApiGoods extends Equatable {
   final int categoryBlockRel;
   final double weight;
   final double volume;
-  final bool isFridge;
   final int shelfLife;
   final String shelfLifeTypeName;
   final List<String> barcodes;
@@ -46,7 +45,6 @@ class ApiGoods extends Equatable {
     required this.categoryBlockRel,
     required this.weight,
     required this.volume,
-    required this.isFridge,
     required this.shelfLife,
     required this.shelfLifeTypeName,
     required this.barcodes,
@@ -75,7 +73,6 @@ class ApiGoods extends Equatable {
       categoryBlockRel: json['categoryBlockRel'],
       weight: Parsing.parseDouble(json['weight'])!,
       volume: Parsing.parseDouble(json['volume'])!,
-      isFridge: json['isFridge'],
       shelfLife: json['shelfLife'],
       shelfLifeTypeName: json['shelfLifeTypeName'],
       barcodes: json['barcodes'].cast<String>(),
@@ -105,7 +102,6 @@ class ApiGoods extends Equatable {
       categoryBlockRel: categoryBlockRel,
       weight: weight,
       volume: volume,
-      isFridge: isFridge,
       shelfLife: shelfLife,
       shelfLifeTypeName: shelfLifeTypeName,
       barcodes: barcodes,
@@ -135,7 +131,6 @@ class ApiGoods extends Equatable {
     categoryBlockRel,
     weight,
     volume,
-    isFridge,
     shelfLife,
     shelfLifeTypeName,
     barcodes,

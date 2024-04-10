@@ -3,6 +3,8 @@ part of 'database.dart';
 @DriftAccessor(
   tables: [
     Buyers,
+    Partners,
+    Sites,
     Points,
     PointImages,
     PointFormats,
@@ -47,28 +49,40 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
 
   Stream<List<VisitEx>> watchVisitExList() {
     final res = select(visits).join([
-      innerJoin(buyers, buyers.id.equalsExp(visits.buyerId))
+      innerJoin(buyers, buyers.id.equalsExp(visits.buyerId)),
+      innerJoin(partners, partners.id.equalsExp(buyers.partnerId)),
+      innerJoin(sites, sites.id.equalsExp(buyers.siteId))
     ])
     ..orderBy([OrderingTerm(expression: buyers.name)]);
 
     return res.map(
       (row) => VisitEx(
         row.readTable(visits),
-        row.readTable(buyers)
+        BuyerEx(
+          row.readTable(buyers),
+          row.readTable(partners),
+          row.readTable(sites),
+        )
       )
     ).watch();
   }
 
   Stream<List<RoutePointEx>> watchRoutePoints() {
     final res = select(routePoints).join([
-      innerJoin(buyers, buyers.id.equalsExp(routePoints.buyerId))
+      innerJoin(buyers, buyers.id.equalsExp(routePoints.buyerId)),
+      innerJoin(partners, partners.id.equalsExp(buyers.partnerId)),
+      innerJoin(sites, sites.id.equalsExp(buyers.siteId))
     ])
     ..orderBy([OrderingTerm(expression: buyers.name)]);
 
     return res.map(
       (row) => RoutePointEx(
         row.readTable(routePoints),
-        row.readTable(buyers)
+        BuyerEx(
+          row.readTable(buyers),
+          row.readTable(partners),
+          row.readTable(sites),
+        )
       )
     ).watch();
   }
@@ -77,25 +91,17 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     final pointsRes = select(points).join([
       leftOuterJoin(buyers, buyers.pointId.equalsExp(points.id))
     ]).watch();
-    final routePointsRes = select(routePoints).join([
-      innerJoin(buyers, buyers.id.equalsExp(routePoints.buyerId))
-    ]).watch();
+    final routePointsRes = select(routePoints).watch();
 
     return Rx.combineLatest2(
       pointsRes,
       routePointsRes,
-      (pointRows, routePointRows) {
-        return pointRows.map(
-          (row) => PointBuyerRoutePoint(
-            row.readTable(points),
-            row.readTableOrNull(buyers),
-            routePointRows
-              .map((e) => e.readTable(routePoints))
-              .where((e) => e.buyerId == row.readTableOrNull(buyers)?.id)
-              .toList()
-          )
-        ).toList();
-      }
+      (pointRows, routePointRows) => pointRows.map((row) {
+        return PointBuyerRoutePoint(
+          row.readTable(points),
+          routePointRows.where((e) => e.buyerId == row.readTableOrNull(buyers)?.id).toList()
+        );
+      }).toList()
     );
   }
 
@@ -174,22 +180,21 @@ class PointEx {
 
 class RoutePointEx {
   final RoutePoint routePoint;
-  final Buyer? buyer;
+  final BuyerEx? buyerEx;
 
-  RoutePointEx(this.routePoint, this.buyer);
+  RoutePointEx(this.routePoint, this.buyerEx);
 }
 
 class PointBuyerRoutePoint {
   final Point point;
-  final Buyer? buyer;
   final List<RoutePoint> routePoints;
 
-  PointBuyerRoutePoint(this.point, this.buyer, this.routePoints);
+  PointBuyerRoutePoint(this.point, this.routePoints);
 }
 
 class VisitEx {
   final Visit visit;
-  final Buyer? buyer;
+  final BuyerEx? buyerEx;
 
-  VisitEx(this.visit, this.buyer);
+  VisitEx(this.visit, this.buyerEx);
 }

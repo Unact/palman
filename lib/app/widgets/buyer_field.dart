@@ -69,7 +69,7 @@ class _BuyerFieldState extends State<BuyerField> {
           isThreeLine: false,
           dense: true,
           title: Text(suggestion.buyer.fullname, style: Styles.formStyle),
-          subtitle: Text(suggestion.partner.name, style: Styles.tileText),
+          subtitle: Text("${suggestion.site.name}, ${suggestion.partner.name}", style: Styles.tileText),
         );
       },
       onSuggestionSelected: (BuyerEx suggestion) async {

@@ -6,7 +6,6 @@ class ApiBuyer extends Equatable {
   final String loadto;
   final int partnerId;
   final int siteId;
-  final int fridgeSiteId;
   final int? pointId;
 
   const ApiBuyer({
@@ -15,7 +14,6 @@ class ApiBuyer extends Equatable {
     required this.loadto,
     required this.partnerId,
     required this.siteId,
-    required this.fridgeSiteId,
     required this.pointId,
   });
 
@@ -26,7 +24,6 @@ class ApiBuyer extends Equatable {
       loadto: json['loadto'],
       partnerId: json['partnerId'],
       siteId: json['siteId'],
-      fridgeSiteId: json['fridgeSiteId'],
       pointId: json['pointId']
     );
   }
@@ -38,7 +35,6 @@ class ApiBuyer extends Equatable {
       loadto: loadto,
       partnerId: partnerId,
       siteId: siteId,
-      fridgeSiteId: fridgeSiteId,
       pointId: pointId
     );
   }
@@ -50,7 +46,6 @@ class ApiBuyer extends Equatable {
     loadto,
     partnerId,
     siteId,
-    fridgeSiteId,
     pointId
   ];
 }
