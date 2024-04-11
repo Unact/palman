@@ -56,14 +56,18 @@ class _OrderViewState extends State<_OrderView> {
     final vm = context.read<OrderViewModel>();
     final firstDate = vm.state.workdates.first.date;
     final lastDate = vm.state.workdates.last.date;
-    final initialDate = vm.state.orderEx.order.date ?? firstDate;
+    final initialDate = vm.state.orderEx.order.date;
     final days = vm.state.workdates.map((e) => e.date).toList();
 
     DateTime? result = await showDatePicker(
       context: context,
-      firstDate: [initialDate, firstDate].min,
+      firstDate: [initialDate, firstDate].nonNulls.min,
       lastDate: lastDate,
-      selectableDayPredicate: (day) => days.contains(day) || day == initialDate,
+      selectableDayPredicate: (day) {
+        if (day == initialDate) return true;
+
+        return days.contains(day) && vm.state.orderEx.buyer!.weekdays[day.weekday % 7];
+      },
       initialDate: initialDate
     );
 
@@ -216,7 +220,7 @@ class _OrderViewState extends State<_OrderView> {
             !vm.state.isEditable || vm.state.workdates.isEmpty ?
               Container() :
               IconButton(
-                onPressed: showDateDialog,
+                onPressed: vm.state.orderEx.buyer == null ? null : showDateDialog,
                 tooltip: 'Указать дату',
                 icon: const Icon(Icons.calendar_month)
               )

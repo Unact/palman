@@ -71,15 +71,18 @@ class _IncRequestViewState extends State<_IncRequestView> {
     final vm = context.read<IncRequestViewModel>();
     final firstDate = vm.state.workdates.first.date;
     final lastDate = vm.state.workdates.last.date;
-    final initialDate = vm.state.incRequestEx.incRequest.date ?? firstDate;
+    final initialDate = vm.state.incRequestEx.incRequest.date;
     final days = vm.state.workdates.map((e) => e.date).toList();
 
     DateTime? result = await showDatePicker(
       context: context,
-      firstDate: [initialDate, firstDate].min,
+      firstDate: [initialDate, firstDate].nonNulls.min,
       lastDate: lastDate,
-      selectableDayPredicate: (day) => days.contains(day) || day == initialDate,
-      initialDate: initialDate
+      selectableDayPredicate: (day) {
+        if (day == initialDate) return true;
+
+        return days.contains(day) && vm.state.incRequestEx.buyer!.weekdays[day.weekday % 7];
+      }
     );
 
     vm.updateDate(result);
@@ -106,7 +109,7 @@ class _IncRequestViewState extends State<_IncRequestView> {
                 !vm.state.isEditable || vm.state.workdates.isEmpty ?
                   Container() :
                   IconButton(
-                    onPressed: showDateDialog,
+                    onPressed: incRequestEx.buyer == null ? null : showDateDialog,
                     tooltip: 'Указать дату',
                     icon: const Icon(Icons.calendar_month),
                     constraints: const BoxConstraints()
