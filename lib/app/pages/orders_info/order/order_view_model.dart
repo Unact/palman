@@ -86,7 +86,8 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   Future<void> updateBuyer(Buyer? buyer) async {
     await ordersRepository.updateOrder(
       state.orderEx.order,
-      buyerId: Optional.fromNullable(buyer?.id)
+      buyerId: Optional.fromNullable(buyer?.id),
+      date: const Optional.absent()
     );
     _notifyOrderUpdated();
   }

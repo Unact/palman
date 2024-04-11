@@ -7,6 +7,7 @@ class ApiBuyer extends Equatable {
   final int partnerId;
   final int siteId;
   final int? pointId;
+  final List<bool> weekdays;
 
   const ApiBuyer({
     required this.id,
@@ -15,6 +16,7 @@ class ApiBuyer extends Equatable {
     required this.partnerId,
     required this.siteId,
     required this.pointId,
+    required this.weekdays,
   });
 
   factory ApiBuyer.fromJson(dynamic json) {
@@ -24,7 +26,8 @@ class ApiBuyer extends Equatable {
       loadto: json['loadto'],
       partnerId: json['partnerId'],
       siteId: json['siteId'],
-      pointId: json['pointId']
+      pointId: json['pointId'],
+      weekdays: (json['weekdays'] as List).cast<bool>()
     );
   }
 
@@ -35,7 +38,8 @@ class ApiBuyer extends Equatable {
       loadto: loadto,
       partnerId: partnerId,
       siteId: siteId,
-      pointId: pointId
+      pointId: pointId,
+      weekdays: weekdays
     );
   }
 
@@ -46,6 +50,7 @@ class ApiBuyer extends Equatable {
     loadto,
     partnerId,
     siteId,
-    pointId
+    pointId,
+    weekdays
   ];
 }

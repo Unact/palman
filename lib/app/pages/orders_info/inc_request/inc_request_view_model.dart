@@ -57,7 +57,8 @@ class IncRequestViewModel extends PageViewModel<IncRequestState, IncRequestState
   Future<void> updateBuyer(Buyer? buyer) async {
     await shipmentsRepository.updateIncRequest(
       state.incRequestEx.incRequest,
-      buyerId: Optional.fromNullable(buyer?.id)
+      buyerId: Optional.fromNullable(buyer?.id),
+      date: const Optional.absent()
     );
 
     _notifyIncRequestUpdated();

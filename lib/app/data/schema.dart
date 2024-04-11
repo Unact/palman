@@ -14,16 +14,16 @@ mixin Syncable on Table {
   Set<Column> get primaryKey => {guid};
 }
 
-class JsonListConverter extends TypeConverter<List<String>, String> {
+class JsonListConverter<T> extends TypeConverter<List<T>, String> {
   const JsonListConverter();
 
   @override
-  List<String> fromSql(String? fromDb) {
-    return (json.decode(fromDb!) as List).cast<String>();
+  List<T> fromSql(String? fromDb) {
+    return (json.decode(fromDb!) as List).cast<T>();
   }
 
   @override
-  String toSql(List<String>? value) {
+  String toSql(List<T>? value) {
     return json.encode(value);
   }
 }
@@ -56,6 +56,7 @@ class Buyers extends Table {
   IntColumn get partnerId => integer()();
   IntColumn get siteId => integer()();
   IntColumn get pointId => integer().nullable()();
+  TextColumn get weekdays => text().map(const JsonListConverter<bool>())();
 }
 
 class PointFormats extends Table {
@@ -199,7 +200,7 @@ class AllGoods extends Table {
   BoolColumn get onlyWithDocs => boolean()();
   IntColumn get shelfLife => integer()();
   TextColumn get shelfLifeTypeName => text()();
-  TextColumn get barcodes => text().map(const JsonListConverter())();
+  TextColumn get barcodes => text().map(const JsonListConverter<String>())();
 }
 
 class Workdates extends Table {
