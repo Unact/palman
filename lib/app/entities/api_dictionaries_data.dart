@@ -13,6 +13,7 @@ class ApiDictionariesData extends Equatable {
   final List<ApiPartnersReturnActType> partnersReturnActTypes;
   final List<ApiReturnActType> returnActTypes;
   final List<ApiVisitSkipReason> visitSkipReasons;
+  final List<ApiSite> sites;
 
   const ApiDictionariesData({
     required this.buyers,
@@ -27,6 +28,7 @@ class ApiDictionariesData extends Equatable {
     required this.partnersReturnActTypes,
     required this.returnActTypes,
     required this.visitSkipReasons,
+    required this.sites
   });
 
   factory ApiDictionariesData.fromJson(Map<String, dynamic> json) {
@@ -49,6 +51,7 @@ class ApiDictionariesData extends Equatable {
       .map<ApiReturnActType>((e) => ApiReturnActType.fromJson(e)).toList();
     List<ApiVisitSkipReason> visitSkipReasons = json['visitSkipReasons']
       .map<ApiVisitSkipReason>((e) => ApiVisitSkipReason.fromJson(e)).toList();
+    List<ApiSite> sites = json['sites'].map<ApiSite>((e) => ApiSite.fromJson(e)).toList();
 
     return ApiDictionariesData(
       buyers: buyers,
@@ -62,7 +65,8 @@ class ApiDictionariesData extends Equatable {
       pricelistSetCategories: pricelistSetCategories,
       partnersReturnActTypes: partnersReturnActTypes,
       returnActTypes: returnActTypes,
-      visitSkipReasons: visitSkipReasons
+      visitSkipReasons: visitSkipReasons,
+      sites: sites
     );
   }
 
@@ -79,6 +83,7 @@ class ApiDictionariesData extends Equatable {
     pricelistSetCategories,
     partnersReturnActTypes,
     returnActTypes,
-    visitSkipReasons
+    visitSkipReasons,
+    sites
   ];
 }

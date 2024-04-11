@@ -292,9 +292,12 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
             const Icon(Icons.clear, color: Colors.red)
       ),
       title: Text(
-        routePointEx.buyer != null ? routePointEx.buyer!.fullname : routePointEx.routePoint.name,
+        routePointEx.buyerEx != null ? routePointEx.buyerEx!.buyer.fullname : routePointEx.routePoint.name,
         style: Styles.tileText
       ),
+      subtitle: routePointEx.buyerEx != null ?
+        Text("${routePointEx.buyerEx!.site.name}, ${routePointEx.buyerEx!.partner.name}", style: Styles.tileText) :
+        null,
       trailing: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         mainAxisSize: MainAxisSize.min,
@@ -315,7 +318,7 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
           ),
           IconButton(
             icon: const Icon(Icons.add_shopping_cart),
-            onPressed: routePointEx.buyer != null ? () => vm.addNewOrder(routePointEx) : null,
+            onPressed: routePointEx.buyerEx != null ? () => vm.addNewOrder(routePointEx) : null,
             tooltip: 'Создать заказ',
             constraints: const BoxConstraints(),
             padding: const EdgeInsets.only(right: 16)
@@ -373,9 +376,12 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
           const Icon(Icons.clear, color: Colors.red)
       ),
       title: Text(
-        visitEx.buyer != null ? visitEx.buyer!.fullname : visitEx.visit.name,
+        visitEx.buyerEx != null ? visitEx.buyerEx!.buyer.fullname : visitEx.visit.name,
         style: Styles.tileText
       ),
+      subtitle: visitEx.buyerEx != null ?
+        Text("${visitEx.buyerEx!.site.name}, ${visitEx.buyerEx!.partner.name}", style: Styles.tileText) :
+        null,
       dense: false
     );
   }

@@ -90,8 +90,7 @@ part of 'database.dart';
         goods.**,
         categories.package AS "categoryPackage",
         categories.user_package AS "categoryUserPackage",
-        normal_stocks.** AS "normal_stock",
-        fridge_stocks.** AS "fridge_stock",
+        goods_stocks.** AS "stock",
         EXISTS(
           SELECT 1
           FROM goods_restrictions
@@ -109,10 +108,7 @@ part of 'database.dart';
       FROM goods
       JOIN categories ON categories.id = goods.category_id
       CROSS JOIN buyers
-      LEFT JOIN goods_stocks normal_stocks ON
-        normal_stocks.goods_id = goods.id AND normal_stocks.site_id = buyers.site_id
-      LEFT JOIN goods_stocks fridge_stocks ON
-        fridge_stocks.goods_id = goods.id AND fridge_stocks.site_id = buyers.fridge_site_id
+      LEFT JOIN goods_stocks ON goods_stocks.goods_id = goods.id AND goods_stocks.site_id = buyers.site_id
       WHERE
         buyers.id = :buyer_id AND
         goods.id IN :goods_ids
@@ -373,7 +369,7 @@ class GoodsDetail {
 
   bool get hadShipment => goodsEx.lastShipmentDate != null;
   Goods get goods => goodsEx.goods;
-  GoodsStock? get stock => goods.isFridge ? goodsEx.fridgeStock : goodsEx.normalStock;
+  GoodsStock? get stock => goodsEx.stock;
   double get factor => stock?.factor ?? 1;
   bool get conditionalDiscount => bonusPrograms.any((e) => e.conditionalDiscount);
   int get rel => factor < goods.rel ? goods.categoryUserPackageRel : goods.rel;

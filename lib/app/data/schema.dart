@@ -55,11 +55,15 @@ class Buyers extends Table {
   TextColumn get loadto => text()();
   IntColumn get partnerId => integer()();
   IntColumn get siteId => integer()();
-  IntColumn get fridgeSiteId => integer()();
   IntColumn get pointId => integer().nullable()();
 }
 
 class PointFormats extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+}
+
+class Sites extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
 }
@@ -191,7 +195,6 @@ class AllGoods extends Table {
   IntColumn get categoryBlockRel => integer()();
   RealColumn get weight => real()();
   RealColumn get volume => real()();
-  BoolColumn get isFridge => boolean()();
   BoolColumn get forPhysical => boolean()();
   BoolColumn get onlyWithDocs => boolean()();
   IntColumn get shelfLife => integer()();
