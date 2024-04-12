@@ -21,7 +21,7 @@ class ApiGoods extends Equatable {
   final double volume;
   final int shelfLife;
   final String shelfLifeTypeName;
-  final List<String> barcodes;
+  final EqualList<String> barcodes;
   final bool isOrderable;
   final bool forPhysical;
   final bool onlyWithDocs;
@@ -75,7 +75,7 @@ class ApiGoods extends Equatable {
       volume: Parsing.parseDouble(json['volume'])!,
       shelfLife: json['shelfLife'],
       shelfLifeTypeName: json['shelfLifeTypeName'],
-      barcodes: json['barcodes'].cast<String>(),
+      barcodes: EqualList(json['barcodes'].cast<String>()),
       isOrderable: json['isOrderable'],
       forPhysical: json['forPhysical'],
       onlyWithDocs: json['onlyWithDocs']
@@ -104,7 +104,7 @@ class ApiGoods extends Equatable {
       volume: volume,
       shelfLife: shelfLife,
       shelfLifeTypeName: shelfLifeTypeName,
-      barcodes: barcodes,
+      barcodes: EqualList(barcodes),
       isOrderable: isOrderable,
       forPhysical: forPhysical,
       onlyWithDocs: onlyWithDocs

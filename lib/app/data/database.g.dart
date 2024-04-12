@@ -658,10 +658,10 @@ class $BuyersTable extends Buyers with TableInfo<$BuyersTable, Buyer> {
   static const VerificationMeta _weekdaysMeta =
       const VerificationMeta('weekdays');
   @override
-  late final GeneratedColumnWithTypeConverter<List<bool>, String> weekdays =
-      GeneratedColumn<String>('weekdays', aliasedName, false,
+  late final GeneratedColumnWithTypeConverter<EqualList<bool>, String>
+      weekdays = GeneratedColumn<String>('weekdays', aliasedName, false,
               type: DriftSqlType.string, requiredDuringInsert: true)
-          .withConverter<List<bool>>($BuyersTable.$converterweekdays);
+          .withConverter<EqualList<bool>>($BuyersTable.$converterweekdays);
   @override
   List<GeneratedColumn> get $columns =>
       [id, name, loadto, partnerId, siteId, pointId, weekdays];
@@ -739,7 +739,7 @@ class $BuyersTable extends Buyers with TableInfo<$BuyersTable, Buyer> {
     return $BuyersTable(attachedDatabase, alias);
   }
 
-  static TypeConverter<List<bool>, String> $converterweekdays =
+  static TypeConverter<EqualList<bool>, String> $converterweekdays =
       const JsonListConverter();
 }
 
@@ -750,7 +750,7 @@ class Buyer extends DataClass implements Insertable<Buyer> {
   final int partnerId;
   final int siteId;
   final int? pointId;
-  final List<bool> weekdays;
+  final EqualList<bool> weekdays;
   const Buyer(
       {required this.id,
       required this.name,
@@ -801,7 +801,7 @@ class Buyer extends DataClass implements Insertable<Buyer> {
       partnerId: serializer.fromJson<int>(json['partnerId']),
       siteId: serializer.fromJson<int>(json['siteId']),
       pointId: serializer.fromJson<int?>(json['pointId']),
-      weekdays: serializer.fromJson<List<bool>>(json['weekdays']),
+      weekdays: serializer.fromJson<EqualList<bool>>(json['weekdays']),
     );
   }
   @override
@@ -814,7 +814,7 @@ class Buyer extends DataClass implements Insertable<Buyer> {
       'partnerId': serializer.toJson<int>(partnerId),
       'siteId': serializer.toJson<int>(siteId),
       'pointId': serializer.toJson<int?>(pointId),
-      'weekdays': serializer.toJson<List<bool>>(weekdays),
+      'weekdays': serializer.toJson<EqualList<bool>>(weekdays),
     };
   }
 
@@ -825,7 +825,7 @@ class Buyer extends DataClass implements Insertable<Buyer> {
           int? partnerId,
           int? siteId,
           Value<int?> pointId = const Value.absent(),
-          List<bool>? weekdays}) =>
+          EqualList<bool>? weekdays}) =>
       Buyer(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -872,7 +872,7 @@ class BuyersCompanion extends UpdateCompanion<Buyer> {
   final Value<int> partnerId;
   final Value<int> siteId;
   final Value<int?> pointId;
-  final Value<List<bool>> weekdays;
+  final Value<EqualList<bool>> weekdays;
   const BuyersCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -889,7 +889,7 @@ class BuyersCompanion extends UpdateCompanion<Buyer> {
     required int partnerId,
     required int siteId,
     this.pointId = const Value.absent(),
-    required List<bool> weekdays,
+    required EqualList<bool> weekdays,
   })  : name = Value(name),
         loadto = Value(loadto),
         partnerId = Value(partnerId),
@@ -922,7 +922,7 @@ class BuyersCompanion extends UpdateCompanion<Buyer> {
       Value<int>? partnerId,
       Value<int>? siteId,
       Value<int?>? pointId,
-      Value<List<bool>>? weekdays}) {
+      Value<EqualList<bool>>? weekdays}) {
     return BuyersCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
@@ -6291,10 +6291,10 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
   static const VerificationMeta _barcodesMeta =
       const VerificationMeta('barcodes');
   @override
-  late final GeneratedColumnWithTypeConverter<List<String>, String> barcodes =
-      GeneratedColumn<String>('barcodes', aliasedName, false,
+  late final GeneratedColumnWithTypeConverter<EqualList<String>, String>
+      barcodes = GeneratedColumn<String>('barcodes', aliasedName, false,
               type: DriftSqlType.string, requiredDuringInsert: true)
-          .withConverter<List<String>>($AllGoodsTable.$converterbarcodes);
+          .withConverter<EqualList<String>>($AllGoodsTable.$converterbarcodes);
   @override
   List<GeneratedColumn> get $columns => [
         id,
@@ -6555,7 +6555,7 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
     return $AllGoodsTable(attachedDatabase, alias);
   }
 
-  static TypeConverter<List<String>, String> $converterbarcodes =
+  static TypeConverter<EqualList<String>, String> $converterbarcodes =
       const JsonListConverter();
 }
 
@@ -6583,7 +6583,7 @@ class Goods extends DataClass implements Insertable<Goods> {
   final bool onlyWithDocs;
   final int shelfLife;
   final String shelfLifeTypeName;
-  final List<String> barcodes;
+  final EqualList<String> barcodes;
   const Goods(
       {required this.id,
       required this.name,
@@ -6703,7 +6703,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       onlyWithDocs: serializer.fromJson<bool>(json['onlyWithDocs']),
       shelfLife: serializer.fromJson<int>(json['shelfLife']),
       shelfLifeTypeName: serializer.fromJson<String>(json['shelfLifeTypeName']),
-      barcodes: serializer.fromJson<List<String>>(json['barcodes']),
+      barcodes: serializer.fromJson<EqualList<String>>(json['barcodes']),
     );
   }
   @override
@@ -6733,7 +6733,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       'onlyWithDocs': serializer.toJson<bool>(onlyWithDocs),
       'shelfLife': serializer.toJson<int>(shelfLife),
       'shelfLifeTypeName': serializer.toJson<String>(shelfLifeTypeName),
-      'barcodes': serializer.toJson<List<String>>(barcodes),
+      'barcodes': serializer.toJson<EqualList<String>>(barcodes),
     };
   }
 
@@ -6761,7 +6761,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           bool? onlyWithDocs,
           int? shelfLife,
           String? shelfLifeTypeName,
-          List<String>? barcodes}) =>
+          EqualList<String>? barcodes}) =>
       Goods(
         id: id ?? this.id,
         name: name ?? this.name,
@@ -6902,7 +6902,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   final Value<bool> onlyWithDocs;
   final Value<int> shelfLife;
   final Value<String> shelfLifeTypeName;
-  final Value<List<String>> barcodes;
+  final Value<EqualList<String>> barcodes;
   const AllGoodsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -6953,7 +6953,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     required bool onlyWithDocs,
     required int shelfLife,
     required String shelfLifeTypeName,
-    required List<String> barcodes,
+    required EqualList<String> barcodes,
   })  : name = Value(name),
         imageUrl = Value(imageUrl),
         imageKey = Value(imageKey),
@@ -7056,7 +7056,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       Value<bool>? onlyWithDocs,
       Value<int>? shelfLife,
       Value<String>? shelfLifeTypeName,
-      Value<List<String>>? barcodes}) {
+      Value<EqualList<String>>? barcodes}) {
     return AllGoodsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,

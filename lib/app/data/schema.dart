@@ -14,16 +14,16 @@ mixin Syncable on Table {
   Set<Column> get primaryKey => {guid};
 }
 
-class JsonListConverter<T> extends TypeConverter<List<T>, String> {
+class JsonListConverter<T> extends TypeConverter<EqualList<T>, String> {
   const JsonListConverter();
 
   @override
-  List<T> fromSql(String? fromDb) {
-    return (json.decode(fromDb!) as List).cast<T>();
+  EqualList<T> fromSql(String? fromDb) {
+    return EqualList<T>((json.decode(fromDb!) as List).cast<T>());
   }
 
   @override
-  String toSql(List<T>? value) {
+  String toSql(EqualList<T>? value) {
     return json.encode(value);
   }
 }

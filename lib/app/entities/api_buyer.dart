@@ -7,7 +7,7 @@ class ApiBuyer extends Equatable {
   final int partnerId;
   final int siteId;
   final int? pointId;
-  final List<bool> weekdays;
+  final EqualList<bool> weekdays;
 
   const ApiBuyer({
     required this.id,
@@ -27,7 +27,7 @@ class ApiBuyer extends Equatable {
       partnerId: json['partnerId'],
       siteId: json['siteId'],
       pointId: json['pointId'],
-      weekdays: (json['weekdays'] as List).cast<bool>()
+      weekdays: EqualList((json['weekdays'] as List).cast<bool>())
     );
   }
 
@@ -39,7 +39,7 @@ class ApiBuyer extends Equatable {
       partnerId: partnerId,
       siteId: siteId,
       pointId: pointId,
-      weekdays: weekdays
+      weekdays: EqualList(weekdays)
     );
   }
 

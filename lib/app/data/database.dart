@@ -14,6 +14,7 @@ import 'package:u_app_utils/u_app_utils.dart';
 import 'package:uuid/uuid.dart';
 
 import '/app/constants/strings.dart';
+import '/app/extensions/equal_list.dart';
 
 part 'schema.dart';
 part 'database.g.dart';
