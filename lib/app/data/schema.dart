@@ -366,7 +366,6 @@ class Orders extends Table with Syncable {
   IntColumn get preOrderId => integer().nullable()();
   BoolColumn get needDocs => boolean()();
   BoolColumn get needInc => boolean()();
-  BoolColumn get isBonus => boolean()();
   BoolColumn get isPhysical => boolean()();
   IntColumn get buyerId => integer().nullable()();
   TextColumn get info => text().nullable()();

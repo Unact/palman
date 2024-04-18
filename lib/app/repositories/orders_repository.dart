@@ -136,7 +136,6 @@ class OrdersRepository extends BaseRepository {
         'preOrderId': e.preOrderId,
         'needDocs': e.needDocs,
         'needInc': e.needInc,
-        'isBonus': e.isBonus,
         'isPhysical': e.isPhysical,
         'buyerId': e.buyerId,
         'info': e.info,
@@ -316,7 +315,6 @@ class OrdersRepository extends BaseRepository {
     DateTime? date,
     bool needProcessing = false,
     bool needDocs = false,
-    bool isBonus = false,
     bool isPhysical = false,
     bool needInc = false,
   }) async {
@@ -326,7 +324,6 @@ class OrdersRepository extends BaseRepository {
         guid: guid,
         status: OrderStatus.draft.value,
         needDocs: needDocs,
-        isBonus: isBonus,
         isPhysical: isPhysical,
         needInc: needInc,
         preOrderId: Value(preOrderId),
@@ -348,7 +345,6 @@ class OrdersRepository extends BaseRepository {
     Optional<String?>? info,
     Optional<bool>? needDocs,
     Optional<bool>? needInc,
-    Optional<bool>? isBonus,
     Optional<bool>? isPhysical,
     Optional<bool>? needProcessing,
     bool restoreDeleted = true
@@ -360,7 +356,6 @@ class OrdersRepository extends BaseRepository {
       info: info == null ? const Value.absent() : Value(info.orNull),
       needDocs: needDocs == null ? const Value.absent() : Value(needDocs.value),
       needInc: needInc == null ? const Value.absent() : Value(needInc.value),
-      isBonus: isBonus == null ? const Value.absent() : Value(isBonus.value),
       isPhysical: isPhysical == null ? const Value.absent() : Value(isPhysical.value),
       needProcessing: needProcessing == null ? const Value.absent() : Value(needProcessing.value),
       isDeleted: restoreDeleted ? const Value(false) : const Value.absent()
@@ -432,7 +427,6 @@ class OrdersRepository extends BaseRepository {
         buyerId: Value(preOrder.buyerId),
         date: Value(preOrder.date),
         needDocs: preOrder.needDocs,
-        isBonus: false,
         isPhysical: false,
         needInc: false,
         needProcessing: false,

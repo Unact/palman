@@ -7,7 +7,6 @@ class ApiOrder extends Equatable {
   final int? preOrderId;
   final bool needDocs;
   final bool needInc;
-  final bool isBonus;
   final bool isPhysical;
   final int buyerId;
   final String? info;
@@ -23,7 +22,6 @@ class ApiOrder extends Equatable {
     this.preOrderId,
     required this.needDocs,
     required this.needInc,
-    required this.isBonus,
     required this.isPhysical,
     required this.buyerId,
     this.info,
@@ -41,7 +39,6 @@ class ApiOrder extends Equatable {
       preOrderId: json['preOrderId'],
       needDocs: json['needDocs'],
       needInc: json['needInc'],
-      isBonus: json['isBonus'],
       isPhysical: json['isPhysical'],
       buyerId: json['buyerId'],
       info: json['info'],
@@ -60,7 +57,6 @@ class ApiOrder extends Equatable {
       preOrderId: preOrderId,
       needDocs: needDocs,
       needInc: needInc,
-      isBonus: isBonus,
       isPhysical: isPhysical,
       buyerId: buyerId,
       info: info,
@@ -84,7 +80,6 @@ class ApiOrder extends Equatable {
     preOrderId,
     needDocs,
     needInc,
-    isBonus,
     isPhysical,
     buyerId,
     info,

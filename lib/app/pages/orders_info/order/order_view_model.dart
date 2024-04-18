@@ -100,14 +100,6 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     _notifyOrderUpdated();
   }
 
-  Future<void> updateIsBonus(bool isBonus) async {
-    await ordersRepository.updateOrder(
-      state.orderEx.order,
-      isBonus: Optional.of(isBonus)
-    );
-    _notifyOrderUpdated();
-  }
-
   Future<void> updateNeedInc(bool needInc) async {
     await ordersRepository.updateOrder(
       state.orderEx.order,
