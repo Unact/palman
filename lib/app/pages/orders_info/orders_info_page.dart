@@ -250,10 +250,6 @@ class _OrdersInfoViewState extends State<_OrdersInfoView> with SingleTickerProvi
               style: Styles.tileText.copyWith(color: _statusColor(orderEx))
             ),
             TextSpan(
-              text: orderEx.order.isBonus ? 'Бонусный\n' : '',
-              style: Styles.tileText
-            ),
-            TextSpan(
               text: orderEx.order.needInc ? 'Требуется инкассация\n' : '',
               style: Styles.tileText
             ),

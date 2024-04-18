@@ -8190,15 +8190,6 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
       requiredDuringInsert: true,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("need_inc" IN (0, 1))'));
-  static const VerificationMeta _isBonusMeta =
-      const VerificationMeta('isBonus');
-  @override
-  late final GeneratedColumn<bool> isBonus = GeneratedColumn<bool>(
-      'is_bonus', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_bonus" IN (0, 1))'));
   static const VerificationMeta _isPhysicalMeta =
       const VerificationMeta('isPhysical');
   @override
@@ -8252,7 +8243,6 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
         preOrderId,
         needDocs,
         needInc,
-        isBonus,
         isPhysical,
         buyerId,
         info,
@@ -8334,12 +8324,6 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
     } else if (isInserting) {
       context.missing(_needIncMeta);
     }
-    if (data.containsKey('is_bonus')) {
-      context.handle(_isBonusMeta,
-          isBonus.isAcceptableOrUnknown(data['is_bonus']!, _isBonusMeta));
-    } else if (isInserting) {
-      context.missing(_isBonusMeta);
-    }
     if (data.containsKey('is_physical')) {
       context.handle(
           _isPhysicalMeta,
@@ -8407,8 +8391,6 @@ class $OrdersTable extends Orders with TableInfo<$OrdersTable, Order> {
           .read(DriftSqlType.bool, data['${effectivePrefix}need_docs'])!,
       needInc: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}need_inc'])!,
-      isBonus: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_bonus'])!,
       isPhysical: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_physical'])!,
       buyerId: attachedDatabase.typeMapping
@@ -8442,7 +8424,6 @@ class Order extends DataClass implements Insertable<Order> {
   final int? preOrderId;
   final bool needDocs;
   final bool needInc;
-  final bool isBonus;
   final bool isPhysical;
   final int? buyerId;
   final String? info;
@@ -8462,7 +8443,6 @@ class Order extends DataClass implements Insertable<Order> {
       this.preOrderId,
       required this.needDocs,
       required this.needInc,
-      required this.isBonus,
       required this.isPhysical,
       this.buyerId,
       this.info,
@@ -8490,7 +8470,6 @@ class Order extends DataClass implements Insertable<Order> {
     }
     map['need_docs'] = Variable<bool>(needDocs);
     map['need_inc'] = Variable<bool>(needInc);
-    map['is_bonus'] = Variable<bool>(isBonus);
     map['is_physical'] = Variable<bool>(isPhysical);
     if (!nullToAbsent || buyerId != null) {
       map['buyer_id'] = Variable<int>(buyerId);
@@ -8520,7 +8499,6 @@ class Order extends DataClass implements Insertable<Order> {
           : Value(preOrderId),
       needDocs: Value(needDocs),
       needInc: Value(needInc),
-      isBonus: Value(isBonus),
       isPhysical: Value(isPhysical),
       buyerId: buyerId == null && nullToAbsent
           ? const Value.absent()
@@ -8548,7 +8526,6 @@ class Order extends DataClass implements Insertable<Order> {
       preOrderId: serializer.fromJson<int?>(json['preOrderId']),
       needDocs: serializer.fromJson<bool>(json['needDocs']),
       needInc: serializer.fromJson<bool>(json['needInc']),
-      isBonus: serializer.fromJson<bool>(json['isBonus']),
       isPhysical: serializer.fromJson<bool>(json['isPhysical']),
       buyerId: serializer.fromJson<int?>(json['buyerId']),
       info: serializer.fromJson<String?>(json['info']),
@@ -8573,7 +8550,6 @@ class Order extends DataClass implements Insertable<Order> {
       'preOrderId': serializer.toJson<int?>(preOrderId),
       'needDocs': serializer.toJson<bool>(needDocs),
       'needInc': serializer.toJson<bool>(needInc),
-      'isBonus': serializer.toJson<bool>(isBonus),
       'isPhysical': serializer.toJson<bool>(isPhysical),
       'buyerId': serializer.toJson<int?>(buyerId),
       'info': serializer.toJson<String?>(info),
@@ -8596,7 +8572,6 @@ class Order extends DataClass implements Insertable<Order> {
           Value<int?> preOrderId = const Value.absent(),
           bool? needDocs,
           bool? needInc,
-          bool? isBonus,
           bool? isPhysical,
           Value<int?> buyerId = const Value.absent(),
           Value<String?> info = const Value.absent(),
@@ -8617,7 +8592,6 @@ class Order extends DataClass implements Insertable<Order> {
         preOrderId: preOrderId.present ? preOrderId.value : this.preOrderId,
         needDocs: needDocs ?? this.needDocs,
         needInc: needInc ?? this.needInc,
-        isBonus: isBonus ?? this.isBonus,
         isPhysical: isPhysical ?? this.isPhysical,
         buyerId: buyerId.present ? buyerId.value : this.buyerId,
         info: info.present ? info.value : this.info,
@@ -8640,7 +8614,6 @@ class Order extends DataClass implements Insertable<Order> {
           ..write('preOrderId: $preOrderId, ')
           ..write('needDocs: $needDocs, ')
           ..write('needInc: $needInc, ')
-          ..write('isBonus: $isBonus, ')
           ..write('isPhysical: $isPhysical, ')
           ..write('buyerId: $buyerId, ')
           ..write('info: $info, ')
@@ -8665,7 +8638,6 @@ class Order extends DataClass implements Insertable<Order> {
       preOrderId,
       needDocs,
       needInc,
-      isBonus,
       isPhysical,
       buyerId,
       info,
@@ -8688,7 +8660,6 @@ class Order extends DataClass implements Insertable<Order> {
           other.preOrderId == this.preOrderId &&
           other.needDocs == this.needDocs &&
           other.needInc == this.needInc &&
-          other.isBonus == this.isBonus &&
           other.isPhysical == this.isPhysical &&
           other.buyerId == this.buyerId &&
           other.info == this.info &&
@@ -8708,7 +8679,6 @@ class OrdersCompanion extends UpdateCompanion<Order> {
   final Value<int?> preOrderId;
   final Value<bool> needDocs;
   final Value<bool> needInc;
-  final Value<bool> isBonus;
   final Value<bool> isPhysical;
   final Value<int?> buyerId;
   final Value<String?> info;
@@ -8727,7 +8697,6 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     this.preOrderId = const Value.absent(),
     this.needDocs = const Value.absent(),
     this.needInc = const Value.absent(),
-    this.isBonus = const Value.absent(),
     this.isPhysical = const Value.absent(),
     this.buyerId = const Value.absent(),
     this.info = const Value.absent(),
@@ -8747,7 +8716,6 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     this.preOrderId = const Value.absent(),
     required bool needDocs,
     required bool needInc,
-    required bool isBonus,
     required bool isPhysical,
     this.buyerId = const Value.absent(),
     this.info = const Value.absent(),
@@ -8758,7 +8726,6 @@ class OrdersCompanion extends UpdateCompanion<Order> {
         status = Value(status),
         needDocs = Value(needDocs),
         needInc = Value(needInc),
-        isBonus = Value(isBonus),
         isPhysical = Value(isPhysical),
         needProcessing = Value(needProcessing),
         isEditable = Value(isEditable);
@@ -8774,7 +8741,6 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     Expression<int>? preOrderId,
     Expression<bool>? needDocs,
     Expression<bool>? needInc,
-    Expression<bool>? isBonus,
     Expression<bool>? isPhysical,
     Expression<int>? buyerId,
     Expression<String>? info,
@@ -8794,7 +8760,6 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       if (preOrderId != null) 'pre_order_id': preOrderId,
       if (needDocs != null) 'need_docs': needDocs,
       if (needInc != null) 'need_inc': needInc,
-      if (isBonus != null) 'is_bonus': isBonus,
       if (isPhysical != null) 'is_physical': isPhysical,
       if (buyerId != null) 'buyer_id': buyerId,
       if (info != null) 'info': info,
@@ -8816,7 +8781,6 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       Value<int?>? preOrderId,
       Value<bool>? needDocs,
       Value<bool>? needInc,
-      Value<bool>? isBonus,
       Value<bool>? isPhysical,
       Value<int?>? buyerId,
       Value<String?>? info,
@@ -8835,7 +8799,6 @@ class OrdersCompanion extends UpdateCompanion<Order> {
       preOrderId: preOrderId ?? this.preOrderId,
       needDocs: needDocs ?? this.needDocs,
       needInc: needInc ?? this.needInc,
-      isBonus: isBonus ?? this.isBonus,
       isPhysical: isPhysical ?? this.isPhysical,
       buyerId: buyerId ?? this.buyerId,
       info: info ?? this.info,
@@ -8881,9 +8844,6 @@ class OrdersCompanion extends UpdateCompanion<Order> {
     if (needInc.present) {
       map['need_inc'] = Variable<bool>(needInc.value);
     }
-    if (isBonus.present) {
-      map['is_bonus'] = Variable<bool>(isBonus.value);
-    }
     if (isPhysical.present) {
       map['is_physical'] = Variable<bool>(isPhysical.value);
     }
@@ -8919,7 +8879,6 @@ class OrdersCompanion extends UpdateCompanion<Order> {
           ..write('preOrderId: $preOrderId, ')
           ..write('needDocs: $needDocs, ')
           ..write('needInc: $needInc, ')
-          ..write('isBonus: $isBonus, ')
           ..write('isPhysical: $isPhysical, ')
           ..write('buyerId: $buyerId, ')
           ..write('info: $info, ')
@@ -18310,7 +18269,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
   $SeenPreOrdersTable get seenPreOrders => attachedDatabase.seenPreOrders;
   Selectable<OrderExResult> orderEx() {
     return customSelect(
-        'SELECT"orders"."guid" AS "nested_0.guid", "orders"."is_deleted" AS "nested_0.is_deleted", "orders"."timestamp" AS "nested_0.timestamp", "orders"."current_timestamp" AS "nested_0.current_timestamp", "orders"."last_sync_time" AS "nested_0.last_sync_time", "orders"."need_sync" AS "nested_0.need_sync", "orders"."is_new" AS "nested_0.is_new", "orders"."id" AS "nested_0.id", "orders"."date" AS "nested_0.date", "orders"."status" AS "nested_0.status", "orders"."pre_order_id" AS "nested_0.pre_order_id", "orders"."need_docs" AS "nested_0.need_docs", "orders"."need_inc" AS "nested_0.need_inc", "orders"."is_bonus" AS "nested_0.is_bonus", "orders"."is_physical" AS "nested_0.is_physical", "orders"."buyer_id" AS "nested_0.buyer_id", "orders"."info" AS "nested_0.info", "orders"."need_processing" AS "nested_0.need_processing", "orders"."is_editable" AS "nested_0.is_editable","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."point_id" AS "nested_1.point_id", "buyers"."weekdays" AS "nested_1.weekdays", COALESCE((SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price) FROM order_lines WHERE order_lines.order_guid = orders.guid AND order_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM order_lines WHERE order_guid = orders.guid AND order_lines.is_deleted = 0) AS lines_count, COALESCE((SELECT MAX(need_sync) FROM order_lines WHERE order_guid = orders.guid), 0) AS lines_need_sync FROM orders LEFT JOIN buyers ON buyers.id = orders.buyer_id ORDER BY orders.date DESC, buyers.name',
+        'SELECT"orders"."guid" AS "nested_0.guid", "orders"."is_deleted" AS "nested_0.is_deleted", "orders"."timestamp" AS "nested_0.timestamp", "orders"."current_timestamp" AS "nested_0.current_timestamp", "orders"."last_sync_time" AS "nested_0.last_sync_time", "orders"."need_sync" AS "nested_0.need_sync", "orders"."is_new" AS "nested_0.is_new", "orders"."id" AS "nested_0.id", "orders"."date" AS "nested_0.date", "orders"."status" AS "nested_0.status", "orders"."pre_order_id" AS "nested_0.pre_order_id", "orders"."need_docs" AS "nested_0.need_docs", "orders"."need_inc" AS "nested_0.need_inc", "orders"."is_physical" AS "nested_0.is_physical", "orders"."buyer_id" AS "nested_0.buyer_id", "orders"."info" AS "nested_0.info", "orders"."need_processing" AS "nested_0.need_processing", "orders"."is_editable" AS "nested_0.is_editable","buyers"."id" AS "nested_1.id", "buyers"."name" AS "nested_1.name", "buyers"."loadto" AS "nested_1.loadto", "buyers"."partner_id" AS "nested_1.partner_id", "buyers"."site_id" AS "nested_1.site_id", "buyers"."point_id" AS "nested_1.point_id", "buyers"."weekdays" AS "nested_1.weekdays", COALESCE((SELECT SUM(order_lines.rel * order_lines.vol * order_lines.price) FROM order_lines WHERE order_lines.order_guid = orders.guid AND order_lines.is_deleted = 0), 0) AS lines_total, (SELECT COUNT(*) FROM order_lines WHERE order_guid = orders.guid AND order_lines.is_deleted = 0) AS lines_count, COALESCE((SELECT MAX(need_sync) FROM order_lines WHERE order_guid = orders.guid), 0) AS lines_need_sync FROM orders LEFT JOIN buyers ON buyers.id = orders.buyer_id ORDER BY orders.date DESC, buyers.name',
         variables: [],
         readsFrom: {
           orderLines,

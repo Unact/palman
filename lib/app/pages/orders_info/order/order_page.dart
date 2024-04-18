@@ -184,13 +184,6 @@ class _OrderViewState extends State<_OrderView> {
         trailing: buildBuyerSearch(context)
       ),
       vm.state.preOrderMode ? Container() : InfoRow.page(
-        title: const Text('Бонусный', style: Styles.formStyle),
-        trailing: Checkbox(
-          value: order.isBonus,
-          onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateIsBonus(value!)
-        )
-      ),
-      vm.state.preOrderMode ? Container() : InfoRow.page(
         title: const Text('Требуется инкассация', style: Styles.formStyle),
         trailing: Checkbox(
           value: order.needInc,
