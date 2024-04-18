@@ -94,8 +94,8 @@ PODS:
     - Flutter
   - yandex_mapkit (0.0.1):
     - Flutter
-    - YandexMapsMobile (= 4.4.0-full)
-  - YandexMapsMobile (4.4.0-full)
+    - YandexMapsMobile (= 4.5.1-lite)
+  - YandexMapsMobile (4.5.1-lite)
 
 DEPENDENCIES:
   - battery_plus (from `.symlinks/plugins/battery_plus/ios`)
@@ -215,8 +215,8 @@ SPEC CHECKSUMS:
   u_app_utils: 906ccba4e520504acf7864a60a4b696d6b66b546
   url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
   vibration: 7d883d141656a1c1a6d8d238616b2042a51a1241
-  yandex_mapkit: 5ab063b9cb8ef57b40bb02bf3dec3ec324ef50c9
-  YandexMapsMobile: a76ddceccf2d78f9f1034d07a354810cd21ef21a
+  yandex_mapkit: 07c617e071b7a32974bbca86fb427cc1681f9356
+  YandexMapsMobile: 1d4ab5b441f189756e0a9f94626ff26ae1fc9756
 
 PODFILE CHECKSUM: 81b70bf237591c7a8190509ce76b03039ee099d3
 
