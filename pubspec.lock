@@ -667,10 +667,10 @@ packages:
     dependency: transitive
     description:
       name: geolocator_android
-      sha256: "94c2cf51f4a8387335cc2d1a21cc50897bc93069e05fc09aee29bd353a14f6f5"
+      sha256: "6cd3c622df085a79fd61f5c14fa024c3ba593aa6b1df2ee809ac59f45e6a9861"
       url: "https://pub.dev"
     source: hosted
-    version: "4.1.9"
+    version: "4.1.8"
   geolocator_apple:
     dependency: transitive
     description:
@@ -1356,6 +1356,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.10.0"
+  sprintf:
+    dependency: transitive
+    description:
+      name: sprintf
+      sha256: "1fc9ffe69d4df602376b52949af107d8f5703b77cda567c4d7d86a0693120f23"
+      url: "https://pub.dev"
+    source: hosted
+    version: "7.0.0"
   sqflite:
     dependency: transitive
     description:
@@ -1472,8 +1480,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: dc8facc
-      resolved-ref: dc8facc56fc477cdb433a0246506c40fa14de38c
+      ref: "79395b8"
+      resolved-ref: "79395b8292b09ef387f4909cefe501017dbf2e99"
       url: "git@github.com:Unact/u_app_utils.git"
     source: git
     version: "0.0.1"
@@ -1553,10 +1561,10 @@ packages:
     dependency: "direct main"
     description:
       name: uuid
-      sha256: "648e103079f7c64a36dc7d39369cabb358d377078a051d6ae2ad3aa539519313"
+      sha256: "814e9e88f21a176ae1359149021870e87f7cddaf633ab678a5d2b0bff7fd1ba8"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.7"
+    version: "4.4.0"
   vector_math:
     dependency: transitive
     description:
@@ -1648,12 +1656,11 @@ packages:
   yandex_mapkit:
     dependency: "direct main"
     description:
-      path: "."
-      ref: e578805
-      resolved-ref: e57880511353ee2236aa572cb5205c4591062434
-      url: "git@github.com:Unact/yandex_mapkit.git"
-    source: git
-    version: "3.4.0"
+      name: yandex_mapkit
+      sha256: adbd14013ec05fccdf1aa0a01e45736a7a0cd457e86dd4bed46b028346b3b1a0
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.0.2"
 sdks:
   dart: ">=3.2.0-0 <4.0.0"
   flutter: ">=3.13.0"

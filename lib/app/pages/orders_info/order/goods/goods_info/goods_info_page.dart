@@ -213,7 +213,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
           case GoodsInfoStateStatus.priceUpdated:
           case GoodsInfoStateStatus.pricelistUpdated:
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).pop(true);
+              Navigator.of(context).pop();
             });
             break;
           default:

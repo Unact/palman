@@ -72,7 +72,8 @@ class _GoodsViewState extends State<_GoodsView> {
 
   Future<void> showGoodsInfoDialog(GoodsDetail goodsDetail) async {
     final vm = context.read<GoodsViewModel>();
-    final result = await Navigator.push<bool>(
+
+    await Navigator.push(
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => GoodsInfoPage(
@@ -82,9 +83,7 @@ class _GoodsViewState extends State<_GoodsView> {
         ),
         fullscreenDialog: false
       )
-    ) ?? false;
-
-    if (result) await vm.updateGoodsPrices();
+    );
   }
 
   Future<void> showCategorySelectDialog() async {

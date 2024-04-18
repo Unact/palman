@@ -48,13 +48,10 @@ dependencies:
   u_app_utils:
     git:
       url: git@github.com:Unact/u_app_utils.git
-      ref: dc8facc
+      ref: 79395b8
   url_launcher: ^6.0.20
-  uuid: ^3.0.7
-  yandex_mapkit:
-    git:
-      url: git@github.com:Unact/yandex_mapkit.git
-      ref: e578805
+  uuid: ^4.2.2
+  yandex_mapkit: ^4.0.2
 
 dev_dependencies:
   build_runner: ^2.4.6

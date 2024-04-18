@@ -43,6 +43,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       emit(state.copyWith(status: GoodsStateStatus.dataLoaded, goodsDetails: event, allCategories: allCategories));
 
       searchGoods();
+      updateGoodsPrices();
     });
     orderExListSubscription = ordersRepository.watchOrderExList().listen((event) {
       emit(state.copyWith(
