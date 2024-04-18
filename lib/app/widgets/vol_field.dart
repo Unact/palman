@@ -83,6 +83,10 @@ class _VolFieldState extends State<VolField> {
 
   void updateVol(double? updatedVol) {
     final newVol = updatedVol != null ? min(max(updatedVol, widget.minValue), widget.maxValue) : null;
-    queue.add(() async => await widget.onVolChange.call(newVol));
+    try {
+      queue.add(() async => await widget.onVolChange.call(newVol));
+    } on QueueCancelledException {
+      // Если очередь была отменена, то пусть остается старое значение
+    }
   }
 }

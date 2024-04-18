@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:cross_file/cross_file.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:location/location.dart' as l;
 import 'package:quiver/core.dart';
@@ -135,7 +136,7 @@ class _PointViewState extends State<_PointView> {
         switch (state.status) {
           case PointStateStatus.pointRemoved:
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).popUntil((route) => route.isFirst);
+              Navigator.maybeOf(context)?.popUntil((route) => route.isFirst);
               Misc.showMessage(context, 'Акт возврата не доступен для редактирования');
             });
             break;

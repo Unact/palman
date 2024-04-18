@@ -89,7 +89,7 @@ class _ReturnActViewState extends State<_ReturnActView> {
         switch (state.status) {
           case ReturnActStateStatus.returnActRemoved:
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Navigator.of(context).popUntil((route) => route.isFirst);
+              Navigator.maybeOf(context)?.popUntil((route) => route.isFirst);
               Misc.showMessage(context, 'Акт возврата не доступен для редактирования');
             });
             break;
