@@ -199,6 +199,8 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   }
 
   Future<void> updateGoodsPrices() async {
+    if (!state.orderEx.order.isEditable) return;
+
     await ordersRepository.updateOrderLinePrices(state.orderEx.order);
   }
 
