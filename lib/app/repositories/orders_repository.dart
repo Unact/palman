@@ -500,12 +500,14 @@ class OrdersRepository extends BaseRepository {
       );
 
       for (var orderLine in orderLinesEx) {
+        final line = orderLine.line;
         final goodsDetail = goodsDetails.firstWhereOrNull((e) => e.goods.id == orderLine.line.goodsId);
 
         if (goodsDetail == null) continue;
+        if (line.price == goodsDetail.price && line.priceOriginal == goodsDetail.pricelistPrice) continue;
 
         await dataStore.ordersDao.updateOrderLine(
-          orderLine.line.guid,
+          line.guid,
           OrderLinesCompanion(
             price: Value(goodsDetail.price),
             priceOriginal: Value(goodsDetail.pricelistPrice)
