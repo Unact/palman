@@ -12,10 +12,9 @@ class ApiGoods extends Equatable {
   final double cost;
   final double minPrice;
   final String extraLabel;
-  final int rel;
-  final int package;
-  final int categoryUserPackageRel;
-  final int categoryPackageRel;
+  final int orderRel;
+  final int orderPackage;
+  final int categoryBoxRel;
   final int categoryBlockRel;
   final double weight;
   final double volume;
@@ -38,10 +37,9 @@ class ApiGoods extends Equatable {
     required this.cost,
     required this.minPrice,
     required this.extraLabel,
-    required this.rel,
-    required this.package,
-    required this.categoryUserPackageRel,
-    required this.categoryPackageRel,
+    required this.orderRel,
+    required this.orderPackage,
+    required this.categoryBoxRel,
     required this.categoryBlockRel,
     required this.weight,
     required this.volume,
@@ -66,10 +64,9 @@ class ApiGoods extends Equatable {
       cost: Parsing.parseDouble(json['cost'])!,
       minPrice: Parsing.parseDouble(json['minPrice'])!,
       extraLabel: json['extraLabel'],
-      rel: json['rel'],
-      package: json['package'],
-      categoryUserPackageRel: json['categoryUserPackageRel'],
-      categoryPackageRel: json['categoryPackageRel'],
+      orderRel: json['orderRel'],
+      orderPackage: json['orderPackage'],
+      categoryBoxRel: json['categoryBoxRel'],
       categoryBlockRel: json['categoryBlockRel'],
       weight: Parsing.parseDouble(json['weight'])!,
       volume: Parsing.parseDouble(json['volume'])!,
@@ -95,10 +92,9 @@ class ApiGoods extends Equatable {
       cost: cost,
       minPrice: minPrice,
       extraLabel: extraLabel,
-      rel: rel,
-      package: package,
-      categoryUserPackageRel: categoryUserPackageRel,
-      categoryPackageRel: categoryPackageRel,
+      orderRel: orderRel,
+      orderPackage: orderPackage,
+      categoryBoxRel: categoryBoxRel,
       categoryBlockRel: categoryBlockRel,
       weight: weight,
       volume: volume,
@@ -124,10 +120,9 @@ class ApiGoods extends Equatable {
     cost,
     minPrice,
     extraLabel,
-    rel,
-    package,
-    categoryUserPackageRel,
-    categoryPackageRel,
+    orderRel,
+    orderPackage,
+    categoryBoxRel,
     categoryBlockRel,
     weight,
     volume,

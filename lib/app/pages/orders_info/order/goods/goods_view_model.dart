@@ -185,7 +185,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
 
       if (!goodsIds.contains(g.goods.id)) return false;
       if (state.showWithPrice && g.price == 0 && orderLineEx == null) return false;
-      if (g.stock == null && orderLineEx == null) return false;
+      if (g.stockVol == 0 && orderLineEx == null) return false;
 
       return true;
     }).toList();

@@ -88,8 +88,6 @@ part of 'database.dart';
     'goodsEx': '''
       SELECT
         goods.**,
-        categories.package AS "categoryPackage",
-        categories.user_package AS "categoryUserPackage",
         goods_stocks.** AS "stock",
         EXISTS(
           SELECT 1
@@ -106,7 +104,6 @@ part of 'database.dart';
             shipments.date < STRFTIME('%s', 'now', 'start of day')
         ) AS "last_shipment_date"
       FROM goods
-      JOIN categories ON categories.id = goods.category_id
       CROSS JOIN buyers
       LEFT JOIN goods_stocks ON goods_stocks.goods_id = goods.id AND goods_stocks.site_id = buyers.site_id
       WHERE
@@ -369,12 +366,12 @@ class GoodsDetail {
 
   bool get hadShipment => goodsEx.lastShipmentDate != null;
   Goods get goods => goodsEx.goods;
-  GoodsStock? get stock => goodsEx.stock;
-  double get factor => stock?.factor ?? 1;
+  int get minVol => goodsEx.stock?.minVol ?? 1;
+  bool? get isVollow => goodsEx.stock?.isVollow;
+  int get stockVol => (goodsEx.stock?.vol ?? 0)~/goods.orderRel;
   bool get conditionalDiscount => bonusPrograms.any((e) => e.conditionalDiscount);
-  int get rel => factor < goods.rel ? goods.categoryUserPackageRel : goods.rel;
-  int get stockRel => factor~/rel;
-  int get package => factor < goods.rel ? goodsEx.categoryUserPackage : goods.package;
+  int get rel => goods.orderRel;
+  int get package => goods.orderPackage;
   double get pricelistPrice => (prices.firstWhereOrNull((e) => e.goodsId == goods.id)?.price ?? 0).roundDigits(2);
   double get price {
     final goodsBonusPrograms = bonusPrograms.where((e) => e.goodsId == goods.id).toList();

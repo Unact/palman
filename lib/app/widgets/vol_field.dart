@@ -6,7 +6,10 @@ class VolField extends StatefulWidget {
   final double minValue;
   final double? vol;
   final bool decimal;
-  final int step;
+  final int addStep;
+  final int subStep;
+  final int multiple;
+  final bool Function(double?)? validateVol;
   final FutureOr<void> Function(double?) onVolChange;
   final TextStyle? style;
 
@@ -15,9 +18,12 @@ class VolField extends StatefulWidget {
     this.maxValue = double.infinity,
     this.minValue = double.negativeInfinity,
     this.decimal = false,
-    this.step = 1,
+    this.addStep = 1,
+    this.subStep = 1,
+    this.multiple = 1,
     required this.vol,
     required this.onVolChange,
+    this.validateVol,
     this.style,
     Key? key
   }) : super(key: key);
@@ -29,6 +35,7 @@ class VolField extends StatefulWidget {
 class _VolFieldState extends State<VolField> {
   final queue = Queue();
   final controller = TextEditingController();
+  bool error = false;
 
   @override
   void initState() {
@@ -64,17 +71,17 @@ class _VolFieldState extends State<VolField> {
       controller: controller,
       style: widget.style,
       decoration: InputDecoration(
-        fillColor: Colors.transparent,
-        border: InputBorder.none,
+        errorText: error ? 'Не корректное кол-во' : null,
+        border: error ? null : InputBorder.none,
         suffixIcon: !widget.enabled ? null : IconButton(
           icon: const Icon(Icons.add),
           tooltip: 'Увеличить кол-во',
-          onPressed: () => updateVol((widget.vol ?? 0) + widget.step)
+          onPressed: () => updateVol((widget.vol ?? 0) + widget.addStep)
         ),
         prefixIcon: !widget.enabled ? null : IconButton(
           icon: const Icon(Icons.remove),
           tooltip: 'Уменьшить кол-во',
-          onPressed: () => updateVol((widget.vol ?? 0) - widget.step)
+          onPressed: () => updateVol((widget.vol ?? 0) - widget.subStep)
         )
       ),
       onTap: () => updateVol(Parsing.parseDouble(controller.text))
@@ -82,7 +89,15 @@ class _VolFieldState extends State<VolField> {
   }
 
   void updateVol(double? updatedVol) {
-    final newVol = updatedVol != null ? min(max(updatedVol, widget.minValue), widget.maxValue) : null;
+    var newVol = updatedVol != null ? min(max(updatedVol, widget.minValue), widget.maxValue) : null;
+
+    if (widget.validateVol != null && !widget.validateVol!(newVol)) {
+      setState(() { error = true; });
+      return;
+    } else {
+      setState(() { error = false; });
+    }
+
     try {
       queue.add(() async => await widget.onVolChange.call(newVol));
     } on QueueCancelledException {
