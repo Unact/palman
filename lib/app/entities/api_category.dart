@@ -5,16 +5,12 @@ class ApiCategory extends Equatable {
   final String name;
   final int ord;
   final int shopDepartmentId;
-  final int package;
-  final int userPackage;
 
   const ApiCategory({
     required this.id,
     required this.name,
     required this.ord,
-    required this.shopDepartmentId,
-    required this.package,
-    required this.userPackage
+    required this.shopDepartmentId
   });
 
   factory ApiCategory.fromJson(dynamic json) {
@@ -22,9 +18,7 @@ class ApiCategory extends Equatable {
       id: json['id'],
       name: json['name'],
       ord: json['ord'],
-      shopDepartmentId: json['shopDepartmentId'],
-      package: json['package'],
-      userPackage: json['userPackage']
+      shopDepartmentId: json['shopDepartmentId']
     );
   }
 
@@ -33,9 +27,7 @@ class ApiCategory extends Equatable {
       id: id,
       name: name,
       ord: ord,
-      shopDepartmentId: shopDepartmentId,
-      package: package,
-      userPackage: userPackage
+      shopDepartmentId: shopDepartmentId
     );
   }
 
@@ -44,8 +36,6 @@ class ApiCategory extends Equatable {
     id,
     name,
     ord,
-    shopDepartmentId,
-    package,
-    userPackage
+    shopDepartmentId
   ];
 }

@@ -730,7 +730,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
           TextSpan(
             text: goodsEx.goods.name,
             style: Styles.tileTitleText.copyWith(
-              color: goodsDetail.stock?.isVollow ?? false ? Colors.pink : Colors.black,
+              color: goodsDetail.isVollow ?? false ? Colors.pink : Colors.black,
             )
           ),
           daysDiff == null ?
@@ -870,14 +870,25 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     OrderLineExResult? orderLineEx,
     bool enabled
   ) {
+    bool sameMin = goodsDetail.minVol == goodsDetail.goods.categoryBoxRel;
+
     return SizedBox(
       width: 140,
       child: VolField(
         enabled: enabled,
         minValue: 0,
         vol: orderLineEx?.line.vol,
-        step: goodsDetail.stockRel,
+        addStep: sameMin ? goodsDetail.minVol : orderLineEx?.line.vol == null ? goodsDetail.minVol : 1,
+        subStep: sameMin ? goodsDetail.minVol : orderLineEx?.line.vol == goodsDetail.minVol ? goodsDetail.minVol : 1,
         style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
+        validateVol: (vol) {
+          if (vol == null || vol == 0) return true;
+
+          if (sameMin && vol % goodsDetail.minVol != 0) return false;
+          if (!sameMin && vol < goodsDetail.minVol) return false;
+
+          return true;
+        },
         onVolChange: (vol) => widget.onVolChange(goodsDetail, vol)
       )
     );
@@ -905,8 +916,7 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
   Widget build(BuildContext context) {
     final goodsEx = widget.goodsDetail.goodsEx;
     final goods = goodsEx.goods;
-    final stock = widget.goodsDetail.stock;
-    final stockVol = stock?.vol ?? 0;
+    final stockVol = widget.goodsDetail.stockVol;
     final price = widget.goodsDetail.pricelistPrice;
     final minPrice = goods.minPrice;
     final bonusPrice = widget.goodsDetail.price;
@@ -940,15 +950,11 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
                 ),
                 const TextSpan(text: ' руб.'),
                 TextSpan(text: widget.goodsDetail.rel == 1 ? ' ' : ' Вложение: ${widget.goodsDetail.rel} '),
-                TextSpan(text: 'Кратность: ${widget.goodsDetail.stockRel} '),
+                TextSpan(text: 'Кратность: ${widget.goodsDetail.minVol} '),
                 TextSpan(text: 'Остаток: ${stockVol != 0 ? '' : '0 шт.'}'),
-                TextSpan(text: stockVol~/goods.categoryPackageRel > 0 ?
-                  '${stockVol~/goods.categoryPackageRel} к. ' :
-                  null
-                  ),
-                TextSpan(text: stockVol%goods.categoryPackageRel > 0 ?
-                  '${(stockVol%goods.categoryPackageRel).toInt()} шт. ' :
-                  null
+                TextSpan(text: stockVol~/goods.categoryBoxRel > 0 ? '${stockVol~/goods.categoryBoxRel} к. ' : null),
+                TextSpan(
+                  text: stockVol%goods.categoryBoxRel > 0 ? '${(stockVol%goods.categoryBoxRel).toInt()} шт. ' : null
                 ),
                 TextSpan(
                   text: widget.orderLineEx != null ?
@@ -990,15 +996,11 @@ class _GoodsSubtitleState extends State<_GoodsSubtitle> {
                   text: minPrice != 0 && minPrice < bonusPrice ? ' Мин. цена: ${Format.numberStr(minPrice)}\n' : '\n'
                 ),
                 TextSpan(text: widget.goodsDetail.rel == 1 ? '' : 'Вложение: ${widget.goodsDetail.rel} '),
-                TextSpan(text: 'Кратность: ${widget.goodsDetail.stockRel} '),
+                TextSpan(text: 'Кратность: ${widget.goodsDetail.minVol} '),
                 TextSpan(text: 'Остаток: ${stockVol != 0 ? '' : '0 шт.'}'),
-                TextSpan(text: stockVol~/goods.categoryPackageRel > 0 ?
-                  '${stockVol~/goods.categoryPackageRel} к. ' :
-                  null
-                ),
-                TextSpan(text: stockVol%goods.categoryPackageRel > 0 ?
-                  '${(stockVol%goods.categoryPackageRel).toInt()} шт. ' :
-                  null
+                TextSpan(text: stockVol~/goods.categoryBoxRel > 0 ? '${stockVol~/goods.categoryBoxRel} к. ' : null),
+                TextSpan(
+                  text: stockVol%goods.categoryBoxRel > 0 ? '${(stockVol%goods.categoryBoxRel).toInt()} шт. ' : null
                 ),
                 TextSpan(
                   text: widget.orderLineEx != null ?

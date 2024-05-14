@@ -4,15 +4,15 @@ class ApiGoodsStock extends Equatable {
   final int goodsId;
   final int siteId;
   final bool isVollow;
-  final double factor;
-  final double vol;
+  final int vol;
+  final int minVol;
 
   const ApiGoodsStock({
     required this.goodsId,
     required this.siteId,
     required this.isVollow,
-    required this.factor,
     required this.vol,
+    required this.minVol
   });
 
   factory ApiGoodsStock.fromJson(dynamic json) {
@@ -20,8 +20,8 @@ class ApiGoodsStock extends Equatable {
       goodsId: json['goodsId'],
       siteId: json['siteId'],
       isVollow: json['isVollow'],
-      factor: Parsing.parseDouble(json['factor'])!,
-      vol: Parsing.parseDouble(json['vol'])!
+      vol: json['vol'],
+      minVol: json['minVol'],
     );
   }
 
@@ -30,8 +30,8 @@ class ApiGoodsStock extends Equatable {
       goodsId: goodsId,
       siteId: siteId,
       isVollow: isVollow,
-      factor: factor,
-      vol: vol
+      vol: vol,
+      minVol: minVol
     );
   }
 
@@ -40,7 +40,7 @@ class ApiGoodsStock extends Equatable {
     goodsId,
     siteId,
     isVollow,
-    factor,
-    vol
+    vol,
+    minVol
   ];
 }

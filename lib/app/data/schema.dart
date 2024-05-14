@@ -189,10 +189,9 @@ class AllGoods extends Table {
   RealColumn get cost => real()();
   RealColumn get minPrice => real()();
   TextColumn get extraLabel => text()();
-  IntColumn get package => integer()();
-  IntColumn get rel => integer()();
-  IntColumn get categoryUserPackageRel => integer()();
-  IntColumn get categoryPackageRel => integer()();
+  IntColumn get orderRel => integer()();
+  IntColumn get orderPackage => integer()();
+  IntColumn get categoryBoxRel => integer()();
   IntColumn get categoryBlockRel => integer()();
   RealColumn get weight => real()();
   RealColumn get volume => real()();
@@ -222,8 +221,6 @@ class Categories extends Table {
   TextColumn get name => text()();
   IntColumn get ord => integer()();
   IntColumn get shopDepartmentId => integer()();
-  IntColumn get package => integer()();
-  IntColumn get userPackage => integer()();
 }
 
 class GoodsFilters extends Table {
@@ -342,8 +339,8 @@ class GoodsStocks extends Table {
   IntColumn get goodsId => integer()();
   IntColumn get siteId => integer()();
   BoolColumn get isVollow => boolean()();
-  RealColumn get factor => real()();
-  RealColumn get vol => real()();
+  IntColumn get vol => integer()();
+  IntColumn get minVol => integer()();
 
   @override
   Set<Column> get primaryKey => {goodsId, siteId};

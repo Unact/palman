@@ -123,7 +123,7 @@ class _GoodsInfoViewState extends State<_GoodsInfoView> {
                     labelText: 'Штук в коробе',
                     border: InputBorder.none
                   ),
-                  initialValue: goods.categoryPackageRel.toString()
+                  initialValue: goods.categoryBoxRel.toString()
                 ),
                 TextFormField(
                   canRequestFocus: false,

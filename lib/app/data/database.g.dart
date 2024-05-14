@@ -6219,28 +6219,23 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
   late final GeneratedColumn<String> extraLabel = GeneratedColumn<String>(
       'extra_label', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _packageMeta =
-      const VerificationMeta('package');
+  static const VerificationMeta _orderRelMeta =
+      const VerificationMeta('orderRel');
   @override
-  late final GeneratedColumn<int> package = GeneratedColumn<int>(
-      'package', aliasedName, false,
+  late final GeneratedColumn<int> orderRel = GeneratedColumn<int>(
+      'order_rel', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _relMeta = const VerificationMeta('rel');
+  static const VerificationMeta _orderPackageMeta =
+      const VerificationMeta('orderPackage');
   @override
-  late final GeneratedColumn<int> rel = GeneratedColumn<int>(
-      'rel', aliasedName, false,
+  late final GeneratedColumn<int> orderPackage = GeneratedColumn<int>(
+      'order_package', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _categoryUserPackageRelMeta =
-      const VerificationMeta('categoryUserPackageRel');
+  static const VerificationMeta _categoryBoxRelMeta =
+      const VerificationMeta('categoryBoxRel');
   @override
-  late final GeneratedColumn<int> categoryUserPackageRel = GeneratedColumn<int>(
-      'category_user_package_rel', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _categoryPackageRelMeta =
-      const VerificationMeta('categoryPackageRel');
-  @override
-  late final GeneratedColumn<int> categoryPackageRel = GeneratedColumn<int>(
-      'category_package_rel', aliasedName, false,
+  late final GeneratedColumn<int> categoryBoxRel = GeneratedColumn<int>(
+      'category_box_rel', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _categoryBlockRelMeta =
       const VerificationMeta('categoryBlockRel');
@@ -6309,10 +6304,9 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
         cost,
         minPrice,
         extraLabel,
-        package,
-        rel,
-        categoryUserPackageRel,
-        categoryPackageRel,
+        orderRel,
+        orderPackage,
+        categoryBoxRel,
         categoryBlockRel,
         weight,
         volume,
@@ -6409,33 +6403,27 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
     } else if (isInserting) {
       context.missing(_extraLabelMeta);
     }
-    if (data.containsKey('package')) {
-      context.handle(_packageMeta,
-          package.isAcceptableOrUnknown(data['package']!, _packageMeta));
+    if (data.containsKey('order_rel')) {
+      context.handle(_orderRelMeta,
+          orderRel.isAcceptableOrUnknown(data['order_rel']!, _orderRelMeta));
     } else if (isInserting) {
-      context.missing(_packageMeta);
+      context.missing(_orderRelMeta);
     }
-    if (data.containsKey('rel')) {
+    if (data.containsKey('order_package')) {
       context.handle(
-          _relMeta, rel.isAcceptableOrUnknown(data['rel']!, _relMeta));
+          _orderPackageMeta,
+          orderPackage.isAcceptableOrUnknown(
+              data['order_package']!, _orderPackageMeta));
     } else if (isInserting) {
-      context.missing(_relMeta);
+      context.missing(_orderPackageMeta);
     }
-    if (data.containsKey('category_user_package_rel')) {
+    if (data.containsKey('category_box_rel')) {
       context.handle(
-          _categoryUserPackageRelMeta,
-          categoryUserPackageRel.isAcceptableOrUnknown(
-              data['category_user_package_rel']!, _categoryUserPackageRelMeta));
+          _categoryBoxRelMeta,
+          categoryBoxRel.isAcceptableOrUnknown(
+              data['category_box_rel']!, _categoryBoxRelMeta));
     } else if (isInserting) {
-      context.missing(_categoryUserPackageRelMeta);
-    }
-    if (data.containsKey('category_package_rel')) {
-      context.handle(
-          _categoryPackageRelMeta,
-          categoryPackageRel.isAcceptableOrUnknown(
-              data['category_package_rel']!, _categoryPackageRelMeta));
-    } else if (isInserting) {
-      context.missing(_categoryPackageRelMeta);
+      context.missing(_categoryBoxRelMeta);
     }
     if (data.containsKey('category_block_rel')) {
       context.handle(
@@ -6521,15 +6509,12 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           .read(DriftSqlType.double, data['${effectivePrefix}min_price'])!,
       extraLabel: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}extra_label'])!,
-      package: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}package'])!,
-      rel: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}rel'])!,
-      categoryUserPackageRel: attachedDatabase.typeMapping.read(
-          DriftSqlType.int,
-          data['${effectivePrefix}category_user_package_rel'])!,
-      categoryPackageRel: attachedDatabase.typeMapping.read(
-          DriftSqlType.int, data['${effectivePrefix}category_package_rel'])!,
+      orderRel: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}order_rel'])!,
+      orderPackage: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}order_package'])!,
+      categoryBoxRel: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}category_box_rel'])!,
       categoryBlockRel: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}category_block_rel'])!,
       weight: attachedDatabase.typeMapping
@@ -6572,10 +6557,9 @@ class Goods extends DataClass implements Insertable<Goods> {
   final double cost;
   final double minPrice;
   final String extraLabel;
-  final int package;
-  final int rel;
-  final int categoryUserPackageRel;
-  final int categoryPackageRel;
+  final int orderRel;
+  final int orderPackage;
+  final int categoryBoxRel;
   final int categoryBlockRel;
   final double weight;
   final double volume;
@@ -6597,10 +6581,9 @@ class Goods extends DataClass implements Insertable<Goods> {
       required this.cost,
       required this.minPrice,
       required this.extraLabel,
-      required this.package,
-      required this.rel,
-      required this.categoryUserPackageRel,
-      required this.categoryPackageRel,
+      required this.orderRel,
+      required this.orderPackage,
+      required this.categoryBoxRel,
       required this.categoryBlockRel,
       required this.weight,
       required this.volume,
@@ -6626,10 +6609,9 @@ class Goods extends DataClass implements Insertable<Goods> {
     map['cost'] = Variable<double>(cost);
     map['min_price'] = Variable<double>(minPrice);
     map['extra_label'] = Variable<String>(extraLabel);
-    map['package'] = Variable<int>(package);
-    map['rel'] = Variable<int>(rel);
-    map['category_user_package_rel'] = Variable<int>(categoryUserPackageRel);
-    map['category_package_rel'] = Variable<int>(categoryPackageRel);
+    map['order_rel'] = Variable<int>(orderRel);
+    map['order_package'] = Variable<int>(orderPackage);
+    map['category_box_rel'] = Variable<int>(categoryBoxRel);
     map['category_block_rel'] = Variable<int>(categoryBlockRel);
     map['weight'] = Variable<double>(weight);
     map['volume'] = Variable<double>(volume);
@@ -6660,10 +6642,9 @@ class Goods extends DataClass implements Insertable<Goods> {
       cost: Value(cost),
       minPrice: Value(minPrice),
       extraLabel: Value(extraLabel),
-      package: Value(package),
-      rel: Value(rel),
-      categoryUserPackageRel: Value(categoryUserPackageRel),
-      categoryPackageRel: Value(categoryPackageRel),
+      orderRel: Value(orderRel),
+      orderPackage: Value(orderPackage),
+      categoryBoxRel: Value(categoryBoxRel),
       categoryBlockRel: Value(categoryBlockRel),
       weight: Value(weight),
       volume: Value(volume),
@@ -6691,11 +6672,9 @@ class Goods extends DataClass implements Insertable<Goods> {
       cost: serializer.fromJson<double>(json['cost']),
       minPrice: serializer.fromJson<double>(json['minPrice']),
       extraLabel: serializer.fromJson<String>(json['extraLabel']),
-      package: serializer.fromJson<int>(json['package']),
-      rel: serializer.fromJson<int>(json['rel']),
-      categoryUserPackageRel:
-          serializer.fromJson<int>(json['categoryUserPackageRel']),
-      categoryPackageRel: serializer.fromJson<int>(json['categoryPackageRel']),
+      orderRel: serializer.fromJson<int>(json['orderRel']),
+      orderPackage: serializer.fromJson<int>(json['orderPackage']),
+      categoryBoxRel: serializer.fromJson<int>(json['categoryBoxRel']),
       categoryBlockRel: serializer.fromJson<int>(json['categoryBlockRel']),
       weight: serializer.fromJson<double>(json['weight']),
       volume: serializer.fromJson<double>(json['volume']),
@@ -6722,10 +6701,9 @@ class Goods extends DataClass implements Insertable<Goods> {
       'cost': serializer.toJson<double>(cost),
       'minPrice': serializer.toJson<double>(minPrice),
       'extraLabel': serializer.toJson<String>(extraLabel),
-      'package': serializer.toJson<int>(package),
-      'rel': serializer.toJson<int>(rel),
-      'categoryUserPackageRel': serializer.toJson<int>(categoryUserPackageRel),
-      'categoryPackageRel': serializer.toJson<int>(categoryPackageRel),
+      'orderRel': serializer.toJson<int>(orderRel),
+      'orderPackage': serializer.toJson<int>(orderPackage),
+      'categoryBoxRel': serializer.toJson<int>(categoryBoxRel),
       'categoryBlockRel': serializer.toJson<int>(categoryBlockRel),
       'weight': serializer.toJson<double>(weight),
       'volume': serializer.toJson<double>(volume),
@@ -6750,10 +6728,9 @@ class Goods extends DataClass implements Insertable<Goods> {
           double? cost,
           double? minPrice,
           String? extraLabel,
-          int? package,
-          int? rel,
-          int? categoryUserPackageRel,
-          int? categoryPackageRel,
+          int? orderRel,
+          int? orderPackage,
+          int? categoryBoxRel,
           int? categoryBlockRel,
           double? weight,
           double? volume,
@@ -6776,11 +6753,9 @@ class Goods extends DataClass implements Insertable<Goods> {
         cost: cost ?? this.cost,
         minPrice: minPrice ?? this.minPrice,
         extraLabel: extraLabel ?? this.extraLabel,
-        package: package ?? this.package,
-        rel: rel ?? this.rel,
-        categoryUserPackageRel:
-            categoryUserPackageRel ?? this.categoryUserPackageRel,
-        categoryPackageRel: categoryPackageRel ?? this.categoryPackageRel,
+        orderRel: orderRel ?? this.orderRel,
+        orderPackage: orderPackage ?? this.orderPackage,
+        categoryBoxRel: categoryBoxRel ?? this.categoryBoxRel,
         categoryBlockRel: categoryBlockRel ?? this.categoryBlockRel,
         weight: weight ?? this.weight,
         volume: volume ?? this.volume,
@@ -6805,10 +6780,9 @@ class Goods extends DataClass implements Insertable<Goods> {
           ..write('cost: $cost, ')
           ..write('minPrice: $minPrice, ')
           ..write('extraLabel: $extraLabel, ')
-          ..write('package: $package, ')
-          ..write('rel: $rel, ')
-          ..write('categoryUserPackageRel: $categoryUserPackageRel, ')
-          ..write('categoryPackageRel: $categoryPackageRel, ')
+          ..write('orderRel: $orderRel, ')
+          ..write('orderPackage: $orderPackage, ')
+          ..write('categoryBoxRel: $categoryBoxRel, ')
           ..write('categoryBlockRel: $categoryBlockRel, ')
           ..write('weight: $weight, ')
           ..write('volume: $volume, ')
@@ -6835,10 +6809,9 @@ class Goods extends DataClass implements Insertable<Goods> {
         cost,
         minPrice,
         extraLabel,
-        package,
-        rel,
-        categoryUserPackageRel,
-        categoryPackageRel,
+        orderRel,
+        orderPackage,
+        categoryBoxRel,
         categoryBlockRel,
         weight,
         volume,
@@ -6864,10 +6837,9 @@ class Goods extends DataClass implements Insertable<Goods> {
           other.cost == this.cost &&
           other.minPrice == this.minPrice &&
           other.extraLabel == this.extraLabel &&
-          other.package == this.package &&
-          other.rel == this.rel &&
-          other.categoryUserPackageRel == this.categoryUserPackageRel &&
-          other.categoryPackageRel == this.categoryPackageRel &&
+          other.orderRel == this.orderRel &&
+          other.orderPackage == this.orderPackage &&
+          other.categoryBoxRel == this.categoryBoxRel &&
           other.categoryBlockRel == this.categoryBlockRel &&
           other.weight == this.weight &&
           other.volume == this.volume &&
@@ -6891,10 +6863,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   final Value<double> cost;
   final Value<double> minPrice;
   final Value<String> extraLabel;
-  final Value<int> package;
-  final Value<int> rel;
-  final Value<int> categoryUserPackageRel;
-  final Value<int> categoryPackageRel;
+  final Value<int> orderRel;
+  final Value<int> orderPackage;
+  final Value<int> categoryBoxRel;
   final Value<int> categoryBlockRel;
   final Value<double> weight;
   final Value<double> volume;
@@ -6916,10 +6887,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     this.cost = const Value.absent(),
     this.minPrice = const Value.absent(),
     this.extraLabel = const Value.absent(),
-    this.package = const Value.absent(),
-    this.rel = const Value.absent(),
-    this.categoryUserPackageRel = const Value.absent(),
-    this.categoryPackageRel = const Value.absent(),
+    this.orderRel = const Value.absent(),
+    this.orderPackage = const Value.absent(),
+    this.categoryBoxRel = const Value.absent(),
     this.categoryBlockRel = const Value.absent(),
     this.weight = const Value.absent(),
     this.volume = const Value.absent(),
@@ -6942,10 +6912,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     required double cost,
     required double minPrice,
     required String extraLabel,
-    required int package,
-    required int rel,
-    required int categoryUserPackageRel,
-    required int categoryPackageRel,
+    required int orderRel,
+    required int orderPackage,
+    required int categoryBoxRel,
     required int categoryBlockRel,
     required double weight,
     required double volume,
@@ -6964,10 +6933,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
         cost = Value(cost),
         minPrice = Value(minPrice),
         extraLabel = Value(extraLabel),
-        package = Value(package),
-        rel = Value(rel),
-        categoryUserPackageRel = Value(categoryUserPackageRel),
-        categoryPackageRel = Value(categoryPackageRel),
+        orderRel = Value(orderRel),
+        orderPackage = Value(orderPackage),
+        categoryBoxRel = Value(categoryBoxRel),
         categoryBlockRel = Value(categoryBlockRel),
         weight = Value(weight),
         volume = Value(volume),
@@ -6989,10 +6957,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     Expression<double>? cost,
     Expression<double>? minPrice,
     Expression<String>? extraLabel,
-    Expression<int>? package,
-    Expression<int>? rel,
-    Expression<int>? categoryUserPackageRel,
-    Expression<int>? categoryPackageRel,
+    Expression<int>? orderRel,
+    Expression<int>? orderPackage,
+    Expression<int>? categoryBoxRel,
     Expression<int>? categoryBlockRel,
     Expression<double>? weight,
     Expression<double>? volume,
@@ -7015,12 +6982,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       if (cost != null) 'cost': cost,
       if (minPrice != null) 'min_price': minPrice,
       if (extraLabel != null) 'extra_label': extraLabel,
-      if (package != null) 'package': package,
-      if (rel != null) 'rel': rel,
-      if (categoryUserPackageRel != null)
-        'category_user_package_rel': categoryUserPackageRel,
-      if (categoryPackageRel != null)
-        'category_package_rel': categoryPackageRel,
+      if (orderRel != null) 'order_rel': orderRel,
+      if (orderPackage != null) 'order_package': orderPackage,
+      if (categoryBoxRel != null) 'category_box_rel': categoryBoxRel,
       if (categoryBlockRel != null) 'category_block_rel': categoryBlockRel,
       if (weight != null) 'weight': weight,
       if (volume != null) 'volume': volume,
@@ -7045,10 +7009,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       Value<double>? cost,
       Value<double>? minPrice,
       Value<String>? extraLabel,
-      Value<int>? package,
-      Value<int>? rel,
-      Value<int>? categoryUserPackageRel,
-      Value<int>? categoryPackageRel,
+      Value<int>? orderRel,
+      Value<int>? orderPackage,
+      Value<int>? categoryBoxRel,
       Value<int>? categoryBlockRel,
       Value<double>? weight,
       Value<double>? volume,
@@ -7070,11 +7033,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       cost: cost ?? this.cost,
       minPrice: minPrice ?? this.minPrice,
       extraLabel: extraLabel ?? this.extraLabel,
-      package: package ?? this.package,
-      rel: rel ?? this.rel,
-      categoryUserPackageRel:
-          categoryUserPackageRel ?? this.categoryUserPackageRel,
-      categoryPackageRel: categoryPackageRel ?? this.categoryPackageRel,
+      orderRel: orderRel ?? this.orderRel,
+      orderPackage: orderPackage ?? this.orderPackage,
+      categoryBoxRel: categoryBoxRel ?? this.categoryBoxRel,
       categoryBlockRel: categoryBlockRel ?? this.categoryBlockRel,
       weight: weight ?? this.weight,
       volume: volume ?? this.volume,
@@ -7125,18 +7086,14 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     if (extraLabel.present) {
       map['extra_label'] = Variable<String>(extraLabel.value);
     }
-    if (package.present) {
-      map['package'] = Variable<int>(package.value);
+    if (orderRel.present) {
+      map['order_rel'] = Variable<int>(orderRel.value);
     }
-    if (rel.present) {
-      map['rel'] = Variable<int>(rel.value);
+    if (orderPackage.present) {
+      map['order_package'] = Variable<int>(orderPackage.value);
     }
-    if (categoryUserPackageRel.present) {
-      map['category_user_package_rel'] =
-          Variable<int>(categoryUserPackageRel.value);
-    }
-    if (categoryPackageRel.present) {
-      map['category_package_rel'] = Variable<int>(categoryPackageRel.value);
+    if (categoryBoxRel.present) {
+      map['category_box_rel'] = Variable<int>(categoryBoxRel.value);
     }
     if (categoryBlockRel.present) {
       map['category_block_rel'] = Variable<int>(categoryBlockRel.value);
@@ -7182,10 +7139,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
           ..write('cost: $cost, ')
           ..write('minPrice: $minPrice, ')
           ..write('extraLabel: $extraLabel, ')
-          ..write('package: $package, ')
-          ..write('rel: $rel, ')
-          ..write('categoryUserPackageRel: $categoryUserPackageRel, ')
-          ..write('categoryPackageRel: $categoryPackageRel, ')
+          ..write('orderRel: $orderRel, ')
+          ..write('orderPackage: $orderPackage, ')
+          ..write('categoryBoxRel: $categoryBoxRel, ')
           ..write('categoryBlockRel: $categoryBlockRel, ')
           ..write('weight: $weight, ')
           ..write('volume: $volume, ')
@@ -7584,21 +7540,8 @@ class $CategoriesTable extends Categories
   late final GeneratedColumn<int> shopDepartmentId = GeneratedColumn<int>(
       'shop_department_id', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _packageMeta =
-      const VerificationMeta('package');
   @override
-  late final GeneratedColumn<int> package = GeneratedColumn<int>(
-      'package', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  static const VerificationMeta _userPackageMeta =
-      const VerificationMeta('userPackage');
-  @override
-  late final GeneratedColumn<int> userPackage = GeneratedColumn<int>(
-      'user_package', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: true);
-  @override
-  List<GeneratedColumn> get $columns =>
-      [id, name, ord, shopDepartmentId, package, userPackage];
+  List<GeneratedColumn> get $columns => [id, name, ord, shopDepartmentId];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -7632,20 +7575,6 @@ class $CategoriesTable extends Categories
     } else if (isInserting) {
       context.missing(_shopDepartmentIdMeta);
     }
-    if (data.containsKey('package')) {
-      context.handle(_packageMeta,
-          package.isAcceptableOrUnknown(data['package']!, _packageMeta));
-    } else if (isInserting) {
-      context.missing(_packageMeta);
-    }
-    if (data.containsKey('user_package')) {
-      context.handle(
-          _userPackageMeta,
-          userPackage.isAcceptableOrUnknown(
-              data['user_package']!, _userPackageMeta));
-    } else if (isInserting) {
-      context.missing(_userPackageMeta);
-    }
     return context;
   }
 
@@ -7663,10 +7592,6 @@ class $CategoriesTable extends Categories
           .read(DriftSqlType.int, data['${effectivePrefix}ord'])!,
       shopDepartmentId: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}shop_department_id'])!,
-      package: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}package'])!,
-      userPackage: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}user_package'])!,
     );
   }
 
@@ -7681,15 +7606,11 @@ class Category extends DataClass implements Insertable<Category> {
   final String name;
   final int ord;
   final int shopDepartmentId;
-  final int package;
-  final int userPackage;
   const Category(
       {required this.id,
       required this.name,
       required this.ord,
-      required this.shopDepartmentId,
-      required this.package,
-      required this.userPackage});
+      required this.shopDepartmentId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -7697,8 +7618,6 @@ class Category extends DataClass implements Insertable<Category> {
     map['name'] = Variable<String>(name);
     map['ord'] = Variable<int>(ord);
     map['shop_department_id'] = Variable<int>(shopDepartmentId);
-    map['package'] = Variable<int>(package);
-    map['user_package'] = Variable<int>(userPackage);
     return map;
   }
 
@@ -7708,8 +7627,6 @@ class Category extends DataClass implements Insertable<Category> {
       name: Value(name),
       ord: Value(ord),
       shopDepartmentId: Value(shopDepartmentId),
-      package: Value(package),
-      userPackage: Value(userPackage),
     );
   }
 
@@ -7721,8 +7638,6 @@ class Category extends DataClass implements Insertable<Category> {
       name: serializer.fromJson<String>(json['name']),
       ord: serializer.fromJson<int>(json['ord']),
       shopDepartmentId: serializer.fromJson<int>(json['shopDepartmentId']),
-      package: serializer.fromJson<int>(json['package']),
-      userPackage: serializer.fromJson<int>(json['userPackage']),
     );
   }
   @override
@@ -7733,25 +7648,15 @@ class Category extends DataClass implements Insertable<Category> {
       'name': serializer.toJson<String>(name),
       'ord': serializer.toJson<int>(ord),
       'shopDepartmentId': serializer.toJson<int>(shopDepartmentId),
-      'package': serializer.toJson<int>(package),
-      'userPackage': serializer.toJson<int>(userPackage),
     };
   }
 
-  Category copyWith(
-          {int? id,
-          String? name,
-          int? ord,
-          int? shopDepartmentId,
-          int? package,
-          int? userPackage}) =>
+  Category copyWith({int? id, String? name, int? ord, int? shopDepartmentId}) =>
       Category(
         id: id ?? this.id,
         name: name ?? this.name,
         ord: ord ?? this.ord,
         shopDepartmentId: shopDepartmentId ?? this.shopDepartmentId,
-        package: package ?? this.package,
-        userPackage: userPackage ?? this.userPackage,
       );
   @override
   String toString() {
@@ -7759,16 +7664,13 @@ class Category extends DataClass implements Insertable<Category> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('ord: $ord, ')
-          ..write('shopDepartmentId: $shopDepartmentId, ')
-          ..write('package: $package, ')
-          ..write('userPackage: $userPackage')
+          ..write('shopDepartmentId: $shopDepartmentId')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode =>
-      Object.hash(id, name, ord, shopDepartmentId, package, userPackage);
+  int get hashCode => Object.hash(id, name, ord, shopDepartmentId);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -7776,9 +7678,7 @@ class Category extends DataClass implements Insertable<Category> {
           other.id == this.id &&
           other.name == this.name &&
           other.ord == this.ord &&
-          other.shopDepartmentId == this.shopDepartmentId &&
-          other.package == this.package &&
-          other.userPackage == this.userPackage);
+          other.shopDepartmentId == this.shopDepartmentId);
 }
 
 class CategoriesCompanion extends UpdateCompanion<Category> {
@@ -7786,43 +7686,31 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
   final Value<String> name;
   final Value<int> ord;
   final Value<int> shopDepartmentId;
-  final Value<int> package;
-  final Value<int> userPackage;
   const CategoriesCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.ord = const Value.absent(),
     this.shopDepartmentId = const Value.absent(),
-    this.package = const Value.absent(),
-    this.userPackage = const Value.absent(),
   });
   CategoriesCompanion.insert({
     this.id = const Value.absent(),
     required String name,
     required int ord,
     required int shopDepartmentId,
-    required int package,
-    required int userPackage,
   })  : name = Value(name),
         ord = Value(ord),
-        shopDepartmentId = Value(shopDepartmentId),
-        package = Value(package),
-        userPackage = Value(userPackage);
+        shopDepartmentId = Value(shopDepartmentId);
   static Insertable<Category> custom({
     Expression<int>? id,
     Expression<String>? name,
     Expression<int>? ord,
     Expression<int>? shopDepartmentId,
-    Expression<int>? package,
-    Expression<int>? userPackage,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (ord != null) 'ord': ord,
       if (shopDepartmentId != null) 'shop_department_id': shopDepartmentId,
-      if (package != null) 'package': package,
-      if (userPackage != null) 'user_package': userPackage,
     });
   }
 
@@ -7830,16 +7718,12 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
       {Value<int>? id,
       Value<String>? name,
       Value<int>? ord,
-      Value<int>? shopDepartmentId,
-      Value<int>? package,
-      Value<int>? userPackage}) {
+      Value<int>? shopDepartmentId}) {
     return CategoriesCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
       ord: ord ?? this.ord,
       shopDepartmentId: shopDepartmentId ?? this.shopDepartmentId,
-      package: package ?? this.package,
-      userPackage: userPackage ?? this.userPackage,
     );
   }
 
@@ -7858,12 +7742,6 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
     if (shopDepartmentId.present) {
       map['shop_department_id'] = Variable<int>(shopDepartmentId.value);
     }
-    if (package.present) {
-      map['package'] = Variable<int>(package.value);
-    }
-    if (userPackage.present) {
-      map['user_package'] = Variable<int>(userPackage.value);
-    }
     return map;
   }
 
@@ -7873,9 +7751,7 @@ class CategoriesCompanion extends UpdateCompanion<Category> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('ord: $ord, ')
-          ..write('shopDepartmentId: $shopDepartmentId, ')
-          ..write('package: $package, ')
-          ..write('userPackage: $userPackage')
+          ..write('shopDepartmentId: $shopDepartmentId')
           ..write(')'))
         .toString();
   }
@@ -14146,19 +14022,19 @@ class $GoodsStocksTable extends GoodsStocks
       requiredDuringInsert: true,
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("is_vollow" IN (0, 1))'));
-  static const VerificationMeta _factorMeta = const VerificationMeta('factor');
-  @override
-  late final GeneratedColumn<double> factor = GeneratedColumn<double>(
-      'factor', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
   static const VerificationMeta _volMeta = const VerificationMeta('vol');
   @override
-  late final GeneratedColumn<double> vol = GeneratedColumn<double>(
+  late final GeneratedColumn<int> vol = GeneratedColumn<int>(
       'vol', aliasedName, false,
-      type: DriftSqlType.double, requiredDuringInsert: true);
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _minVolMeta = const VerificationMeta('minVol');
+  @override
+  late final GeneratedColumn<int> minVol = GeneratedColumn<int>(
+      'min_vol', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [goodsId, siteId, isVollow, factor, vol];
+      [goodsId, siteId, isVollow, vol, minVol];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -14187,17 +14063,17 @@ class $GoodsStocksTable extends GoodsStocks
     } else if (isInserting) {
       context.missing(_isVollowMeta);
     }
-    if (data.containsKey('factor')) {
-      context.handle(_factorMeta,
-          factor.isAcceptableOrUnknown(data['factor']!, _factorMeta));
-    } else if (isInserting) {
-      context.missing(_factorMeta);
-    }
     if (data.containsKey('vol')) {
       context.handle(
           _volMeta, vol.isAcceptableOrUnknown(data['vol']!, _volMeta));
     } else if (isInserting) {
       context.missing(_volMeta);
+    }
+    if (data.containsKey('min_vol')) {
+      context.handle(_minVolMeta,
+          minVol.isAcceptableOrUnknown(data['min_vol']!, _minVolMeta));
+    } else if (isInserting) {
+      context.missing(_minVolMeta);
     }
     return context;
   }
@@ -14214,10 +14090,10 @@ class $GoodsStocksTable extends GoodsStocks
           .read(DriftSqlType.int, data['${effectivePrefix}site_id'])!,
       isVollow: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}is_vollow'])!,
-      factor: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}factor'])!,
       vol: attachedDatabase.typeMapping
-          .read(DriftSqlType.double, data['${effectivePrefix}vol'])!,
+          .read(DriftSqlType.int, data['${effectivePrefix}vol'])!,
+      minVol: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}min_vol'])!,
     );
   }
 
@@ -14231,22 +14107,22 @@ class GoodsStock extends DataClass implements Insertable<GoodsStock> {
   final int goodsId;
   final int siteId;
   final bool isVollow;
-  final double factor;
-  final double vol;
+  final int vol;
+  final int minVol;
   const GoodsStock(
       {required this.goodsId,
       required this.siteId,
       required this.isVollow,
-      required this.factor,
-      required this.vol});
+      required this.vol,
+      required this.minVol});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['goods_id'] = Variable<int>(goodsId);
     map['site_id'] = Variable<int>(siteId);
     map['is_vollow'] = Variable<bool>(isVollow);
-    map['factor'] = Variable<double>(factor);
-    map['vol'] = Variable<double>(vol);
+    map['vol'] = Variable<int>(vol);
+    map['min_vol'] = Variable<int>(minVol);
     return map;
   }
 
@@ -14255,8 +14131,8 @@ class GoodsStock extends DataClass implements Insertable<GoodsStock> {
       goodsId: Value(goodsId),
       siteId: Value(siteId),
       isVollow: Value(isVollow),
-      factor: Value(factor),
       vol: Value(vol),
+      minVol: Value(minVol),
     );
   }
 
@@ -14267,8 +14143,8 @@ class GoodsStock extends DataClass implements Insertable<GoodsStock> {
       goodsId: serializer.fromJson<int>(json['goodsId']),
       siteId: serializer.fromJson<int>(json['siteId']),
       isVollow: serializer.fromJson<bool>(json['isVollow']),
-      factor: serializer.fromJson<double>(json['factor']),
-      vol: serializer.fromJson<double>(json['vol']),
+      vol: serializer.fromJson<int>(json['vol']),
+      minVol: serializer.fromJson<int>(json['minVol']),
     );
   }
   @override
@@ -14278,23 +14154,19 @@ class GoodsStock extends DataClass implements Insertable<GoodsStock> {
       'goodsId': serializer.toJson<int>(goodsId),
       'siteId': serializer.toJson<int>(siteId),
       'isVollow': serializer.toJson<bool>(isVollow),
-      'factor': serializer.toJson<double>(factor),
-      'vol': serializer.toJson<double>(vol),
+      'vol': serializer.toJson<int>(vol),
+      'minVol': serializer.toJson<int>(minVol),
     };
   }
 
   GoodsStock copyWith(
-          {int? goodsId,
-          int? siteId,
-          bool? isVollow,
-          double? factor,
-          double? vol}) =>
+          {int? goodsId, int? siteId, bool? isVollow, int? vol, int? minVol}) =>
       GoodsStock(
         goodsId: goodsId ?? this.goodsId,
         siteId: siteId ?? this.siteId,
         isVollow: isVollow ?? this.isVollow,
-        factor: factor ?? this.factor,
         vol: vol ?? this.vol,
+        minVol: minVol ?? this.minVol,
       );
   @override
   String toString() {
@@ -14302,14 +14174,14 @@ class GoodsStock extends DataClass implements Insertable<GoodsStock> {
           ..write('goodsId: $goodsId, ')
           ..write('siteId: $siteId, ')
           ..write('isVollow: $isVollow, ')
-          ..write('factor: $factor, ')
-          ..write('vol: $vol')
+          ..write('vol: $vol, ')
+          ..write('minVol: $minVol')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(goodsId, siteId, isVollow, factor, vol);
+  int get hashCode => Object.hash(goodsId, siteId, isVollow, vol, minVol);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -14317,51 +14189,51 @@ class GoodsStock extends DataClass implements Insertable<GoodsStock> {
           other.goodsId == this.goodsId &&
           other.siteId == this.siteId &&
           other.isVollow == this.isVollow &&
-          other.factor == this.factor &&
-          other.vol == this.vol);
+          other.vol == this.vol &&
+          other.minVol == this.minVol);
 }
 
 class GoodsStocksCompanion extends UpdateCompanion<GoodsStock> {
   final Value<int> goodsId;
   final Value<int> siteId;
   final Value<bool> isVollow;
-  final Value<double> factor;
-  final Value<double> vol;
+  final Value<int> vol;
+  final Value<int> minVol;
   final Value<int> rowid;
   const GoodsStocksCompanion({
     this.goodsId = const Value.absent(),
     this.siteId = const Value.absent(),
     this.isVollow = const Value.absent(),
-    this.factor = const Value.absent(),
     this.vol = const Value.absent(),
+    this.minVol = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   GoodsStocksCompanion.insert({
     required int goodsId,
     required int siteId,
     required bool isVollow,
-    required double factor,
-    required double vol,
+    required int vol,
+    required int minVol,
     this.rowid = const Value.absent(),
   })  : goodsId = Value(goodsId),
         siteId = Value(siteId),
         isVollow = Value(isVollow),
-        factor = Value(factor),
-        vol = Value(vol);
+        vol = Value(vol),
+        minVol = Value(minVol);
   static Insertable<GoodsStock> custom({
     Expression<int>? goodsId,
     Expression<int>? siteId,
     Expression<bool>? isVollow,
-    Expression<double>? factor,
-    Expression<double>? vol,
+    Expression<int>? vol,
+    Expression<int>? minVol,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
       if (goodsId != null) 'goods_id': goodsId,
       if (siteId != null) 'site_id': siteId,
       if (isVollow != null) 'is_vollow': isVollow,
-      if (factor != null) 'factor': factor,
       if (vol != null) 'vol': vol,
+      if (minVol != null) 'min_vol': minVol,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -14370,15 +14242,15 @@ class GoodsStocksCompanion extends UpdateCompanion<GoodsStock> {
       {Value<int>? goodsId,
       Value<int>? siteId,
       Value<bool>? isVollow,
-      Value<double>? factor,
-      Value<double>? vol,
+      Value<int>? vol,
+      Value<int>? minVol,
       Value<int>? rowid}) {
     return GoodsStocksCompanion(
       goodsId: goodsId ?? this.goodsId,
       siteId: siteId ?? this.siteId,
       isVollow: isVollow ?? this.isVollow,
-      factor: factor ?? this.factor,
       vol: vol ?? this.vol,
+      minVol: minVol ?? this.minVol,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -14395,11 +14267,11 @@ class GoodsStocksCompanion extends UpdateCompanion<GoodsStock> {
     if (isVollow.present) {
       map['is_vollow'] = Variable<bool>(isVollow.value);
     }
-    if (factor.present) {
-      map['factor'] = Variable<double>(factor.value);
-    }
     if (vol.present) {
-      map['vol'] = Variable<double>(vol.value);
+      map['vol'] = Variable<int>(vol.value);
+    }
+    if (minVol.present) {
+      map['min_vol'] = Variable<int>(minVol.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -14413,8 +14285,8 @@ class GoodsStocksCompanion extends UpdateCompanion<GoodsStock> {
           ..write('goodsId: $goodsId, ')
           ..write('siteId: $siteId, ')
           ..write('isVollow: $isVollow, ')
-          ..write('factor: $factor, ')
           ..write('vol: $vol, ')
+          ..write('minVol: $minVol, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -18339,13 +18211,12 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."is_orderable" AS "nested_0.is_orderable", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."package" AS "nested_0.package", "goods"."rel" AS "nested_0.rel", "goods"."category_user_package_rel" AS "nested_0.category_user_package_rel", "goods"."category_package_rel" AS "nested_0.category_package_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."volume" AS "nested_0.volume", "goods"."for_physical" AS "nested_0.for_physical", "goods"."only_with_docs" AS "nested_0.only_with_docs", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes", categories.package AS categoryPackage, categories.user_package AS categoryUserPackage,"goods_stocks"."goods_id" AS "nested_1.goods_id", "goods_stocks"."site_id" AS "nested_1.site_id", "goods_stocks"."is_vollow" AS "nested_1.is_vollow", "goods_stocks"."factor" AS "nested_1.factor", "goods_stocks"."vol" AS "nested_1.vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM goods JOIN categories ON categories.id = goods.category_id CROSS JOIN buyers LEFT JOIN goods_stocks ON goods_stocks.goods_id = goods.id AND goods_stocks.site_id = buyers.site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
+        'SELECT"goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."is_orderable" AS "nested_0.is_orderable", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."order_rel" AS "nested_0.order_rel", "goods"."order_package" AS "nested_0.order_package", "goods"."category_box_rel" AS "nested_0.category_box_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."volume" AS "nested_0.volume", "goods"."for_physical" AS "nested_0.for_physical", "goods"."only_with_docs" AS "nested_0.only_with_docs", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes","goods_stocks"."goods_id" AS "nested_1.goods_id", "goods_stocks"."site_id" AS "nested_1.site_id", "goods_stocks"."is_vollow" AS "nested_1.is_vollow", "goods_stocks"."vol" AS "nested_1.vol", "goods_stocks"."min_vol" AS "nested_1.min_vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM goods CROSS JOIN buyers LEFT JOIN goods_stocks ON goods_stocks.goods_id = goods.id AND goods_stocks.site_id = buyers.site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
         variables: [
           Variable<int>(buyerId),
           for (var $ in goodsIds) Variable<int>($)
         ],
         readsFrom: {
-          categories,
           goodsRestrictions,
           allGoods,
           buyers,
@@ -18354,8 +18225,6 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
           goodsStocks,
         }).asyncMap((QueryRow row) async => GoodsExResult(
           goods: await allGoods.mapFromRow(row, tablePrefix: 'nested_0'),
-          categoryPackage: row.read<int>('categoryPackage'),
-          categoryUserPackage: row.read<int>('categoryUserPackage'),
           stock:
               await goodsStocks.mapFromRowOrNull(row, tablePrefix: 'nested_1'),
           restricted: row.read<bool>('restricted'),
@@ -18365,7 +18234,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
 
   Selectable<CategoriesExResult> categoriesEx(int buyerId) {
     return customSelect(
-        'SELECT"categories"."id" AS "nested_0.id", "categories"."name" AS "nested_0.name", "categories"."ord" AS "nested_0.ord", "categories"."shop_department_id" AS "nested_0.shop_department_id", "categories"."package" AS "nested_0.package", "categories"."user_package" AS "nested_0.user_package", (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN goods ON shipment_lines.goods_id = goods.id WHERE categories.id = goods.category_id AND shipments.buyer_id = ?1 AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM categories ORDER BY categories.name',
+        'SELECT"categories"."id" AS "nested_0.id", "categories"."name" AS "nested_0.name", "categories"."ord" AS "nested_0.ord", "categories"."shop_department_id" AS "nested_0.shop_department_id", (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id JOIN goods ON shipment_lines.goods_id = goods.id WHERE categories.id = goods.category_id AND shipments.buyer_id = ?1 AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM categories ORDER BY categories.name',
         variables: [
           Variable<int>(buyerId)
         ],
@@ -18433,15 +18302,11 @@ class PreOrderLineExResult {
 
 class GoodsExResult {
   final Goods goods;
-  final int categoryPackage;
-  final int categoryUserPackage;
   final GoodsStock? stock;
   final bool restricted;
   final DateTime? lastShipmentDate;
   GoodsExResult({
     required this.goods,
-    required this.categoryPackage,
-    required this.categoryUserPackage,
     this.stock,
     required this.restricted,
     this.lastShipmentDate,
