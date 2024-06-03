@@ -1969,6 +1969,12 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
   late final GeneratedColumn<String> formsLink = GeneratedColumn<String>(
       'forms_link', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _ntDeptTypeIdMeta =
+      const VerificationMeta('ntDeptTypeId');
+  @override
+  late final GeneratedColumn<int> ntDeptTypeId = GeneratedColumn<int>(
+      'nt_dept_type_id', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         guid,
@@ -1996,7 +2002,8 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
         maxdebt,
         nds10,
         nds20,
-        formsLink
+        formsLink,
+        ntDeptTypeId
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2131,6 +2138,12 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
       context.handle(_formsLinkMeta,
           formsLink.isAcceptableOrUnknown(data['forms_link']!, _formsLinkMeta));
     }
+    if (data.containsKey('nt_dept_type_id')) {
+      context.handle(
+          _ntDeptTypeIdMeta,
+          ntDeptTypeId.isAcceptableOrUnknown(
+              data['nt_dept_type_id']!, _ntDeptTypeIdMeta));
+    }
     return context;
   }
 
@@ -2192,6 +2205,8 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
           .read(DriftSqlType.int, data['${effectivePrefix}nds20']),
       formsLink: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}forms_link']),
+      ntDeptTypeId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}nt_dept_type_id']),
     );
   }
 
@@ -2228,6 +2243,7 @@ class Point extends DataClass implements Insertable<Point> {
   final int? nds10;
   final int? nds20;
   final String? formsLink;
+  final int? ntDeptTypeId;
   const Point(
       {required this.guid,
       required this.isDeleted,
@@ -2254,7 +2270,8 @@ class Point extends DataClass implements Insertable<Point> {
       this.maxdebt,
       this.nds10,
       this.nds20,
-      this.formsLink});
+      this.formsLink,
+      this.ntDeptTypeId});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -2316,6 +2333,9 @@ class Point extends DataClass implements Insertable<Point> {
     if (!nullToAbsent || formsLink != null) {
       map['forms_link'] = Variable<String>(formsLink);
     }
+    if (!nullToAbsent || ntDeptTypeId != null) {
+      map['nt_dept_type_id'] = Variable<int>(ntDeptTypeId);
+    }
     return map;
   }
 
@@ -2369,6 +2389,9 @@ class Point extends DataClass implements Insertable<Point> {
       formsLink: formsLink == null && nullToAbsent
           ? const Value.absent()
           : Value(formsLink),
+      ntDeptTypeId: ntDeptTypeId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(ntDeptTypeId),
     );
   }
 
@@ -2402,6 +2425,7 @@ class Point extends DataClass implements Insertable<Point> {
       nds10: serializer.fromJson<int?>(json['nds10']),
       nds20: serializer.fromJson<int?>(json['nds20']),
       formsLink: serializer.fromJson<String?>(json['formsLink']),
+      ntDeptTypeId: serializer.fromJson<int?>(json['ntDeptTypeId']),
     );
   }
   @override
@@ -2434,6 +2458,7 @@ class Point extends DataClass implements Insertable<Point> {
       'nds10': serializer.toJson<int?>(nds10),
       'nds20': serializer.toJson<int?>(nds20),
       'formsLink': serializer.toJson<String?>(formsLink),
+      'ntDeptTypeId': serializer.toJson<int?>(ntDeptTypeId),
     };
   }
 
@@ -2463,7 +2488,8 @@ class Point extends DataClass implements Insertable<Point> {
           Value<int?> maxdebt = const Value.absent(),
           Value<int?> nds10 = const Value.absent(),
           Value<int?> nds20 = const Value.absent(),
-          Value<String?> formsLink = const Value.absent()}) =>
+          Value<String?> formsLink = const Value.absent(),
+          Value<int?> ntDeptTypeId = const Value.absent()}) =>
       Point(
         guid: guid ?? this.guid,
         isDeleted: isDeleted ?? this.isDeleted,
@@ -2497,6 +2523,8 @@ class Point extends DataClass implements Insertable<Point> {
         nds10: nds10.present ? nds10.value : this.nds10,
         nds20: nds20.present ? nds20.value : this.nds20,
         formsLink: formsLink.present ? formsLink.value : this.formsLink,
+        ntDeptTypeId:
+            ntDeptTypeId.present ? ntDeptTypeId.value : this.ntDeptTypeId,
       );
   @override
   String toString() {
@@ -2526,7 +2554,8 @@ class Point extends DataClass implements Insertable<Point> {
           ..write('maxdebt: $maxdebt, ')
           ..write('nds10: $nds10, ')
           ..write('nds20: $nds20, ')
-          ..write('formsLink: $formsLink')
+          ..write('formsLink: $formsLink, ')
+          ..write('ntDeptTypeId: $ntDeptTypeId')
           ..write(')'))
         .toString();
   }
@@ -2558,7 +2587,8 @@ class Point extends DataClass implements Insertable<Point> {
         maxdebt,
         nds10,
         nds20,
-        formsLink
+        formsLink,
+        ntDeptTypeId
       ]);
   @override
   bool operator ==(Object other) =>
@@ -2589,7 +2619,8 @@ class Point extends DataClass implements Insertable<Point> {
           other.maxdebt == this.maxdebt &&
           other.nds10 == this.nds10 &&
           other.nds20 == this.nds20 &&
-          other.formsLink == this.formsLink);
+          other.formsLink == this.formsLink &&
+          other.ntDeptTypeId == this.ntDeptTypeId);
 }
 
 class PointsCompanion extends UpdateCompanion<Point> {
@@ -2617,6 +2648,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
   final Value<int?> nds10;
   final Value<int?> nds20;
   final Value<String?> formsLink;
+  final Value<int?> ntDeptTypeId;
   final Value<int> rowid;
   const PointsCompanion({
     this.guid = const Value.absent(),
@@ -2643,6 +2675,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
     this.nds10 = const Value.absent(),
     this.nds20 = const Value.absent(),
     this.formsLink = const Value.absent(),
+    this.ntDeptTypeId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PointsCompanion.insert({
@@ -2670,6 +2703,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
     this.nds10 = const Value.absent(),
     this.nds20 = const Value.absent(),
     this.formsLink = const Value.absent(),
+    this.ntDeptTypeId = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : guid = Value(guid),
         name = Value(name),
@@ -2700,6 +2734,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
     Expression<int>? nds10,
     Expression<int>? nds20,
     Expression<String>? formsLink,
+    Expression<int>? ntDeptTypeId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2727,6 +2762,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
       if (nds10 != null) 'nds10': nds10,
       if (nds20 != null) 'nds20': nds20,
       if (formsLink != null) 'forms_link': formsLink,
+      if (ntDeptTypeId != null) 'nt_dept_type_id': ntDeptTypeId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2756,6 +2792,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
       Value<int?>? nds10,
       Value<int?>? nds20,
       Value<String?>? formsLink,
+      Value<int?>? ntDeptTypeId,
       Value<int>? rowid}) {
     return PointsCompanion(
       guid: guid ?? this.guid,
@@ -2782,6 +2819,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
       nds10: nds10 ?? this.nds10,
       nds20: nds20 ?? this.nds20,
       formsLink: formsLink ?? this.formsLink,
+      ntDeptTypeId: ntDeptTypeId ?? this.ntDeptTypeId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2861,6 +2899,9 @@ class PointsCompanion extends UpdateCompanion<Point> {
     if (formsLink.present) {
       map['forms_link'] = Variable<String>(formsLink.value);
     }
+    if (ntDeptTypeId.present) {
+      map['nt_dept_type_id'] = Variable<int>(ntDeptTypeId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2894,6 +2935,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
           ..write('nds10: $nds10, ')
           ..write('nds20: $nds20, ')
           ..write('formsLink: $formsLink, ')
+          ..write('ntDeptTypeId: $ntDeptTypeId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -17753,6 +17795,176 @@ class SitesCompanion extends UpdateCompanion<Site> {
   }
 }
 
+class $NtDeptTypesTable extends NtDeptTypes
+    with TableInfo<$NtDeptTypesTable, NtDeptType> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NtDeptTypesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, name];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'nt_dept_types';
+  @override
+  VerificationContext validateIntegrity(Insertable<NtDeptType> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NtDeptType map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NtDeptType(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+    );
+  }
+
+  @override
+  $NtDeptTypesTable createAlias(String alias) {
+    return $NtDeptTypesTable(attachedDatabase, alias);
+  }
+}
+
+class NtDeptType extends DataClass implements Insertable<NtDeptType> {
+  final int id;
+  final String name;
+  const NtDeptType({required this.id, required this.name});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    return map;
+  }
+
+  NtDeptTypesCompanion toCompanion(bool nullToAbsent) {
+    return NtDeptTypesCompanion(
+      id: Value(id),
+      name: Value(name),
+    );
+  }
+
+  factory NtDeptType.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NtDeptType(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+    };
+  }
+
+  NtDeptType copyWith({int? id, String? name}) => NtDeptType(
+        id: id ?? this.id,
+        name: name ?? this.name,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('NtDeptType(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NtDeptType && other.id == this.id && other.name == this.name);
+}
+
+class NtDeptTypesCompanion extends UpdateCompanion<NtDeptType> {
+  final Value<int> id;
+  final Value<String> name;
+  const NtDeptTypesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+  });
+  NtDeptTypesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+  }) : name = Value(name);
+  static Insertable<NtDeptType> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+    });
+  }
+
+  NtDeptTypesCompanion copyWith({Value<int>? id, Value<String>? name}) {
+    return NtDeptTypesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NtDeptTypesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDataStore extends GeneratedDatabase {
   _$AppDataStore(QueryExecutor e) : super(e);
   late final $UsersTable users = $UsersTable(this);
@@ -17817,6 +18029,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
       $VisitSkipReasonsTable(this);
   late final $VisitsTable visits = $VisitsTable(this);
   late final $SitesTable sites = $SitesTable(this);
+  late final $NtDeptTypesTable ntDeptTypes = $NtDeptTypesTable(this);
   late final BonusProgramsDao bonusProgramsDao =
       BonusProgramsDao(this as AppDataStore);
   late final DebtsDao debtsDao = DebtsDao(this as AppDataStore);
@@ -17920,7 +18133,8 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         routePoints,
         visitSkipReasons,
         visits,
-        sites
+        sites,
+        ntDeptTypes
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(

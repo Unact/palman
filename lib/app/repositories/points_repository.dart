@@ -155,6 +155,7 @@ class PointsRepository extends BaseRepository {
     Optional<int?>? maxdebt,
     Optional<int?>? nds10,
     Optional<int?>? nds20,
+    Optional<int?>? ntDeptTypeId,
     bool restoreDeleted = true
   }) async {
     final newPoint = PointsCompanion(
@@ -175,6 +176,7 @@ class PointsRepository extends BaseRepository {
       maxdebt: maxdebt == null ? const Value.absent() : Value(maxdebt.orNull),
       nds10: nds10 == null ? const Value.absent() : Value(nds10.orNull),
       nds20: nds20 == null ? const Value.absent() : Value(nds20.orNull),
+      ntDeptTypeId: ntDeptTypeId == null ? const Value.absent() : Value(ntDeptTypeId.orNull),
       isDeleted: restoreDeleted ? const Value(false) : const Value.absent()
     );
 
@@ -265,6 +267,7 @@ class PointsRepository extends BaseRepository {
         'maxdebt': e.maxdebt,
         'nds10': e.nds10,
         'nds20': e.nds20,
+        'ntDeptTypeId': e.ntDeptTypeId,
         'images': pointImages.where((i) => i.pointGuid == e.guid).map((i) => {
           'guid': i.guid,
           'isNew': i.isNew,

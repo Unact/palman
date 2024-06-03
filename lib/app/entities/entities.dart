@@ -25,6 +25,7 @@ part 'api_goods_return_stock.dart';
 part 'api_goods_stock.dart';
 part 'api_goods.dart';
 part 'api_inc_request.dart';
+part 'api_nt_dept_type.dart';
 part 'api_order_line.dart';
 part 'api_order.dart';
 part 'api_orders_data.dart';

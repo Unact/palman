@@ -23,6 +23,7 @@ class ApiPoint extends Equatable {
   final DateTime timestamp;
   final List<ApiPointImage> images;
   final String? formsLink;
+  final int? ntDeptTypeId;
 
   const ApiPoint({
     required this.id,
@@ -46,7 +47,8 @@ class ApiPoint extends Equatable {
     this.nds20,
     required this.timestamp,
     required this.images,
-    this.formsLink
+    this.formsLink,
+    this.ntDeptTypeId
   });
 
   factory ApiPoint.fromJson(dynamic json) {
@@ -72,7 +74,8 @@ class ApiPoint extends Equatable {
       nds20: json['nds20'],
       timestamp: Parsing.parseDate(json['timestamp'])!,
       images: json['images'].map<ApiPointImage>((e) => ApiPointImage.fromJson(e)).toList(),
-      formsLink: json['formsLink']
+      formsLink: json['formsLink'],
+      ntDeptTypeId: json['ntDeptTypeId']
     );
   }
 
@@ -97,6 +100,7 @@ class ApiPoint extends Equatable {
       nds10: nds10,
       nds20: nds20,
       formsLink: formsLink,
+      ntDeptTypeId: ntDeptTypeId,
       guid: guid,
       isNew: false,
       isDeleted: false,
@@ -130,6 +134,7 @@ class ApiPoint extends Equatable {
     nds10,
     nds20,
     formsLink,
+    ntDeptTypeId,
     timestamp
   ];
 }

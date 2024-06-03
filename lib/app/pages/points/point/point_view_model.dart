@@ -5,6 +5,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
   final PointsRepository pointsRepository;
   StreamSubscription<List<PointEx>>? pointExListSubscription;
   StreamSubscription<List<PointFormat>>? pointFormatsSubscription;
+  StreamSubscription<List<NtDeptType>>? ntDeptTypesSubscription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
 
   PointViewModel(this.appRepository, this.pointsRepository, { required PointEx pointEx }) :
@@ -33,6 +34,9 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
     pointFormatsSubscription = pointsRepository.watchPointFormats().listen((event) {
       emit(state.copyWith(status: PointStateStatus.dataLoaded, pointFormats: event));
     });
+    ntDeptTypesSubscription = appRepository.watchNtDeptTypes().listen((event) {
+      emit(state.copyWith(status: PointStateStatus.dataLoaded, ntDeptTypes: event));
+    });
   }
 
   @override
@@ -41,6 +45,7 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
 
     await pointExListSubscription?.cancel();
     await pointFormatsSubscription?.cancel();
+    await ntDeptTypesSubscription?.cancel();
     await appInfoSubscription?.cancel();
   }
 
@@ -172,6 +177,14 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
     await pointsRepository.updatePoint(
       state.pointEx.point,
       inn: Optional.of(jur)
+    );
+    _notifyPointUpdated();
+  }
+
+  Future<void> updateNtDeptTypeId(int ntDeptTypeId) async {
+    await pointsRepository.updatePoint(
+      state.pointEx.point,
+      ntDeptTypeId: Optional.of(ntDeptTypeId)
     );
     _notifyPointUpdated();
   }
