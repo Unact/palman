@@ -15,6 +15,7 @@ class PointState {
     this.status = PointStateStatus.initial,
     required this.pointEx,
     this.pointFormats = const [],
+    this.ntDeptTypes = const [],
     this.message = '',
     this.appInfo
   });
@@ -22,6 +23,7 @@ class PointState {
   final PointStateStatus status;
   final PointEx pointEx;
   final List<PointFormat> pointFormats;
+  final List<NtDeptType> ntDeptTypes;
   final String message;
   final AppInfoResult? appInfo;
 
@@ -35,6 +37,7 @@ class PointState {
     PointStateStatus? status,
     PointEx? pointEx,
     List<PointFormat>? pointFormats,
+    List<NtDeptType>? ntDeptTypes,
     String? message,
     AppInfoResult? appInfo
   }) {
@@ -42,6 +45,7 @@ class PointState {
       status: status ?? this.status,
       pointEx: pointEx ?? this.pointEx,
       pointFormats: pointFormats ?? this.pointFormats,
+      ntDeptTypes: ntDeptTypes ?? this.ntDeptTypes,
       message: message ?? this.message,
       appInfo: appInfo ?? this.appInfo
     );

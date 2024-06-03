@@ -69,6 +69,11 @@ class Sites extends Table {
   TextColumn get name => text()();
 }
 
+class NtDeptTypes extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+}
+
 class Locations extends Table {
   IntColumn get id => integer().autoIncrement()();
   RealColumn get latitude => real()();
@@ -102,6 +107,7 @@ class Points extends Table with Syncable {
   IntColumn get nds10 => integer().nullable()();
   IntColumn get nds20 => integer().nullable()();
   TextColumn get formsLink => text().nullable()();
+  IntColumn get ntDeptTypeId => integer().nullable()();
 }
 
 class PointImages extends Table with Syncable {

@@ -293,6 +293,22 @@ class _PointViewState extends State<_PointView> {
           style: Styles.formStyle
         )
       ),
+      InfoRow.page(
+        title: const Text('Вид отдела НТ', style: Styles.formStyle),
+        trailing: DropdownButtonFormField(
+          isExpanded: true,
+          value: point.ntDeptTypeId,
+          style: Theme.of(context).textTheme.titleMedium!.merge(Styles.formStyle),
+          alignment: AlignmentDirectional.center,
+          items: vm.state.ntDeptTypes.map((NtDeptType v) {
+            return DropdownMenuItem<int>(
+              value: v.id,
+              child: Text(v.name),
+            );
+          }).toList(),
+          onChanged: (v) => vm.updateNtDeptTypeId(v!)
+        )
+      ),
       const ListTile(
         contentPadding: EdgeInsets.all(8),
         title: Text('Фотографии точки', style: Styles.formStyle),
