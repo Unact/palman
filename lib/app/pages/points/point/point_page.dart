@@ -136,8 +136,10 @@ class _PointViewState extends State<_PointView> {
         switch (state.status) {
           case PointStateStatus.pointRemoved:
             WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (!context.mounted) return;
+
               Navigator.maybeOf(context)?.popUntil((route) => route.isFirst);
-              Misc.showMessage(context, 'Акт возврата не доступен для редактирования');
+              Misc.showMessage(context, 'Точка не доступна для редактирования');
             });
             break;
           case PointStateStatus.openLinkError:
