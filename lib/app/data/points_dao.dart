@@ -3,13 +3,10 @@ part of 'database.dart';
 @DriftAccessor(
   tables: [
     Buyers,
-    Partners,
-    Sites,
     Points,
     PointImages,
     PointFormats,
-    RoutePoints,
-    Visits
+    RoutePoints
   ]
 )
 class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
@@ -35,56 +32,8 @@ class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
     await db._loadData(pointFormats, list);
   }
 
-  Future<void> loadRoutePoints(List<RoutePoint> list, [bool clearTable = true]) async {
-    await db._loadData(routePoints, list, clearTable);
-  }
-
-  Future<void> loadVisits(List<Visit> list, [bool clearTable = true]) async {
-    await db._loadData(visits, list, clearTable);
-  }
-
   Stream<List<PointFormat>> watchPointFormats() {
     return select(pointFormats).watch();
-  }
-
-  Stream<List<VisitEx>> watchVisitExList() {
-    final res = select(visits).join([
-      innerJoin(buyers, buyers.id.equalsExp(visits.buyerId)),
-      innerJoin(partners, partners.id.equalsExp(buyers.partnerId)),
-      innerJoin(sites, sites.id.equalsExp(buyers.siteId))
-    ])
-    ..orderBy([OrderingTerm(expression: buyers.name)]);
-
-    return res.map(
-      (row) => VisitEx(
-        row.readTable(visits),
-        BuyerEx(
-          row.readTable(buyers),
-          row.readTable(partners),
-          row.readTable(sites),
-        )
-      )
-    ).watch();
-  }
-
-  Stream<List<RoutePointEx>> watchRoutePoints() {
-    final res = select(routePoints).join([
-      innerJoin(buyers, buyers.id.equalsExp(routePoints.buyerId)),
-      innerJoin(partners, partners.id.equalsExp(buyers.partnerId)),
-      innerJoin(sites, sites.id.equalsExp(buyers.siteId))
-    ])
-    ..orderBy([OrderingTerm(expression: buyers.name)]);
-
-    return res.map(
-      (row) => RoutePointEx(
-        row.readTable(routePoints),
-        BuyerEx(
-          row.readTable(buyers),
-          row.readTable(partners),
-          row.readTable(sites),
-        )
-      )
-    ).watch();
   }
 
   Stream<List<PointBuyerRoutePoint>> watchPointBuyerRoutePoints() {
@@ -178,23 +127,9 @@ class PointEx {
   PointEx(this.point, this.images);
 }
 
-class RoutePointEx {
-  final RoutePoint routePoint;
-  final BuyerEx? buyerEx;
-
-  RoutePointEx(this.routePoint, this.buyerEx);
-}
-
 class PointBuyerRoutePoint {
   final Point point;
   final List<RoutePoint> routePoints;
 
   PointBuyerRoutePoint(this.point, this.routePoints);
-}
-
-class VisitEx {
-  final Visit visit;
-  final BuyerEx? buyerEx;
-
-  VisitEx(this.visit, this.buyerEx);
 }

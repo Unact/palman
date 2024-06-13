@@ -18,7 +18,6 @@ import '/app/repositories/app_repository.dart';
 import '/app/repositories/points_repository.dart';
 import '/app/widgets/widgets.dart';
 import 'address/address_page.dart';
-import 'point_images/point_images_page.dart';
 
 part 'point_state.dart';
 part 'point_view_model.dart';
@@ -124,12 +123,7 @@ class _PointViewState extends State<_PointView> {
             child: ListView(
               children: buildPointFields(context)
             )
-          ),
-          floatingActionButton: FloatingActionButton(
-            heroTag: null,
-            onPressed: vm.tryTakePicture,
-            child: const Icon(Icons.camera),
-          ),
+          )
         );
       },
       listener: (context, state) async {
@@ -319,7 +313,18 @@ class _PointViewState extends State<_PointView> {
           style: Styles.formStyle
         )
       ),
-      GridView.count(crossAxisCount: 4, shrinkWrap: true, mainAxisSpacing: 16, children: buildImages(context))
+      GridView.count(
+          crossAxisCount: 4,
+          shrinkWrap: true,
+          mainAxisSpacing: 16,
+          children: buildImages(context)
+            ..add(GestureDetector(child: IconButton(
+              onPressed: vm.tryTakePicture,
+              icon: const Icon(Icons.add_a_photo),
+              tooltip: 'Сделать фотографию',
+            ))
+          )
+        )
     ];
   }
 
@@ -340,7 +345,11 @@ class _PointViewState extends State<_PointView> {
             context,
             MaterialPageRoute(
               fullscreenDialog: false,
-              builder: (BuildContext context) => PointImagesPage(pointEx: vm.state.pointEx, curIdx: idx)
+              builder: (BuildContext context) => ImageGallery(
+                curIdx: idx,
+                images: images,
+                onDelete: (idx) async => await vm.deletePointImage(vm.state.images[idx])
+              )
             )
           );
         },

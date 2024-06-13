@@ -6,6 +6,7 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   final PartnersRepository partnersRepository;
   final PointsRepository pointsRepository;
   final UsersRepository usersRepository;
+  final VisitsRepository visitsRepository;
   StreamSubscription<List<VisitSkipReason>>? visitSkipReasonsSubscription;
   StreamSubscription<List<Workdate>>? workdatesSubscription;
   StreamSubscription<List<PointEx>>? pointExListSubscription;
@@ -20,7 +21,8 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     this.ordersRepository,
     this.partnersRepository,
     this.pointsRepository,
-    this.usersRepository
+    this.usersRepository,
+    this.visitsRepository
   ) : super(PointsState(selectedReason: PointsState.kReasonFilter.first));
 
   @override
@@ -39,10 +41,10 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     buyersSubscription = partnersRepository.watchBuyers().listen((event) {
       emit(state.copyWith(status: PointsStateStatus.dataLoaded, buyerExList: event));
     });
-    routePointListSubscription = pointsRepository.watchRoutePointExList().listen((event) {
+    routePointListSubscription = visitsRepository.watchRoutePointExList().listen((event) {
       emit(state.copyWith(status: PointsStateStatus.dataLoaded, routePointExList: event));
     });
-    visitListSubcription = pointsRepository.watchVisitExList().listen((event) {
+    visitListSubcription = visitsRepository.watchVisitExList().listen((event) {
       emit(state.copyWith(status: PointsStateStatus.dataLoaded, visitExList: event));
     });
     pointExListSubscription = pointsRepository.watchPointExList().listen((event) {
@@ -119,7 +121,8 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     if (state.isLoading) return;
 
     final futures = [
-      pointsRepository.loadPoints
+      pointsRepository.loadPoints,
+      visitsRepository.loadVisits
     ];
 
     try {
@@ -131,7 +134,7 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     }
   }
 
-  Future<void> visit({RoutePointEx? routePointEx, Buyer? buyer, VisitSkipReason? visitSkipReason}) async {
+  Future<void> visit({RoutePoint? routePoint, required Buyer buyer, VisitSkipReason? visitSkipReason}) async {
     final result = Platform.isIOS ?
       await Geolocator.requestTemporaryFullAccuracy(purposeKey: 'route point') :
       LocationAccuracyStatus.precise;
@@ -149,9 +152,9 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
     final position = await l.Location().getLocation();
 
     try {
-      await pointsRepository.visit(
+      final visitEx = await visitsRepository.visit(
         buyer: buyer,
-        routePoint: routePointEx?.routePoint,
+        routePoint: routePoint,
         visitSkipReason: visitSkipReason,
         latitude: position.latitude ?? 0,
         longitude: position.longitude ?? 0,
@@ -162,7 +165,11 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
         timestamp: DateTime.fromMillisecondsSinceEpoch(position.time?.toInt() ?? 0)
       );
 
-      emit(state.copyWith(status: PointsStateStatus.visitSuccess, message: 'Отметка сохранена'));
+      emit(state.copyWith(
+        status: PointsStateStatus.visitSuccess,
+        message: 'Отметка сохранена',
+        newVisit: visitEx
+      ));
     } on AppError catch(e) {
       emit(state.copyWith(status: PointsStateStatus.visitFailure, message: e.message));
     }

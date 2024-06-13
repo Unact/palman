@@ -14,6 +14,17 @@ mixin Syncable on Table {
   Set<Column> get primaryKey => {guid};
 }
 
+mixin Imageable on Table {
+  TextColumn get imageUrl => text()();
+  TextColumn get imageKey => text()();
+}
+
+mixin Photoable on Table {
+  RealColumn get latitude => real()();
+  RealColumn get longitude => real()();
+  RealColumn get accuracy => real()();
+}
+
 class JsonListConverter<T> extends TypeConverter<EqualList<T>, String> {
   const JsonListConverter();
 
@@ -74,6 +85,23 @@ class NtDeptTypes extends Table {
   TextColumn get name => text()();
 }
 
+class GoodsLists extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get name => text()();
+}
+
+@DataClassName('GoodsListGoods')
+class AllGoodsListGoods extends Table {
+  @override
+  String get tableName => 'goods_list_goods';
+
+  IntColumn get goodsListId => integer()();
+  IntColumn get goodsId => integer()();
+
+  @override
+  Set<Column> get primaryKey => {goodsListId, goodsId};
+}
+
 class Locations extends Table {
   IntColumn get id => integer().autoIncrement()();
   RealColumn get latitude => real()();
@@ -110,15 +138,10 @@ class Points extends Table with Syncable {
   IntColumn get ntDeptTypeId => integer().nullable()();
 }
 
-class PointImages extends Table with Syncable {
+class PointImages extends Table with Syncable, Photoable, Imageable {
   IntColumn get id => integer().nullable()();
   TextColumn get pointGuid => text()
     .references(Points, #guid, onUpdate: KeyAction.cascade, onDelete: KeyAction.cascade)();
-  RealColumn get latitude => real()();
-  RealColumn get longitude => real()();
-  RealColumn get accuracy => real()();
-  TextColumn get imageUrl => text()();
-  TextColumn get imageKey => text()();
 }
 
 class PreEncashments extends Table with Syncable {
@@ -179,14 +202,12 @@ class IncRequests extends Table with Syncable {
 }
 
 @DataClassName('Goods')
-class AllGoods extends Table {
+class AllGoods extends Table with Imageable {
   @override
   String get tableName => 'goods';
 
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
-  TextColumn get imageUrl => text()();
-  TextColumn get imageKey => text()();
   IntColumn get categoryId => integer()();
   TextColumn get manufacturer => text().nullable()();
   BoolColumn get isLatest => boolean()();
@@ -473,9 +494,8 @@ class PartnersReturnActTypes extends Table {
 
 class RoutePoints extends Table {
   IntColumn get id => integer().autoIncrement()();
-  TextColumn get name => text()();
   DateTimeColumn get date => dateTime()();
-  IntColumn get buyerId => integer().nullable()();
+  IntColumn get buyerId => integer()();
   BoolColumn get visited => boolean().nullable()();
 }
 
@@ -484,13 +504,39 @@ class VisitSkipReasons extends Table {
   TextColumn get name => text()();
 }
 
-class Visits extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get name => text()();
+class Visits extends Table with Syncable {
+  IntColumn get id => integer().nullable()();
   DateTimeColumn get date => dateTime()();
-  IntColumn get buyerId => integer().nullable()();
+  IntColumn get buyerId => integer()();
   IntColumn get routePointId => integer().nullable()();
   IntColumn get visitSkipReasonId => integer().nullable()();
+  BoolColumn get needCheckGL => boolean()();
+  BoolColumn get needTakePhotos => boolean()();
+  BoolColumn get needDetails => boolean().generatedAs(needCheckGL | needTakePhotos)();
 
   BoolColumn get visited => boolean().generatedAs(visitSkipReasonId.isNull())();
+}
+
+class VisitImages extends Table with Photoable, Imageable, Syncable {
+  IntColumn get id => integer()();
+  TextColumn get visitGuid => text()
+    .references(Visits, #guid, onUpdate: KeyAction.cascade, onDelete: KeyAction.cascade)();
+}
+
+class VisitGoodsLists extends Table with Syncable {
+  IntColumn get id => integer().nullable()();
+  IntColumn get goodsListId => integer()();
+  TextColumn get visitGuid => text()
+    .references(Visits, #guid, onUpdate: KeyAction.cascade, onDelete: KeyAction.cascade)();
+}
+
+@DataClassName('VisitGoodsListGoods')
+class AllVisitGoodsListGoods extends Table with Syncable {
+  @override
+  String get tableName => 'visit_goods_list_goods';
+
+  IntColumn get id => integer().nullable()();
+  IntColumn get goodsId => integer()();
+  TextColumn get visitGoodsListGuid => text()
+    .references(VisitGoodsLists, #guid, onUpdate: KeyAction.cascade, onDelete: KeyAction.cascade)();
 }

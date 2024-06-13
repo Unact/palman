@@ -22,6 +22,7 @@ import 'app/repositories/prices_repository.dart';
 import 'app/repositories/return_acts_repository.dart';
 import 'app/repositories/shipments_repository.dart';
 import 'app/repositories/users_repository.dart';
+import 'app/repositories/visits_repository.dart';
 
 void main() async {
   Provider.debugCheckInvalidValueType = null;
@@ -42,6 +43,7 @@ void main() async {
   ReturnActsRepository returnActsRepository = ReturnActsRepository(dataStore, api);
   ShipmentsRepository shipmentsRepository = ShipmentsRepository(dataStore, api);
   UsersRepository usersRepository = UsersRepository(dataStore, api);
+  VisitsRepository visitsRepository = VisitsRepository(dataStore, api);
 
   GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -76,7 +78,8 @@ void main() async {
           RepositoryProvider.value(value: pricesRepository),
           RepositoryProvider.value(value: returnActsRepository),
           RepositoryProvider.value(value: shipmentsRepository),
-          RepositoryProvider.value(value: usersRepository)
+          RepositoryProvider.value(value: usersRepository),
+          RepositoryProvider.value(value: visitsRepository)
         ],
         child: MaterialApp(
           scaffoldMessengerKey: scaffoldMessengerKey,

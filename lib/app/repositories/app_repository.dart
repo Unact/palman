@@ -60,6 +60,8 @@ class AppRepository extends BaseRepository {
         final visitSkipReasons = data.visitSkipReasons.map((e) => e.toDatabaseEnt()).toList();
         final sites = data.sites.map((e) => e.toDatabaseEnt()).toList();
         final ntDeptTypes = data.ntDeptTypes.map((e) => e.toDatabaseEnt()).toList();
+        final goodsLists = data.goodsLists.map((e) => e.toDatabaseEnt()).toList();
+        final goodsListGoods = data.goodsListGoods.map((e) => e.toDatabaseEnt()).toList();
 
         await dataStore.partnersDao.loadBuyers(buyers);
         await dataStore.partnersDao.loadPartners(partners);
@@ -75,6 +77,8 @@ class AppRepository extends BaseRepository {
         await dataStore.loadVisitSkipReasons(visitSkipReasons);
         await dataStore.partnersDao.loadSites(sites);
         await dataStore.loadNtDeptTypes(ntDeptTypes);
+        await dataStore.visitsDao.loadGoodsLists(goodsLists);
+        await dataStore.visitsDao.loadGoodsListGoods(goodsListGoods);
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
