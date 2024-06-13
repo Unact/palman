@@ -25,6 +25,7 @@ import '/app/repositories/prices_repository.dart';
 import '/app/repositories/return_acts_repository.dart';
 import '/app/repositories/shipments_repository.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/repositories/visits_repository.dart';
 import '/app/widgets/widgets.dart';
 
 part 'info_state.dart';
@@ -48,6 +49,7 @@ class InfoPage extends StatelessWidget {
         RepositoryProvider.of<ReturnActsRepository>(context),
         RepositoryProvider.of<ShipmentsRepository>(context),
         RepositoryProvider.of<UsersRepository>(context),
+        RepositoryProvider.of<VisitsRepository>(context),
       ),
       child: _InfoView(),
     );

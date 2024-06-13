@@ -19,8 +19,10 @@ import '/app/repositories/orders_repository.dart';
 import '/app/repositories/partners_repository.dart';
 import '/app/repositories/points_repository.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/repositories/visits_repository.dart';
 import '/app/widgets/widgets.dart';
 import 'point/point_page.dart';
+import 'visit/visit_page.dart';
 import 'map/map_page.dart';
 import '../orders_info/order/order_page.dart';
 
@@ -41,6 +43,7 @@ class PointsPage extends StatelessWidget {
         RepositoryProvider.of<PartnersRepository>(context),
         RepositoryProvider.of<PointsRepository>(context),
         RepositoryProvider.of<UsersRepository>(context),
+        RepositoryProvider.of<VisitsRepository>(context),
       ),
       child: _PointsView(),
     );
@@ -103,7 +106,13 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
       }
     );
 
-    if (result != null) await vm.visit(routePointEx: routePointEx, visitSkipReason: result);
+    if (result == null) return;
+
+    await vm.visit(
+      routePoint: routePointEx.routePoint,
+      buyer: routePointEx.buyerEx.buyer,
+      visitSkipReason: result
+    );
   }
 
   Future<void> showBuyerDialog() async {
@@ -216,6 +225,14 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
             progressDialog.open();
             break;
           case PointsStateStatus.visitSuccess:
+            progressDialog.close();
+            Misc.showMessage(context, state.message);
+            if (state.newVisit?.visit.needDetails ?? false) {
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                openVisitDetailsPage(state.newVisit!);
+              });
+            }
+            break;
           case PointsStateStatus.visitFailure:
             progressDialog.close();
             Misc.showMessage(context, state.message);
@@ -291,13 +308,8 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
             const Icon(Icons.check, color: Colors.green) :
             const Icon(Icons.clear, color: Colors.red)
       ),
-      title: Text(
-        routePointEx.buyerEx != null ? routePointEx.buyerEx!.buyer.fullname : routePointEx.routePoint.name,
-        style: Styles.tileText
-      ),
-      subtitle: routePointEx.buyerEx != null ?
-        Text("${routePointEx.buyerEx!.site.name}, ${routePointEx.buyerEx!.partner.name}", style: Styles.tileText) :
-        null,
+      title: Text(routePointEx.buyerEx.buyer.fullname, style: Styles.tileText),
+      subtitle: Text("${routePointEx.buyerEx.site.name}, ${routePointEx.buyerEx.partner.name}", style: Styles.tileText),
       trailing: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         mainAxisSize: MainAxisSize.min,
@@ -311,14 +323,16 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
           ),
           IconButton(
             icon: const Icon(Icons.check_box),
-            onPressed: routePointEx.routePoint.visited == null ? () => vm.visit(routePointEx: routePointEx) : null,
+            onPressed: routePointEx.routePoint.visited == null ?
+              () => vm.visit(routePoint: routePointEx.routePoint, buyer: routePointEx.buyerEx.buyer) :
+              null,
             tooltip: 'Отметить посещение',
             constraints: const BoxConstraints(),
             padding: const EdgeInsets.only(right: 16)
           ),
           IconButton(
             icon: const Icon(Icons.add_shopping_cart),
-            onPressed: routePointEx.buyerEx != null ? () => vm.addNewOrder(routePointEx) : null,
+            onPressed: () => vm.addNewOrder(routePointEx),
             tooltip: 'Создать заказ',
             constraints: const BoxConstraints(),
             padding: const EdgeInsets.only(right: 16)
@@ -375,13 +389,21 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
           const Icon(Icons.check, color: Colors.green) :
           const Icon(Icons.clear, color: Colors.red)
       ),
-      title: Text(
-        visitEx.buyerEx != null ? visitEx.buyerEx!.buyer.fullname : visitEx.visit.name,
-        style: Styles.tileText
+      title: Text(visitEx.buyerEx.buyer.fullname, style: Styles.tileText),
+      subtitle: Text("${visitEx.buyerEx.site.name}, ${visitEx.buyerEx.partner.name}", style: Styles.tileText),
+      trailing: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.min,
+        children: !visitEx.visit.needDetails ? [] : [
+          IconButton(
+            icon: const Icon(Icons.checklist),
+            onPressed: () => openVisitDetailsPage(visitEx),
+            tooltip: 'Указать детали',
+            constraints: const BoxConstraints(),
+            padding: const EdgeInsets.only(right: 16)
+          )
+        ]
       ),
-      subtitle: visitEx.buyerEx != null ?
-        Text("${visitEx.buyerEx!.site.name}, ${visitEx.buyerEx!.partner.name}", style: Styles.tileText) :
-        null,
       dense: false
     );
   }
@@ -489,6 +511,16 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => MapPage(),
+        fullscreenDialog: false
+      )
+    );
+  }
+
+  Future<void> openVisitDetailsPage(VisitEx visitEx) async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => VisitPage(visitEx: visitEx),
         fullscreenDialog: false
       )
     );

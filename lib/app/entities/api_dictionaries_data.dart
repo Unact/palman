@@ -15,6 +15,8 @@ class ApiDictionariesData extends Equatable {
   final List<ApiVisitSkipReason> visitSkipReasons;
   final List<ApiSite> sites;
   final List<ApiNtDeptType> ntDeptTypes;
+  final List<ApiGoodsList> goodsLists;
+  final List<ApiGoodsListGoods> goodsListGoods;
 
   const ApiDictionariesData({
     required this.buyers,
@@ -30,7 +32,9 @@ class ApiDictionariesData extends Equatable {
     required this.returnActTypes,
     required this.visitSkipReasons,
     required this.sites,
-    required this.ntDeptTypes
+    required this.ntDeptTypes,
+    required this.goodsLists,
+    required this.goodsListGoods
   });
 
   factory ApiDictionariesData.fromJson(Map<String, dynamic> json) {
@@ -55,6 +59,9 @@ class ApiDictionariesData extends Equatable {
       .map<ApiVisitSkipReason>((e) => ApiVisitSkipReason.fromJson(e)).toList();
     List<ApiSite> sites = json['sites'].map<ApiSite>((e) => ApiSite.fromJson(e)).toList();
     List<ApiNtDeptType> ntDeptTypes = json['ntDeptTypes'].map<ApiNtDeptType>((e) => ApiNtDeptType.fromJson(e)).toList();
+    List<ApiGoodsList> goodsLists = json['goodsLists'].map<ApiGoodsList>((e) => ApiGoodsList.fromJson(e)).toList();
+    List<ApiGoodsListGoods> goodsListGoods = json['goodsListGoods']
+      .map<ApiGoodsListGoods>((e) => ApiGoodsListGoods.fromJson(e)).toList();
 
     return ApiDictionariesData(
       buyers: buyers,
@@ -70,7 +77,9 @@ class ApiDictionariesData extends Equatable {
       returnActTypes: returnActTypes,
       visitSkipReasons: visitSkipReasons,
       sites: sites,
-      ntDeptTypes: ntDeptTypes
+      ntDeptTypes: ntDeptTypes,
+      goodsLists: goodsLists,
+      goodsListGoods: goodsListGoods
     );
   }
 
@@ -89,6 +98,8 @@ class ApiDictionariesData extends Equatable {
     returnActTypes,
     visitSkipReasons,
     sites,
-    ntDeptTypes
+    ntDeptTypes,
+    goodsLists,
+    goodsListGoods
   ];
 }

@@ -27,6 +27,7 @@ part 'prices_dao.dart';
 part 'shipments_dao.dart';
 part 'return_acts_dao.dart';
 part 'users_dao.dart';
+part 'visits_dao.dart';
 
 @DriftDatabase(
   tables: [
@@ -78,7 +79,12 @@ part 'users_dao.dart';
     VisitSkipReasons,
     Visits,
     Sites,
-    NtDeptTypes
+    NtDeptTypes,
+    GoodsLists,
+    AllGoodsListGoods,
+    VisitImages,
+    VisitGoodsLists,
+    AllVisitGoodsListGoods
   ],
   daos: [
     BonusProgramsDao,
@@ -89,7 +95,8 @@ part 'users_dao.dart';
     PricesDao,
     ShipmentsDao,
     ReturnActsDao,
-    UsersDao
+    UsersDao,
+    VisitsDao
   ],
   queries: {
     'appInfo': '''
@@ -246,7 +253,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 33;
+  int get schemaVersion => 34;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -314,7 +321,12 @@ class AppDataStore extends _$AppDataStore {
       (pricelistPrices, ['goods_id', 'pricelist_id']),
       (pointImages, ['point_guid']),
       (allGoods, ['category_id']),
-      (goodsStocks, ['goods_id'])
+      (goodsStocks, ['goods_id']),
+      (allGoodsListGoods, ['goods_id', 'goods_list_id']),
+      (visitImages, ['visit_guid']),
+      (visitGoodsLists, ['visit_guid']),
+      (allVisitGoodsListGoods, ['visit_goods_list_guid']),
+      (allVisitGoodsListGoods, ['goods_id', 'visit_goods_list_guid'])
     ];
 
     for (final index in indices) {

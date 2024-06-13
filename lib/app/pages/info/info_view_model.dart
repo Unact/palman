@@ -10,6 +10,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   final ReturnActsRepository returnActsRepository;
   final ShipmentsRepository shipmentsRepository;
   final UsersRepository usersRepository;
+  final VisitsRepository visitsRepository;
   final battery = Battery();
   StreamSubscription<Position>? positionSubscription;
   StreamSubscription<User>? userSubscription;
@@ -26,7 +27,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     this.pricesRepository,
     this.returnActsRepository,
     this.shipmentsRepository,
-    this.usersRepository
+    this.usersRepository,
+    this.visitsRepository
   ) : super(InfoState());
 
   @override
@@ -147,7 +149,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       ordersRepository.loadOrders,
       pricesRepository.loadPrices,
       shipmentsRepository.loadShipments,
-      returnActsRepository.loadReturnActs
+      returnActsRepository.loadReturnActs,
+      visitsRepository.loadVisits
     ];
 
     try {

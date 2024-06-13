@@ -49,14 +49,6 @@ class PointsRepository extends BaseRepository {
     return dataStore.pointsDao.watchPointFormats();
   }
 
-  Stream<List<RoutePointEx>> watchRoutePointExList() {
-    return dataStore.pointsDao.watchRoutePoints();
-  }
-
-  Stream<List<VisitEx>> watchVisitExList() {
-    return dataStore.pointsDao.watchVisitExList();
-  }
-
   Future<void> loadPoints() async {
     try {
       final data = await api.getPoints();
@@ -66,13 +58,9 @@ class PointsRepository extends BaseRepository {
         final pointImages = data.points
           .map((e) => e.images.map((i) => i.toDatabaseEnt(e.guid))).expand((e) => e)
           .toList();
-        final routePoints = data.routePoints.map((e) => e.toDatabaseEnt()).toList();
-        final visits = data.visits.map((e) => e.toDatabaseEnt()).toList();
 
         await dataStore.pointsDao.loadPoints(points);
         await dataStore.pointsDao.loadPointImages(pointImages);
-        await dataStore.pointsDao.loadRoutePoints(routePoints);
-        await dataStore.pointsDao.loadVisits(visits);
       });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
@@ -121,7 +109,8 @@ class PointsRepository extends BaseRepository {
     required double accuracy,
     required DateTime timestamp
   }) async {
-    final imageKey = md5.convert(await file.readAsBytes());
+    final fileData = await file.readAsBytes();
+    final imageKey = md5.convert(fileData);
     final guid = dataStore.generateGuid();
     await dataStore.pointsDao.addPointImage(
       PointImagesCompanion.insert(
@@ -134,7 +123,7 @@ class PointsRepository extends BaseRepository {
         imageKey: imageKey.toString()
       )
     );
-    await pointImagesCacheManager.putFile('', await file.readAsBytes(), key: imageKey.toString());
+    await pointImagesCacheManager.putFile('', fileData, key: imageKey.toString());
   }
 
   Future<void> updatePoint(Point point, {
@@ -189,48 +178,6 @@ class PointsRepository extends BaseRepository {
 
   Future<void> deletePointImage(PointImage pointImage) async {
     await dataStore.pointsDao.updatePointImage(pointImage.guid, const PointImagesCompanion(isDeleted: Value(true)));
-  }
-
-  Future<void> visit({
-    required Buyer? buyer,
-    required RoutePoint? routePoint,
-    required VisitSkipReason? visitSkipReason,
-    required double latitude,
-    required double longitude,
-    required double accuracy,
-    required double altitude,
-    required double heading,
-    required double speed,
-    required DateTime timestamp
-  }) async {
-    try {
-      Map<String, dynamic> visitData = {
-        'buyerId': buyer?.id,
-        'routePointId': routePoint?.id,
-        'visitSkipReasonId': visitSkipReason?.id,
-        'latitude': latitude,
-        'longitude': longitude,
-        'accuracy': accuracy,
-        'altitude': altitude,
-        'heading': heading,
-        'speed': speed,
-        'timestamp': timestamp.toIso8601String()
-      };
-      final data = await api.visit(visitData);
-
-      await dataStore.transaction(() async {
-        final routePoints = data.routePoints.map((e) => e.toDatabaseEnt()).toList();
-        final visits = data.visits.map((e) => e.toDatabaseEnt()).toList();
-
-        await dataStore.pointsDao.loadRoutePoints(routePoints);
-        await dataStore.pointsDao.loadVisits(visits);
-      });
-    } on ApiException catch(e) {
-      throw AppError(e.errorMsg);
-    } catch(e, trace) {
-      Misc.reportError(e, trace);
-      throw AppError(Strings.genericErrorMsg);
-    }
   }
 
   Future<void> syncPoints(List<Point> points, List<PointImage> pointImages) async {

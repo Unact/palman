@@ -34,6 +34,7 @@ class PointsState {
     this.visitExList = const [],
     this.buyerExList = const [],
     this.user,
+    this.newVisit
   });
 
   final PointsStateStatus status;
@@ -50,6 +51,7 @@ class PointsState {
   final List<VisitEx> visitExList;
   final List<BuyerEx> buyerExList;
   final User? user;
+  final VisitEx? newVisit;
 
   int get pendingChanges => appInfo == null ? 0 : appInfo!.pointsToSync;
   bool get preOrderMode => user?.preOrderMode ?? false;
@@ -72,7 +74,8 @@ class PointsState {
     String? message,
     List<VisitEx>? visitExList,
     List<BuyerEx>? buyerExList,
-    User? user
+    User? user,
+    VisitEx? newVisit
   }) {
     return PointsState(
       status: status ?? this.status,
@@ -88,7 +91,8 @@ class PointsState {
       message: message ?? this.message,
       visitExList: visitExList ?? this.visitExList,
       buyerExList: buyerExList ?? this.buyerExList,
-      user: user ?? this.user
+      user: user ?? this.user,
+      newVisit: newVisit ?? this.newVisit
     );
   }
 }

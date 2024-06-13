@@ -45,6 +45,10 @@ extension PalmanApi on RenewApi {
     return ApiReturnActsData.fromJson(await get('v1/palman/return_acts'));
   }
 
+  Future<ApiVisitsData> getVisits() async {
+    return ApiVisitsData.fromJson(await get('v1/palman/visits'));
+  }
+
   Future<ApiReturnRemainsData> getReturnRemains({required int buyerId, required int returnActTypeId}) async {
     final queryParameters = {
       'buyerId': buyerId,
@@ -68,8 +72,22 @@ extension PalmanApi on RenewApi {
     return ApiPointsData.fromJson(await post('v1/palman/points/save', dataGenerator: () => points));
   }
 
-  Future<ApiPointsData> visit(Map<String, dynamic> visitData) async {
-    return ApiPointsData.fromJson(await post('v1/palman/points/visit', dataGenerator: () => visitData));
+  Future<ApiVisitsData> visit(Map<String, dynamic> visitData) async {
+    return ApiVisitsData.fromJson(await post('v1/palman/visits/visit', dataGenerator: () => visitData));
+  }
+
+  Future<ApiVisitsData> finishVisitList(Map<String, dynamic> visitListData) async {
+    return ApiVisitsData.fromJson(await post('v1/palman/visits/finish_visit_list', dataGenerator: () => visitListData));
+  }
+
+  Future<ApiVisitsData> addVisitImage(Map<String, dynamic> visitImageData) async {
+    return ApiVisitsData.fromJson(await post('v1/palman/visits/add_visit_image', dataGenerator: () => visitImageData));
+  }
+
+  Future<ApiVisitsData> deleteVisitImage(Map<String, dynamic> visitImageData) async {
+    return ApiVisitsData.fromJson(
+      await post('v1/palman/visits/delete_visit_image', dataGenerator: () => visitImageData)
+    );
   }
 
   Future<ApiDebtsData> saveDebts(List<Map<String, dynamic>> preEncashments) async {

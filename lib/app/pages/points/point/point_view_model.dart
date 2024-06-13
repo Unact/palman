@@ -211,4 +211,12 @@ class PointViewModel extends PageViewModel<PointState, PointStateStatus> {
       emit(state.copyWith(status: PointStateStatus.openLinkError, message: Strings.openLinkError));
     }
   }
+
+  Future<void> deletePointImage(PointImage pointImage) async {
+    await pointsRepository.deletePointImage(pointImage);
+    emit(state.copyWith(
+      status: PointStateStatus.pointImageDeleted,
+      pointEx: PointEx(state.pointEx.point, state.pointEx.images.where((e) => e != pointImage).toList())
+    ));
+  }
 }
