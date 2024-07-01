@@ -274,7 +274,7 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
 
   Widget buildRoutePointDateTile(BuildContext context, DateTime date, List<RoutePointEx> routePointExList) {
     return ExpansionTile(
-      initiallyExpanded: false,
+      initiallyExpanded: date == DateTime.now().date(),
       title: Text.rich(
         TextSpan(
           children: <TextSpan>[
@@ -359,7 +359,7 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
 
   Widget buildVisitDateTile(BuildContext context, DateTime date, List<VisitEx> visitExList) {
     return ExpansionTile(
-      initiallyExpanded: false,
+      initiallyExpanded: date == DateTime.now().date(),
       title: Text.rich(
         TextSpan(
           children: <TextSpan>[

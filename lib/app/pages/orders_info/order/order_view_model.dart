@@ -6,6 +6,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   final OrdersRepository ordersRepository;
   final PricesRepository pricesRepository;
   final UsersRepository usersRepository;
+  final VisitsRepository visitsRepository;
 
   StreamSubscription<User>? userSubscription;
   StreamSubscription<List<OrderExResult>>? orderExListSubscription;
@@ -13,6 +14,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
   StreamSubscription<List<BuyerEx>>? buyersSubscription;
   StreamSubscription<List<Workdate>>? workdatesSubscription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
+  StreamSubscription<List<RoutePointEx>>? routePointListSubscription;
 
   OrderViewModel(
     this.appRepository,
@@ -20,6 +22,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     this.partnersRepository,
     this.pricesRepository,
     this.usersRepository,
+    this.visitsRepository,
     {
       required OrderExResult orderEx
     }
@@ -60,6 +63,9 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     appInfoSubscription = appRepository.watchAppInfo().listen((event) {
       emit(state.copyWith(status: OrderStateStatus.dataLoaded, appInfo: event));
     });
+    routePointListSubscription = visitsRepository.watchRoutePointExList().listen((event) {
+      emit(state.copyWith(status: OrderStateStatus.dataLoaded, routePointExList: event));
+    });
   }
 
   @override
@@ -72,6 +78,7 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
     await buyersSubscription?.cancel();
     await workdatesSubscription?.cancel();
     await appInfoSubscription?.cancel();
+    await routePointListSubscription?.cancel();
   }
 
   Future<void> updateNeedProcessing() async {
@@ -90,6 +97,15 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
       date: const Optional.absent()
     );
     _notifyOrderUpdated();
+
+    final hasUnvisited = state.routePointExList.any((e) =>
+      e.routePoint.visited == null &&
+      e.buyerEx.buyer.id == buyer?.id && e.
+      routePoint.date == DateTime.now().date()
+    );
+
+    if (hasUnvisited) emit(state.copyWith(status: OrderStateStatus.unVisitedBuyerSelected));
+
   }
 
   Future<void> updateDate(DateTime? date) async {
