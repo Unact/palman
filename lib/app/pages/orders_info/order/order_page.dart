@@ -6,14 +6,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
+import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
+import '/app/pages/points/points_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
 import '/app/repositories/partners_repository.dart';
 import '/app/repositories/prices_repository.dart';
 import '/app/repositories/users_repository.dart';
+import '/app/repositories/visits_repository.dart';
 import '/app/widgets/widgets.dart';
 import 'goods/goods_page.dart';
 
@@ -37,7 +40,8 @@ class OrderPage extends StatelessWidget {
         RepositoryProvider.of<OrdersRepository>(context),
         RepositoryProvider.of<PartnersRepository>(context),
         RepositoryProvider.of<PricesRepository>(context),
-        RepositoryProvider.of<UsersRepository>(context)
+        RepositoryProvider.of<UsersRepository>(context),
+        RepositoryProvider.of<VisitsRepository>(context)
       ),
       child: _OrderView(),
     );
@@ -72,6 +76,27 @@ class _OrderViewState extends State<_OrderView> {
     );
 
     vm.updateDate(result);
+  }
+
+  Future<void> showUnVisitedBuyerDialog() async {
+    final result = await showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Предупреждение'),
+          content: const SingleChildScrollView(child: ListBody(children: <Widget>[
+            Text('Данные клиент в маршруте, хотите отметить посещение?')
+          ])),
+          actions: <Widget>[
+            TextButton(child: const Text(Strings.no), onPressed: () => Navigator.of(context).pop(false)),
+            TextButton(child: const Text(Strings.yes), onPressed: () => Navigator.of(context).pop(true))
+          ],
+        );
+      }
+    ) ?? false;
+
+    if (result) openPointsPage();
   }
 
   @override
@@ -115,6 +140,11 @@ class _OrderViewState extends State<_OrderView> {
       },
       listener: (context, state) {
         switch (state.status) {
+          case OrderStateStatus.unVisitedBuyerSelected:
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showUnVisitedBuyerDialog();
+            });
+            break;
           case OrderStateStatus.orderRemoved:
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!context.mounted) return;
@@ -282,6 +312,16 @@ class _OrderViewState extends State<_OrderView> {
       context,
       MaterialPageRoute(
         builder: (BuildContext context) => OrderPage(orderEx: orderEx),
+        fullscreenDialog: false
+      )
+    );
+  }
+
+  Future<void> openPointsPage() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (BuildContext context) => PointsPage(),
         fullscreenDialog: false
       )
     );

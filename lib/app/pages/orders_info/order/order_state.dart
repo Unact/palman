@@ -6,7 +6,8 @@ enum OrderStateStatus {
   orderUpdated,
   orderCopied,
   orderLineDeleted,
-  orderRemoved
+  orderRemoved,
+  unVisitedBuyerSelected
 }
 
 class OrderState {
@@ -19,7 +20,8 @@ class OrderState {
     this.workdates = const [],
     this.buyerExList = const [],
     this.newOrder,
-    this.appInfo
+    this.appInfo,
+    this.routePointExList = const []
   });
 
   final OrderStateStatus status;
@@ -32,6 +34,7 @@ class OrderState {
   final List<BuyerEx> buyerExList;
   final OrderExResult? newOrder;
   final AppInfoResult? appInfo;
+  final List<RoutePointEx> routePointExList;
 
   bool get isEditable => orderEx.order.isEditable;
   bool get canBeProcessed => !orderEx.order.isEditable || filteredOrderLinesExList.isEmpty;
@@ -57,7 +60,8 @@ class OrderState {
     List<Workdate>? workdates,
     List<BuyerEx>? buyerExList,
     OrderExResult? newOrder,
-    AppInfoResult? appInfo
+    AppInfoResult? appInfo,
+    List<RoutePointEx>? routePointExList,
   }) {
     return OrderState(
       status: status ?? this.status,
@@ -68,7 +72,8 @@ class OrderState {
       workdates: workdates ?? this.workdates,
       buyerExList: buyerExList ?? this.buyerExList,
       newOrder: newOrder ?? this.newOrder,
-      appInfo: appInfo ?? this.appInfo
+      appInfo: appInfo ?? this.appInfo,
+      routePointExList: routePointExList ?? this.routePointExList
     );
   }
 }
