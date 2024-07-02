@@ -90,6 +90,18 @@ extension PalmanApi on RenewApi {
     );
   }
 
+  Future<ApiVisitsData> addVisitSoftware(Map<String, dynamic> visitSoftwareData) async {
+    return ApiVisitsData.fromJson(
+      await post('v1/palman/visits/add_visit_software', dataGenerator: () => visitSoftwareData)
+    );
+  }
+
+  Future<ApiVisitsData> deleteVisitSoftware(Map<String, dynamic> visitSoftwareData) async {
+    return ApiVisitsData.fromJson(
+      await post('v1/palman/visits/delete_visit_software', dataGenerator: () => visitSoftwareData)
+    );
+  }
+
   Future<ApiDebtsData> saveDebts(List<Map<String, dynamic>> preEncashments) async {
     return ApiDebtsData.fromJson(
       await post('v2/palman/debts/save', dataGenerator: () => preEncashments)

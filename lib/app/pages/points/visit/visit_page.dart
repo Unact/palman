@@ -66,7 +66,7 @@ class _VisitViewState extends State<_VisitView> {
           onError: (String message) => WidgetsBinding.instance.addPostFrameCallback(
             (_) => Misc.showMessage(this.context, message)
           ),
-          onTakePicture: (XFile file) => vm.addVisitImage(file)
+          onTakePicture: (XFile file) => vm.state.takeSoftwarePhoto ? vm.addVisitSoftware(file) : vm.addVisitImage(file)
         )
       )
     );
@@ -118,7 +118,8 @@ class _VisitViewState extends State<_VisitView> {
 
     return [
       visit.needCheckGL ? buildGoodsList(context) : Container(),
-      visit.needTakePhotos ? buildImageList(context) : Container()
+      visit.needTakePhotos ? buildImageList(context) : Container(),
+      visit.needFillSoftware ? buildSoftwareList(context) : Container()
     ];
   }
 
@@ -195,7 +196,7 @@ class _VisitViewState extends State<_VisitView> {
           mainAxisSpacing: 16,
           children: buildImages(context)
             ..add(GestureDetector(child: IconButton(
-              onPressed: vm.tryTakePicture,
+              onPressed: () => vm.tryTakePicture(false),
               icon: const Icon(Icons.add_a_photo),
               tooltip: 'Сделать фотографию',
             ))
@@ -233,5 +234,63 @@ class _VisitViewState extends State<_VisitView> {
         child: imageWidget
       );
     }).toList();
+  }
+
+  List<Widget> buildSoftwares(BuildContext context) {
+    final vm = context.read<VisitViewModel>();
+    final images = vm.state.softwares.map((software) => RetryableImage(
+      color: Theme.of(context).colorScheme.primary,
+      cached: software.needSync || vm.state.showLocalImage,
+      imageUrl: software.imageUrl,
+      cacheKey: software.imageKey,
+      cacheManager: VisitsRepository.visitSoftwaresCacheManager,
+    )).toList();
+
+    return images.mapIndexed((idx, imageWidget) {
+      return GestureDetector(
+        onTap: () {
+          Navigator.push<String>(
+            context,
+            MaterialPageRoute(
+              fullscreenDialog: false,
+              builder: (BuildContext context) => ImageGallery(
+                curIdx: idx,
+                images: images,
+                onDelete: (idx) async => await vm.deleteVisitSoftware(vm.state.softwares[idx])
+              )
+            )
+          );
+        },
+        child: imageWidget
+      );
+    }).toList();
+  }
+
+  Widget buildSoftwareList(BuildContext context) {
+    final vm = context.read<VisitViewModel>();
+
+    return Column(
+      children: [
+        const ListTile(
+          contentPadding: EdgeInsets.all(8),
+          title: Text('1C', style: Styles.formStyle),
+        ),
+        GridView.count(
+          crossAxisCount: 4,
+          shrinkWrap: true,
+          mainAxisSpacing: 16,
+          children: buildSoftwares(context)
+            ..add(GestureDetector(
+              child: vm.state.softwares.isNotEmpty ?
+                Container() :
+                IconButton(
+                  onPressed: () => vm.tryTakePicture(true),
+                  icon: const Icon(Icons.add_a_photo),
+                  tooltip: 'Сделать фотографию',
+                )
+            ))
+        )
+      ],
+    );
   }
 }

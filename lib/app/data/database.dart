@@ -83,6 +83,7 @@ part 'visits_dao.dart';
     GoodsLists,
     AllGoodsListGoods,
     VisitImages,
+    VisitSoftwares,
     VisitGoodsLists,
     AllVisitGoodsListGoods
   ],
@@ -253,7 +254,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 34;
+  int get schemaVersion => 35;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -324,6 +325,7 @@ class AppDataStore extends _$AppDataStore {
       (goodsStocks, ['goods_id']),
       (allGoodsListGoods, ['goods_id', 'goods_list_id']),
       (visitImages, ['visit_guid']),
+      (visitSoftwares, ['visit_guid']),
       (visitGoodsLists, ['visit_guid']),
       (allVisitGoodsListGoods, ['visit_goods_list_guid']),
       (allVisitGoodsListGoods, ['goods_id', 'visit_goods_list_guid'])

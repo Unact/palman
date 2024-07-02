@@ -17341,12 +17341,22 @@ class $VisitsTable extends Visits with TableInfo<$VisitsTable, Visit> {
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'CHECK ("need_take_photos" IN (0, 1))'));
+  static const VerificationMeta _needFillSoftwareMeta =
+      const VerificationMeta('needFillSoftware');
+  @override
+  late final GeneratedColumn<bool> needFillSoftware = GeneratedColumn<bool>(
+      'need_fill_software', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("need_fill_software" IN (0, 1))'));
   static const VerificationMeta _needDetailsMeta =
       const VerificationMeta('needDetails');
   @override
   late final GeneratedColumn<bool> needDetails = GeneratedColumn<bool>(
       'need_details', aliasedName, false,
-      generatedAs: GeneratedAs(needCheckGL | needTakePhotos, false),
+      generatedAs:
+          GeneratedAs(needCheckGL | needTakePhotos | needFillSoftware, false),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
@@ -17377,6 +17387,7 @@ class $VisitsTable extends Visits with TableInfo<$VisitsTable, Visit> {
         visitSkipReasonId,
         needCheckGL,
         needTakePhotos,
+        needFillSoftware,
         needDetails,
         visited
       ];
@@ -17467,6 +17478,14 @@ class $VisitsTable extends Visits with TableInfo<$VisitsTable, Visit> {
     } else if (isInserting) {
       context.missing(_needTakePhotosMeta);
     }
+    if (data.containsKey('need_fill_software')) {
+      context.handle(
+          _needFillSoftwareMeta,
+          needFillSoftware.isAcceptableOrUnknown(
+              data['need_fill_software']!, _needFillSoftwareMeta));
+    } else if (isInserting) {
+      context.missing(_needFillSoftwareMeta);
+    }
     if (data.containsKey('need_details')) {
       context.handle(
           _needDetailsMeta,
@@ -17514,6 +17533,8 @@ class $VisitsTable extends Visits with TableInfo<$VisitsTable, Visit> {
           .read(DriftSqlType.bool, data['${effectivePrefix}need_check_g_l'])!,
       needTakePhotos: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}need_take_photos'])!,
+      needFillSoftware: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}need_fill_software'])!,
       needDetails: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}need_details'])!,
       visited: attachedDatabase.typeMapping
@@ -17542,6 +17563,7 @@ class Visit extends DataClass implements Insertable<Visit> {
   final int? visitSkipReasonId;
   final bool needCheckGL;
   final bool needTakePhotos;
+  final bool needFillSoftware;
   final bool needDetails;
   final bool visited;
   const Visit(
@@ -17559,6 +17581,7 @@ class Visit extends DataClass implements Insertable<Visit> {
       this.visitSkipReasonId,
       required this.needCheckGL,
       required this.needTakePhotos,
+      required this.needFillSoftware,
       required this.needDetails,
       required this.visited});
   @override
@@ -17584,6 +17607,7 @@ class Visit extends DataClass implements Insertable<Visit> {
     }
     map['need_check_g_l'] = Variable<bool>(needCheckGL);
     map['need_take_photos'] = Variable<bool>(needTakePhotos);
+    map['need_fill_software'] = Variable<bool>(needFillSoftware);
     return map;
   }
 
@@ -17607,6 +17631,7 @@ class Visit extends DataClass implements Insertable<Visit> {
           : Value(visitSkipReasonId),
       needCheckGL: Value(needCheckGL),
       needTakePhotos: Value(needTakePhotos),
+      needFillSoftware: Value(needFillSoftware),
     );
   }
 
@@ -17628,6 +17653,7 @@ class Visit extends DataClass implements Insertable<Visit> {
       visitSkipReasonId: serializer.fromJson<int?>(json['visitSkipReasonId']),
       needCheckGL: serializer.fromJson<bool>(json['needCheckGL']),
       needTakePhotos: serializer.fromJson<bool>(json['needTakePhotos']),
+      needFillSoftware: serializer.fromJson<bool>(json['needFillSoftware']),
       needDetails: serializer.fromJson<bool>(json['needDetails']),
       visited: serializer.fromJson<bool>(json['visited']),
     );
@@ -17650,6 +17676,7 @@ class Visit extends DataClass implements Insertable<Visit> {
       'visitSkipReasonId': serializer.toJson<int?>(visitSkipReasonId),
       'needCheckGL': serializer.toJson<bool>(needCheckGL),
       'needTakePhotos': serializer.toJson<bool>(needTakePhotos),
+      'needFillSoftware': serializer.toJson<bool>(needFillSoftware),
       'needDetails': serializer.toJson<bool>(needDetails),
       'visited': serializer.toJson<bool>(visited),
     };
@@ -17670,6 +17697,7 @@ class Visit extends DataClass implements Insertable<Visit> {
           Value<int?> visitSkipReasonId = const Value.absent(),
           bool? needCheckGL,
           bool? needTakePhotos,
+          bool? needFillSoftware,
           bool? needDetails,
           bool? visited}) =>
       Visit(
@@ -17691,6 +17719,7 @@ class Visit extends DataClass implements Insertable<Visit> {
             : this.visitSkipReasonId,
         needCheckGL: needCheckGL ?? this.needCheckGL,
         needTakePhotos: needTakePhotos ?? this.needTakePhotos,
+        needFillSoftware: needFillSoftware ?? this.needFillSoftware,
         needDetails: needDetails ?? this.needDetails,
         visited: visited ?? this.visited,
       );
@@ -17711,6 +17740,7 @@ class Visit extends DataClass implements Insertable<Visit> {
           ..write('visitSkipReasonId: $visitSkipReasonId, ')
           ..write('needCheckGL: $needCheckGL, ')
           ..write('needTakePhotos: $needTakePhotos, ')
+          ..write('needFillSoftware: $needFillSoftware, ')
           ..write('needDetails: $needDetails, ')
           ..write('visited: $visited')
           ..write(')'))
@@ -17733,6 +17763,7 @@ class Visit extends DataClass implements Insertable<Visit> {
       visitSkipReasonId,
       needCheckGL,
       needTakePhotos,
+      needFillSoftware,
       needDetails,
       visited);
   @override
@@ -17753,6 +17784,7 @@ class Visit extends DataClass implements Insertable<Visit> {
           other.visitSkipReasonId == this.visitSkipReasonId &&
           other.needCheckGL == this.needCheckGL &&
           other.needTakePhotos == this.needTakePhotos &&
+          other.needFillSoftware == this.needFillSoftware &&
           other.needDetails == this.needDetails &&
           other.visited == this.visited);
 }
@@ -17770,6 +17802,7 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
   final Value<int?> visitSkipReasonId;
   final Value<bool> needCheckGL;
   final Value<bool> needTakePhotos;
+  final Value<bool> needFillSoftware;
   final Value<int> rowid;
   const VisitsCompanion({
     this.guid = const Value.absent(),
@@ -17784,6 +17817,7 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
     this.visitSkipReasonId = const Value.absent(),
     this.needCheckGL = const Value.absent(),
     this.needTakePhotos = const Value.absent(),
+    this.needFillSoftware = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   VisitsCompanion.insert({
@@ -17799,12 +17833,14 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
     this.visitSkipReasonId = const Value.absent(),
     required bool needCheckGL,
     required bool needTakePhotos,
+    required bool needFillSoftware,
     this.rowid = const Value.absent(),
   })  : guid = Value(guid),
         date = Value(date),
         buyerId = Value(buyerId),
         needCheckGL = Value(needCheckGL),
-        needTakePhotos = Value(needTakePhotos);
+        needTakePhotos = Value(needTakePhotos),
+        needFillSoftware = Value(needFillSoftware);
   static Insertable<Visit> custom({
     Expression<String>? guid,
     Expression<bool>? isDeleted,
@@ -17818,6 +17854,7 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
     Expression<int>? visitSkipReasonId,
     Expression<bool>? needCheckGL,
     Expression<bool>? needTakePhotos,
+    Expression<bool>? needFillSoftware,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -17833,6 +17870,7 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
       if (visitSkipReasonId != null) 'visit_skip_reason_id': visitSkipReasonId,
       if (needCheckGL != null) 'need_check_g_l': needCheckGL,
       if (needTakePhotos != null) 'need_take_photos': needTakePhotos,
+      if (needFillSoftware != null) 'need_fill_software': needFillSoftware,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -17850,6 +17888,7 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
       Value<int?>? visitSkipReasonId,
       Value<bool>? needCheckGL,
       Value<bool>? needTakePhotos,
+      Value<bool>? needFillSoftware,
       Value<int>? rowid}) {
     return VisitsCompanion(
       guid: guid ?? this.guid,
@@ -17864,6 +17903,7 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
       visitSkipReasonId: visitSkipReasonId ?? this.visitSkipReasonId,
       needCheckGL: needCheckGL ?? this.needCheckGL,
       needTakePhotos: needTakePhotos ?? this.needTakePhotos,
+      needFillSoftware: needFillSoftware ?? this.needFillSoftware,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -17907,6 +17947,9 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
     if (needTakePhotos.present) {
       map['need_take_photos'] = Variable<bool>(needTakePhotos.value);
     }
+    if (needFillSoftware.present) {
+      map['need_fill_software'] = Variable<bool>(needFillSoftware.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -17928,6 +17971,7 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
           ..write('visitSkipReasonId: $visitSkipReasonId, ')
           ..write('needCheckGL: $needCheckGL, ')
           ..write('needTakePhotos: $needTakePhotos, ')
+          ..write('needFillSoftware: $needFillSoftware, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -19266,6 +19310,642 @@ class VisitImagesCompanion extends UpdateCompanion<VisitImage> {
   }
 }
 
+class $VisitSoftwaresTable extends VisitSoftwares
+    with TableInfo<$VisitSoftwaresTable, VisitSoftware> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VisitSoftwaresTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _latitudeMeta =
+      const VerificationMeta('latitude');
+  @override
+  late final GeneratedColumn<double> latitude = GeneratedColumn<double>(
+      'latitude', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _longitudeMeta =
+      const VerificationMeta('longitude');
+  @override
+  late final GeneratedColumn<double> longitude = GeneratedColumn<double>(
+      'longitude', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _accuracyMeta =
+      const VerificationMeta('accuracy');
+  @override
+  late final GeneratedColumn<double> accuracy = GeneratedColumn<double>(
+      'accuracy', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _imageUrlMeta =
+      const VerificationMeta('imageUrl');
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+      'image_url', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _imageKeyMeta =
+      const VerificationMeta('imageKey');
+  @override
+  late final GeneratedColumn<String> imageKey = GeneratedColumn<String>(
+      'image_key', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _guidMeta = const VerificationMeta('guid');
+  @override
+  late final GeneratedColumn<String> guid = GeneratedColumn<String>(
+      'guid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isDeletedMeta =
+      const VerificationMeta('isDeleted');
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _currentTimestampMeta =
+      const VerificationMeta('currentTimestamp');
+  @override
+  late final GeneratedColumn<DateTime> currentTimestamp =
+      GeneratedColumn<DateTime>('current_timestamp', aliasedName, false,
+          type: DriftSqlType.dateTime,
+          requiredDuringInsert: false,
+          defaultValue: currentDateAndTime);
+  static const VerificationMeta _lastSyncTimeMeta =
+      const VerificationMeta('lastSyncTime');
+  @override
+  late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
+      'last_sync_time', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          (isNew & isDeleted.not()) |
+              (isNew.not() & lastSyncTime.isSmallerThan(timestamp)),
+          true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _visitGuidMeta =
+      const VerificationMeta('visitGuid');
+  @override
+  late final GeneratedColumn<String> visitGuid = GeneratedColumn<String>(
+      'visit_guid', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES visits (guid) ON UPDATE CASCADE ON DELETE CASCADE'));
+  @override
+  List<GeneratedColumn> get $columns => [
+        latitude,
+        longitude,
+        accuracy,
+        imageUrl,
+        imageKey,
+        guid,
+        isDeleted,
+        timestamp,
+        currentTimestamp,
+        lastSyncTime,
+        needSync,
+        isNew,
+        id,
+        visitGuid
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'visit_softwares';
+  @override
+  VerificationContext validateIntegrity(Insertable<VisitSoftware> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('latitude')) {
+      context.handle(_latitudeMeta,
+          latitude.isAcceptableOrUnknown(data['latitude']!, _latitudeMeta));
+    } else if (isInserting) {
+      context.missing(_latitudeMeta);
+    }
+    if (data.containsKey('longitude')) {
+      context.handle(_longitudeMeta,
+          longitude.isAcceptableOrUnknown(data['longitude']!, _longitudeMeta));
+    } else if (isInserting) {
+      context.missing(_longitudeMeta);
+    }
+    if (data.containsKey('accuracy')) {
+      context.handle(_accuracyMeta,
+          accuracy.isAcceptableOrUnknown(data['accuracy']!, _accuracyMeta));
+    } else if (isInserting) {
+      context.missing(_accuracyMeta);
+    }
+    if (data.containsKey('image_url')) {
+      context.handle(_imageUrlMeta,
+          imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta));
+    } else if (isInserting) {
+      context.missing(_imageUrlMeta);
+    }
+    if (data.containsKey('image_key')) {
+      context.handle(_imageKeyMeta,
+          imageKey.isAcceptableOrUnknown(data['image_key']!, _imageKeyMeta));
+    } else if (isInserting) {
+      context.missing(_imageKeyMeta);
+    }
+    if (data.containsKey('guid')) {
+      context.handle(
+          _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(_isDeletedMeta,
+          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('current_timestamp')) {
+      context.handle(
+          _currentTimestampMeta,
+          currentTimestamp.isAcceptableOrUnknown(
+              data['current_timestamp']!, _currentTimestampMeta));
+    }
+    if (data.containsKey('last_sync_time')) {
+      context.handle(
+          _lastSyncTimeMeta,
+          lastSyncTime.isAcceptableOrUnknown(
+              data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('visit_guid')) {
+      context.handle(_visitGuidMeta,
+          visitGuid.isAcceptableOrUnknown(data['visit_guid']!, _visitGuidMeta));
+    } else if (isInserting) {
+      context.missing(_visitGuidMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {guid};
+  @override
+  VisitSoftware map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VisitSoftware(
+      latitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}latitude'])!,
+      longitude: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}longitude'])!,
+      accuracy: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}accuracy'])!,
+      imageUrl: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_url'])!,
+      imageKey: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}image_key'])!,
+      guid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}guid'])!,
+      isDeleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      currentTimestamp: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
+      lastSyncTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      visitGuid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}visit_guid'])!,
+    );
+  }
+
+  @override
+  $VisitSoftwaresTable createAlias(String alias) {
+    return $VisitSoftwaresTable(attachedDatabase, alias);
+  }
+}
+
+class VisitSoftware extends DataClass implements Insertable<VisitSoftware> {
+  final double latitude;
+  final double longitude;
+  final double accuracy;
+  final String imageUrl;
+  final String imageKey;
+  final String guid;
+  final bool isDeleted;
+  final DateTime timestamp;
+  final DateTime currentTimestamp;
+  final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
+  final int id;
+  final String visitGuid;
+  const VisitSoftware(
+      {required this.latitude,
+      required this.longitude,
+      required this.accuracy,
+      required this.imageUrl,
+      required this.imageKey,
+      required this.guid,
+      required this.isDeleted,
+      required this.timestamp,
+      required this.currentTimestamp,
+      this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
+      required this.id,
+      required this.visitGuid});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['latitude'] = Variable<double>(latitude);
+    map['longitude'] = Variable<double>(longitude);
+    map['accuracy'] = Variable<double>(accuracy);
+    map['image_url'] = Variable<String>(imageUrl);
+    map['image_key'] = Variable<String>(imageKey);
+    map['guid'] = Variable<String>(guid);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['current_timestamp'] = Variable<DateTime>(currentTimestamp);
+    if (!nullToAbsent || lastSyncTime != null) {
+      map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
+    }
+    map['id'] = Variable<int>(id);
+    map['visit_guid'] = Variable<String>(visitGuid);
+    return map;
+  }
+
+  VisitSoftwaresCompanion toCompanion(bool nullToAbsent) {
+    return VisitSoftwaresCompanion(
+      latitude: Value(latitude),
+      longitude: Value(longitude),
+      accuracy: Value(accuracy),
+      imageUrl: Value(imageUrl),
+      imageKey: Value(imageKey),
+      guid: Value(guid),
+      isDeleted: Value(isDeleted),
+      timestamp: Value(timestamp),
+      currentTimestamp: Value(currentTimestamp),
+      lastSyncTime: lastSyncTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncTime),
+      id: Value(id),
+      visitGuid: Value(visitGuid),
+    );
+  }
+
+  factory VisitSoftware.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VisitSoftware(
+      latitude: serializer.fromJson<double>(json['latitude']),
+      longitude: serializer.fromJson<double>(json['longitude']),
+      accuracy: serializer.fromJson<double>(json['accuracy']),
+      imageUrl: serializer.fromJson<String>(json['imageUrl']),
+      imageKey: serializer.fromJson<String>(json['imageKey']),
+      guid: serializer.fromJson<String>(json['guid']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
+      lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
+      id: serializer.fromJson<int>(json['id']),
+      visitGuid: serializer.fromJson<String>(json['visitGuid']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'latitude': serializer.toJson<double>(latitude),
+      'longitude': serializer.toJson<double>(longitude),
+      'accuracy': serializer.toJson<double>(accuracy),
+      'imageUrl': serializer.toJson<String>(imageUrl),
+      'imageKey': serializer.toJson<String>(imageKey),
+      'guid': serializer.toJson<String>(guid),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
+      'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
+      'id': serializer.toJson<int>(id),
+      'visitGuid': serializer.toJson<String>(visitGuid),
+    };
+  }
+
+  VisitSoftware copyWith(
+          {double? latitude,
+          double? longitude,
+          double? accuracy,
+          String? imageUrl,
+          String? imageKey,
+          String? guid,
+          bool? isDeleted,
+          DateTime? timestamp,
+          DateTime? currentTimestamp,
+          Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
+          int? id,
+          String? visitGuid}) =>
+      VisitSoftware(
+        latitude: latitude ?? this.latitude,
+        longitude: longitude ?? this.longitude,
+        accuracy: accuracy ?? this.accuracy,
+        imageUrl: imageUrl ?? this.imageUrl,
+        imageKey: imageKey ?? this.imageKey,
+        guid: guid ?? this.guid,
+        isDeleted: isDeleted ?? this.isDeleted,
+        timestamp: timestamp ?? this.timestamp,
+        currentTimestamp: currentTimestamp ?? this.currentTimestamp,
+        lastSyncTime:
+            lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
+        id: id ?? this.id,
+        visitGuid: visitGuid ?? this.visitGuid,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('VisitSoftware(')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude, ')
+          ..write('accuracy: $accuracy, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('imageKey: $imageKey, ')
+          ..write('guid: $guid, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('currentTimestamp: $currentTimestamp, ')
+          ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
+          ..write('id: $id, ')
+          ..write('visitGuid: $visitGuid')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      latitude,
+      longitude,
+      accuracy,
+      imageUrl,
+      imageKey,
+      guid,
+      isDeleted,
+      timestamp,
+      currentTimestamp,
+      lastSyncTime,
+      needSync,
+      isNew,
+      id,
+      visitGuid);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VisitSoftware &&
+          other.latitude == this.latitude &&
+          other.longitude == this.longitude &&
+          other.accuracy == this.accuracy &&
+          other.imageUrl == this.imageUrl &&
+          other.imageKey == this.imageKey &&
+          other.guid == this.guid &&
+          other.isDeleted == this.isDeleted &&
+          other.timestamp == this.timestamp &&
+          other.currentTimestamp == this.currentTimestamp &&
+          other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
+          other.id == this.id &&
+          other.visitGuid == this.visitGuid);
+}
+
+class VisitSoftwaresCompanion extends UpdateCompanion<VisitSoftware> {
+  final Value<double> latitude;
+  final Value<double> longitude;
+  final Value<double> accuracy;
+  final Value<String> imageUrl;
+  final Value<String> imageKey;
+  final Value<String> guid;
+  final Value<bool> isDeleted;
+  final Value<DateTime> timestamp;
+  final Value<DateTime> currentTimestamp;
+  final Value<DateTime?> lastSyncTime;
+  final Value<int> id;
+  final Value<String> visitGuid;
+  final Value<int> rowid;
+  const VisitSoftwaresCompanion({
+    this.latitude = const Value.absent(),
+    this.longitude = const Value.absent(),
+    this.accuracy = const Value.absent(),
+    this.imageUrl = const Value.absent(),
+    this.imageKey = const Value.absent(),
+    this.guid = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.currentTimestamp = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
+    this.id = const Value.absent(),
+    this.visitGuid = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  VisitSoftwaresCompanion.insert({
+    required double latitude,
+    required double longitude,
+    required double accuracy,
+    required String imageUrl,
+    required String imageKey,
+    required String guid,
+    this.isDeleted = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.currentTimestamp = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
+    required int id,
+    required String visitGuid,
+    this.rowid = const Value.absent(),
+  })  : latitude = Value(latitude),
+        longitude = Value(longitude),
+        accuracy = Value(accuracy),
+        imageUrl = Value(imageUrl),
+        imageKey = Value(imageKey),
+        guid = Value(guid),
+        id = Value(id),
+        visitGuid = Value(visitGuid);
+  static Insertable<VisitSoftware> custom({
+    Expression<double>? latitude,
+    Expression<double>? longitude,
+    Expression<double>? accuracy,
+    Expression<String>? imageUrl,
+    Expression<String>? imageKey,
+    Expression<String>? guid,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? timestamp,
+    Expression<DateTime>? currentTimestamp,
+    Expression<DateTime>? lastSyncTime,
+    Expression<int>? id,
+    Expression<String>? visitGuid,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (latitude != null) 'latitude': latitude,
+      if (longitude != null) 'longitude': longitude,
+      if (accuracy != null) 'accuracy': accuracy,
+      if (imageUrl != null) 'image_url': imageUrl,
+      if (imageKey != null) 'image_key': imageKey,
+      if (guid != null) 'guid': guid,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (currentTimestamp != null) 'current_timestamp': currentTimestamp,
+      if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
+      if (id != null) 'id': id,
+      if (visitGuid != null) 'visit_guid': visitGuid,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  VisitSoftwaresCompanion copyWith(
+      {Value<double>? latitude,
+      Value<double>? longitude,
+      Value<double>? accuracy,
+      Value<String>? imageUrl,
+      Value<String>? imageKey,
+      Value<String>? guid,
+      Value<bool>? isDeleted,
+      Value<DateTime>? timestamp,
+      Value<DateTime>? currentTimestamp,
+      Value<DateTime?>? lastSyncTime,
+      Value<int>? id,
+      Value<String>? visitGuid,
+      Value<int>? rowid}) {
+    return VisitSoftwaresCompanion(
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      accuracy: accuracy ?? this.accuracy,
+      imageUrl: imageUrl ?? this.imageUrl,
+      imageKey: imageKey ?? this.imageKey,
+      guid: guid ?? this.guid,
+      isDeleted: isDeleted ?? this.isDeleted,
+      timestamp: timestamp ?? this.timestamp,
+      currentTimestamp: currentTimestamp ?? this.currentTimestamp,
+      lastSyncTime: lastSyncTime ?? this.lastSyncTime,
+      id: id ?? this.id,
+      visitGuid: visitGuid ?? this.visitGuid,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (latitude.present) {
+      map['latitude'] = Variable<double>(latitude.value);
+    }
+    if (longitude.present) {
+      map['longitude'] = Variable<double>(longitude.value);
+    }
+    if (accuracy.present) {
+      map['accuracy'] = Variable<double>(accuracy.value);
+    }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
+    if (imageKey.present) {
+      map['image_key'] = Variable<String>(imageKey.value);
+    }
+    if (guid.present) {
+      map['guid'] = Variable<String>(guid.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (currentTimestamp.present) {
+      map['current_timestamp'] = Variable<DateTime>(currentTimestamp.value);
+    }
+    if (lastSyncTime.present) {
+      map['last_sync_time'] = Variable<DateTime>(lastSyncTime.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (visitGuid.present) {
+      map['visit_guid'] = Variable<String>(visitGuid.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VisitSoftwaresCompanion(')
+          ..write('latitude: $latitude, ')
+          ..write('longitude: $longitude, ')
+          ..write('accuracy: $accuracy, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('imageKey: $imageKey, ')
+          ..write('guid: $guid, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('currentTimestamp: $currentTimestamp, ')
+          ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('id: $id, ')
+          ..write('visitGuid: $visitGuid, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $VisitGoodsListsTable extends VisitGoodsLists
     with TableInfo<$VisitGoodsListsTable, VisitGoodsList> {
   @override
@@ -20293,6 +20973,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final $AllGoodsListGoodsTable allGoodsListGoods =
       $AllGoodsListGoodsTable(this);
   late final $VisitImagesTable visitImages = $VisitImagesTable(this);
+  late final $VisitSoftwaresTable visitSoftwares = $VisitSoftwaresTable(this);
   late final $VisitGoodsListsTable visitGoodsLists =
       $VisitGoodsListsTable(this);
   late final $AllVisitGoodsListGoodsTable allVisitGoodsListGoods =
@@ -20406,6 +21087,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         goodsLists,
         allGoodsListGoods,
         visitImages,
+        visitSoftwares,
         visitGoodsLists,
         allVisitGoodsListGoods
       ];
@@ -20466,6 +21148,20 @@ abstract class _$AppDataStore extends GeneratedDatabase {
                 limitUpdateKind: UpdateKind.update),
             result: [
               TableUpdate('visit_images', kind: UpdateKind.update),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('visits',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('visit_softwares', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('visits',
+                limitUpdateKind: UpdateKind.update),
+            result: [
+              TableUpdate('visit_softwares', kind: UpdateKind.update),
             ],
           ),
           WritePropagation(
@@ -28432,6 +29128,7 @@ typedef $$VisitsTableInsertCompanionBuilder = VisitsCompanion Function({
   Value<int?> visitSkipReasonId,
   required bool needCheckGL,
   required bool needTakePhotos,
+  required bool needFillSoftware,
   Value<int> rowid,
 });
 typedef $$VisitsTableUpdateCompanionBuilder = VisitsCompanion Function({
@@ -28447,6 +29144,7 @@ typedef $$VisitsTableUpdateCompanionBuilder = VisitsCompanion Function({
   Value<int?> visitSkipReasonId,
   Value<bool> needCheckGL,
   Value<bool> needTakePhotos,
+  Value<bool> needFillSoftware,
   Value<int> rowid,
 });
 
@@ -28481,6 +29179,7 @@ class $$VisitsTableTableManager extends RootTableManager<
             Value<int?> visitSkipReasonId = const Value.absent(),
             Value<bool> needCheckGL = const Value.absent(),
             Value<bool> needTakePhotos = const Value.absent(),
+            Value<bool> needFillSoftware = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               VisitsCompanion(
@@ -28496,6 +29195,7 @@ class $$VisitsTableTableManager extends RootTableManager<
             visitSkipReasonId: visitSkipReasonId,
             needCheckGL: needCheckGL,
             needTakePhotos: needTakePhotos,
+            needFillSoftware: needFillSoftware,
             rowid: rowid,
           ),
           getInsertCompanionBuilder: ({
@@ -28511,6 +29211,7 @@ class $$VisitsTableTableManager extends RootTableManager<
             Value<int?> visitSkipReasonId = const Value.absent(),
             required bool needCheckGL,
             required bool needTakePhotos,
+            required bool needFillSoftware,
             Value<int> rowid = const Value.absent(),
           }) =>
               VisitsCompanion.insert(
@@ -28526,6 +29227,7 @@ class $$VisitsTableTableManager extends RootTableManager<
             visitSkipReasonId: visitSkipReasonId,
             needCheckGL: needCheckGL,
             needTakePhotos: needTakePhotos,
+            needFillSoftware: needFillSoftware,
             rowid: rowid,
           ),
         ));
@@ -28616,6 +29318,11 @@ class $$VisitsTableFilterComposer
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
+  ColumnFilters<bool> get needFillSoftware => $state.composableBuilder(
+      column: $state.table.needFillSoftware,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
   ColumnFilters<bool> get needDetails => $state.composableBuilder(
       column: $state.table.needDetails,
       builder: (column, joinBuilders) =>
@@ -28636,6 +29343,19 @@ class $$VisitsTableFilterComposer
         builder: (joinBuilder, parentComposers) =>
             $$VisitImagesTableFilterComposer(ComposerState($state.db,
                 $state.db.visitImages, joinBuilder, parentComposers)));
+    return f(composer);
+  }
+
+  ComposableFilter visitSoftwaresRefs(
+      ComposableFilter Function($$VisitSoftwaresTableFilterComposer f) f) {
+    final $$VisitSoftwaresTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.guid,
+        referencedTable: $state.db.visitSoftwares,
+        getReferencedColumn: (t) => t.visitGuid,
+        builder: (joinBuilder, parentComposers) =>
+            $$VisitSoftwaresTableFilterComposer(ComposerState($state.db,
+                $state.db.visitSoftwares, joinBuilder, parentComposers)));
     return f(composer);
   }
 
@@ -28724,6 +29444,11 @@ class $$VisitsTableOrderingComposer
 
   ColumnOrderings<bool> get needTakePhotos => $state.composableBuilder(
       column: $state.table.needTakePhotos,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<bool> get needFillSoftware => $state.composableBuilder(
+      column: $state.table.needFillSoftware,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
@@ -29308,6 +30033,296 @@ class $$VisitImagesTableFilterComposer
 class $$VisitImagesTableOrderingComposer
     extends OrderingComposer<_$AppDataStore, $VisitImagesTable> {
   $$VisitImagesTableOrderingComposer(super.$state);
+  ColumnOrderings<double> get latitude => $state.composableBuilder(
+      column: $state.table.latitude,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get longitude => $state.composableBuilder(
+      column: $state.table.longitude,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<double> get accuracy => $state.composableBuilder(
+      column: $state.table.accuracy,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get imageUrl => $state.composableBuilder(
+      column: $state.table.imageUrl,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get imageKey => $state.composableBuilder(
+      column: $state.table.imageKey,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<String> get guid => $state.composableBuilder(
+      column: $state.table.guid,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<bool> get isDeleted => $state.composableBuilder(
+      column: $state.table.isDeleted,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get timestamp => $state.composableBuilder(
+      column: $state.table.timestamp,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get currentTimestamp => $state.composableBuilder(
+      column: $state.table.currentTimestamp,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<DateTime> get lastSyncTime => $state.composableBuilder(
+      column: $state.table.lastSyncTime,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<bool> get needSync => $state.composableBuilder(
+      column: $state.table.needSync,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<bool> get isNew => $state.composableBuilder(
+      column: $state.table.isNew,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  ColumnOrderings<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnOrderings(column, joinBuilders: joinBuilders));
+
+  $$VisitsTableOrderingComposer get visitGuid {
+    final $$VisitsTableOrderingComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.visitGuid,
+        referencedTable: $state.db.visits,
+        getReferencedColumn: (t) => t.guid,
+        builder: (joinBuilder, parentComposers) =>
+            $$VisitsTableOrderingComposer(ComposerState(
+                $state.db, $state.db.visits, joinBuilder, parentComposers)));
+    return composer;
+  }
+}
+
+typedef $$VisitSoftwaresTableInsertCompanionBuilder = VisitSoftwaresCompanion
+    Function({
+  required double latitude,
+  required double longitude,
+  required double accuracy,
+  required String imageUrl,
+  required String imageKey,
+  required String guid,
+  Value<bool> isDeleted,
+  Value<DateTime> timestamp,
+  Value<DateTime> currentTimestamp,
+  Value<DateTime?> lastSyncTime,
+  required int id,
+  required String visitGuid,
+  Value<int> rowid,
+});
+typedef $$VisitSoftwaresTableUpdateCompanionBuilder = VisitSoftwaresCompanion
+    Function({
+  Value<double> latitude,
+  Value<double> longitude,
+  Value<double> accuracy,
+  Value<String> imageUrl,
+  Value<String> imageKey,
+  Value<String> guid,
+  Value<bool> isDeleted,
+  Value<DateTime> timestamp,
+  Value<DateTime> currentTimestamp,
+  Value<DateTime?> lastSyncTime,
+  Value<int> id,
+  Value<String> visitGuid,
+  Value<int> rowid,
+});
+
+class $$VisitSoftwaresTableTableManager extends RootTableManager<
+    _$AppDataStore,
+    $VisitSoftwaresTable,
+    VisitSoftware,
+    $$VisitSoftwaresTableFilterComposer,
+    $$VisitSoftwaresTableOrderingComposer,
+    $$VisitSoftwaresTableProcessedTableManager,
+    $$VisitSoftwaresTableInsertCompanionBuilder,
+    $$VisitSoftwaresTableUpdateCompanionBuilder> {
+  $$VisitSoftwaresTableTableManager(
+      _$AppDataStore db, $VisitSoftwaresTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          filteringComposer:
+              $$VisitSoftwaresTableFilterComposer(ComposerState(db, table)),
+          orderingComposer:
+              $$VisitSoftwaresTableOrderingComposer(ComposerState(db, table)),
+          getChildManagerBuilder: (p) =>
+              $$VisitSoftwaresTableProcessedTableManager(p),
+          getUpdateCompanionBuilder: ({
+            Value<double> latitude = const Value.absent(),
+            Value<double> longitude = const Value.absent(),
+            Value<double> accuracy = const Value.absent(),
+            Value<String> imageUrl = const Value.absent(),
+            Value<String> imageKey = const Value.absent(),
+            Value<String> guid = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<DateTime> currentTimestamp = const Value.absent(),
+            Value<DateTime?> lastSyncTime = const Value.absent(),
+            Value<int> id = const Value.absent(),
+            Value<String> visitGuid = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              VisitSoftwaresCompanion(
+            latitude: latitude,
+            longitude: longitude,
+            accuracy: accuracy,
+            imageUrl: imageUrl,
+            imageKey: imageKey,
+            guid: guid,
+            isDeleted: isDeleted,
+            timestamp: timestamp,
+            currentTimestamp: currentTimestamp,
+            lastSyncTime: lastSyncTime,
+            id: id,
+            visitGuid: visitGuid,
+            rowid: rowid,
+          ),
+          getInsertCompanionBuilder: ({
+            required double latitude,
+            required double longitude,
+            required double accuracy,
+            required String imageUrl,
+            required String imageKey,
+            required String guid,
+            Value<bool> isDeleted = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<DateTime> currentTimestamp = const Value.absent(),
+            Value<DateTime?> lastSyncTime = const Value.absent(),
+            required int id,
+            required String visitGuid,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              VisitSoftwaresCompanion.insert(
+            latitude: latitude,
+            longitude: longitude,
+            accuracy: accuracy,
+            imageUrl: imageUrl,
+            imageKey: imageKey,
+            guid: guid,
+            isDeleted: isDeleted,
+            timestamp: timestamp,
+            currentTimestamp: currentTimestamp,
+            lastSyncTime: lastSyncTime,
+            id: id,
+            visitGuid: visitGuid,
+            rowid: rowid,
+          ),
+        ));
+}
+
+class $$VisitSoftwaresTableProcessedTableManager extends ProcessedTableManager<
+    _$AppDataStore,
+    $VisitSoftwaresTable,
+    VisitSoftware,
+    $$VisitSoftwaresTableFilterComposer,
+    $$VisitSoftwaresTableOrderingComposer,
+    $$VisitSoftwaresTableProcessedTableManager,
+    $$VisitSoftwaresTableInsertCompanionBuilder,
+    $$VisitSoftwaresTableUpdateCompanionBuilder> {
+  $$VisitSoftwaresTableProcessedTableManager(super.$state);
+}
+
+class $$VisitSoftwaresTableFilterComposer
+    extends FilterComposer<_$AppDataStore, $VisitSoftwaresTable> {
+  $$VisitSoftwaresTableFilterComposer(super.$state);
+  ColumnFilters<double> get latitude => $state.composableBuilder(
+      column: $state.table.latitude,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get longitude => $state.composableBuilder(
+      column: $state.table.longitude,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<double> get accuracy => $state.composableBuilder(
+      column: $state.table.accuracy,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get imageUrl => $state.composableBuilder(
+      column: $state.table.imageUrl,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get imageKey => $state.composableBuilder(
+      column: $state.table.imageKey,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<String> get guid => $state.composableBuilder(
+      column: $state.table.guid,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<bool> get isDeleted => $state.composableBuilder(
+      column: $state.table.isDeleted,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get timestamp => $state.composableBuilder(
+      column: $state.table.timestamp,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get currentTimestamp => $state.composableBuilder(
+      column: $state.table.currentTimestamp,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<DateTime> get lastSyncTime => $state.composableBuilder(
+      column: $state.table.lastSyncTime,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<bool> get needSync => $state.composableBuilder(
+      column: $state.table.needSync,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<bool> get isNew => $state.composableBuilder(
+      column: $state.table.isNew,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  ColumnFilters<int> get id => $state.composableBuilder(
+      column: $state.table.id,
+      builder: (column, joinBuilders) =>
+          ColumnFilters(column, joinBuilders: joinBuilders));
+
+  $$VisitsTableFilterComposer get visitGuid {
+    final $$VisitsTableFilterComposer composer = $state.composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.visitGuid,
+        referencedTable: $state.db.visits,
+        getReferencedColumn: (t) => t.guid,
+        builder: (joinBuilder, parentComposers) => $$VisitsTableFilterComposer(
+            ComposerState(
+                $state.db, $state.db.visits, joinBuilder, parentComposers)));
+    return composer;
+  }
+}
+
+class $$VisitSoftwaresTableOrderingComposer
+    extends OrderingComposer<_$AppDataStore, $VisitSoftwaresTable> {
+  $$VisitSoftwaresTableOrderingComposer(super.$state);
   ColumnOrderings<double> get latitude => $state.composableBuilder(
       column: $state.table.latitude,
       builder: (column, joinBuilders) =>
@@ -29971,6 +30986,8 @@ class _$AppDataStoreManager {
       $$AllGoodsListGoodsTableTableManager(_db, _db.allGoodsListGoods);
   $$VisitImagesTableTableManager get visitImages =>
       $$VisitImagesTableTableManager(_db, _db.visitImages);
+  $$VisitSoftwaresTableTableManager get visitSoftwares =>
+      $$VisitSoftwaresTableTableManager(_db, _db.visitSoftwares);
   $$VisitGoodsListsTableTableManager get visitGoodsLists =>
       $$VisitGoodsListsTableTableManager(_db, _db.visitGoodsLists);
   $$AllVisitGoodsListGoodsTableTableManager get allVisitGoodsListGoods =>
@@ -30594,6 +31611,7 @@ mixin _$VisitsDaoMixin on DatabaseAccessor<AppDataStore> {
   $RoutePointsTable get routePoints => attachedDatabase.routePoints;
   $VisitsTable get visits => attachedDatabase.visits;
   $VisitImagesTable get visitImages => attachedDatabase.visitImages;
+  $VisitSoftwaresTable get visitSoftwares => attachedDatabase.visitSoftwares;
   $VisitGoodsListsTable get visitGoodsLists => attachedDatabase.visitGoodsLists;
   $AllVisitGoodsListGoodsTable get allVisitGoodsListGoods =>
       attachedDatabase.allVisitGoodsListGoods;
