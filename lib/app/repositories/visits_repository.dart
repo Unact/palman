@@ -27,8 +27,24 @@ class VisitsRepository extends BaseRepository {
       fileService: HttpFileService(),
     ),
   );
+  static const _kVisitSoftwaresFileFolder = 'visit_softwares';
+  static final _visitSoftwaresCacheRepo = JsonCacheInfoRepository(databaseName: _kVisitSoftwaresFileFolder);
+  static final visitSoftwaresCacheManager = CacheManager(
+    Config(
+      _kVisitSoftwaresFileFolder,
+      stalePeriod: const Duration(days: 365),
+      maxNrOfCacheObjects: 10000,
+      repo: _visitSoftwaresCacheRepo,
+      fileSystem: IOFileSystem(_kVisitSoftwaresFileFolder),
+      fileService: HttpFileService(),
+    ),
+  );
 
   VisitsRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
+
+  Stream<List<VisitSoftware>> watchVisitSoftwares(String visitGuid) {
+    return dataStore.visitsDao.watchVisitSoftwares(visitGuid);
+  }
 
   Stream<List<VisitImage>> watchVisitImages(String visitGuid) {
     return dataStore.visitsDao.watchVisitImages(visitGuid);
@@ -98,12 +114,61 @@ class VisitsRepository extends BaseRepository {
   Future<void> deleteVisitImage(VisitImage visitImage) async {
     try {
       Map<String, dynamic> visitImageData = {
-      'guid': visitImage.guid
-    };
-    final data = await api.deleteVisitImage(visitImageData);
+        'guid': visitImage.guid
+      };
+      final data = await api.deleteVisitImage(visitImageData);
 
-    await visitImagesCacheManager.removeFile(visitImage.imageKey);
-    await _saveApiData(data, false);
+      await visitImagesCacheManager.removeFile(visitImage.imageKey);
+      await _saveApiData(data, false);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
+  Future<void> addVisitSoftware(Visit visit, {
+    required XFile file,
+    required double latitude,
+    required double longitude,
+    required double accuracy,
+    required DateTime timestamp
+  }) async {
+    try {
+      String guid = dataStore.generateGuid();
+      final fileData = await file.readAsBytes();
+      final imageKey = md5.convert(fileData);
+      Map<String, dynamic> visitSoftwareData = {
+        'guid': guid,
+        'visitId': visit.id,
+        'latitude': latitude,
+        'longitude': longitude,
+        'accuracy': accuracy,
+        'imageData': base64Encode(fileData),
+        'timestamp': timestamp.toIso8601String()
+      };
+      final data = await api.addVisitSoftware(visitSoftwareData);
+
+      await visitSoftwaresCacheManager.putFile('', fileData, key: imageKey.toString());
+      await _saveApiData(data, false);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
+  Future<void> deleteVisitSoftware(VisitSoftware visitSoftware) async {
+    try {
+      Map<String, dynamic> visitSoftwareData = {
+        'guid': visitSoftware.guid
+      };
+      final data = await api.deleteVisitSoftware(visitSoftwareData);
+
+      await visitSoftwaresCacheManager.removeFile(visitSoftware.imageKey);
+      await _saveApiData(data, false);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -193,6 +258,9 @@ class VisitsRepository extends BaseRepository {
       final visitImages = data.visits
         .map((e) => e.images.map((i) => i.toDatabaseEnt(e.guid))).expand((e) => e)
         .toList();
+      final visitSoftwares = data.visits
+        .map((e) => e.softwares.map((i) => i.toDatabaseEnt(e.guid))).expand((e) => e)
+        .toList();
       final visitGoodsLists = data.visits
         .map((e) => e.goodsLists.map((i) => i.toDatabaseEnt(e.guid))).expand((e) => e)
         .toList();
@@ -204,6 +272,7 @@ class VisitsRepository extends BaseRepository {
 
       await dataStore.visitsDao.loadVisits(visits, clearTable);
       await dataStore.visitsDao.loadVisitImages(visitImages, clearTable);
+      await dataStore.visitsDao.loadVisitSoftwares(visitSoftwares, clearTable);
       await dataStore.visitsDao.loadVisitGoodsLists(visitGoodsLists, clearTable);
       await dataStore.visitsDao.loadVisitGoodsListGoods(visitGoodsListGoods, clearTable);
       await dataStore.visitsDao.loadRoutePoints(routePoints, clearTable);

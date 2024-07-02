@@ -9,9 +9,11 @@ class ApiVisit extends Equatable {
   final int? routePointId;
   final int? visitSkipReasonId;
   final List<ApiVisitImage> images;
+  final List<ApiVisitSoftware> softwares;
   final List<ApiVisitGoodsList> goodsLists;
   final bool needCheckGL;
   final bool needTakePhotos;
+  final bool needFillSoftware;
 
   const ApiVisit({
     required this.id,
@@ -22,9 +24,11 @@ class ApiVisit extends Equatable {
     this.routePointId,
     this.visitSkipReasonId,
     required this.images,
+    required this.softwares,
     required this.goodsLists,
     required this.needCheckGL,
-    required this.needTakePhotos
+    required this.needTakePhotos,
+    required this.needFillSoftware
   });
 
   factory ApiVisit.fromJson(dynamic json) {
@@ -37,9 +41,11 @@ class ApiVisit extends Equatable {
       routePointId: json['routePointId'],
       visitSkipReasonId: json['visitSkipReasonId'],
       images: json['images'].map<ApiVisitImage>((e) => ApiVisitImage.fromJson(e)).toList(),
+      softwares: json['softwares'].map<ApiVisitSoftware>((e) => ApiVisitSoftware.fromJson(e)).toList(),
       goodsLists: json['goodsLists'].map<ApiVisitGoodsList>((e) => ApiVisitGoodsList.fromJson(e)).toList(),
       needCheckGL: json['needCheckGL'],
-      needTakePhotos: json['needTakePhotos']
+      needTakePhotos: json['needTakePhotos'],
+      needFillSoftware: json['needFillSoftware']
     );
   }
 
@@ -53,6 +59,7 @@ class ApiVisit extends Equatable {
       visited: visitSkipReasonId == null,
       needCheckGL: needCheckGL,
       needTakePhotos: needTakePhotos,
+      needFillSoftware: needFillSoftware,
       needDetails: needCheckGL || needTakePhotos,
       guid: guid,
       isNew: false,
@@ -73,7 +80,9 @@ class ApiVisit extends Equatable {
     visitSkipReasonId,
     needCheckGL,
     needTakePhotos,
+    needFillSoftware,
     images,
+    softwares,
     goodsLists,
     guid,
     timestamp

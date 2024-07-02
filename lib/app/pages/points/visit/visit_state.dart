@@ -16,19 +16,23 @@ class VisitState {
     this.status = VisitStateStatus.initial,
     required this.visitEx,
     this.images = const [],
+    this.softwares = const [],
     this.goodsListVisitExList = const [],
     this.message = '',
     this.appInfo,
-    required this.listGoods
+    required this.listGoods,
+    this.takeSoftwarePhoto = false
   });
 
   final VisitStateStatus status;
   final VisitEx visitEx;
   final List<VisitImage> images;
+  final List<VisitSoftware> softwares;
   final List<GoodsListVisitExResult> goodsListVisitExList;
   final String message;
   final AppInfoResult? appInfo;
   final Map<GoodsList, List<int>> listGoods;
+  final bool takeSoftwarePhoto;
 
   bool get showLocalImage => appInfo?.showLocalImage ?? true;
 
@@ -36,19 +40,23 @@ class VisitState {
     VisitStateStatus? status,
     VisitEx? visitEx,
     List<VisitImage>? images,
+    List<VisitSoftware>? softwares,
     List<GoodsListVisitExResult>? goodsListVisitExList,
     String? message,
     AppInfoResult? appInfo,
-    Map<GoodsList, List<int>>? listGoods
+    Map<GoodsList, List<int>>? listGoods,
+    bool? takeSoftwarePhoto
   }) {
     return VisitState(
       status: status ?? this.status,
       visitEx: visitEx ?? this.visitEx,
       images: images ?? this.images,
+      softwares: softwares ?? this.softwares,
       goodsListVisitExList: goodsListVisitExList ?? this.goodsListVisitExList,
       message: message ?? this.message,
       appInfo: appInfo ?? this.appInfo,
-      listGoods: listGoods ?? this.listGoods
+      listGoods: listGoods ?? this.listGoods,
+      takeSoftwarePhoto: takeSoftwarePhoto ?? this.takeSoftwarePhoto
     );
   }
 }

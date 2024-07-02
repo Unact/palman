@@ -63,6 +63,7 @@ part 'api_visit_goods_list_goods.dart';
 part 'api_visit_goods_list.dart';
 part 'api_visit_image.dart';
 part 'api_visit_skip_reason.dart';
+part 'api_visit_software.dart';
 part 'api_visit.dart';
 part 'api_visits_data.dart';
 part 'api_workdate.dart';

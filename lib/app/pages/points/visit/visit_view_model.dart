@@ -5,6 +5,7 @@ class VisitViewModel extends PageViewModel<VisitState, VisitStateStatus> {
   final VisitsRepository visitsRepository;
   StreamSubscription<List<GoodsListVisitExResult>>? goodsListVisitExListSubscription;
   StreamSubscription<List<VisitImage>>? visitImagesSubscription;
+  StreamSubscription<List<VisitSoftware>>? visitSoftwaresSubscription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
 
   VisitViewModel(this.appRepository, this.visitsRepository, { required VisitEx visitEx }) :
@@ -27,6 +28,9 @@ class VisitViewModel extends PageViewModel<VisitState, VisitStateStatus> {
     visitImagesSubscription = visitsRepository.watchVisitImages(state.visitEx.visit.guid).listen((event) {
       emit(state.copyWith(status: VisitStateStatus.dataLoaded, images: event));
     });
+    visitSoftwaresSubscription = visitsRepository.watchVisitSoftwares(state.visitEx.visit.guid).listen((event) {
+      emit(state.copyWith(status: VisitStateStatus.dataLoaded, softwares: event));
+    });
   }
 
   @override
@@ -35,10 +39,11 @@ class VisitViewModel extends PageViewModel<VisitState, VisitStateStatus> {
 
     await goodsListVisitExListSubscription?.cancel();
     await visitImagesSubscription?.cancel();
+    await visitSoftwaresSubscription?.cancel();
     await appInfoSubscription?.cancel();
   }
 
-  Future<void> tryTakePicture() async {
+  Future<void> tryTakePicture(bool takeSoftwarePhoto) async {
     if (!await Permissions.hasCameraPermissions()) {
       emit(state.copyWith(
         status: VisitStateStatus.cameraError,
@@ -47,7 +52,7 @@ class VisitViewModel extends PageViewModel<VisitState, VisitStateStatus> {
       return;
     }
 
-    emit(state.copyWith(status: VisitStateStatus.cameraOpened));
+    emit(state.copyWith(status: VisitStateStatus.cameraOpened, takeSoftwarePhoto: takeSoftwarePhoto));
   }
 
   void addGoodsToList(GoodsList goodsList, int id) {
@@ -115,6 +120,44 @@ class VisitViewModel extends PageViewModel<VisitState, VisitStateStatus> {
       emit(state.copyWith(
         status: VisitStateStatus.success,
         images: state.images.where((e) => e != visitImage).toList()
+      ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: VisitStateStatus.failure, message: e.message));
+    }
+  }
+
+  Future<void> addVisitSoftware(XFile file) async {
+    emit(state.copyWith(status: VisitStateStatus.inProgress));
+
+    final position = await l.Location().getLocation();
+
+    try {
+      await visitsRepository.addVisitSoftware(
+        state.visitEx.visit,
+        file: file,
+        latitude: position.latitude ?? 0,
+        longitude: position.longitude ?? 0,
+        accuracy: position.accuracy ?? 0,
+        timestamp: position.time != null ? DateTime.fromMillisecondsSinceEpoch(position.time!.toInt()) : DateTime.now()
+      );
+
+      emit(state.copyWith(
+        status: VisitStateStatus.success,
+        message: 'Фотография сохранена'
+      ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: VisitStateStatus.failure, message: e.message));
+    }
+  }
+
+  Future<void> deleteVisitSoftware(VisitSoftware visitSoftware) async {
+    emit(state.copyWith(status: VisitStateStatus.inProgress));
+
+    try {
+      await visitsRepository.deleteVisitSoftware(visitSoftware);
+      emit(state.copyWith(
+        status: VisitStateStatus.success,
+        softwares: state.softwares.where((e) => e != visitSoftware).toList()
       ));
     } on AppError catch(e) {
       emit(state.copyWith(status: VisitStateStatus.failure, message: e.message));
