@@ -17,9 +17,9 @@ PODS:
     - Flutter
   - flutter_secure_storage (6.0.0):
     - Flutter
-  - FMDB (2.7.9):
-    - FMDB/standard (= 2.7.9)
-  - FMDB/standard (2.7.9)
+  - FMDB (2.7.11):
+    - FMDB/standard (= 2.7.11)
+  - FMDB/standard (2.7.11)
   - geolocator_apple (1.2.0):
     - Flutter
   - GoogleDataTransport (9.4.1):
@@ -99,10 +99,10 @@ PODS:
   - permission_handler_apple (9.1.1):
     - Flutter
   - PromisesObjC (2.4.0)
-  - SDWebImage (5.19.1):
-    - SDWebImage/Core (= 5.19.1)
-  - SDWebImage/Core (5.19.1)
-  - SDWebImageWebPCoder (0.14.5):
+  - SDWebImage (5.19.2):
+    - SDWebImage/Core (= 5.19.2)
+  - SDWebImage/Core (5.19.2)
+  - SDWebImageWebPCoder (0.14.6):
     - libwebp (~> 1.0)
     - SDWebImage/Core (~> 5.17)
   - Sentry/HybridSDK (8.17.2):
@@ -143,8 +143,8 @@ PODS:
     - Flutter
   - yandex_mapkit (0.0.1):
     - Flutter
-    - YandexMapsMobile (= 4.5.1-lite)
-  - YandexMapsMobile (4.5.1-lite)
+    - YandexMapsMobile (= 4.6.1-lite)
+  - YandexMapsMobile (4.6.1-lite)
 
 DEPENDENCIES:
   - battery_plus (from `.symlinks/plugins/battery_plus/ios`)
@@ -252,7 +252,7 @@ SPEC CHECKSUMS:
   flutter_image_compress_common: ec1d45c362c9d30a3f6a0426c297f47c52007e3e
   flutter_keyboard_visibility: 0339d06371254c3eb25eeb90ba8d17dca8f9c069
   flutter_secure_storage: 23fc622d89d073675f2eaa109381aefbcf5a49be
-  FMDB: aa44149f6fb634b1ac54f64f47064bb0d0c5a032
+  FMDB: 57486c1117fd8e0e6b947b2f54c3f42bf8e57a4e
   geolocator_apple: cc556e6844d508c95df1e87e3ea6fa4e58c50401
   GoogleDataTransport: 6c09b596d841063d76d4288cc2d2f42cc36e1e2a
   GoogleMLKit: 97ac7af399057e99182ee8edfa8249e3226a4065
@@ -273,8 +273,8 @@ SPEC CHECKSUMS:
   path_provider_foundation: eaf5b3e458fc0e5fbb9940fb09980e853fe058b8
   permission_handler_apple: e76247795d700c14ea09e3a2d8855d41ee80a2e6
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  SDWebImage: 40b0b4053e36c660a764958bff99eed16610acbb
-  SDWebImageWebPCoder: c94f09adbca681822edad9e532ac752db713eabf
+  SDWebImage: dfe95b2466a9823cf9f0c6d01217c06550d7b29a
+  SDWebImageWebPCoder: e38c0a70396191361d60c092933e22c20d5b1380
   Sentry: 64a9f9c3637af913adcf53deced05bbe452d1410
   sentry_flutter: 57912cf425e09398bdf47f38842a1fcb9836f1be
   SentryPrivate: 024c6fed507ac39ae98e6d087034160f942920d5
@@ -286,8 +286,8 @@ SPEC CHECKSUMS:
   u_app_utils: 906ccba4e520504acf7864a60a4b696d6b66b546
   url_launcher_ios: 08a3dfac5fb39e8759aeb0abbd5d9480f30fc8b4
   vibration: 7d883d141656a1c1a6d8d238616b2042a51a1241
-  yandex_mapkit: 07c617e071b7a32974bbca86fb427cc1681f9356
-  YandexMapsMobile: 1d4ab5b441f189756e0a9f94626ff26ae1fc9756
+  yandex_mapkit: 99516c0d4d24d61bcb3711b5944223e8a3d70b46
+  YandexMapsMobile: 7e20ef4db180b901c96f8107fade91d6349248a0
 
 PODFILE CHECKSUM: 81b70bf237591c7a8190509ce76b03039ee099d3
 
