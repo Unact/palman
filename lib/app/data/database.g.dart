@@ -10492,12 +10492,12 @@ class $BonusProgramsTable extends BonusPrograms
   late final GeneratedColumn<String> tagText = GeneratedColumn<String>(
       'tag_text', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _discountPercentMeta =
-      const VerificationMeta('discountPercent');
+  static const VerificationMeta _discountMeta =
+      const VerificationMeta('discount');
   @override
-  late final GeneratedColumn<int> discountPercent = GeneratedColumn<int>(
-      'discount_percent', aliasedName, true,
-      type: DriftSqlType.int, requiredDuringInsert: false);
+  late final GeneratedColumn<double> discount = GeneratedColumn<double>(
+      'discount', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
   static const VerificationMeta _coefMeta = const VerificationMeta('coef');
   @override
   late final GeneratedColumn<double> coef = GeneratedColumn<double>(
@@ -10524,7 +10524,7 @@ class $BonusProgramsTable extends BonusPrograms
         condition,
         present,
         tagText,
-        discountPercent,
+        discount,
         coef,
         conditionalDiscount,
         bonusProgramGroupId
@@ -10578,11 +10578,11 @@ class $BonusProgramsTable extends BonusPrograms
     } else if (isInserting) {
       context.missing(_tagTextMeta);
     }
-    if (data.containsKey('discount_percent')) {
-      context.handle(
-          _discountPercentMeta,
-          discountPercent.isAcceptableOrUnknown(
-              data['discount_percent']!, _discountPercentMeta));
+    if (data.containsKey('discount')) {
+      context.handle(_discountMeta,
+          discount.isAcceptableOrUnknown(data['discount']!, _discountMeta));
+    } else if (isInserting) {
+      context.missing(_discountMeta);
     }
     if (data.containsKey('coef')) {
       context.handle(
@@ -10629,8 +10629,8 @@ class $BonusProgramsTable extends BonusPrograms
           .read(DriftSqlType.string, data['${effectivePrefix}present'])!,
       tagText: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}tag_text'])!,
-      discountPercent: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}discount_percent']),
+      discount: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}discount'])!,
       coef: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}coef'])!,
       conditionalDiscount: attachedDatabase.typeMapping.read(
@@ -10654,7 +10654,7 @@ class BonusProgram extends DataClass implements Insertable<BonusProgram> {
   final String condition;
   final String present;
   final String tagText;
-  final int? discountPercent;
+  final double discount;
   final double coef;
   final int conditionalDiscount;
   final int bonusProgramGroupId;
@@ -10666,7 +10666,7 @@ class BonusProgram extends DataClass implements Insertable<BonusProgram> {
       required this.condition,
       required this.present,
       required this.tagText,
-      this.discountPercent,
+      required this.discount,
       required this.coef,
       required this.conditionalDiscount,
       required this.bonusProgramGroupId});
@@ -10680,9 +10680,7 @@ class BonusProgram extends DataClass implements Insertable<BonusProgram> {
     map['condition'] = Variable<String>(condition);
     map['present'] = Variable<String>(present);
     map['tag_text'] = Variable<String>(tagText);
-    if (!nullToAbsent || discountPercent != null) {
-      map['discount_percent'] = Variable<int>(discountPercent);
-    }
+    map['discount'] = Variable<double>(discount);
     map['coef'] = Variable<double>(coef);
     map['conditional_discount'] = Variable<int>(conditionalDiscount);
     map['bonus_program_group_id'] = Variable<int>(bonusProgramGroupId);
@@ -10698,9 +10696,7 @@ class BonusProgram extends DataClass implements Insertable<BonusProgram> {
       condition: Value(condition),
       present: Value(present),
       tagText: Value(tagText),
-      discountPercent: discountPercent == null && nullToAbsent
-          ? const Value.absent()
-          : Value(discountPercent),
+      discount: Value(discount),
       coef: Value(coef),
       conditionalDiscount: Value(conditionalDiscount),
       bonusProgramGroupId: Value(bonusProgramGroupId),
@@ -10718,7 +10714,7 @@ class BonusProgram extends DataClass implements Insertable<BonusProgram> {
       condition: serializer.fromJson<String>(json['condition']),
       present: serializer.fromJson<String>(json['present']),
       tagText: serializer.fromJson<String>(json['tagText']),
-      discountPercent: serializer.fromJson<int?>(json['discountPercent']),
+      discount: serializer.fromJson<double>(json['discount']),
       coef: serializer.fromJson<double>(json['coef']),
       conditionalDiscount:
           serializer.fromJson<int>(json['conditionalDiscount']),
@@ -10737,7 +10733,7 @@ class BonusProgram extends DataClass implements Insertable<BonusProgram> {
       'condition': serializer.toJson<String>(condition),
       'present': serializer.toJson<String>(present),
       'tagText': serializer.toJson<String>(tagText),
-      'discountPercent': serializer.toJson<int?>(discountPercent),
+      'discount': serializer.toJson<double>(discount),
       'coef': serializer.toJson<double>(coef),
       'conditionalDiscount': serializer.toJson<int>(conditionalDiscount),
       'bonusProgramGroupId': serializer.toJson<int>(bonusProgramGroupId),
@@ -10752,7 +10748,7 @@ class BonusProgram extends DataClass implements Insertable<BonusProgram> {
           String? condition,
           String? present,
           String? tagText,
-          Value<int?> discountPercent = const Value.absent(),
+          double? discount,
           double? coef,
           int? conditionalDiscount,
           int? bonusProgramGroupId}) =>
@@ -10764,9 +10760,7 @@ class BonusProgram extends DataClass implements Insertable<BonusProgram> {
         condition: condition ?? this.condition,
         present: present ?? this.present,
         tagText: tagText ?? this.tagText,
-        discountPercent: discountPercent.present
-            ? discountPercent.value
-            : this.discountPercent,
+        discount: discount ?? this.discount,
         coef: coef ?? this.coef,
         conditionalDiscount: conditionalDiscount ?? this.conditionalDiscount,
         bonusProgramGroupId: bonusProgramGroupId ?? this.bonusProgramGroupId,
@@ -10781,7 +10775,7 @@ class BonusProgram extends DataClass implements Insertable<BonusProgram> {
           ..write('condition: $condition, ')
           ..write('present: $present, ')
           ..write('tagText: $tagText, ')
-          ..write('discountPercent: $discountPercent, ')
+          ..write('discount: $discount, ')
           ..write('coef: $coef, ')
           ..write('conditionalDiscount: $conditionalDiscount, ')
           ..write('bonusProgramGroupId: $bonusProgramGroupId')
@@ -10798,7 +10792,7 @@ class BonusProgram extends DataClass implements Insertable<BonusProgram> {
       condition,
       present,
       tagText,
-      discountPercent,
+      discount,
       coef,
       conditionalDiscount,
       bonusProgramGroupId);
@@ -10813,7 +10807,7 @@ class BonusProgram extends DataClass implements Insertable<BonusProgram> {
           other.condition == this.condition &&
           other.present == this.present &&
           other.tagText == this.tagText &&
-          other.discountPercent == this.discountPercent &&
+          other.discount == this.discount &&
           other.coef == this.coef &&
           other.conditionalDiscount == this.conditionalDiscount &&
           other.bonusProgramGroupId == this.bonusProgramGroupId);
@@ -10827,7 +10821,7 @@ class BonusProgramsCompanion extends UpdateCompanion<BonusProgram> {
   final Value<String> condition;
   final Value<String> present;
   final Value<String> tagText;
-  final Value<int?> discountPercent;
+  final Value<double> discount;
   final Value<double> coef;
   final Value<int> conditionalDiscount;
   final Value<int> bonusProgramGroupId;
@@ -10839,7 +10833,7 @@ class BonusProgramsCompanion extends UpdateCompanion<BonusProgram> {
     this.condition = const Value.absent(),
     this.present = const Value.absent(),
     this.tagText = const Value.absent(),
-    this.discountPercent = const Value.absent(),
+    this.discount = const Value.absent(),
     this.coef = const Value.absent(),
     this.conditionalDiscount = const Value.absent(),
     this.bonusProgramGroupId = const Value.absent(),
@@ -10852,7 +10846,7 @@ class BonusProgramsCompanion extends UpdateCompanion<BonusProgram> {
     required String condition,
     required String present,
     required String tagText,
-    this.discountPercent = const Value.absent(),
+    required double discount,
     required double coef,
     required int conditionalDiscount,
     required int bonusProgramGroupId,
@@ -10862,6 +10856,7 @@ class BonusProgramsCompanion extends UpdateCompanion<BonusProgram> {
         condition = Value(condition),
         present = Value(present),
         tagText = Value(tagText),
+        discount = Value(discount),
         coef = Value(coef),
         conditionalDiscount = Value(conditionalDiscount),
         bonusProgramGroupId = Value(bonusProgramGroupId);
@@ -10873,7 +10868,7 @@ class BonusProgramsCompanion extends UpdateCompanion<BonusProgram> {
     Expression<String>? condition,
     Expression<String>? present,
     Expression<String>? tagText,
-    Expression<int>? discountPercent,
+    Expression<double>? discount,
     Expression<double>? coef,
     Expression<int>? conditionalDiscount,
     Expression<int>? bonusProgramGroupId,
@@ -10886,7 +10881,7 @@ class BonusProgramsCompanion extends UpdateCompanion<BonusProgram> {
       if (condition != null) 'condition': condition,
       if (present != null) 'present': present,
       if (tagText != null) 'tag_text': tagText,
-      if (discountPercent != null) 'discount_percent': discountPercent,
+      if (discount != null) 'discount': discount,
       if (coef != null) 'coef': coef,
       if (conditionalDiscount != null)
         'conditional_discount': conditionalDiscount,
@@ -10903,7 +10898,7 @@ class BonusProgramsCompanion extends UpdateCompanion<BonusProgram> {
       Value<String>? condition,
       Value<String>? present,
       Value<String>? tagText,
-      Value<int?>? discountPercent,
+      Value<double>? discount,
       Value<double>? coef,
       Value<int>? conditionalDiscount,
       Value<int>? bonusProgramGroupId}) {
@@ -10915,7 +10910,7 @@ class BonusProgramsCompanion extends UpdateCompanion<BonusProgram> {
       condition: condition ?? this.condition,
       present: present ?? this.present,
       tagText: tagText ?? this.tagText,
-      discountPercent: discountPercent ?? this.discountPercent,
+      discount: discount ?? this.discount,
       coef: coef ?? this.coef,
       conditionalDiscount: conditionalDiscount ?? this.conditionalDiscount,
       bonusProgramGroupId: bonusProgramGroupId ?? this.bonusProgramGroupId,
@@ -10946,8 +10941,8 @@ class BonusProgramsCompanion extends UpdateCompanion<BonusProgram> {
     if (tagText.present) {
       map['tag_text'] = Variable<String>(tagText.value);
     }
-    if (discountPercent.present) {
-      map['discount_percent'] = Variable<int>(discountPercent.value);
+    if (discount.present) {
+      map['discount'] = Variable<double>(discount.value);
     }
     if (coef.present) {
       map['coef'] = Variable<double>(coef.value);
@@ -10971,7 +10966,7 @@ class BonusProgramsCompanion extends UpdateCompanion<BonusProgram> {
           ..write('condition: $condition, ')
           ..write('present: $present, ')
           ..write('tagText: $tagText, ')
-          ..write('discountPercent: $discountPercent, ')
+          ..write('discount: $discount, ')
           ..write('coef: $coef, ')
           ..write('conditionalDiscount: $conditionalDiscount, ')
           ..write('bonusProgramGroupId: $bonusProgramGroupId')
@@ -25950,7 +25945,7 @@ typedef $$BonusProgramsTableInsertCompanionBuilder = BonusProgramsCompanion
   required String condition,
   required String present,
   required String tagText,
-  Value<int?> discountPercent,
+  required double discount,
   required double coef,
   required int conditionalDiscount,
   required int bonusProgramGroupId,
@@ -25964,7 +25959,7 @@ typedef $$BonusProgramsTableUpdateCompanionBuilder = BonusProgramsCompanion
   Value<String> condition,
   Value<String> present,
   Value<String> tagText,
-  Value<int?> discountPercent,
+  Value<double> discount,
   Value<double> coef,
   Value<int> conditionalDiscount,
   Value<int> bonusProgramGroupId,
@@ -25997,7 +25992,7 @@ class $$BonusProgramsTableTableManager extends RootTableManager<
             Value<String> condition = const Value.absent(),
             Value<String> present = const Value.absent(),
             Value<String> tagText = const Value.absent(),
-            Value<int?> discountPercent = const Value.absent(),
+            Value<double> discount = const Value.absent(),
             Value<double> coef = const Value.absent(),
             Value<int> conditionalDiscount = const Value.absent(),
             Value<int> bonusProgramGroupId = const Value.absent(),
@@ -26010,7 +26005,7 @@ class $$BonusProgramsTableTableManager extends RootTableManager<
             condition: condition,
             present: present,
             tagText: tagText,
-            discountPercent: discountPercent,
+            discount: discount,
             coef: coef,
             conditionalDiscount: conditionalDiscount,
             bonusProgramGroupId: bonusProgramGroupId,
@@ -26023,7 +26018,7 @@ class $$BonusProgramsTableTableManager extends RootTableManager<
             required String condition,
             required String present,
             required String tagText,
-            Value<int?> discountPercent = const Value.absent(),
+            required double discount,
             required double coef,
             required int conditionalDiscount,
             required int bonusProgramGroupId,
@@ -26036,7 +26031,7 @@ class $$BonusProgramsTableTableManager extends RootTableManager<
             condition: condition,
             present: present,
             tagText: tagText,
-            discountPercent: discountPercent,
+            discount: discount,
             coef: coef,
             conditionalDiscount: conditionalDiscount,
             bonusProgramGroupId: bonusProgramGroupId,
@@ -26094,8 +26089,8 @@ class $$BonusProgramsTableFilterComposer
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
-  ColumnFilters<int> get discountPercent => $state.composableBuilder(
-      column: $state.table.discountPercent,
+  ColumnFilters<double> get discount => $state.composableBuilder(
+      column: $state.table.discount,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
 
@@ -26153,8 +26148,8 @@ class $$BonusProgramsTableOrderingComposer
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
-  ColumnOrderings<int> get discountPercent => $state.composableBuilder(
-      column: $state.table.discountPercent,
+  ColumnOrderings<double> get discount => $state.composableBuilder(
+      column: $state.table.discount,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 
@@ -31084,7 +31079,7 @@ mixin _$BonusProgramsDaoMixin on DatabaseAccessor<AppDataStore> {
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT CAST(COALESCE(MAX(CASE WHEN bonus_programs.discount_percent > 0 THEN bonus_programs.conditional_discount ELSE 0 END), 0) AS INT) AS conditional_discount, (SELECT MAX(goods_bonus_program_prices.price) FROM goods_bonus_program_prices WHERE goods_bonus_program_prices.bonus_program_id = bonus_programs.id AND goods_bonus_program_prices.goods_id = goods_bonus_programs.goods_id) AS goods_price, MAX(bonus_programs.discount_percent) AS discount_percent, MAX(bonus_programs.coef) AS coef, bonus_programs.tag_text, goods_bonus_programs.goods_id FROM bonus_programs JOIN goods_bonus_programs ON goods_bonus_programs.bonus_program_id = bonus_programs.id WHERE goods_bonus_programs.goods_id IN ($expandedgoodsIds) AND goods_bonus_programs.bonus_program_id IN (SELECT DISTINCT bonus_programs.id FROM bonus_programs JOIN buyers_sets_bonus_programs ON buyers_sets_bonus_programs.bonus_program_id = bonus_programs.id JOIN buyers_sets_buyers ON buyers_sets_buyers.buyers_set_id = buyers_sets_bonus_programs.buyers_set_id JOIN buyers_sets ON buyers_sets.id = buyers_sets_buyers.buyers_set_id WHERE(buyers_sets.is_for_all = 1 OR buyers_sets_buyers.buyer_id = ?1)AND ?2 BETWEEN bonus_programs.date_from AND bonus_programs.date_to) GROUP BY goods_bonus_programs.bonus_program_id, goods_bonus_programs.goods_id, bonus_programs.tag_text',
+        'SELECT CAST(COALESCE(MAX(CASE WHEN bonus_programs.discount > 0 THEN bonus_programs.conditional_discount ELSE 0 END), 0) AS INT) AS conditional_discount, (SELECT MAX(goods_bonus_program_prices.price) FROM goods_bonus_program_prices WHERE goods_bonus_program_prices.bonus_program_id = bonus_programs.id AND goods_bonus_program_prices.goods_id = goods_bonus_programs.goods_id) AS goods_price, MAX(bonus_programs.discount) AS discount, MAX(bonus_programs.coef) AS coef, bonus_programs.tag_text, goods_bonus_programs.goods_id FROM bonus_programs JOIN goods_bonus_programs ON goods_bonus_programs.bonus_program_id = bonus_programs.id WHERE goods_bonus_programs.goods_id IN ($expandedgoodsIds) AND goods_bonus_programs.bonus_program_id IN (SELECT DISTINCT bonus_programs.id FROM bonus_programs JOIN buyers_sets_bonus_programs ON buyers_sets_bonus_programs.bonus_program_id = bonus_programs.id JOIN buyers_sets_buyers ON buyers_sets_buyers.buyers_set_id = buyers_sets_bonus_programs.buyers_set_id JOIN buyers_sets ON buyers_sets.id = buyers_sets_buyers.buyers_set_id WHERE(buyers_sets.is_for_all = 1 OR buyers_sets_buyers.buyer_id = ?1)AND ?2 BETWEEN bonus_programs.date_from AND bonus_programs.date_to) GROUP BY goods_bonus_programs.bonus_program_id, goods_bonus_programs.goods_id, bonus_programs.tag_text',
         variables: [
           Variable<int>(buyerId),
           Variable<DateTime>(date),
@@ -31100,7 +31095,7 @@ mixin _$BonusProgramsDaoMixin on DatabaseAccessor<AppDataStore> {
         }).map((QueryRow row) => FilteredGoodsBonusProgramsResult(
           conditionalDiscount: row.read<bool>('conditional_discount'),
           goodsPrice: row.readNullable<double>('goods_price'),
-          discountPercent: row.readNullable<int>('discount_percent'),
+          discount: row.readNullable<double>('discount'),
           coef: row.readNullable<double>('coef'),
           tagText: row.read<String>('tag_text'),
           goodsId: row.read<int>('goods_id'),
@@ -31124,14 +31119,14 @@ class FilteredBonusProgramsResult {
 class FilteredGoodsBonusProgramsResult {
   final bool conditionalDiscount;
   final double? goodsPrice;
-  final int? discountPercent;
+  final double? discount;
   final double? coef;
   final String tagText;
   final int goodsId;
   FilteredGoodsBonusProgramsResult({
     required this.conditionalDiscount,
     this.goodsPrice,
-    this.discountPercent,
+    this.discount,
     this.coef,
     required this.tagText,
     required this.goodsId,

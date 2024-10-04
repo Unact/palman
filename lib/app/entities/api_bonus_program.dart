@@ -8,7 +8,7 @@ class ApiBonusProgram extends Equatable {
   final String condition;
   final String present;
   final String tagText;
-  final int? discountPercent;
+  final double discount;
   final double coef;
   final int conditionalDiscount;
   final int bonusProgramGroupId;
@@ -21,7 +21,7 @@ class ApiBonusProgram extends Equatable {
     required this.condition,
     required this.present,
     required this.tagText,
-    this.discountPercent,
+    required this.discount,
     required this.coef,
     required this.conditionalDiscount,
     required this.bonusProgramGroupId
@@ -36,7 +36,7 @@ class ApiBonusProgram extends Equatable {
       condition: json['condition'],
       present: json['present'],
       tagText: json['tagText'],
-      discountPercent: json['discountPercent'],
+      discount: Parsing.parseDouble(json['discount'])!,
       coef: Parsing.parseDouble(json['coef'])!,
       conditionalDiscount: json['conditionalDiscount'],
       bonusProgramGroupId: json['bonusProgramGroupId']
@@ -52,7 +52,7 @@ class ApiBonusProgram extends Equatable {
       condition: condition,
       present: present,
       tagText: tagText,
-      discountPercent: discountPercent,
+      discount: discount,
       coef: coef,
       conditionalDiscount: conditionalDiscount,
       bonusProgramGroupId: bonusProgramGroupId
@@ -68,7 +68,7 @@ class ApiBonusProgram extends Equatable {
     condition,
     present,
     tagText,
-    discountPercent,
+    discount,
     coef,
     conditionalDiscount,
     bonusProgramGroupId

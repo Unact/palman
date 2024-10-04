@@ -32,7 +32,7 @@ part of 'database.dart';
       SELECT
         CAST(
           COALESCE(
-            MAX(CASE WHEN bonus_programs.discount_percent > 0 THEN bonus_programs.conditional_discount ELSE 0 END),
+            MAX(CASE WHEN bonus_programs.discount > 0 THEN bonus_programs.conditional_discount ELSE 0 END),
             0
           ) AS BOOLEAN
         ) AS "conditional_discount",
@@ -43,7 +43,7 @@ part of 'database.dart';
             goods_bonus_program_prices.bonus_program_id = bonus_programs.id AND
             goods_bonus_program_prices.goods_id = goods_bonus_programs.goods_id
         ) AS "goods_price",
-        MAX(bonus_programs.discount_percent) AS "discount_percent",
+        MAX(bonus_programs.discount) AS "discount",
         MAX(bonus_programs.coef) AS "coef",
         bonus_programs.tag_text,
         goods_bonus_programs.goods_id

@@ -269,7 +269,7 @@ class BonusPrograms extends Table {
   TextColumn get condition => text()();
   TextColumn get present => text()();
   TextColumn get tagText => text()();
-  IntColumn get discountPercent => integer().nullable()();
+  RealColumn get discount => real()();
   RealColumn get coef => real()();
   IntColumn get conditionalDiscount => integer()();
   IntColumn get bonusProgramGroupId => integer()();
