@@ -378,8 +378,8 @@ class GoodsDetail {
 
     if (pricelistPrice == 0) return 0;
 
-    int? totalDiscount = goodsBonusPrograms.isNotEmpty ?
-      goodsBonusPrograms.fold<int>(0, (acc, e) => (e.discountPercent ?? 0) + acc) :
+    double? totalDiscount = goodsBonusPrograms.isNotEmpty ?
+      goodsBonusPrograms.fold<double>(0, (acc, e) => (e.discount ?? 0) + acc) :
       null;
     double? minCoef = goodsBonusPrograms.map((e) => e.coef ?? 0).minOrNull;
     double bonusPrice =
