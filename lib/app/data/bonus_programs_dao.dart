@@ -21,10 +21,10 @@ part of 'database.dart';
       JOIN goods_bonus_programs ON goods_bonus_programs.bonus_program_id = bonus_programs.id
       JOIN goods ON goods.id = goods_bonus_programs.goods_id
       WHERE
+        buyers_sets_buyers.buyer_id = :buyer_id AND
         (:bonus_program_group_id = bonus_programs.bonus_program_group_id OR :bonus_program_group_id IS NULL) AND
         (:goods_id = goods_bonus_programs.goods_id OR :goods_id IS NULL) AND
         (:category_id = goods.category_id OR :category_id IS NULL) AND
-        (buyers_sets.is_for_all = 1 OR buyers_sets_buyers.buyer_id = :buyer_id) AND
         :date between bonus_programs.date_from and bonus_programs.date_to
       ORDER BY bonus_programs.name
     ''',
@@ -58,7 +58,7 @@ part of 'database.dart';
           JOIN buyers_sets_buyers ON buyers_sets_buyers.buyers_set_id = buyers_sets_bonus_programs.buyers_set_id
           JOIN buyers_sets ON buyers_sets.id = buyers_sets_buyers.buyers_set_id
           WHERE
-            (buyers_sets.is_for_all = 1 OR buyers_sets_buyers.buyer_id = :buyer_id) AND
+            buyers_sets_buyers.buyer_id = :buyer_id AND
             :date between bonus_programs.date_from and bonus_programs.date_to
         )
       GROUP BY goods_bonus_programs.bonus_program_id, goods_bonus_programs.goods_id, bonus_programs.tag_text
@@ -128,10 +128,10 @@ class BonusProgramsDao extends DatabaseAccessor<AppDataStore> with _$BonusProgra
     required int? categoryId
   }) async {
     return filteredBonusPrograms(
+      buyerId,
       bonusProgramGroupId?.toString(),
       goodsId?.toString(),
       categoryId?.toString(),
-      buyerId,
       date
     ).get();
   }

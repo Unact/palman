@@ -3,34 +3,29 @@ part of 'entities.dart';
 class ApiBuyersSet extends Equatable {
   final int id;
   final String name;
-  final bool isForAll;
 
   const ApiBuyersSet({
     required this.id,
-    required this.name,
-    required this.isForAll
+    required this.name
   });
 
   factory ApiBuyersSet.fromJson(dynamic json) {
     return ApiBuyersSet(
       id: json['id'],
-      name: json['name'],
-      isForAll: json['isForAll']
+      name: json['name']
     );
   }
 
   BuyersSet toDatabaseEnt() {
     return BuyersSet(
       id: id,
-      name: name,
-      isForAll: isForAll
+      name: name
     );
   }
 
   @override
   List<Object> get props => [
     id,
-    name,
-    isForAll
+    name
   ];
 }
