@@ -10995,17 +10995,8 @@ class $BuyersSetsTable extends BuyersSets
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _isForAllMeta =
-      const VerificationMeta('isForAll');
   @override
-  late final GeneratedColumn<bool> isForAll = GeneratedColumn<bool>(
-      'is_for_all', aliasedName, false,
-      type: DriftSqlType.bool,
-      requiredDuringInsert: true,
-      defaultConstraints:
-          GeneratedColumn.constraintIsAlways('CHECK ("is_for_all" IN (0, 1))'));
-  @override
-  List<GeneratedColumn> get $columns => [id, name, isForAll];
+  List<GeneratedColumn> get $columns => [id, name];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -11025,12 +11016,6 @@ class $BuyersSetsTable extends BuyersSets
     } else if (isInserting) {
       context.missing(_nameMeta);
     }
-    if (data.containsKey('is_for_all')) {
-      context.handle(_isForAllMeta,
-          isForAll.isAcceptableOrUnknown(data['is_for_all']!, _isForAllMeta));
-    } else if (isInserting) {
-      context.missing(_isForAllMeta);
-    }
     return context;
   }
 
@@ -11044,8 +11029,6 @@ class $BuyersSetsTable extends BuyersSets
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
-      isForAll: attachedDatabase.typeMapping
-          .read(DriftSqlType.bool, data['${effectivePrefix}is_for_all'])!,
     );
   }
 
@@ -11058,15 +11041,12 @@ class $BuyersSetsTable extends BuyersSets
 class BuyersSet extends DataClass implements Insertable<BuyersSet> {
   final int id;
   final String name;
-  final bool isForAll;
-  const BuyersSet(
-      {required this.id, required this.name, required this.isForAll});
+  const BuyersSet({required this.id, required this.name});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
-    map['is_for_all'] = Variable<bool>(isForAll);
     return map;
   }
 
@@ -11074,7 +11054,6 @@ class BuyersSet extends DataClass implements Insertable<BuyersSet> {
     return BuyersSetsCompanion(
       id: Value(id),
       name: Value(name),
-      isForAll: Value(isForAll),
     );
   }
 
@@ -11084,7 +11063,6 @@ class BuyersSet extends DataClass implements Insertable<BuyersSet> {
     return BuyersSet(
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
-      isForAll: serializer.fromJson<bool>(json['isForAll']),
     );
   }
   @override
@@ -11093,69 +11071,55 @@ class BuyersSet extends DataClass implements Insertable<BuyersSet> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
-      'isForAll': serializer.toJson<bool>(isForAll),
     };
   }
 
-  BuyersSet copyWith({int? id, String? name, bool? isForAll}) => BuyersSet(
+  BuyersSet copyWith({int? id, String? name}) => BuyersSet(
         id: id ?? this.id,
         name: name ?? this.name,
-        isForAll: isForAll ?? this.isForAll,
       );
   @override
   String toString() {
     return (StringBuffer('BuyersSet(')
           ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('isForAll: $isForAll')
+          ..write('name: $name')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, name, isForAll);
+  int get hashCode => Object.hash(id, name);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other is BuyersSet &&
-          other.id == this.id &&
-          other.name == this.name &&
-          other.isForAll == this.isForAll);
+      (other is BuyersSet && other.id == this.id && other.name == this.name);
 }
 
 class BuyersSetsCompanion extends UpdateCompanion<BuyersSet> {
   final Value<int> id;
   final Value<String> name;
-  final Value<bool> isForAll;
   const BuyersSetsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
-    this.isForAll = const Value.absent(),
   });
   BuyersSetsCompanion.insert({
     this.id = const Value.absent(),
     required String name,
-    required bool isForAll,
-  })  : name = Value(name),
-        isForAll = Value(isForAll);
+  }) : name = Value(name);
   static Insertable<BuyersSet> custom({
     Expression<int>? id,
     Expression<String>? name,
-    Expression<bool>? isForAll,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (name != null) 'name': name,
-      if (isForAll != null) 'is_for_all': isForAll,
     });
   }
 
-  BuyersSetsCompanion copyWith(
-      {Value<int>? id, Value<String>? name, Value<bool>? isForAll}) {
+  BuyersSetsCompanion copyWith({Value<int>? id, Value<String>? name}) {
     return BuyersSetsCompanion(
       id: id ?? this.id,
       name: name ?? this.name,
-      isForAll: isForAll ?? this.isForAll,
     );
   }
 
@@ -11168,9 +11132,6 @@ class BuyersSetsCompanion extends UpdateCompanion<BuyersSet> {
     if (name.present) {
       map['name'] = Variable<String>(name.value);
     }
-    if (isForAll.present) {
-      map['is_for_all'] = Variable<bool>(isForAll.value);
-    }
     return map;
   }
 
@@ -11178,8 +11139,7 @@ class BuyersSetsCompanion extends UpdateCompanion<BuyersSet> {
   String toString() {
     return (StringBuffer('BuyersSetsCompanion(')
           ..write('id: $id, ')
-          ..write('name: $name, ')
-          ..write('isForAll: $isForAll')
+          ..write('name: $name')
           ..write(')'))
         .toString();
   }
@@ -26172,12 +26132,10 @@ class $$BonusProgramsTableOrderingComposer
 typedef $$BuyersSetsTableInsertCompanionBuilder = BuyersSetsCompanion Function({
   Value<int> id,
   required String name,
-  required bool isForAll,
 });
 typedef $$BuyersSetsTableUpdateCompanionBuilder = BuyersSetsCompanion Function({
   Value<int> id,
   Value<String> name,
-  Value<bool> isForAll,
 });
 
 class $$BuyersSetsTableTableManager extends RootTableManager<
@@ -26202,22 +26160,18 @@ class $$BuyersSetsTableTableManager extends RootTableManager<
           getUpdateCompanionBuilder: ({
             Value<int> id = const Value.absent(),
             Value<String> name = const Value.absent(),
-            Value<bool> isForAll = const Value.absent(),
           }) =>
               BuyersSetsCompanion(
             id: id,
             name: name,
-            isForAll: isForAll,
           ),
           getInsertCompanionBuilder: ({
             Value<int> id = const Value.absent(),
             required String name,
-            required bool isForAll,
           }) =>
               BuyersSetsCompanion.insert(
             id: id,
             name: name,
-            isForAll: isForAll,
           ),
         ));
 }
@@ -26246,11 +26200,6 @@ class $$BuyersSetsTableFilterComposer
       column: $state.table.name,
       builder: (column, joinBuilders) =>
           ColumnFilters(column, joinBuilders: joinBuilders));
-
-  ColumnFilters<bool> get isForAll => $state.composableBuilder(
-      column: $state.table.isForAll,
-      builder: (column, joinBuilders) =>
-          ColumnFilters(column, joinBuilders: joinBuilders));
 }
 
 class $$BuyersSetsTableOrderingComposer
@@ -26263,11 +26212,6 @@ class $$BuyersSetsTableOrderingComposer
 
   ColumnOrderings<String> get name => $state.composableBuilder(
       column: $state.table.name,
-      builder: (column, joinBuilders) =>
-          ColumnOrderings(column, joinBuilders: joinBuilders));
-
-  ColumnOrderings<bool> get isForAll => $state.composableBuilder(
-      column: $state.table.isForAll,
       builder: (column, joinBuilders) =>
           ColumnOrderings(column, joinBuilders: joinBuilders));
 }
@@ -31044,18 +30988,18 @@ mixin _$BonusProgramsDaoMixin on DatabaseAccessor<AppDataStore> {
   $GoodsBonusProgramPricesTable get goodsBonusProgramPrices =>
       attachedDatabase.goodsBonusProgramPrices;
   Selectable<FilteredBonusProgramsResult> filteredBonusPrograms(
+      int buyerId,
       String? bonusProgramGroupId,
       String? goodsId,
       String? categoryId,
-      int buyerId,
       DateTime date) {
     return customSelect(
-        'SELECT DISTINCT bonus_programs.id, bonus_programs.name, bonus_programs.condition, bonus_programs.present FROM bonus_programs JOIN buyers_sets_bonus_programs ON buyers_sets_bonus_programs.bonus_program_id = bonus_programs.id JOIN buyers_sets_buyers ON buyers_sets_buyers.buyers_set_id = buyers_sets_bonus_programs.buyers_set_id JOIN buyers_sets ON buyers_sets.id = buyers_sets_buyers.buyers_set_id JOIN goods_bonus_programs ON goods_bonus_programs.bonus_program_id = bonus_programs.id JOIN goods ON goods.id = goods_bonus_programs.goods_id WHERE(?1 = bonus_programs.bonus_program_group_id OR ?1 IS NULL)AND(?2 = goods_bonus_programs.goods_id OR ?2 IS NULL)AND(?3 = goods.category_id OR ?3 IS NULL)AND(buyers_sets.is_for_all = 1 OR buyers_sets_buyers.buyer_id = ?4)AND ?5 BETWEEN bonus_programs.date_from AND bonus_programs.date_to ORDER BY bonus_programs.name',
+        'SELECT DISTINCT bonus_programs.id, bonus_programs.name, bonus_programs.condition, bonus_programs.present FROM bonus_programs JOIN buyers_sets_bonus_programs ON buyers_sets_bonus_programs.bonus_program_id = bonus_programs.id JOIN buyers_sets_buyers ON buyers_sets_buyers.buyers_set_id = buyers_sets_bonus_programs.buyers_set_id JOIN buyers_sets ON buyers_sets.id = buyers_sets_buyers.buyers_set_id JOIN goods_bonus_programs ON goods_bonus_programs.bonus_program_id = bonus_programs.id JOIN goods ON goods.id = goods_bonus_programs.goods_id WHERE buyers_sets_buyers.buyer_id = ?1 AND(?2 = bonus_programs.bonus_program_group_id OR ?2 IS NULL)AND(?3 = goods_bonus_programs.goods_id OR ?3 IS NULL)AND(?4 = goods.category_id OR ?4 IS NULL)AND ?5 BETWEEN bonus_programs.date_from AND bonus_programs.date_to ORDER BY bonus_programs.name',
         variables: [
+          Variable<int>(buyerId),
           Variable<String>(bonusProgramGroupId),
           Variable<String>(goodsId),
           Variable<String>(categoryId),
-          Variable<int>(buyerId),
           Variable<DateTime>(date)
         ],
         readsFrom: {
@@ -31079,7 +31023,7 @@ mixin _$BonusProgramsDaoMixin on DatabaseAccessor<AppDataStore> {
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT CAST(COALESCE(MAX(CASE WHEN bonus_programs.discount > 0 THEN bonus_programs.conditional_discount ELSE 0 END), 0) AS INT) AS conditional_discount, (SELECT MAX(goods_bonus_program_prices.price) FROM goods_bonus_program_prices WHERE goods_bonus_program_prices.bonus_program_id = bonus_programs.id AND goods_bonus_program_prices.goods_id = goods_bonus_programs.goods_id) AS goods_price, MAX(bonus_programs.discount) AS discount, MAX(bonus_programs.coef) AS coef, bonus_programs.tag_text, goods_bonus_programs.goods_id FROM bonus_programs JOIN goods_bonus_programs ON goods_bonus_programs.bonus_program_id = bonus_programs.id WHERE goods_bonus_programs.goods_id IN ($expandedgoodsIds) AND goods_bonus_programs.bonus_program_id IN (SELECT DISTINCT bonus_programs.id FROM bonus_programs JOIN buyers_sets_bonus_programs ON buyers_sets_bonus_programs.bonus_program_id = bonus_programs.id JOIN buyers_sets_buyers ON buyers_sets_buyers.buyers_set_id = buyers_sets_bonus_programs.buyers_set_id JOIN buyers_sets ON buyers_sets.id = buyers_sets_buyers.buyers_set_id WHERE(buyers_sets.is_for_all = 1 OR buyers_sets_buyers.buyer_id = ?1)AND ?2 BETWEEN bonus_programs.date_from AND bonus_programs.date_to) GROUP BY goods_bonus_programs.bonus_program_id, goods_bonus_programs.goods_id, bonus_programs.tag_text',
+        'SELECT CAST(COALESCE(MAX(CASE WHEN bonus_programs.discount > 0 THEN bonus_programs.conditional_discount ELSE 0 END), 0) AS INT) AS conditional_discount, (SELECT MAX(goods_bonus_program_prices.price) FROM goods_bonus_program_prices WHERE goods_bonus_program_prices.bonus_program_id = bonus_programs.id AND goods_bonus_program_prices.goods_id = goods_bonus_programs.goods_id) AS goods_price, MAX(bonus_programs.discount) AS discount, MAX(bonus_programs.coef) AS coef, bonus_programs.tag_text, goods_bonus_programs.goods_id FROM bonus_programs JOIN goods_bonus_programs ON goods_bonus_programs.bonus_program_id = bonus_programs.id WHERE goods_bonus_programs.goods_id IN ($expandedgoodsIds) AND goods_bonus_programs.bonus_program_id IN (SELECT DISTINCT bonus_programs.id FROM bonus_programs JOIN buyers_sets_bonus_programs ON buyers_sets_bonus_programs.bonus_program_id = bonus_programs.id JOIN buyers_sets_buyers ON buyers_sets_buyers.buyers_set_id = buyers_sets_bonus_programs.buyers_set_id JOIN buyers_sets ON buyers_sets.id = buyers_sets_buyers.buyers_set_id WHERE buyers_sets_buyers.buyer_id = ?1 AND ?2 BETWEEN bonus_programs.date_from AND bonus_programs.date_to) GROUP BY goods_bonus_programs.bonus_program_id, goods_bonus_programs.goods_id, bonus_programs.tag_text',
         variables: [
           Variable<int>(buyerId),
           Variable<DateTime>(date),
