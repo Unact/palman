@@ -1,7 +1,7 @@
 name: palman
 description: Приложение для торговых представителей
 publish_to: 'none'
-version: 1.4.21+88
+version: 1.4.22+89
 
 environment:
   sdk: '>=3.1.0 <4.0.0'
