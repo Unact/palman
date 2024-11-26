@@ -25,7 +25,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_typeahead: ^4.7.0
-  geolocator: ^9.0.2
+  geolocator: ^13.0.2
   holding_gesture: ^1.2.0
   http: ^0.13.6
   intl: ^0.19.0
@@ -48,8 +48,8 @@ dependencies:
   u_app_utils:
     git:
       url: git@github.com:Unact/u_app_utils.git
-      ref: ef823b4
-  url_launcher: ^6.0.20
+      ref: fcd5593
+  url_launcher: ^6.3.1
   uuid: ^4.2.2
   yandex_mapkit: ^4.0.2
 

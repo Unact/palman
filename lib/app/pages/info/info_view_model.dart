@@ -80,7 +80,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   }
 
   Future<void> _saveLocation(Position? position) async {
-    if (position == null || position.timestamp == null) return;
+    if (position == null) return;
 
     await locationsRepository.saveLocation(
       latitude: position.latitude,
@@ -89,7 +89,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       altitude: position.altitude,
       heading: position.heading,
       speed: position.speed,
-      timestamp: position.timestamp!,
+      timestamp: position.timestamp,
       batteryLevel: await battery.batteryLevel,
       batteryState: (await battery.batteryState).name
     );
