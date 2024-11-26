@@ -49,8 +49,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     await saveLocationChanges();
     await needReloadCheck();
 
-    syncTimer = Timer.periodic(const Duration(minutes: 10), saveLocationChanges);
-    needReloadCheckTimer = Timer.periodic(const Duration(minutes: 10), needReloadCheck);
+    syncTimer = Timer.periodic(const Duration(minutes: 1), saveLocationChanges);
+    needReloadCheckTimer = Timer.periodic(const Duration(minutes: 1), needReloadCheck);
   }
 
   Future<void> needReloadCheck([Timer? _]) async {
@@ -80,7 +80,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   }
 
   Future<void> _saveLocation(Position? position) async {
-    if (position == null || position.timestamp == null) return;
+    if (position == null) return;
 
     await locationsRepository.saveLocation(
       latitude: position.latitude,
@@ -89,7 +89,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       altitude: position.altitude,
       heading: position.heading,
       speed: position.speed,
-      timestamp: position.timestamp!,
+      timestamp: position.timestamp,
       batteryLevel: await battery.batteryLevel,
       batteryState: (await battery.batteryState).name
     );
