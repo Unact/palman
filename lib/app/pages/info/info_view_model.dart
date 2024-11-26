@@ -49,8 +49,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
     await saveLocationChanges();
     await needReloadCheck();
 
-    syncTimer = Timer.periodic(const Duration(minutes: 1), saveLocationChanges);
-    needReloadCheckTimer = Timer.periodic(const Duration(minutes: 1), needReloadCheck);
+    syncTimer = Timer.periodic(const Duration(minutes: 10), saveLocationChanges);
+    needReloadCheckTimer = Timer.periodic(const Duration(minutes: 10), needReloadCheck);
   }
 
   Future<void> needReloadCheck([Timer? _]) async {
