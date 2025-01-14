@@ -152,14 +152,6 @@ class _ReturnActViewState extends State<_ReturnActView> {
         title: const Text('Клиент', style: Styles.formStyle),
         trailing: buildBuyerSearch(context)
       ),
-
-      InfoRow.page(
-        title: const Text('Самовывоз', style: Styles.formStyle),
-        trailing: Checkbox(
-          value: !returnAct.needPickup,
-          onChanged: !vm.state.isEditable ? null : (bool? value) => vm.updateNeedPickup(!value!)
-        )
-      ),
       InfoRow.page(
         title: const Text('Тип', style: Styles.formStyle),
         trailing: !vm.state.isEditable ?

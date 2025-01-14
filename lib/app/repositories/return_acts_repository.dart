@@ -70,7 +70,6 @@ class ReturnActsRepository extends BaseRepository {
         'isDeleted': e.isDeleted,
         'currentTimestamp': e.currentTimestamp.toIso8601String(),
         'timestamp': e.timestamp.toIso8601String(),
-        'needPickup': e.needPickup,
         'receptId': e.receptId,
         'buyerId': e.buyerId,
         'returnActTypeId': e.returnActTypeId,

@@ -105,14 +105,6 @@ class ReturnActViewModel extends PageViewModel<ReturnActState, ReturnActStateSta
     emit(state.copyWith(status: ReturnActStateStatus.dataLoaded, returnActTypes: returnActTypes));
   }
 
-  Future<void> updateNeedPickup(bool needPickup) async {
-    await returnActsRepository.updateReturnAct(
-      state.returnActEx.returnAct,
-      needPickup: Optional.of(needPickup)
-    );
-    _notifyReturnActUpdated();
-  }
-
   Future<void> updateReturnActTypeId(int returnActTypeId) async {
     if (state.returnActEx.returnAct.buyerId == null) {
       emit(state.copyWith(status: ReturnActStateStatus.failure, message: 'Не указан покупатель'));
