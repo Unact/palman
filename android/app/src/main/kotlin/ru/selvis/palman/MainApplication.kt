@@ -1,4 +1,4 @@
-package ru.unact.palman
+package ru.selvis.palman
 
 import android.app.Application
 import com.yandex.mapkit.MapKitFactory
