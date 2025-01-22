@@ -5,7 +5,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
-import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
@@ -127,30 +126,6 @@ class _PersonViewState extends State<_PersonView> {
             future: Misc.fullVersion,
             builder: (context, snapshot) => Text(snapshot.data ?? '', style: Styles.formStyle),
           )
-        ),
-        FutureBuilder(
-          future: vm.state.user?.newVersionAvailable,
-          builder: (context, snapshot) {
-            if (!(snapshot.data ?? false)) return Container();
-
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                      backgroundColor: Theme.of(context).colorScheme.primary
-                    ),
-                    onPressed: vm.launchAppUpdate,
-                    child: const Text('Обновить приложение', style: Styles.formStyle),
-                  )
-                ],
-              )
-            );
-          }
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
