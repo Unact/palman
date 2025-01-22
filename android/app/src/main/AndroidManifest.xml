@@ -19,7 +19,7 @@
         </intent>
     </queries>
     <application
-        android:label="Продажи"
+        android:label="ЮПродажи"
         android:name=".MainApplication"
         android:icon="@mipmap/launcher_icon">
         <activity
