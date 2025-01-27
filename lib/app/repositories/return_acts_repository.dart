@@ -63,6 +63,8 @@ class ReturnActsRepository extends BaseRepository {
   }
 
   Future<void> syncReturnActs(List<ReturnAct> returnActs, List<ReturnActLine> returnActLines) async {
+    if (!(await Permissions.hasLocationPermissions())) throw AppError('Нет прав на получение местоположения');
+
     try {
       List<Map<String, dynamic>> returnActsData = returnActs.map((e) => {
         'guid': e.guid,

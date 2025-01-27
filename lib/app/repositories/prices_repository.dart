@@ -37,6 +37,8 @@ class PricesRepository extends BaseRepository {
   }
 
   Future<void> syncPrices(List<PartnersPrice> prices, List<PartnersPricelist> pricelists) async {
+    if (!(await Permissions.hasLocationPermissions())) throw AppError('Нет прав на получение местоположения');
+
     try {
       DateTime lastSyncTime = DateTime.now();
       Map<String, dynamic> pricesData = {

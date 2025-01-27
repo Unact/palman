@@ -34,6 +34,8 @@ class ShipmentsRepository extends BaseRepository {
   }
 
   Future<void> syncIncRequests(List<IncRequest> incRequests) async {
+    if (!(await Permissions.hasLocationPermissions())) throw AppError('Нет прав на получение местоположения');
+
     try {
       DateTime lastSyncTime = DateTime.now();
       List<Map<String, dynamic>> incRequestsData = incRequests.map((e) => {

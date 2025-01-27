@@ -45,6 +45,8 @@ class DebtsRepository extends BaseRepository {
   }
 
   Future<void> syncPreEncashments(List<PreEncashment> preEncashments) async {
+    if (!(await Permissions.hasLocationPermissions())) throw AppError('Нет прав на получение местоположения');
+
     try {
       DateTime lastSyncTime = DateTime.now();
       List<Map<String, dynamic>> preEncashmentsData = preEncashments.map((i) => {

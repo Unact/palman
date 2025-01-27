@@ -124,6 +124,8 @@ class OrdersRepository extends BaseRepository {
   }
 
   Future<void> syncOrders(List<Order> orders, List<OrderLine> orderLines) async {
+    if (!(await Permissions.hasLocationPermissions())) throw AppError('Нет прав на получение местоположения');
+
     try {
       DateTime lastSyncTime = DateTime.now();
       List<Map<String, dynamic>> ordersData = orders.map((e) => {

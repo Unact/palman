@@ -181,6 +181,8 @@ class PointsRepository extends BaseRepository {
   }
 
   Future<void> syncPoints(List<Point> points, List<PointImage> pointImages) async {
+    if (!(await Permissions.hasLocationPermissions())) throw AppError('Нет прав на получение местоположения');
+
     try {
       final Map<PointImage, String?> images = {};
       for (var pointImage in pointImages) {
