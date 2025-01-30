@@ -1547,9 +1547,11 @@ packages:
   u_app_utils:
     dependency: "direct main"
     description:
-      path: "../u_app_utils"
-      relative: true
-    source: path
+      path: "."
+      ref: ffe4dd2
+      resolved-ref: ffe4dd2e42fbd7d96b5b0347a82635062cacf74b
+      url: "git@github.com:Unact/u_app_utils.git"
+    source: git
     version: "0.0.1"
   upower:
     dependency: transitive
