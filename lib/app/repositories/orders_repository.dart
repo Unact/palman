@@ -11,7 +11,6 @@ import 'package:u_app_utils/u_app_utils.dart';
 import '/app/constants/strings.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
-import '/app/extensions/io_file_system.dart';
 import '/app/repositories/base_repository.dart';
 import '/app/services/palman_api.dart';
 
@@ -29,7 +28,7 @@ class OrdersRepository extends BaseRepository {
     ),
   );
 
-  OrdersRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
+  OrdersRepository(super.dataStore, super.api);
 
   Future<void> loadBonusPrograms() async {
     try {
@@ -203,7 +202,8 @@ class OrdersRepository extends BaseRepository {
     required List<int>? goodsIds,
     required bool onlyLatest,
     required bool onlyForPhysical,
-    required bool onlyWithoutDocs
+    required bool onlyWithoutDocs,
+    required String? barcode
   }) async {
     return dataStore.ordersDao.getGoods(
       name: name,
@@ -213,7 +213,8 @@ class OrdersRepository extends BaseRepository {
       goodsIds: goodsIds,
       onlyLatest: onlyLatest,
       onlyForPhysical: onlyForPhysical,
-      onlyWithoutDocs: onlyWithoutDocs
+      onlyWithoutDocs: onlyWithoutDocs,
+      barcode: barcode
     );
   }
 

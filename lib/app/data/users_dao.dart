@@ -5,7 +5,7 @@ class UsersDao extends DatabaseAccessor<AppDataStore> with _$UsersDaoMixin {
   static const int kGuestId = 1;
   static const String kGuestUsername = 'guest';
 
-  UsersDao(AppDataStore db) : super(db);
+  UsersDao(super.db);
 
   Stream<User> watchUser() {
     return select(users).watchSingle();

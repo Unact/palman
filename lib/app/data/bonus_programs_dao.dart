@@ -66,7 +66,7 @@ part of 'database.dart';
   }
 )
 class BonusProgramsDao extends DatabaseAccessor<AppDataStore> with _$BonusProgramsDaoMixin {
-  BonusProgramsDao(AppDataStore db) : super(db);
+  BonusProgramsDao(super.db);
 
   Future<void> loadBonusProgramGroups(List<BonusProgramGroup> list) async {
     await db._loadData(bonusProgramGroups, list);

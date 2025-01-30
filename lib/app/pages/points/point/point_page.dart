@@ -27,8 +27,8 @@ class PointPage extends StatelessWidget {
 
   PointPage({
     required this.pointEx,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

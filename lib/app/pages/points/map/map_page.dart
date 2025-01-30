@@ -18,8 +18,8 @@ part 'map_view_model.dart';
 
 class MapPage extends StatelessWidget {
   MapPage({
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

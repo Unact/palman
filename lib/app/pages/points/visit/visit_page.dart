@@ -24,8 +24,8 @@ class VisitPage extends StatelessWidget {
 
   VisitPage({
     required this.visitEx,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

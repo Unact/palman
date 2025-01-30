@@ -10,7 +10,7 @@ part of 'database.dart';
   ]
 )
 class DebtsDao extends DatabaseAccessor<AppDataStore> with _$DebtsDaoMixin {
-  DebtsDao(AppDataStore db) : super(db);
+  DebtsDao(super.db);
 
   Future<void> regeneratePreEncashmentsGuid() async {
     await db._regenerateGuid(preEncashments);

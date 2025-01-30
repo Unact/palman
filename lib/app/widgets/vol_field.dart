@@ -25,8 +25,8 @@ class VolField extends StatefulWidget {
     required this.onVolChange,
     this.validateVol,
     this.style,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   State createState() => _VolFieldState();

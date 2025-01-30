@@ -23,8 +23,8 @@ part 'return_acts_view_model.dart';
 
 class ReturnActsPage extends StatelessWidget {
   ReturnActsPage({
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -27,8 +27,8 @@ class GoodsInfoPage extends StatelessWidget {
     required this.date,
     required this.buyer,
     required this.goodsEx,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

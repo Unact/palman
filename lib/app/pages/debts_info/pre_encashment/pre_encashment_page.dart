@@ -19,8 +19,8 @@ class PreEncashmentPage extends StatelessWidget {
 
   PreEncashmentPage({
     required this.preEncashmentEx,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -8,7 +8,7 @@ part of 'database.dart';
   ]
 )
 class PartnersDao extends DatabaseAccessor<AppDataStore> with _$PartnersDaoMixin {
-  PartnersDao(AppDataStore db) : super(db);
+  PartnersDao(super.db);
 
    Future<void> loadBuyers(List<Buyer> list) async {
     await db._loadData(buyers, list);

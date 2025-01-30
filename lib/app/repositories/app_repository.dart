@@ -9,7 +9,7 @@ import '/app/repositories/base_repository.dart';
 import '/app/services/palman_api.dart';
 
 class AppRepository extends BaseRepository {
-  AppRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
+  AppRepository(super.dataStore, super.api);
 
   Stream<AppInfoResult> watchAppInfo() {
     return dataStore.watchAppInfo();

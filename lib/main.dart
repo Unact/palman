@@ -56,7 +56,6 @@ void main() async {
     return true;
   };
 
-  Initialization.intializeFlogs(isDebug: isDebug);
   await Initialization.initializeSentry(
     dsn: const String.fromEnvironment('PALMAN_SENTRY_DSN'),
     isDebug: isDebug,
@@ -85,6 +84,7 @@ void main() async {
           scaffoldMessengerKey: scaffoldMessengerKey,
           title: Strings.ruAppName,
           theme: FlexThemeData.light(
+            useMaterial3: false,
             scheme: FlexScheme.hippieBlue,
             subThemesData: const FlexSubThemesData(
               inputDecoratorBorderType: FlexInputBorderType.underline,

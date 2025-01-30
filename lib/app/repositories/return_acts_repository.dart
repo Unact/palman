@@ -9,7 +9,7 @@ import '/app/repositories/base_repository.dart';
 import '/app/services/palman_api.dart';
 
 class ReturnActsRepository extends BaseRepository {
-  ReturnActsRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
+  ReturnActsRepository(super.dataStore, super.api);
 
   Future<void> loadReturnActs() async {
      try {

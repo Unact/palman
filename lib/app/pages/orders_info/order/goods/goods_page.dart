@@ -26,8 +26,8 @@ class GoodsPage extends StatelessWidget {
 
   GoodsPage({
     required this.orderEx,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -49,6 +49,19 @@ class _GoodsView extends StatefulWidget {
 
 class _GoodsViewState extends State<_GoodsView> {
   final TextEditingController nameController = TextEditingController();
+
+  Future<void> showScanPage() async {
+    final vm = context.read<GoodsViewModel>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ScanView(
+        onRead: vm.changeBarcode,
+        showScanner: false,
+        barcodeMode: true,
+        child: Text('Отсканируйте штрих-код', style: Styles.formStyle.copyWith(fontSize: 18, color: Colors.white)),
+      ))
+    );
+  }
 
   Future<void> showBonusProgramSelectDialog([GoodsDetail? goodsDetail]) async {
     final vm = context.read<GoodsViewModel>();
@@ -112,7 +125,7 @@ class _GoodsViewState extends State<_GoodsView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GoodsViewModel, GoodsState>(
+    return BlocConsumer<GoodsViewModel, GoodsState>(
       builder: (context, state) {
         final vm = context.read<GoodsViewModel>();
         final compactMode = MediaQuery.of(context).size.width < 700;
@@ -123,6 +136,11 @@ class _GoodsViewState extends State<_GoodsView> {
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
             actions: [
+              IconButton(
+                icon: const Icon(Icons.camera_alt),
+                tooltip: 'Отсканировать ШК',
+                onPressed: vm.tryShowScan
+              ),
               IconButton(
                 color: Colors.white,
                 icon: Icon(vm.state.showOnlyActive ? Icons.access_time_filled : Icons.access_time),
@@ -168,6 +186,23 @@ class _GoodsViewState extends State<_GoodsView> {
           ),
           bottomSheet: buildViewOptionsRow(context)
         );
+      },
+      listener: (context, state) async {
+        switch (state.status) {
+          case GoodsStateStatus.scanSuccess:
+            Navigator.of(context).pop();
+            break;
+          case GoodsStateStatus.scanFailure:
+          case GoodsStateStatus.showScanFailure:
+            Misc.showMessage(context, state.message);
+            break;
+          case GoodsStateStatus.showScan:
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showScanPage();
+            });
+            break;
+          default:
+        }
       }
     );
   }
@@ -286,7 +321,7 @@ class _GoodsViewState extends State<_GoodsView> {
           labelStyle: Styles.formStyle,
           selected: e == vm.state.selectedGoodsFilter,
           onSelected: (bool selected) => vm.selectGoodsFilter(selected ? e : null)
-        )).toList(),
+        )),
         ChoiceChip(
           label: const Text('Н'),
           labelStyle: Styles.formStyle,
@@ -382,8 +417,8 @@ class _CategoriesView extends StatefulWidget {
     required this.onCategoryTap,
     required this.showOnlyActive,
     required this.initiallyExpanded,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   _CategoriesViewState createState() => _CategoriesViewState();
@@ -568,8 +603,8 @@ class _GoodsGroupsView extends StatefulWidget {
     required this.onVolChange,
     required this.orderEx,
     required this.linesExList,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   _GoodsGroupsViewState createState() => _GoodsGroupsViewState();
@@ -676,7 +711,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
             children: items.indexed.map((e) => ActionChip(
               label: Text(e.$2.key),
               labelStyle: Styles.formStyle,
-              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+              backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
               onPressed: () => _expand(goodsController, e.$1, e.$2.key, true)
             )).toList()
           )
@@ -946,9 +981,8 @@ class _GoodsSubtitle extends StatefulWidget {
 
   _GoodsSubtitle(
     this.goodsDetail,
-    this.orderLineEx,
-    {Key? key}
-  ) : super(key: key);
+    this.orderLineEx
+  );
 
   @override
   _GoodsSubtitleState createState() => _GoodsSubtitleState();

@@ -7,8 +7,8 @@ class SaveButton extends StatelessWidget {
   SaveButton({
     required this.pendingChanges,
     required this.onSave,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

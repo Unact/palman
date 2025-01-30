@@ -24,8 +24,8 @@ class AddressPage extends StatelessWidget {
     required this.address,
     required this.latitude,
     required this.longitude,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

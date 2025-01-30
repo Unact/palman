@@ -8,7 +8,7 @@ import '/app/repositories/base_repository.dart';
 import '/app/services/palman_api.dart';
 
 class UsersRepository extends BaseRepository {
-  UsersRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
+  UsersRepository(super.dataStore, super.api);
 
   late final _loggedInController = BehaviorSubject<bool>.seeded(api.isLoggedIn);
 

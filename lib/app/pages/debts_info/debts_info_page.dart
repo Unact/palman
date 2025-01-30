@@ -22,8 +22,8 @@ part 'debts_info_view_model.dart';
 
 class DebtsInfoPage extends StatelessWidget {
   DebtsInfoPage({
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
