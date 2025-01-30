@@ -239,7 +239,8 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     required List<int>? goodsIds,
     required bool onlyLatest,
     required bool onlyForPhysical,
-    required bool onlyWithoutDocs
+    required bool onlyWithoutDocs,
+    required String? barcode
   }) async {
     final hasBonusProgram = existsQuery(
       select(goodsBonusPrograms)
@@ -253,6 +254,7 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
     final query = select(allGoods)
       ..where((tbl) => tbl.name.containsCase(name ?? ''))
       ..where((tbl) => tbl.extraLabel.containsCase(extraLabel ?? ''))
+      ..where((tbl) => tbl.barcodes.containsCase(barcode ?? ''))
       ..where(categoryId != null ? (tbl) => tbl.categoryId.equals(categoryId) : (tbl) => const Constant(true))
       ..where(bonusProgramId != null ? (tbl) => hasBonusProgram : (tbl) => const Constant(true))
       ..where((tbl) => hasStock)

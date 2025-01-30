@@ -50,6 +50,19 @@ class _GoodsView extends StatefulWidget {
 class _GoodsViewState extends State<_GoodsView> {
   final TextEditingController nameController = TextEditingController();
 
+  Future<void> showScanPage() async {
+    final vm = context.read<GoodsViewModel>();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => ScanView(
+        onRead: vm.changeBarcode,
+        showScanner: false,
+        barcodeMode: true,
+        child: Text('Отсканируйте штрих-код', style: Styles.formStyle.copyWith(fontSize: 18, color: Colors.white)),
+      ))
+    );
+  }
+
   Future<void> showBonusProgramSelectDialog([GoodsDetail? goodsDetail]) async {
     final vm = context.read<GoodsViewModel>();
     final result = await showDialog<FilteredBonusProgramsResult>(
@@ -112,7 +125,7 @@ class _GoodsViewState extends State<_GoodsView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<GoodsViewModel, GoodsState>(
+    return BlocConsumer<GoodsViewModel, GoodsState>(
       builder: (context, state) {
         final vm = context.read<GoodsViewModel>();
         final compactMode = MediaQuery.of(context).size.width < 700;
@@ -123,6 +136,11 @@ class _GoodsViewState extends State<_GoodsView> {
           resizeToAvoidBottomInset: false,
           appBar: AppBar(
             actions: [
+              IconButton(
+                icon: const Icon(Icons.camera_alt),
+                tooltip: 'Отсканировать ШК',
+                onPressed: vm.tryShowScan
+              ),
               IconButton(
                 color: Colors.white,
                 icon: Icon(vm.state.showOnlyActive ? Icons.access_time_filled : Icons.access_time),
@@ -168,6 +186,23 @@ class _GoodsViewState extends State<_GoodsView> {
           ),
           bottomSheet: buildViewOptionsRow(context)
         );
+      },
+      listener: (context, state) async {
+        switch (state.status) {
+          case GoodsStateStatus.scanSuccess:
+            Navigator.of(context).pop();
+            break;
+          case GoodsStateStatus.scanFailure:
+          case GoodsStateStatus.showScanFailure:
+            Misc.showMessage(context, state.message);
+            break;
+          case GoodsStateStatus.showScan:
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showScanPage();
+            });
+            break;
+          default:
+        }
       }
     );
   }

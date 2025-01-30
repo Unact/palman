@@ -85,7 +85,6 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
 
   Future<void> clearFilters() async {
     emit(state.copyWith(
-      status: GoodsStateStatus.filterChanged,
       selectedCategory: const Optional.absent(),
       selectedGoodsFilter: const Optional.absent(),
       showOnlyReturnAct: false,
@@ -98,7 +97,6 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
 
   Future<void> selectCategory(CategoriesExResult? categoryEx) async {
     emit(state.copyWith(
-      status: GoodsStateStatus.filterChanged,
       selectedCategory: Optional.fromNullable(categoryEx),
       visibleGoodsDetails: []
     ));
@@ -108,7 +106,6 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
 
   Future<void> setGoodsNameSearch(String? goodsNameSearch) async {
     emit(state.copyWith(
-      status: GoodsStateStatus.filterChanged,
       goodsNameSearch: Optional.fromNullable(goodsNameSearch),
       selectedCategory: const Optional.absent(),
       visibleGoodsDetails: []
@@ -119,7 +116,6 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
 
   Future<void> selectGoodsFilter(GoodsFilter? goodsFilter) async {
     emit(state.copyWith(
-      status: GoodsStateStatus.filterChanged,
       selectedGoodsFilter: Optional.fromNullable(goodsFilter),
       selectedCategory: const Optional.absent(),
       visibleGoodsDetails: []
@@ -142,7 +138,6 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
 
   Future<void> toggleShowOnlyLatest() async {
     emit(state.copyWith(
-      status: GoodsStateStatus.filterChanged,
       showOnlyLatest: !state.showOnlyLatest,
       selectedCategory: const Optional.absent(),
       visibleGoodsDetails: []
@@ -155,7 +150,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     final newShowOnlyReturnAct = !state.showOnlyReturnAct;
 
     await clearFilters();
-    emit(state.copyWith(status: GoodsStateStatus.filterChanged, showOnlyReturnAct: newShowOnlyReturnAct));
+    emit(state.copyWith(showOnlyReturnAct: newShowOnlyReturnAct));
 
     if (newShowOnlyReturnAct) await searchGoods();
   }
@@ -173,6 +168,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
 
     if (goods.isNotEmpty) {
       emit(state.copyWith(status: GoodsStateStatus.scanSuccess));
+      emit(state.copyWith(status: GoodsStateStatus.scanClosed));
       setGoodsNameSearch(goods.first.name);
     } else {
       emit(state.copyWith(message: 'Товар не найден', status: GoodsStateStatus.scanFailure));
@@ -207,6 +203,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     }
 
     emit(state.copyWith(status: GoodsStateStatus.showScan));
+    emit(state.copyWith(status: GoodsStateStatus.scanOpened));
   }
 
   Future<void> updateReturnActLine(GoodsReturnDetail goodsReturnDetail, {

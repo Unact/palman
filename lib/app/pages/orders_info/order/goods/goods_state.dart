@@ -3,8 +3,12 @@ part of 'goods_page.dart';
 enum GoodsStateStatus {
   initial,
   dataLoaded,
-  searchStarted,
-  searchFinished
+  showScanFailure,
+  showScan,
+  scanOpened,
+  scanClosed,
+  scanSuccess,
+  scanFailure
 }
 
 class GoodsState {
@@ -28,7 +32,8 @@ class GoodsState {
     this.showOnlyActive = false,
     this.showOnlyOrder = false,
     this.showOnlyLatest = false,
-    this.appInfo
+    this.appInfo,
+    this.message = ''
   });
 
   final GoodsStateStatus status;
@@ -39,6 +44,7 @@ class GoodsState {
   final List<ShopDepartment> shopDepartments;
   final List<GoodsFilter> goodsFilters;
   final List<GoodsDetail> goodsDetails;
+  final String message;
 
   double get total => filteredOrderLinesExList.fold(0, (acc, e) => acc + e.line.total);
 
@@ -102,7 +108,8 @@ class GoodsState {
     bool? showOnlyActive,
     bool? showOnlyOrder,
     bool? showOnlyLatest,
-    AppInfoResult? appInfo
+    AppInfoResult? appInfo,
+    String? message
   }) {
     return GoodsState(
       status: status ?? this.status,
@@ -124,7 +131,8 @@ class GoodsState {
       showOnlyActive: showOnlyActive ?? this.showOnlyActive,
       showOnlyOrder: showOnlyOrder ?? this.showOnlyOrder,
       showOnlyLatest: showOnlyLatest ?? this.showOnlyLatest,
-      appInfo: appInfo ?? this.appInfo
+      appInfo: appInfo ?? this.appInfo,
+      message: message ?? this.message
     );
   }
 }

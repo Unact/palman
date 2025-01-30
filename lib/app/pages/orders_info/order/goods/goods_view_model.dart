@@ -26,6 +26,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       categoryId: null,
       bonusProgramId: null,
       goodsIds: null,
+      barcode: null,
       onlyLatest: false,
       onlyForPhysical: state.orderEx.order.isPhysical,
       onlyWithoutDocs: state.orderEx.order.isPhysical ? false : !state.orderEx.order.needDocs
@@ -168,6 +169,28 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     if (newShowOnlyOrder) await searchGoods();
   }
 
+  Future<void> changeBarcode(String barcode) async {
+    final goods = await ordersRepository.getGoods(
+      name: null,
+      extraLabel: null,
+      categoryId: null,
+      bonusProgramId: null,
+      goodsIds: null,
+      onlyLatest: false,
+      onlyForPhysical: state.orderEx.order.isPhysical,
+      onlyWithoutDocs: state.orderEx.order.isPhysical ? false : !state.orderEx.order.needDocs,
+      barcode: barcode
+    );
+
+    if (goods.isNotEmpty) {
+      emit(state.copyWith(status: GoodsStateStatus.scanSuccess));
+      emit(state.copyWith(status: GoodsStateStatus.scanClosed));
+      setGoodsNameSearch(goods.first.name);
+    } else {
+      emit(state.copyWith(message: 'Товар не найден', status: GoodsStateStatus.scanFailure));
+    }
+  }
+
   Future<void> searchGoods() async {
     final goods = await ordersRepository.getGoods(
       name: state.goodsNameSearch,
@@ -177,7 +200,8 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       goodsIds: state.showOnlyOrder ? state.filteredOrderLinesExList.map((e) => e.line.goodsId).toList() : null,
       onlyLatest: state.showOnlyLatest,
       onlyForPhysical: state.orderEx.order.isPhysical,
-      onlyWithoutDocs: state.orderEx.order.isPhysical ? false : !state.orderEx.order.needDocs
+      onlyWithoutDocs: state.orderEx.order.isPhysical ? false : !state.orderEx.order.needDocs,
+      barcode: null
     );
     final goodsIds = goods.map((e) => e.id).toSet();
     final visibleGoodsDetails = state.goodsDetails.where((g) {
@@ -196,6 +220,16 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       visibleGoodsDetails: !state.showAllGoods ? [] : visibleGoodsDetails,
       visibleCategories: state.selectedCategory != null ? null : visibleCategories
     ));
+  }
+
+  void tryShowScan() async {
+    if (!await Permissions.hasCameraPermissions()) {
+      emit(state.copyWith(message: 'Не разрешено использование камеры', status: GoodsStateStatus.showScanFailure));
+      return;
+    }
+
+    emit(state.copyWith(status: GoodsStateStatus.showScan));
+    emit(state.copyWith(status: GoodsStateStatus.scanOpened));
   }
 
   Future<void> updateGoodsPrices() async {

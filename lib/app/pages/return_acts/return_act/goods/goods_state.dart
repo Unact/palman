@@ -3,9 +3,10 @@ part of 'goods_page.dart';
 enum GoodsStateStatus {
   initial,
   dataLoaded,
-  filterChanged,
   showScanFailure,
   showScan,
+  scanOpened,
+  scanClosed,
   scanSuccess,
   scanFailure
 }
