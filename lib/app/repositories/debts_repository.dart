@@ -9,7 +9,7 @@ import '/app/repositories/base_repository.dart';
 import '/app/services/palman_api.dart';
 
 class DebtsRepository extends BaseRepository {
-  DebtsRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
+  DebtsRepository(super.dataStore, super.api);
 
   Stream<List<DebtEx>> watchDebtExList() {
     return dataStore.debtsDao.watchDebtExList();

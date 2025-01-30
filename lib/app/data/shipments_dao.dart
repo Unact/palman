@@ -32,7 +32,7 @@ part of 'database.dart';
   }
 )
 class ShipmentsDao extends DatabaseAccessor<AppDataStore> with _$ShipmentsDaoMixin {
-  ShipmentsDao(AppDataStore db) : super(db);
+  ShipmentsDao(super.db);
 
   Future<void> regenerateIncRequestsGuid() async {
     await db._regenerateGuid(incRequests);

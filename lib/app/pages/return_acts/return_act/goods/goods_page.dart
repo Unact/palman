@@ -24,8 +24,8 @@ class GoodsPage extends StatelessWidget {
 
   GoodsPage({
     required this.returnActEx,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -261,7 +261,7 @@ class _GoodsViewState extends State<_GoodsView> {
           labelStyle: Styles.formStyle,
           selected: e == vm.state.selectedGoodsFilter,
           onSelected: (bool selected) => vm.selectGoodsFilter(selected ? e : null)
-        )).toList(),
+        )),
         ChoiceChip(
           label: const Text('Н'),
           labelStyle: Styles.formStyle,
@@ -338,8 +338,8 @@ class _CategoriesView extends StatefulWidget {
     required this.groupedCategories,
     required this.onCategoryTap,
     required this.initiallyExpanded,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   _CategoriesViewState createState() => _CategoriesViewState();
@@ -486,8 +486,8 @@ class _GoodsGroupsView extends StatefulWidget {
     required this.onIsBadChange,
     required this.onProductionDateChange,
     required this.onVolChange,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   _GoodsGroupsViewState createState() => _GoodsGroupsViewState();
@@ -581,7 +581,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
             children: items.indexed.map((e) => ActionChip(
               label: Text(e.$2.key),
               labelStyle: Styles.formStyle,
-              backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+              backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
               onPressed: () => _expand(goodsController, e.$1, e.$2.key, true)
             )).toList()
           )

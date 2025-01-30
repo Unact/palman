@@ -10,7 +10,7 @@ part of 'database.dart';
   ]
 )
 class PointsDao extends DatabaseAccessor<AppDataStore> with _$PointsDaoMixin {
-  PointsDao(AppDataStore db) : super(db);
+  PointsDao(super.db);
 
   Future<void> regeneratePointsGuid() async {
     await db._regenerateGuid(points);

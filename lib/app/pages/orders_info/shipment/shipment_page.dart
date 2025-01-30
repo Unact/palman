@@ -17,8 +17,8 @@ class ShipmentPage extends StatelessWidget {
 
   ShipmentPage({
     required this.shipmentEx,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

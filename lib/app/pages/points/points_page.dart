@@ -31,8 +31,8 @@ part 'points_view_model.dart';
 
 class PointsPage extends StatelessWidget {
   PointsPage({
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

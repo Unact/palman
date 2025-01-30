@@ -25,8 +25,8 @@ class ReturnActPage extends StatelessWidget {
 
   ReturnActPage({
     required this.returnActEx,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 abstract class PageViewModel<T, P> extends Cubit<T> {
-  PageViewModel(T state) : super(state) {
+  PageViewModel(super.state) {
     initViewModel();
   }
 

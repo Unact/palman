@@ -19,8 +19,8 @@ part 'person_view_model.dart';
 
 class PersonPage extends StatelessWidget {
   PersonPage({
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

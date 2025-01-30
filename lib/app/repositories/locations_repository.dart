@@ -10,7 +10,7 @@ import '/app/services/palman_api.dart';
 class LocationsRepository extends BaseRepository {
   static const int kMinLocationPoint = 10;
 
-  LocationsRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
+  LocationsRepository(super.dataStore, super.api);
 
   Future<void> saveLocation({
     required double latitude,

@@ -26,8 +26,8 @@ class PriceChangePage extends StatelessWidget {
     required this.dateTo,
     required this.goodsEx,
     required this.goodsPricelist,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

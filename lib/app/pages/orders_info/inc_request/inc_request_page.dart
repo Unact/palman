@@ -22,8 +22,8 @@ class IncRequestPage extends StatelessWidget {
 
   IncRequestPage({
     required this.incRequestEx,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

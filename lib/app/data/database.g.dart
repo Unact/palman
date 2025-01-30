@@ -22672,7 +22672,8 @@ final class $$PointsTableReferences
 
   $$PointImagesTableProcessedTableManager get pointImagesRefs {
     final manager = $$PointImagesTableTableManager($_db, $_db.pointImages)
-        .filter((f) => f.pointGuid.guid($_item.guid));
+        .filter(
+            (f) => f.pointGuid.guid.sqlEquals($_itemColumn<String>('guid')!));
 
     final cache = $_typedResult.readTableOrNull(_pointImagesRefsTable($_db));
     return ProcessedTableManager(
@@ -23222,10 +23223,11 @@ final class $$PointImagesTableReferences
       db.points.createAlias(
           $_aliasNameGenerator(db.pointImages.pointGuid, db.points.guid));
 
-  $$PointsTableProcessedTableManager? get pointGuid {
-    if ($_item.pointGuid == null) return null;
+  $$PointsTableProcessedTableManager get pointGuid {
+    final $_column = $_itemColumn<String>('point_guid')!;
+
     final manager = $$PointsTableTableManager($_db, $_db.points)
-        .filter((f) => f.guid($_item.pointGuid!));
+        .filter((f) => f.guid.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_pointGuidTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -25917,8 +25919,8 @@ final class $$OrdersTableReferences
               $_aliasNameGenerator(db.orders.guid, db.orderLines.orderGuid));
 
   $$OrderLinesTableProcessedTableManager get orderLinesRefs {
-    final manager = $$OrderLinesTableTableManager($_db, $_db.orderLines)
-        .filter((f) => f.orderGuid.guid($_item.guid));
+    final manager = $$OrderLinesTableTableManager($_db, $_db.orderLines).filter(
+        (f) => f.orderGuid.guid.sqlEquals($_itemColumn<String>('guid')!));
 
     final cache = $_typedResult.readTableOrNull(_orderLinesRefsTable($_db));
     return ProcessedTableManager(
@@ -26346,10 +26348,11 @@ final class $$OrderLinesTableReferences
       db.orders.createAlias(
           $_aliasNameGenerator(db.orderLines.orderGuid, db.orders.guid));
 
-  $$OrdersTableProcessedTableManager? get orderGuid {
-    if ($_item.orderGuid == null) return null;
+  $$OrdersTableProcessedTableManager get orderGuid {
+    final $_column = $_itemColumn<String>('order_guid')!;
+
     final manager = $$OrdersTableTableManager($_db, $_db.orders)
-        .filter((f) => f.guid($_item.orderGuid!));
+        .filter((f) => f.guid.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_orderGuidTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -29968,7 +29971,8 @@ final class $$ReturnActsTableReferences
 
   $$ReturnActLinesTableProcessedTableManager get returnActLinesRefs {
     final manager = $$ReturnActLinesTableTableManager($_db, $_db.returnActLines)
-        .filter((f) => f.returnActGuid.guid($_item.guid));
+        .filter((f) =>
+            f.returnActGuid.guid.sqlEquals($_itemColumn<String>('guid')!));
 
     final cache = $_typedResult.readTableOrNull(_returnActLinesRefsTable($_db));
     return ProcessedTableManager(
@@ -30377,10 +30381,11 @@ final class $$ReturnActLinesTableReferences extends BaseReferences<
       db.returnActs.createAlias($_aliasNameGenerator(
           db.returnActLines.returnActGuid, db.returnActs.guid));
 
-  $$ReturnActsTableProcessedTableManager? get returnActGuid {
-    if ($_item.returnActGuid == null) return null;
+  $$ReturnActsTableProcessedTableManager get returnActGuid {
+    final $_column = $_itemColumn<String>('return_act_guid')!;
+
     final manager = $$ReturnActsTableTableManager($_db, $_db.returnActs)
-        .filter((f) => f.guid($_item.returnActGuid!));
+        .filter((f) => f.guid.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_returnActGuidTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -31327,7 +31332,8 @@ final class $$VisitsTableReferences
 
   $$VisitImagesTableProcessedTableManager get visitImagesRefs {
     final manager = $$VisitImagesTableTableManager($_db, $_db.visitImages)
-        .filter((f) => f.visitGuid.guid($_item.guid));
+        .filter(
+            (f) => f.visitGuid.guid.sqlEquals($_itemColumn<String>('guid')!));
 
     final cache = $_typedResult.readTableOrNull(_visitImagesRefsTable($_db));
     return ProcessedTableManager(
@@ -31342,7 +31348,8 @@ final class $$VisitsTableReferences
 
   $$VisitSoftwaresTableProcessedTableManager get visitSoftwaresRefs {
     final manager = $$VisitSoftwaresTableTableManager($_db, $_db.visitSoftwares)
-        .filter((f) => f.visitGuid.guid($_item.guid));
+        .filter(
+            (f) => f.visitGuid.guid.sqlEquals($_itemColumn<String>('guid')!));
 
     final cache = $_typedResult.readTableOrNull(_visitSoftwaresRefsTable($_db));
     return ProcessedTableManager(
@@ -31357,8 +31364,8 @@ final class $$VisitsTableReferences
 
   $$VisitGoodsListsTableProcessedTableManager get visitGoodsListsRefs {
     final manager =
-        $$VisitGoodsListsTableTableManager($_db, $_db.visitGoodsLists)
-            .filter((f) => f.visitGuid.guid($_item.guid));
+        $$VisitGoodsListsTableTableManager($_db, $_db.visitGoodsLists).filter(
+            (f) => f.visitGuid.guid.sqlEquals($_itemColumn<String>('guid')!));
 
     final cache =
         $_typedResult.readTableOrNull(_visitGoodsListsRefsTable($_db));
@@ -32365,10 +32372,11 @@ final class $$VisitImagesTableReferences
       db.visits.createAlias(
           $_aliasNameGenerator(db.visitImages.visitGuid, db.visits.guid));
 
-  $$VisitsTableProcessedTableManager? get visitGuid {
-    if ($_item.visitGuid == null) return null;
+  $$VisitsTableProcessedTableManager get visitGuid {
+    final $_column = $_itemColumn<String>('visit_guid')!;
+
     final manager = $$VisitsTableTableManager($_db, $_db.visits)
-        .filter((f) => f.guid($_item.visitGuid!));
+        .filter((f) => f.guid.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_visitGuidTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -32766,10 +32774,11 @@ final class $$VisitSoftwaresTableReferences extends BaseReferences<
       db.visits.createAlias(
           $_aliasNameGenerator(db.visitSoftwares.visitGuid, db.visits.guid));
 
-  $$VisitsTableProcessedTableManager? get visitGuid {
-    if ($_item.visitGuid == null) return null;
+  $$VisitsTableProcessedTableManager get visitGuid {
+    final $_column = $_itemColumn<String>('visit_guid')!;
+
     final manager = $$VisitsTableTableManager($_db, $_db.visits)
-        .filter((f) => f.guid($_item.visitGuid!));
+        .filter((f) => f.guid.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_visitGuidTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -33161,10 +33170,11 @@ final class $$VisitGoodsListsTableReferences extends BaseReferences<
       db.visits.createAlias(
           $_aliasNameGenerator(db.visitGoodsLists.visitGuid, db.visits.guid));
 
-  $$VisitsTableProcessedTableManager? get visitGuid {
-    if ($_item.visitGuid == null) return null;
+  $$VisitsTableProcessedTableManager get visitGuid {
+    final $_column = $_itemColumn<String>('visit_guid')!;
+
     final manager = $$VisitsTableTableManager($_db, $_db.visits)
-        .filter((f) => f.guid($_item.visitGuid!));
+        .filter((f) => f.guid.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_visitGuidTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
@@ -33182,7 +33192,8 @@ final class $$VisitGoodsListsTableReferences extends BaseReferences<
       get allVisitGoodsListGoodsRefs {
     final manager = $$AllVisitGoodsListGoodsTableTableManager(
             $_db, $_db.allVisitGoodsListGoods)
-        .filter((f) => f.visitGoodsListGuid.guid($_item.guid));
+        .filter((f) =>
+            f.visitGoodsListGuid.guid.sqlEquals($_itemColumn<String>('guid')!));
 
     final cache =
         $_typedResult.readTableOrNull(_allVisitGoodsListGoodsRefsTable($_db));
@@ -33586,11 +33597,12 @@ final class $$AllVisitGoodsListGoodsTableReferences extends BaseReferences<
           db.allVisitGoodsListGoods.visitGoodsListGuid,
           db.visitGoodsLists.guid));
 
-  $$VisitGoodsListsTableProcessedTableManager? get visitGoodsListGuid {
-    if ($_item.visitGoodsListGuid == null) return null;
+  $$VisitGoodsListsTableProcessedTableManager get visitGoodsListGuid {
+    final $_column = $_itemColumn<String>('visit_goods_list_guid')!;
+
     final manager =
         $$VisitGoodsListsTableTableManager($_db, $_db.visitGoodsLists)
-            .filter((f) => f.guid($_item.visitGoodsListGuid!));
+            .filter((f) => f.guid.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_visitGoodsListGuidTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(

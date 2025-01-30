@@ -18,8 +18,8 @@ class PreOrderPage extends StatelessWidget {
 
   PreOrderPage({
     required this.preOrderEx,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

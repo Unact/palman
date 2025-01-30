@@ -11,7 +11,7 @@ import '/app/repositories/base_repository.dart';
 import '/app/services/palman_api.dart';
 
 class PricesRepository extends BaseRepository {
-  PricesRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
+  PricesRepository(super.dataStore, super.api);
 
   Future<void> loadPrices() async {
     try {

@@ -87,7 +87,7 @@ part of 'database.dart';
   }
 )
 class PricesDao extends DatabaseAccessor<AppDataStore> with _$PricesDaoMixin {
-  PricesDao(AppDataStore db) : super(db);
+  PricesDao(super.db);
 
   Future<void> regeneratePartnersPricesGuid() async {
     await db._regenerateGuid(partnersPrices);

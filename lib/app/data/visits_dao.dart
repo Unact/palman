@@ -41,7 +41,7 @@ part of 'database.dart';
   }
 )
 class VisitsDao extends DatabaseAccessor<AppDataStore> with _$VisitsDaoMixin {
-  VisitsDao(AppDataStore db) : super(db);
+  VisitsDao(super.db);
 
   Future<void> loadVisitImages(List<VisitImage> list, [bool clearTable = true]) async {
     await db._loadData(visitImages, list, clearTable);

@@ -28,8 +28,8 @@ part 'orders_info_view_model.dart';
 
 class OrdersInfoPage extends StatelessWidget {
   OrdersInfoPage({
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

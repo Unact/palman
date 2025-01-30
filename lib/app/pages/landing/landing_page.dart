@@ -13,8 +13,8 @@ part 'landing_view_model.dart';
 
 class LandingPage extends StatelessWidget {
   LandingPage({
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

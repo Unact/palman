@@ -24,8 +24,8 @@ class BonusProgramsPage extends StatelessWidget {
     required this.buyer,
     required this.categoryEx,
     required this.goodsEx,
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -141,7 +141,7 @@ class _BonusProgramsViewState extends State<_BonusProgramsView> {
                 const DropdownMenuItem<BonusProgramGroup?>(value: null, child: Text('Все')),
                 ...vm.state.bonusProgramGroups.map<DropdownMenuItem<BonusProgramGroup>>((BonusProgramGroup v) {
                   return DropdownMenuItem<BonusProgramGroup>(value: v, child: Text(v.name, softWrap: false));
-                }).toList()
+                })
               ],
               onChanged: vm.changeSelectedBonusProgramGroup
             )

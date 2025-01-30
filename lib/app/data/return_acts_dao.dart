@@ -67,7 +67,7 @@ part of 'database.dart';
   }
 )
 class ReturnActsDao extends DatabaseAccessor<AppDataStore> with _$ReturnActsDaoMixin {
-  ReturnActsDao(AppDataStore db) : super(db);
+  ReturnActsDao(super.db);
 
   Future<void> regenerateReturnActsGuid() async {
     await db._regenerateGuid(returnActs);
@@ -205,7 +205,7 @@ class ReturnActsDao extends DatabaseAccessor<AppDataStore> with _$ReturnActsDaoM
           if (groupedReturnStocks[e.goods.id] == null) return null;
 
           return GoodsReturnDetail(e, groupedReturnStocks[e.goods.id]!);
-        }).whereNotNull().toList();
+        }).nonNulls.toList();
       }
     );
   }

@@ -130,7 +130,7 @@ part of 'database.dart';
   }
 )
 class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
-  OrdersDao(AppDataStore db) : super(db);
+  OrdersDao(super.db);
 
   Future<void> regenerateOrdersGuid() async {
     await db._regenerateGuid(orders);
@@ -387,7 +387,7 @@ class GoodsDetail {
       [
         (totalDiscount != null ? (1 - totalDiscount / 100) * pricelistPrice : null),
         (minCoef != null ? minCoef * goods.cost : null)
-      ].whereNotNull().maxOrNull ??
+      ].nonNulls.maxOrNull ??
       pricelistPrice;
 
     return bonusPrice.roundDigits(2);

@@ -9,7 +9,7 @@ import '/app/repositories/base_repository.dart';
 import '/app/services/palman_api.dart';
 
 class ShipmentsRepository extends BaseRepository {
-  ShipmentsRepository(AppDataStore dataStore, RenewApi api) : super(dataStore, api);
+  ShipmentsRepository(super.dataStore, super.api);
 
   Future<void> loadShipments() async {
     try {

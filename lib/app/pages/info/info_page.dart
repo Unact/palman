@@ -33,8 +33,8 @@ part 'info_view_model.dart';
 
 class InfoPage extends StatelessWidget {
   InfoPage({
-    Key? key
-  }) : super(key: key);
+    super.key
+  });
 
   @override
   Widget build(BuildContext context) {

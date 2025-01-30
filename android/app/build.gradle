@@ -37,6 +37,8 @@ apply plugin: 'kotlin-android'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
 android {
+    namespace "com.selvis.palman"
+
     compileSdkVersion flutter.compileSdkVersion
 
     compileOptions {
@@ -50,6 +52,10 @@ android {
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    buildFeatures {
+        buildConfig true
     }
 
     defaultConfig {
