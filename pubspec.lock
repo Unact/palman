@@ -434,9 +434,9 @@ packages:
     dependency: transitive
     description:
       path: "."
-      ref: "2168301"
-      resolved-ref: "2168301ab82eb4b210c7cb064126bd605677d29a"
-      url: "git@github.com:xkxeeshankhan/fk_user_agent.git"
+      ref: "6068ac8"
+      resolved-ref: "6068ac8fcf0064dcfb4106c8fcc1b2d61cbf9d06"
+      url: "git@github.com:kennir/fk_user_agent.git"
     source: git
     version: "2.1.0"
   flex_color_scheme:
@@ -1548,8 +1548,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: ffe4dd2
-      resolved-ref: ffe4dd2e42fbd7d96b5b0347a82635062cacf74b
+      ref: "5144378"
+      resolved-ref: "5144378f50fc017aa873c5178fa0aabfee605be7"
       url: "git@github.com:Unact/u_app_utils.git"
     source: git
     version: "0.0.1"
