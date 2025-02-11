@@ -50,25 +50,28 @@ class GoodsState {
 
   List<OrderLineExResult> get filteredOrderLinesExList => linesExList.where((e) => !e.line.isDeleted).toList();
 
-  bool get showAllGoods => selectedCategory != null ||
-    selectedBonusProgram != null ||
-    (goodsNameSearch ?? '').isNotEmpty ||
-    selectedGoodsFilter != null ||
-    showOnlyOrder;
-
-  bool get goodsListInitiallyExpanded => showOnlyActive ||
+  bool get showAllGoods =>
+    selectedCategory != null ||
     showOnlyOrder ||
+    showOnlyLatest ||
     selectedGoodsFilter != null ||
     selectedBonusProgram != null ||
+    (goodsNameSearch ?? '').isNotEmpty;
+
+  bool get goodsListInitiallyExpanded =>
+    showOnlyActive ||
+    showOnlyOrder ||
+    showOnlyLatest ||
     selectedGoodsFilter != null ||
+    selectedBonusProgram != null ||
     (goodsNameSearch ?? '').isNotEmpty;
 
   bool get categoriesListInitiallyExpanded =>
     showOnlyActive ||
     showOnlyOrder ||
+    showOnlyLatest ||
     selectedGoodsFilter != null ||
     selectedBonusProgram != null ||
-    selectedGoodsFilter != null ||
     (goodsNameSearch ?? '').isNotEmpty;
 
   final List<GoodsDetail> visibleGoodsDetails;
