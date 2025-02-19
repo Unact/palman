@@ -11,6 +11,7 @@ part of 'database.dart';
     VisitImages,
     VisitSoftwares,
     VisitGoodsLists,
+    VisitPurposes,
     AllVisitGoodsListGoods,
     GoodsLists,
     AllGoodsListGoods
@@ -51,6 +52,10 @@ class VisitsDao extends DatabaseAccessor<AppDataStore> with _$VisitsDaoMixin {
     await db._loadData(visitSoftwares, list, clearTable);
   }
 
+  Future<void> loadVisitPurposes(List<VisitPurpose> list, [bool clearTable = true]) async {
+    await db._loadData(visitPurposes, list, clearTable);
+  }
+
   Future<void> loadVisitGoodsLists(List<VisitGoodsList> list, [bool clearTable = true]) async {
     await db._loadData(visitGoodsLists, list, clearTable);
   }
@@ -77,6 +82,10 @@ class VisitsDao extends DatabaseAccessor<AppDataStore> with _$VisitsDaoMixin {
 
   Stream<List<VisitSoftware>> watchVisitSoftwares(String visitGuid) {
     return (select(visitSoftwares)..where((tbl) => tbl.visitGuid.equals(visitGuid))).watch();
+  }
+
+  Stream<List<VisitPurpose>> watchVisitPurposes(String visitGuid) {
+    return (select(visitPurposes)..where((tbl) => tbl.visitGuid.equals(visitGuid))).watch();
   }
 
   Stream<List<VisitImage>> watchVisitImages(String visitGuid) {

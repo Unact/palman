@@ -62,6 +62,7 @@ part 'api_user_data.dart';
 part 'api_visit_goods_list_goods.dart';
 part 'api_visit_goods_list.dart';
 part 'api_visit_image.dart';
+part 'api_visit_purpose.dart';
 part 'api_visit_skip_reason.dart';
 part 'api_visit_software.dart';
 part 'api_visit.dart';

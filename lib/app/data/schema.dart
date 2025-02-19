@@ -512,7 +512,9 @@ class Visits extends Table with Syncable {
   BoolColumn get needCheckGL => boolean()();
   BoolColumn get needTakePhotos => boolean()();
   BoolColumn get needFillSoftware => boolean()();
-  BoolColumn get needDetails => boolean().generatedAs(needCheckGL | needTakePhotos | needFillSoftware)();
+  BoolColumn get needCompletePurpose => boolean()();
+  BoolColumn get needDetails => boolean()
+    .generatedAs(needCheckGL | needTakePhotos | needFillSoftware | needCompletePurpose)();
 
   BoolColumn get visited => boolean().generatedAs(visitSkipReasonId.isNull())();
 }
@@ -527,6 +529,15 @@ class VisitSoftwares extends Table with Photoable, Imageable, Syncable {
   IntColumn get id => integer()();
   TextColumn get visitGuid => text()
     .references(Visits, #guid, onUpdate: KeyAction.cascade, onDelete: KeyAction.cascade)();
+}
+
+class VisitPurposes extends Table with Syncable {
+  IntColumn get id => integer()();
+  TextColumn get visitGuid => text()
+    .references(Visits, #guid, onUpdate: KeyAction.cascade, onDelete: KeyAction.cascade)();
+  TextColumn get description => text()();
+  BoolColumn get completed => boolean().nullable()();
+  TextColumn get info => text().nullable()();
 }
 
 class VisitGoodsLists extends Table with Syncable {

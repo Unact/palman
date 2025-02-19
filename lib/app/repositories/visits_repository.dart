@@ -45,6 +45,10 @@ class VisitsRepository extends BaseRepository {
     return dataStore.visitsDao.watchVisitSoftwares(visitGuid);
   }
 
+  Stream<List<VisitPurpose>> watchVisitPurposes(String visitGuid) {
+    return dataStore.visitsDao.watchVisitPurposes(visitGuid);
+  }
+
   Stream<List<VisitImage>> watchVisitImages(String visitGuid) {
     return dataStore.visitsDao.watchVisitImages(visitGuid);
   }
@@ -176,6 +180,26 @@ class VisitsRepository extends BaseRepository {
     }
   }
 
+  Future<void> completeVisitPurpose(VisitPurpose visitPurpose, {
+    required bool completed,
+    required String? info
+  }) async {
+    try {
+      Map<String, dynamic> visitPurposeData = {
+        'guid': visitPurpose.guid,
+        'completed': completed,
+        'info': info
+      };
+      final data = await api.completeVisitPurpose(visitPurposeData);
+      await _saveApiData(data, false);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
   Future<void> finishVisitList(Visit visit, {
     required int goodsListId,
     required List<int> goodsIds
@@ -260,6 +284,9 @@ class VisitsRepository extends BaseRepository {
       final visitSoftwares = data.visits
         .map((e) => e.softwares.map((i) => i.toDatabaseEnt(e.guid))).expand((e) => e)
         .toList();
+      final visitPurposes = data.visits
+        .map((e) => e.purposes.map((i) => i.toDatabaseEnt(e.guid))).expand((e) => e)
+        .toList();
       final visitGoodsLists = data.visits
         .map((e) => e.goodsLists.map((i) => i.toDatabaseEnt(e.guid))).expand((e) => e)
         .toList();
@@ -272,6 +299,7 @@ class VisitsRepository extends BaseRepository {
       await dataStore.visitsDao.loadVisits(visits, clearTable);
       await dataStore.visitsDao.loadVisitImages(visitImages, clearTable);
       await dataStore.visitsDao.loadVisitSoftwares(visitSoftwares, clearTable);
+      await dataStore.visitsDao.loadVisitPurposes(visitPurposes, clearTable);
       await dataStore.visitsDao.loadVisitGoodsLists(visitGoodsLists, clearTable);
       await dataStore.visitsDao.loadVisitGoodsListGoods(visitGoodsListGoods, clearTable);
       await dataStore.visitsDao.loadRoutePoints(routePoints, clearTable);

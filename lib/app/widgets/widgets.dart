@@ -16,3 +16,4 @@ part 'buyer_field.dart';
 part 'image_gallery.dart';
 part 'save_button.dart';
 part 'vol_field.dart';
+part 'simple_alert_dialog.dart';

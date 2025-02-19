@@ -6,6 +6,7 @@ class VisitViewModel extends PageViewModel<VisitState, VisitStateStatus> {
   StreamSubscription<List<GoodsListVisitExResult>>? goodsListVisitExListSubscription;
   StreamSubscription<List<VisitImage>>? visitImagesSubscription;
   StreamSubscription<List<VisitSoftware>>? visitSoftwaresSubscription;
+  StreamSubscription<List<VisitPurpose>>? visitPurposesSubscription;
   StreamSubscription<AppInfoResult>? appInfoSubscription;
 
   VisitViewModel(this.appRepository, this.visitsRepository, { required VisitEx visitEx }) :
@@ -31,6 +32,9 @@ class VisitViewModel extends PageViewModel<VisitState, VisitStateStatus> {
     visitSoftwaresSubscription = visitsRepository.watchVisitSoftwares(state.visitEx.visit.guid).listen((event) {
       emit(state.copyWith(status: VisitStateStatus.dataLoaded, softwares: event));
     });
+    visitPurposesSubscription = visitsRepository.watchVisitPurposes(state.visitEx.visit.guid).listen((event) {
+      emit(state.copyWith(status: VisitStateStatus.dataLoaded, purposes: event));
+    });
   }
 
   @override
@@ -40,6 +44,7 @@ class VisitViewModel extends PageViewModel<VisitState, VisitStateStatus> {
     await goodsListVisitExListSubscription?.cancel();
     await visitImagesSubscription?.cancel();
     await visitSoftwaresSubscription?.cancel();
+    await visitPurposesSubscription?.cancel();
     await appInfoSubscription?.cancel();
   }
 
@@ -83,6 +88,18 @@ class VisitViewModel extends PageViewModel<VisitState, VisitStateStatus> {
         status: VisitStateStatus.success,
         message: 'Список сохранен'
       ));
+    } on AppError catch(e) {
+      emit(state.copyWith(status: VisitStateStatus.failure, message: e.message));
+    }
+  }
+
+  Future<void> completeVisitPurpose(VisitPurpose purpose, bool completed, String? info) async {
+    emit(state.copyWith(status: VisitStateStatus.inProgress));
+
+    try {
+      await visitsRepository.completeVisitPurpose(purpose, completed: completed, info: info);
+
+      emit(state.copyWith(status: VisitStateStatus.success, message: 'Цель отмечена'));
     } on AppError catch(e) {
       emit(state.copyWith(status: VisitStateStatus.failure, message: e.message));
     }

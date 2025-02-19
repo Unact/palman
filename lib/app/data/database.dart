@@ -85,7 +85,8 @@ part 'visits_dao.dart';
     VisitImages,
     VisitSoftwares,
     VisitGoodsLists,
-    AllVisitGoodsListGoods
+    AllVisitGoodsListGoods,
+    VisitPurposes
   ],
   daos: [
     BonusProgramsDao,
@@ -254,7 +255,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 37;
+  int get schemaVersion => 38;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
