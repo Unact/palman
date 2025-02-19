@@ -346,8 +346,7 @@ class _VisitViewState extends State<_VisitView> {
           title: Text('Цели', style: Styles.formStyle),
         ),
         ...vm.state.purposes.map((e) => buildPurpose(context, e))
-
-      ],
+      ]
     );
   }
 

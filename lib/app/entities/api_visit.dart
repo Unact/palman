@@ -67,7 +67,7 @@ class ApiVisit extends Equatable {
       needTakePhotos: needTakePhotos,
       needFillSoftware: needFillSoftware,
       needCompletePurpose: needCompletePurpose,
-      needDetails: needCheckGL || needTakePhotos || needCompletePurpose,
+      needDetails: needCheckGL || needTakePhotos || needFillSoftware || needCompletePurpose,
       guid: guid,
       isNew: false,
       isDeleted: false,
