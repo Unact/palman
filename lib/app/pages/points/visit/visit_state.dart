@@ -17,6 +17,7 @@ class VisitState {
     required this.visitEx,
     this.images = const [],
     this.softwares = const [],
+    this.purposes = const [],
     this.goodsListVisitExList = const [],
     this.message = '',
     this.appInfo,
@@ -28,6 +29,7 @@ class VisitState {
   final VisitEx visitEx;
   final List<VisitImage> images;
   final List<VisitSoftware> softwares;
+  final List<VisitPurpose> purposes;
   final List<GoodsListVisitExResult> goodsListVisitExList;
   final String message;
   final AppInfoResult? appInfo;
@@ -41,6 +43,7 @@ class VisitState {
     VisitEx? visitEx,
     List<VisitImage>? images,
     List<VisitSoftware>? softwares,
+    List<VisitPurpose>? purposes,
     List<GoodsListVisitExResult>? goodsListVisitExList,
     String? message,
     AppInfoResult? appInfo,
@@ -52,6 +55,7 @@ class VisitState {
       visitEx: visitEx ?? this.visitEx,
       images: images ?? this.images,
       softwares: softwares ?? this.softwares,
+      purposes: purposes ?? this.purposes,
       goodsListVisitExList: goodsListVisitExList ?? this.goodsListVisitExList,
       message: message ?? this.message,
       appInfo: appInfo ?? this.appInfo,

@@ -72,6 +72,47 @@ class _VisitViewState extends State<_VisitView> {
     );
   }
 
+  Future<void> showVisitPurposeDialog(VisitPurpose purpose, bool completed) async {
+    final vm = context.read<VisitViewModel>();
+    final result = await showDialog<String?>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        String? info;
+
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return SimpleAlertDialog(
+              title: const Text('Указать комментарий?'),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    autofocus: true,
+                    keyboardType: TextInputType.text,
+                    onChanged: (newInfo) => setState(() => info = newInfo)
+                  )
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: info != null && info!.isNotEmpty ? () => Navigator.of(context).pop(info) : null,
+                  child: const Text('Да')
+                ),
+                TextButton(
+                  onPressed: () => Navigator.of(context).pop(null),
+                  child: const Text('Нет')
+                )
+              ]
+            );
+          }
+        );
+      }
+    );
+
+    await vm.completeVisitPurpose(purpose, completed, result);
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocConsumer<VisitViewModel, VisitState>(
@@ -117,6 +158,7 @@ class _VisitViewState extends State<_VisitView> {
     final visit = vm.state.visitEx.visit;
 
     return [
+      visit.needCompletePurpose ? buildPurposeList(context) : Container(),
       visit.needCheckGL ? buildGoodsList(context) : Container(),
       visit.needTakePhotos ? buildImageList(context) : Container(),
       visit.needFillSoftware ? buildSoftwareList(context) : Container()
@@ -291,6 +333,55 @@ class _VisitViewState extends State<_VisitView> {
             ))
         )
       ],
+    );
+  }
+
+  Widget buildPurposeList(BuildContext context) {
+    final vm = context.read<VisitViewModel>();
+
+    return Column(
+      children: [
+        const ListTile(
+          contentPadding: EdgeInsets.all(8),
+          title: Text('Цели', style: Styles.formStyle),
+        ),
+        ...vm.state.purposes.map((e) => buildPurpose(context, e))
+      ]
+    );
+  }
+
+  Widget buildPurpose(BuildContext context, VisitPurpose purpose) {
+    if (purpose.completed != null) {
+      return ListTile(
+        title: Text(purpose.description),
+        subtitle: Text(
+          '${purpose.completed! ? 'Выполнен' : 'Не выполнен'}${purpose.info != null ? ' - ${purpose.info}' : ''}'
+        )
+      );
+    }
+
+    return ListTile(
+      title: Text(purpose.description),
+      trailing: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(Icons.indeterminate_check_box),
+            onPressed: () => showVisitPurposeDialog(purpose, false),
+            tooltip: 'Отметить не выполнение',
+            constraints: const BoxConstraints(),
+            padding: const EdgeInsets.only(right: 16)
+          ),
+          IconButton(
+            icon: const Icon(Icons.check_box),
+            onPressed: () => showVisitPurposeDialog(purpose, true),
+            tooltip: 'Отметить выполнение',
+            constraints: const BoxConstraints(),
+            padding: const EdgeInsets.only(right: 16)
+          )
+        ]
+      )
     );
   }
 }

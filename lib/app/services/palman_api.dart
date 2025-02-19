@@ -102,6 +102,12 @@ extension PalmanApi on RenewApi {
     );
   }
 
+  Future<ApiVisitsData> completeVisitPurpose(Map<String, dynamic> visitPurposeData) async {
+    return ApiVisitsData.fromJson(
+      await post('v1/palman/visits/complete_visit_purpose', dataGenerator: () => visitPurposeData)
+    );
+  }
+
   Future<ApiDebtsData> saveDebts(List<Map<String, dynamic>> preEncashments) async {
     return ApiDebtsData.fromJson(
       await post('v2/palman/debts/save', dataGenerator: () => preEncashments)

@@ -17733,13 +17733,23 @@ class $VisitsTable extends Visits with TableInfo<$VisitsTable, Visit> {
       requiredDuringInsert: true,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
           'CHECK ("need_fill_software" IN (0, 1))'));
+  static const VerificationMeta _needCompletePurposeMeta =
+      const VerificationMeta('needCompletePurpose');
+  @override
+  late final GeneratedColumn<bool> needCompletePurpose = GeneratedColumn<bool>(
+      'need_complete_purpose', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("need_complete_purpose" IN (0, 1))'));
   static const VerificationMeta _needDetailsMeta =
       const VerificationMeta('needDetails');
   @override
   late final GeneratedColumn<bool> needDetails = GeneratedColumn<bool>(
       'need_details', aliasedName, false,
-      generatedAs:
-          GeneratedAs(needCheckGL | needTakePhotos | needFillSoftware, false),
+      generatedAs: GeneratedAs(
+          needCheckGL | needTakePhotos | needFillSoftware | needCompletePurpose,
+          false),
       type: DriftSqlType.bool,
       requiredDuringInsert: false,
       defaultConstraints: GeneratedColumn.constraintIsAlways(
@@ -17771,6 +17781,7 @@ class $VisitsTable extends Visits with TableInfo<$VisitsTable, Visit> {
         needCheckGL,
         needTakePhotos,
         needFillSoftware,
+        needCompletePurpose,
         needDetails,
         visited
       ];
@@ -17869,6 +17880,14 @@ class $VisitsTable extends Visits with TableInfo<$VisitsTable, Visit> {
     } else if (isInserting) {
       context.missing(_needFillSoftwareMeta);
     }
+    if (data.containsKey('need_complete_purpose')) {
+      context.handle(
+          _needCompletePurposeMeta,
+          needCompletePurpose.isAcceptableOrUnknown(
+              data['need_complete_purpose']!, _needCompletePurposeMeta));
+    } else if (isInserting) {
+      context.missing(_needCompletePurposeMeta);
+    }
     if (data.containsKey('need_details')) {
       context.handle(
           _needDetailsMeta,
@@ -17918,6 +17937,8 @@ class $VisitsTable extends Visits with TableInfo<$VisitsTable, Visit> {
           .read(DriftSqlType.bool, data['${effectivePrefix}need_take_photos'])!,
       needFillSoftware: attachedDatabase.typeMapping.read(
           DriftSqlType.bool, data['${effectivePrefix}need_fill_software'])!,
+      needCompletePurpose: attachedDatabase.typeMapping.read(
+          DriftSqlType.bool, data['${effectivePrefix}need_complete_purpose'])!,
       needDetails: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}need_details'])!,
       visited: attachedDatabase.typeMapping
@@ -17947,6 +17968,7 @@ class Visit extends DataClass implements Insertable<Visit> {
   final bool needCheckGL;
   final bool needTakePhotos;
   final bool needFillSoftware;
+  final bool needCompletePurpose;
   final bool needDetails;
   final bool visited;
   const Visit(
@@ -17965,6 +17987,7 @@ class Visit extends DataClass implements Insertable<Visit> {
       required this.needCheckGL,
       required this.needTakePhotos,
       required this.needFillSoftware,
+      required this.needCompletePurpose,
       required this.needDetails,
       required this.visited});
   @override
@@ -17991,6 +18014,7 @@ class Visit extends DataClass implements Insertable<Visit> {
     map['need_check_g_l'] = Variable<bool>(needCheckGL);
     map['need_take_photos'] = Variable<bool>(needTakePhotos);
     map['need_fill_software'] = Variable<bool>(needFillSoftware);
+    map['need_complete_purpose'] = Variable<bool>(needCompletePurpose);
     return map;
   }
 
@@ -18015,6 +18039,7 @@ class Visit extends DataClass implements Insertable<Visit> {
       needCheckGL: Value(needCheckGL),
       needTakePhotos: Value(needTakePhotos),
       needFillSoftware: Value(needFillSoftware),
+      needCompletePurpose: Value(needCompletePurpose),
     );
   }
 
@@ -18037,6 +18062,8 @@ class Visit extends DataClass implements Insertable<Visit> {
       needCheckGL: serializer.fromJson<bool>(json['needCheckGL']),
       needTakePhotos: serializer.fromJson<bool>(json['needTakePhotos']),
       needFillSoftware: serializer.fromJson<bool>(json['needFillSoftware']),
+      needCompletePurpose:
+          serializer.fromJson<bool>(json['needCompletePurpose']),
       needDetails: serializer.fromJson<bool>(json['needDetails']),
       visited: serializer.fromJson<bool>(json['visited']),
     );
@@ -18060,6 +18087,7 @@ class Visit extends DataClass implements Insertable<Visit> {
       'needCheckGL': serializer.toJson<bool>(needCheckGL),
       'needTakePhotos': serializer.toJson<bool>(needTakePhotos),
       'needFillSoftware': serializer.toJson<bool>(needFillSoftware),
+      'needCompletePurpose': serializer.toJson<bool>(needCompletePurpose),
       'needDetails': serializer.toJson<bool>(needDetails),
       'visited': serializer.toJson<bool>(visited),
     };
@@ -18081,6 +18109,7 @@ class Visit extends DataClass implements Insertable<Visit> {
           bool? needCheckGL,
           bool? needTakePhotos,
           bool? needFillSoftware,
+          bool? needCompletePurpose,
           bool? needDetails,
           bool? visited}) =>
       Visit(
@@ -18103,6 +18132,7 @@ class Visit extends DataClass implements Insertable<Visit> {
         needCheckGL: needCheckGL ?? this.needCheckGL,
         needTakePhotos: needTakePhotos ?? this.needTakePhotos,
         needFillSoftware: needFillSoftware ?? this.needFillSoftware,
+        needCompletePurpose: needCompletePurpose ?? this.needCompletePurpose,
         needDetails: needDetails ?? this.needDetails,
         visited: visited ?? this.visited,
       );
@@ -18124,6 +18154,7 @@ class Visit extends DataClass implements Insertable<Visit> {
           ..write('needCheckGL: $needCheckGL, ')
           ..write('needTakePhotos: $needTakePhotos, ')
           ..write('needFillSoftware: $needFillSoftware, ')
+          ..write('needCompletePurpose: $needCompletePurpose, ')
           ..write('needDetails: $needDetails, ')
           ..write('visited: $visited')
           ..write(')'))
@@ -18147,6 +18178,7 @@ class Visit extends DataClass implements Insertable<Visit> {
       needCheckGL,
       needTakePhotos,
       needFillSoftware,
+      needCompletePurpose,
       needDetails,
       visited);
   @override
@@ -18168,6 +18200,7 @@ class Visit extends DataClass implements Insertable<Visit> {
           other.needCheckGL == this.needCheckGL &&
           other.needTakePhotos == this.needTakePhotos &&
           other.needFillSoftware == this.needFillSoftware &&
+          other.needCompletePurpose == this.needCompletePurpose &&
           other.needDetails == this.needDetails &&
           other.visited == this.visited);
 }
@@ -18186,6 +18219,7 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
   final Value<bool> needCheckGL;
   final Value<bool> needTakePhotos;
   final Value<bool> needFillSoftware;
+  final Value<bool> needCompletePurpose;
   final Value<int> rowid;
   const VisitsCompanion({
     this.guid = const Value.absent(),
@@ -18201,6 +18235,7 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
     this.needCheckGL = const Value.absent(),
     this.needTakePhotos = const Value.absent(),
     this.needFillSoftware = const Value.absent(),
+    this.needCompletePurpose = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   VisitsCompanion.insert({
@@ -18217,13 +18252,15 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
     required bool needCheckGL,
     required bool needTakePhotos,
     required bool needFillSoftware,
+    required bool needCompletePurpose,
     this.rowid = const Value.absent(),
   })  : guid = Value(guid),
         date = Value(date),
         buyerId = Value(buyerId),
         needCheckGL = Value(needCheckGL),
         needTakePhotos = Value(needTakePhotos),
-        needFillSoftware = Value(needFillSoftware);
+        needFillSoftware = Value(needFillSoftware),
+        needCompletePurpose = Value(needCompletePurpose);
   static Insertable<Visit> custom({
     Expression<String>? guid,
     Expression<bool>? isDeleted,
@@ -18238,6 +18275,7 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
     Expression<bool>? needCheckGL,
     Expression<bool>? needTakePhotos,
     Expression<bool>? needFillSoftware,
+    Expression<bool>? needCompletePurpose,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -18254,6 +18292,8 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
       if (needCheckGL != null) 'need_check_g_l': needCheckGL,
       if (needTakePhotos != null) 'need_take_photos': needTakePhotos,
       if (needFillSoftware != null) 'need_fill_software': needFillSoftware,
+      if (needCompletePurpose != null)
+        'need_complete_purpose': needCompletePurpose,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -18272,6 +18312,7 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
       Value<bool>? needCheckGL,
       Value<bool>? needTakePhotos,
       Value<bool>? needFillSoftware,
+      Value<bool>? needCompletePurpose,
       Value<int>? rowid}) {
     return VisitsCompanion(
       guid: guid ?? this.guid,
@@ -18287,6 +18328,7 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
       needCheckGL: needCheckGL ?? this.needCheckGL,
       needTakePhotos: needTakePhotos ?? this.needTakePhotos,
       needFillSoftware: needFillSoftware ?? this.needFillSoftware,
+      needCompletePurpose: needCompletePurpose ?? this.needCompletePurpose,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -18333,6 +18375,9 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
     if (needFillSoftware.present) {
       map['need_fill_software'] = Variable<bool>(needFillSoftware.value);
     }
+    if (needCompletePurpose.present) {
+      map['need_complete_purpose'] = Variable<bool>(needCompletePurpose.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -18355,6 +18400,7 @@ class VisitsCompanion extends UpdateCompanion<Visit> {
           ..write('needCheckGL: $needCheckGL, ')
           ..write('needTakePhotos: $needTakePhotos, ')
           ..write('needFillSoftware: $needFillSoftware, ')
+          ..write('needCompletePurpose: $needCompletePurpose, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -21319,6 +21365,571 @@ class AllVisitGoodsListGoodsCompanion
   }
 }
 
+class $VisitPurposesTable extends VisitPurposes
+    with TableInfo<$VisitPurposesTable, VisitPurpose> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $VisitPurposesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _guidMeta = const VerificationMeta('guid');
+  @override
+  late final GeneratedColumn<String> guid = GeneratedColumn<String>(
+      'guid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isDeletedMeta =
+      const VerificationMeta('isDeleted');
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _currentTimestampMeta =
+      const VerificationMeta('currentTimestamp');
+  @override
+  late final GeneratedColumn<DateTime> currentTimestamp =
+      GeneratedColumn<DateTime>('current_timestamp', aliasedName, false,
+          type: DriftSqlType.dateTime,
+          requiredDuringInsert: false,
+          defaultValue: currentDateAndTime);
+  static const VerificationMeta _lastSyncTimeMeta =
+      const VerificationMeta('lastSyncTime');
+  @override
+  late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
+      'last_sync_time', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          (isNew & BooleanExpressionOperators(isDeleted).not()) |
+              (BooleanExpressionOperators(isNew).not() &
+                  ComparableExpr(lastSyncTime).isSmallerThan(timestamp)),
+          true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _visitGuidMeta =
+      const VerificationMeta('visitGuid');
+  @override
+  late final GeneratedColumn<String> visitGuid = GeneratedColumn<String>(
+      'visit_guid', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'REFERENCES visits (guid) ON UPDATE CASCADE ON DELETE CASCADE'));
+  static const VerificationMeta _descriptionMeta =
+      const VerificationMeta('description');
+  @override
+  late final GeneratedColumn<String> description = GeneratedColumn<String>(
+      'description', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _completedMeta =
+      const VerificationMeta('completed');
+  @override
+  late final GeneratedColumn<bool> completed = GeneratedColumn<bool>(
+      'completed', aliasedName, true,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("completed" IN (0, 1))'));
+  static const VerificationMeta _infoMeta = const VerificationMeta('info');
+  @override
+  late final GeneratedColumn<String> info = GeneratedColumn<String>(
+      'info', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        guid,
+        isDeleted,
+        timestamp,
+        currentTimestamp,
+        lastSyncTime,
+        needSync,
+        isNew,
+        id,
+        visitGuid,
+        description,
+        completed,
+        info
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'visit_purposes';
+  @override
+  VerificationContext validateIntegrity(Insertable<VisitPurpose> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('guid')) {
+      context.handle(
+          _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(_isDeletedMeta,
+          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('current_timestamp')) {
+      context.handle(
+          _currentTimestampMeta,
+          currentTimestamp.isAcceptableOrUnknown(
+              data['current_timestamp']!, _currentTimestampMeta));
+    }
+    if (data.containsKey('last_sync_time')) {
+      context.handle(
+          _lastSyncTimeMeta,
+          lastSyncTime.isAcceptableOrUnknown(
+              data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('visit_guid')) {
+      context.handle(_visitGuidMeta,
+          visitGuid.isAcceptableOrUnknown(data['visit_guid']!, _visitGuidMeta));
+    } else if (isInserting) {
+      context.missing(_visitGuidMeta);
+    }
+    if (data.containsKey('description')) {
+      context.handle(
+          _descriptionMeta,
+          description.isAcceptableOrUnknown(
+              data['description']!, _descriptionMeta));
+    } else if (isInserting) {
+      context.missing(_descriptionMeta);
+    }
+    if (data.containsKey('completed')) {
+      context.handle(_completedMeta,
+          completed.isAcceptableOrUnknown(data['completed']!, _completedMeta));
+    }
+    if (data.containsKey('info')) {
+      context.handle(
+          _infoMeta, info.isAcceptableOrUnknown(data['info']!, _infoMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {guid};
+  @override
+  VisitPurpose map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return VisitPurpose(
+      guid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}guid'])!,
+      isDeleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      currentTimestamp: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
+      lastSyncTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      visitGuid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}visit_guid'])!,
+      description: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}description'])!,
+      completed: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}completed']),
+      info: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}info']),
+    );
+  }
+
+  @override
+  $VisitPurposesTable createAlias(String alias) {
+    return $VisitPurposesTable(attachedDatabase, alias);
+  }
+}
+
+class VisitPurpose extends DataClass implements Insertable<VisitPurpose> {
+  final String guid;
+  final bool isDeleted;
+  final DateTime timestamp;
+  final DateTime currentTimestamp;
+  final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
+  final int id;
+  final String visitGuid;
+  final String description;
+  final bool? completed;
+  final String? info;
+  const VisitPurpose(
+      {required this.guid,
+      required this.isDeleted,
+      required this.timestamp,
+      required this.currentTimestamp,
+      this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
+      required this.id,
+      required this.visitGuid,
+      required this.description,
+      this.completed,
+      this.info});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['guid'] = Variable<String>(guid);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['current_timestamp'] = Variable<DateTime>(currentTimestamp);
+    if (!nullToAbsent || lastSyncTime != null) {
+      map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
+    }
+    map['id'] = Variable<int>(id);
+    map['visit_guid'] = Variable<String>(visitGuid);
+    map['description'] = Variable<String>(description);
+    if (!nullToAbsent || completed != null) {
+      map['completed'] = Variable<bool>(completed);
+    }
+    if (!nullToAbsent || info != null) {
+      map['info'] = Variable<String>(info);
+    }
+    return map;
+  }
+
+  VisitPurposesCompanion toCompanion(bool nullToAbsent) {
+    return VisitPurposesCompanion(
+      guid: Value(guid),
+      isDeleted: Value(isDeleted),
+      timestamp: Value(timestamp),
+      currentTimestamp: Value(currentTimestamp),
+      lastSyncTime: lastSyncTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncTime),
+      id: Value(id),
+      visitGuid: Value(visitGuid),
+      description: Value(description),
+      completed: completed == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completed),
+      info: info == null && nullToAbsent ? const Value.absent() : Value(info),
+    );
+  }
+
+  factory VisitPurpose.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return VisitPurpose(
+      guid: serializer.fromJson<String>(json['guid']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
+      lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
+      id: serializer.fromJson<int>(json['id']),
+      visitGuid: serializer.fromJson<String>(json['visitGuid']),
+      description: serializer.fromJson<String>(json['description']),
+      completed: serializer.fromJson<bool?>(json['completed']),
+      info: serializer.fromJson<String?>(json['info']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'guid': serializer.toJson<String>(guid),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
+      'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
+      'id': serializer.toJson<int>(id),
+      'visitGuid': serializer.toJson<String>(visitGuid),
+      'description': serializer.toJson<String>(description),
+      'completed': serializer.toJson<bool?>(completed),
+      'info': serializer.toJson<String?>(info),
+    };
+  }
+
+  VisitPurpose copyWith(
+          {String? guid,
+          bool? isDeleted,
+          DateTime? timestamp,
+          DateTime? currentTimestamp,
+          Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
+          int? id,
+          String? visitGuid,
+          String? description,
+          Value<bool?> completed = const Value.absent(),
+          Value<String?> info = const Value.absent()}) =>
+      VisitPurpose(
+        guid: guid ?? this.guid,
+        isDeleted: isDeleted ?? this.isDeleted,
+        timestamp: timestamp ?? this.timestamp,
+        currentTimestamp: currentTimestamp ?? this.currentTimestamp,
+        lastSyncTime:
+            lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
+        id: id ?? this.id,
+        visitGuid: visitGuid ?? this.visitGuid,
+        description: description ?? this.description,
+        completed: completed.present ? completed.value : this.completed,
+        info: info.present ? info.value : this.info,
+      );
+  @override
+  String toString() {
+    return (StringBuffer('VisitPurpose(')
+          ..write('guid: $guid, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('currentTimestamp: $currentTimestamp, ')
+          ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
+          ..write('id: $id, ')
+          ..write('visitGuid: $visitGuid, ')
+          ..write('description: $description, ')
+          ..write('completed: $completed, ')
+          ..write('info: $info')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      guid,
+      isDeleted,
+      timestamp,
+      currentTimestamp,
+      lastSyncTime,
+      needSync,
+      isNew,
+      id,
+      visitGuid,
+      description,
+      completed,
+      info);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is VisitPurpose &&
+          other.guid == this.guid &&
+          other.isDeleted == this.isDeleted &&
+          other.timestamp == this.timestamp &&
+          other.currentTimestamp == this.currentTimestamp &&
+          other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
+          other.id == this.id &&
+          other.visitGuid == this.visitGuid &&
+          other.description == this.description &&
+          other.completed == this.completed &&
+          other.info == this.info);
+}
+
+class VisitPurposesCompanion extends UpdateCompanion<VisitPurpose> {
+  final Value<String> guid;
+  final Value<bool> isDeleted;
+  final Value<DateTime> timestamp;
+  final Value<DateTime> currentTimestamp;
+  final Value<DateTime?> lastSyncTime;
+  final Value<int> id;
+  final Value<String> visitGuid;
+  final Value<String> description;
+  final Value<bool?> completed;
+  final Value<String?> info;
+  final Value<int> rowid;
+  const VisitPurposesCompanion({
+    this.guid = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.currentTimestamp = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
+    this.id = const Value.absent(),
+    this.visitGuid = const Value.absent(),
+    this.description = const Value.absent(),
+    this.completed = const Value.absent(),
+    this.info = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  VisitPurposesCompanion.insert({
+    required String guid,
+    this.isDeleted = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.currentTimestamp = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
+    required int id,
+    required String visitGuid,
+    required String description,
+    this.completed = const Value.absent(),
+    this.info = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : guid = Value(guid),
+        id = Value(id),
+        visitGuid = Value(visitGuid),
+        description = Value(description);
+  static Insertable<VisitPurpose> custom({
+    Expression<String>? guid,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? timestamp,
+    Expression<DateTime>? currentTimestamp,
+    Expression<DateTime>? lastSyncTime,
+    Expression<int>? id,
+    Expression<String>? visitGuid,
+    Expression<String>? description,
+    Expression<bool>? completed,
+    Expression<String>? info,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (guid != null) 'guid': guid,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (currentTimestamp != null) 'current_timestamp': currentTimestamp,
+      if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
+      if (id != null) 'id': id,
+      if (visitGuid != null) 'visit_guid': visitGuid,
+      if (description != null) 'description': description,
+      if (completed != null) 'completed': completed,
+      if (info != null) 'info': info,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  VisitPurposesCompanion copyWith(
+      {Value<String>? guid,
+      Value<bool>? isDeleted,
+      Value<DateTime>? timestamp,
+      Value<DateTime>? currentTimestamp,
+      Value<DateTime?>? lastSyncTime,
+      Value<int>? id,
+      Value<String>? visitGuid,
+      Value<String>? description,
+      Value<bool?>? completed,
+      Value<String?>? info,
+      Value<int>? rowid}) {
+    return VisitPurposesCompanion(
+      guid: guid ?? this.guid,
+      isDeleted: isDeleted ?? this.isDeleted,
+      timestamp: timestamp ?? this.timestamp,
+      currentTimestamp: currentTimestamp ?? this.currentTimestamp,
+      lastSyncTime: lastSyncTime ?? this.lastSyncTime,
+      id: id ?? this.id,
+      visitGuid: visitGuid ?? this.visitGuid,
+      description: description ?? this.description,
+      completed: completed ?? this.completed,
+      info: info ?? this.info,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (guid.present) {
+      map['guid'] = Variable<String>(guid.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (currentTimestamp.present) {
+      map['current_timestamp'] = Variable<DateTime>(currentTimestamp.value);
+    }
+    if (lastSyncTime.present) {
+      map['last_sync_time'] = Variable<DateTime>(lastSyncTime.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (visitGuid.present) {
+      map['visit_guid'] = Variable<String>(visitGuid.value);
+    }
+    if (description.present) {
+      map['description'] = Variable<String>(description.value);
+    }
+    if (completed.present) {
+      map['completed'] = Variable<bool>(completed.value);
+    }
+    if (info.present) {
+      map['info'] = Variable<String>(info.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('VisitPurposesCompanion(')
+          ..write('guid: $guid, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('currentTimestamp: $currentTimestamp, ')
+          ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('id: $id, ')
+          ..write('visitGuid: $visitGuid, ')
+          ..write('description: $description, ')
+          ..write('completed: $completed, ')
+          ..write('info: $info, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDataStore extends GeneratedDatabase {
   _$AppDataStore(QueryExecutor e) : super(e);
   $AppDataStoreManager get managers => $AppDataStoreManager(this);
@@ -21394,6 +22005,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
       $VisitGoodsListsTable(this);
   late final $AllVisitGoodsListGoodsTable allVisitGoodsListGoods =
       $AllVisitGoodsListGoodsTable(this);
+  late final $VisitPurposesTable visitPurposes = $VisitPurposesTable(this);
   late final BonusProgramsDao bonusProgramsDao =
       BonusProgramsDao(this as AppDataStore);
   late final DebtsDao debtsDao = DebtsDao(this as AppDataStore);
@@ -21505,7 +22117,8 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         visitImages,
         visitSoftwares,
         visitGoodsLists,
-        allVisitGoodsListGoods
+        allVisitGoodsListGoods,
+        visitPurposes
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -21606,6 +22219,20 @@ abstract class _$AppDataStore extends GeneratedDatabase {
                 limitUpdateKind: UpdateKind.update),
             result: [
               TableUpdate('visit_goods_list_goods', kind: UpdateKind.update),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('visits',
+                limitUpdateKind: UpdateKind.delete),
+            result: [
+              TableUpdate('visit_purposes', kind: UpdateKind.delete),
+            ],
+          ),
+          WritePropagation(
+            on: TableUpdateQuery.onTableName('visits',
+                limitUpdateKind: UpdateKind.update),
+            result: [
+              TableUpdate('visit_purposes', kind: UpdateKind.update),
             ],
           ),
         ],
@@ -31301,6 +31928,7 @@ typedef $$VisitsTableCreateCompanionBuilder = VisitsCompanion Function({
   required bool needCheckGL,
   required bool needTakePhotos,
   required bool needFillSoftware,
+  required bool needCompletePurpose,
   Value<int> rowid,
 });
 typedef $$VisitsTableUpdateCompanionBuilder = VisitsCompanion Function({
@@ -31317,6 +31945,7 @@ typedef $$VisitsTableUpdateCompanionBuilder = VisitsCompanion Function({
   Value<bool> needCheckGL,
   Value<bool> needTakePhotos,
   Value<bool> needFillSoftware,
+  Value<bool> needCompletePurpose,
   Value<int> rowid,
 });
 
@@ -31369,6 +31998,22 @@ final class $$VisitsTableReferences
 
     final cache =
         $_typedResult.readTableOrNull(_visitGoodsListsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+
+  static MultiTypedResultKey<$VisitPurposesTable, List<VisitPurpose>>
+      _visitPurposesRefsTable(_$AppDataStore db) =>
+          MultiTypedResultKey.fromTable(db.visitPurposes,
+              aliasName: $_aliasNameGenerator(
+                  db.visits.guid, db.visitPurposes.visitGuid));
+
+  $$VisitPurposesTableProcessedTableManager get visitPurposesRefs {
+    final manager = $$VisitPurposesTableTableManager($_db, $_db.visitPurposes)
+        .filter(
+            (f) => f.visitGuid.guid.sqlEquals($_itemColumn<String>('guid')!));
+
+    final cache = $_typedResult.readTableOrNull(_visitPurposesRefsTable($_db));
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
@@ -31430,6 +32075,10 @@ class $$VisitsTableFilterComposer
 
   ColumnFilters<bool> get needFillSoftware => $composableBuilder(
       column: $table.needFillSoftware,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get needCompletePurpose => $composableBuilder(
+      column: $table.needCompletePurpose,
       builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get needDetails => $composableBuilder(
@@ -31500,6 +32149,27 @@ class $$VisitsTableFilterComposer
             ));
     return f(composer);
   }
+
+  Expression<bool> visitPurposesRefs(
+      Expression<bool> Function($$VisitPurposesTableFilterComposer f) f) {
+    final $$VisitPurposesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.guid,
+        referencedTable: $db.visitPurposes,
+        getReferencedColumn: (t) => t.visitGuid,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$VisitPurposesTableFilterComposer(
+              $db: $db,
+              $table: $db.visitPurposes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$VisitsTableOrderingComposer
@@ -31562,6 +32232,10 @@ class $$VisitsTableOrderingComposer
       column: $table.needFillSoftware,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get needCompletePurpose => $composableBuilder(
+      column: $table.needCompletePurpose,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<bool> get needDetails => $composableBuilder(
       column: $table.needDetails, builder: (column) => ColumnOrderings(column));
 
@@ -31622,6 +32296,9 @@ class $$VisitsTableAnnotationComposer
 
   GeneratedColumn<bool> get needFillSoftware => $composableBuilder(
       column: $table.needFillSoftware, builder: (column) => column);
+
+  GeneratedColumn<bool> get needCompletePurpose => $composableBuilder(
+      column: $table.needCompletePurpose, builder: (column) => column);
 
   GeneratedColumn<bool> get needDetails => $composableBuilder(
       column: $table.needDetails, builder: (column) => column);
@@ -31691,6 +32368,27 @@ class $$VisitsTableAnnotationComposer
             ));
     return f(composer);
   }
+
+  Expression<T> visitPurposesRefs<T extends Object>(
+      Expression<T> Function($$VisitPurposesTableAnnotationComposer a) f) {
+    final $$VisitPurposesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.guid,
+        referencedTable: $db.visitPurposes,
+        getReferencedColumn: (t) => t.visitGuid,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$VisitPurposesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.visitPurposes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$VisitsTableTableManager extends RootTableManager<
@@ -31707,7 +32405,8 @@ class $$VisitsTableTableManager extends RootTableManager<
     PrefetchHooks Function(
         {bool visitImagesRefs,
         bool visitSoftwaresRefs,
-        bool visitGoodsListsRefs})> {
+        bool visitGoodsListsRefs,
+        bool visitPurposesRefs})> {
   $$VisitsTableTableManager(_$AppDataStore db, $VisitsTable table)
       : super(TableManagerState(
           db: db,
@@ -31732,6 +32431,7 @@ class $$VisitsTableTableManager extends RootTableManager<
             Value<bool> needCheckGL = const Value.absent(),
             Value<bool> needTakePhotos = const Value.absent(),
             Value<bool> needFillSoftware = const Value.absent(),
+            Value<bool> needCompletePurpose = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               VisitsCompanion(
@@ -31748,6 +32448,7 @@ class $$VisitsTableTableManager extends RootTableManager<
             needCheckGL: needCheckGL,
             needTakePhotos: needTakePhotos,
             needFillSoftware: needFillSoftware,
+            needCompletePurpose: needCompletePurpose,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -31764,6 +32465,7 @@ class $$VisitsTableTableManager extends RootTableManager<
             required bool needCheckGL,
             required bool needTakePhotos,
             required bool needFillSoftware,
+            required bool needCompletePurpose,
             Value<int> rowid = const Value.absent(),
           }) =>
               VisitsCompanion.insert(
@@ -31780,6 +32482,7 @@ class $$VisitsTableTableManager extends RootTableManager<
             needCheckGL: needCheckGL,
             needTakePhotos: needTakePhotos,
             needFillSoftware: needFillSoftware,
+            needCompletePurpose: needCompletePurpose,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -31789,13 +32492,15 @@ class $$VisitsTableTableManager extends RootTableManager<
           prefetchHooksCallback: (
               {visitImagesRefs = false,
               visitSoftwaresRefs = false,
-              visitGoodsListsRefs = false}) {
+              visitGoodsListsRefs = false,
+              visitPurposesRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
                 if (visitImagesRefs) db.visitImages,
                 if (visitSoftwaresRefs) db.visitSoftwares,
-                if (visitGoodsListsRefs) db.visitGoodsLists
+                if (visitGoodsListsRefs) db.visitGoodsLists,
+                if (visitPurposesRefs) db.visitPurposes
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -31835,6 +32540,18 @@ class $$VisitsTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.visitGuid == item.guid),
+                        typedResults: items),
+                  if (visitPurposesRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable:
+                            $$VisitsTableReferences._visitPurposesRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$VisitsTableReferences(db, table, p0)
+                                .visitPurposesRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.visitGuid == item.guid),
                         typedResults: items)
                 ];
               },
@@ -31857,7 +32574,8 @@ typedef $$VisitsTableProcessedTableManager = ProcessedTableManager<
     PrefetchHooks Function(
         {bool visitImagesRefs,
         bool visitSoftwaresRefs,
-        bool visitGoodsListsRefs})>;
+        bool visitGoodsListsRefs,
+        bool visitPurposesRefs})>;
 typedef $$SitesTableCreateCompanionBuilder = SitesCompanion Function({
   Value<int> id,
   required String name,
@@ -33912,6 +34630,378 @@ typedef $$AllVisitGoodsListGoodsTableProcessedTableManager
         (VisitGoodsListGoods, $$AllVisitGoodsListGoodsTableReferences),
         VisitGoodsListGoods,
         PrefetchHooks Function({bool visitGoodsListGuid})>;
+typedef $$VisitPurposesTableCreateCompanionBuilder = VisitPurposesCompanion
+    Function({
+  required String guid,
+  Value<bool> isDeleted,
+  Value<DateTime> timestamp,
+  Value<DateTime> currentTimestamp,
+  Value<DateTime?> lastSyncTime,
+  required int id,
+  required String visitGuid,
+  required String description,
+  Value<bool?> completed,
+  Value<String?> info,
+  Value<int> rowid,
+});
+typedef $$VisitPurposesTableUpdateCompanionBuilder = VisitPurposesCompanion
+    Function({
+  Value<String> guid,
+  Value<bool> isDeleted,
+  Value<DateTime> timestamp,
+  Value<DateTime> currentTimestamp,
+  Value<DateTime?> lastSyncTime,
+  Value<int> id,
+  Value<String> visitGuid,
+  Value<String> description,
+  Value<bool?> completed,
+  Value<String?> info,
+  Value<int> rowid,
+});
+
+final class $$VisitPurposesTableReferences
+    extends BaseReferences<_$AppDataStore, $VisitPurposesTable, VisitPurpose> {
+  $$VisitPurposesTableReferences(
+      super.$_db, super.$_table, super.$_typedResult);
+
+  static $VisitsTable _visitGuidTable(_$AppDataStore db) =>
+      db.visits.createAlias(
+          $_aliasNameGenerator(db.visitPurposes.visitGuid, db.visits.guid));
+
+  $$VisitsTableProcessedTableManager get visitGuid {
+    final $_column = $_itemColumn<String>('visit_guid')!;
+
+    final manager = $$VisitsTableTableManager($_db, $_db.visits)
+        .filter((f) => f.guid.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_visitGuidTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$VisitPurposesTableFilterComposer
+    extends Composer<_$AppDataStore, $VisitPurposesTable> {
+  $$VisitPurposesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get guid => $composableBuilder(
+      column: $table.guid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get currentTimestamp => $composableBuilder(
+      column: $table.currentTimestamp,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastSyncTime => $composableBuilder(
+      column: $table.lastSyncTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get needSync => $composableBuilder(
+      column: $table.needSync, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isNew => $composableBuilder(
+      column: $table.isNew, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get completed => $composableBuilder(
+      column: $table.completed, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get info => $composableBuilder(
+      column: $table.info, builder: (column) => ColumnFilters(column));
+
+  $$VisitsTableFilterComposer get visitGuid {
+    final $$VisitsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.visitGuid,
+        referencedTable: $db.visits,
+        getReferencedColumn: (t) => t.guid,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$VisitsTableFilterComposer(
+              $db: $db,
+              $table: $db.visits,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$VisitPurposesTableOrderingComposer
+    extends Composer<_$AppDataStore, $VisitPurposesTable> {
+  $$VisitPurposesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get guid => $composableBuilder(
+      column: $table.guid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get currentTimestamp => $composableBuilder(
+      column: $table.currentTimestamp,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastSyncTime => $composableBuilder(
+      column: $table.lastSyncTime,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get needSync => $composableBuilder(
+      column: $table.needSync, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isNew => $composableBuilder(
+      column: $table.isNew, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get completed => $composableBuilder(
+      column: $table.completed, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get info => $composableBuilder(
+      column: $table.info, builder: (column) => ColumnOrderings(column));
+
+  $$VisitsTableOrderingComposer get visitGuid {
+    final $$VisitsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.visitGuid,
+        referencedTable: $db.visits,
+        getReferencedColumn: (t) => t.guid,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$VisitsTableOrderingComposer(
+              $db: $db,
+              $table: $db.visits,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$VisitPurposesTableAnnotationComposer
+    extends Composer<_$AppDataStore, $VisitPurposesTable> {
+  $$VisitPurposesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get guid =>
+      $composableBuilder(column: $table.guid, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get currentTimestamp => $composableBuilder(
+      column: $table.currentTimestamp, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncTime => $composableBuilder(
+      column: $table.lastSyncTime, builder: (column) => column);
+
+  GeneratedColumn<bool> get needSync =>
+      $composableBuilder(column: $table.needSync, builder: (column) => column);
+
+  GeneratedColumn<bool> get isNew =>
+      $composableBuilder(column: $table.isNew, builder: (column) => column);
+
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get description => $composableBuilder(
+      column: $table.description, builder: (column) => column);
+
+  GeneratedColumn<bool> get completed =>
+      $composableBuilder(column: $table.completed, builder: (column) => column);
+
+  GeneratedColumn<String> get info =>
+      $composableBuilder(column: $table.info, builder: (column) => column);
+
+  $$VisitsTableAnnotationComposer get visitGuid {
+    final $$VisitsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.visitGuid,
+        referencedTable: $db.visits,
+        getReferencedColumn: (t) => t.guid,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$VisitsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.visits,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$VisitPurposesTableTableManager extends RootTableManager<
+    _$AppDataStore,
+    $VisitPurposesTable,
+    VisitPurpose,
+    $$VisitPurposesTableFilterComposer,
+    $$VisitPurposesTableOrderingComposer,
+    $$VisitPurposesTableAnnotationComposer,
+    $$VisitPurposesTableCreateCompanionBuilder,
+    $$VisitPurposesTableUpdateCompanionBuilder,
+    (VisitPurpose, $$VisitPurposesTableReferences),
+    VisitPurpose,
+    PrefetchHooks Function({bool visitGuid})> {
+  $$VisitPurposesTableTableManager(_$AppDataStore db, $VisitPurposesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$VisitPurposesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$VisitPurposesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$VisitPurposesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> guid = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<DateTime> currentTimestamp = const Value.absent(),
+            Value<DateTime?> lastSyncTime = const Value.absent(),
+            Value<int> id = const Value.absent(),
+            Value<String> visitGuid = const Value.absent(),
+            Value<String> description = const Value.absent(),
+            Value<bool?> completed = const Value.absent(),
+            Value<String?> info = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              VisitPurposesCompanion(
+            guid: guid,
+            isDeleted: isDeleted,
+            timestamp: timestamp,
+            currentTimestamp: currentTimestamp,
+            lastSyncTime: lastSyncTime,
+            id: id,
+            visitGuid: visitGuid,
+            description: description,
+            completed: completed,
+            info: info,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String guid,
+            Value<bool> isDeleted = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<DateTime> currentTimestamp = const Value.absent(),
+            Value<DateTime?> lastSyncTime = const Value.absent(),
+            required int id,
+            required String visitGuid,
+            required String description,
+            Value<bool?> completed = const Value.absent(),
+            Value<String?> info = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              VisitPurposesCompanion.insert(
+            guid: guid,
+            isDeleted: isDeleted,
+            timestamp: timestamp,
+            currentTimestamp: currentTimestamp,
+            lastSyncTime: lastSyncTime,
+            id: id,
+            visitGuid: visitGuid,
+            description: description,
+            completed: completed,
+            info: info,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$VisitPurposesTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({visitGuid = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (visitGuid) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.visitGuid,
+                    referencedTable:
+                        $$VisitPurposesTableReferences._visitGuidTable(db),
+                    referencedColumn:
+                        $$VisitPurposesTableReferences._visitGuidTable(db).guid,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$VisitPurposesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDataStore,
+    $VisitPurposesTable,
+    VisitPurpose,
+    $$VisitPurposesTableFilterComposer,
+    $$VisitPurposesTableOrderingComposer,
+    $$VisitPurposesTableAnnotationComposer,
+    $$VisitPurposesTableCreateCompanionBuilder,
+    $$VisitPurposesTableUpdateCompanionBuilder,
+    (VisitPurpose, $$VisitPurposesTableReferences),
+    VisitPurpose,
+    PrefetchHooks Function({bool visitGuid})>;
 
 class $AppDataStoreManager {
   final _$AppDataStore _db;
@@ -34032,6 +35122,8 @@ class $AppDataStoreManager {
   $$AllVisitGoodsListGoodsTableTableManager get allVisitGoodsListGoods =>
       $$AllVisitGoodsListGoodsTableTableManager(
           _db, _db.allVisitGoodsListGoods);
+  $$VisitPurposesTableTableManager get visitPurposes =>
+      $$VisitPurposesTableTableManager(_db, _db.visitPurposes);
 }
 
 class AppInfoResult {
@@ -34652,6 +35744,7 @@ mixin _$VisitsDaoMixin on DatabaseAccessor<AppDataStore> {
   $VisitImagesTable get visitImages => attachedDatabase.visitImages;
   $VisitSoftwaresTable get visitSoftwares => attachedDatabase.visitSoftwares;
   $VisitGoodsListsTable get visitGoodsLists => attachedDatabase.visitGoodsLists;
+  $VisitPurposesTable get visitPurposes => attachedDatabase.visitPurposes;
   $AllVisitGoodsListGoodsTable get allVisitGoodsListGoods =>
       attachedDatabase.allVisitGoodsListGoods;
   $GoodsListsTable get goodsLists => attachedDatabase.goodsLists;
