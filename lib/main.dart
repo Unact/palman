@@ -30,7 +30,7 @@ void main() async {
   await PackageInfo.fromPlatform();
 
   bool isDebug = Misc.isDebug();
-  RenewApi api = await RenewApi.init(appName: Strings.appName);
+  RenewApi api = await RenewApi.init(appName: Strings.appName, url: const String.fromEnvironment('PALMAN_RENEW_URL'));
   AppDataStore dataStore = AppDataStore(logStatements: isDebug);
   AppRepository appRepository = AppRepository(dataStore, api);
 

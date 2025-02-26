@@ -14,8 +14,6 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
     if (password == Strings.optsPasswordKeyword && login == Strings.optsLoginKeyword) {
       emit(state.copyWith(
         status: LoginStateStatus.urlFieldActivated,
-        login: '',
-        password: '',
         optsEnabled: true
       ));
 
