@@ -73,7 +73,7 @@ class _LoginViewState extends State<_LoginView> {
             Misc.showMessage(context, state.message);
             progressDialog.close();
             break;
-          case LoginStateStatus.loggedIn:
+          case LoginStateStatus.success:
             progressDialog.close();
             break;
           case LoginStateStatus.inProgress:

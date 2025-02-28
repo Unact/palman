@@ -40,7 +40,7 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
     try {
       await usersRepository.login(url, login, password);
 
-      emit(state.copyWith(status: LoginStateStatus.loggedIn));
+      emit(state.copyWith(status: LoginStateStatus.success));
     } on AppError catch(e) {
       emit(state.copyWith(status: LoginStateStatus.failure, message: e.message));
     }
