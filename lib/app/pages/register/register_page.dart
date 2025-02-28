@@ -54,7 +54,7 @@ class _RegisterViewState extends State<_RegisterView> {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            buildLoginForm(context),
+            buildRegisterForm(context),
             Expanded(child: Container()),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
@@ -122,7 +122,7 @@ class _RegisterViewState extends State<_RegisterView> {
     );
   }
 
-  Widget buildLoginForm(BuildContext context) {
+  Widget buildRegisterForm(BuildContext context) {
     final vm = context.read<RegisterViewModel>();
 
     return SizedBox(

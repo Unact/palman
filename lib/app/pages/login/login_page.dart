@@ -57,7 +57,15 @@ class _LoginViewState extends State<_LoginView> {
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
-            buildLoginForm(context)
+            buildLoginForm(context),
+            Expanded(child: Container()),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+              child: FutureBuilder(
+                future: Misc.fullVersion,
+                builder: (context, snapshot) => Text('Версия ${snapshot.data ?? ''}', style: Styles.formStyle),
+              )
+            )
           ]
         );
       },

@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/styles.dart';
 import '/app/constants/strings.dart';
@@ -126,18 +125,7 @@ class _LandingViewState extends State<_LandingView> {
                 )
               ),
             ],
-          ),
-          Column(children: [
-
-            Expanded(child: Container()),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-              child: FutureBuilder(
-                future: Misc.fullVersion,
-                builder: (context, snapshot) => Text('Версия ${snapshot.data ?? ''}', style: Styles.formStyle),
-              )
-            )
-          ],)
+          )
         ],
       )
     );
