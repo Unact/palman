@@ -5,43 +5,40 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
-import '/app/constants/strings.dart';
 import '/app/constants/styles.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/users_repository.dart';
 
-part 'login_state.dart';
-part 'login_view_model.dart';
+part 'register_state.dart';
+part 'register_view_model.dart';
 
-class LoginPage extends StatelessWidget {
-  LoginPage({
+class RegisterPage extends StatelessWidget {
+  RegisterPage({
     super.key
   });
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<LoginViewModel>(
-      create: (context) => LoginViewModel(
+    return BlocProvider<RegisterViewModel>(
+      create: (context) => RegisterViewModel(
         RepositoryProvider.of<UsersRepository>(context),
       ),
-      child: _LoginView(),
+      child: _RegisterView(),
     );
   }
 }
 
-class _LoginView extends StatefulWidget {
+class _RegisterView extends StatefulWidget {
   @override
-  _LoginViewState createState() => _LoginViewState();
+  _RegisterViewState createState() => _RegisterViewState();
 }
 
-class _LoginViewState extends State<_LoginView> {
+class _RegisterViewState extends State<_RegisterView> {
   late final ProgressDialog progressDialog = ProgressDialog(context: context);
-  final TextEditingController loginController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController telNumController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  late final TextEditingController urlController = TextEditingController(
-    text: context.read<LoginViewModel>().state.url
-  );
 
   @override
   void dispose() {
@@ -51,32 +48,27 @@ class _LoginViewState extends State<_LoginView> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocConsumer<LoginViewModel, LoginState>(
+    return BlocConsumer<RegisterViewModel, RegisterState>(
       builder: (context, state) {
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: 8.0),
           child: Column(
             mainAxisSize: MainAxisSize.max,
             mainAxisAlignment: MainAxisAlignment.center,
-            children: buildLoginFields(context)
+            children: buildRegisterFields(context)
           )
         );
       },
       listener: (context, state) async {
         switch (state.status) {
-          case LoginStateStatus.urlFieldActivated:
-            loginController.text = '';
-            passwordController.text = '';
-            break;
-          case LoginStateStatus.passwordSent:
-          case LoginStateStatus.failure:
+          case RegisterStateStatus.failure:
             Misc.showMessage(context, state.message);
             progressDialog.close();
             break;
-          case LoginStateStatus.success:
+          case RegisterStateStatus.success:
             progressDialog.close();
             break;
-          case LoginStateStatus.inProgress:
+          case RegisterStateStatus.inProgress:
             await progressDialog.open();
             break;
           default:
@@ -85,20 +77,18 @@ class _LoginViewState extends State<_LoginView> {
     );
   }
 
-  Widget loginField(BuildContext context) {
-    final vm = context.read<LoginViewModel>();
-
-    if (vm.state.optsEnabled) {
-      return TextField(
-        controller: loginController,
-        keyboardType: TextInputType.url,
-        decoration: const InputDecoration(labelText: 'Телефон или e-mail или login'),
-        style: Styles.formStyle,
-      );
-    }
-
+  Widget emailField(BuildContext context) {
     return TextField(
-      controller: loginController,
+      controller: emailController,
+      keyboardType: TextInputType.url,
+      decoration: const InputDecoration(labelText: 'Email'),
+      style: Styles.formStyle,
+    );
+  }
+
+  Widget telNumField(BuildContext context) {
+    return TextField(
+      controller: telNumController,
       keyboardType: TextInputType.number,
       decoration: const InputDecoration(
         labelText: 'Телефон',
@@ -125,28 +115,13 @@ class _LoginViewState extends State<_LoginView> {
     );
   }
 
-  Widget urlField(BuildContext context) {
-    final vm = context.read<LoginViewModel>();
-
-    if (vm.state.optsEnabled) {
-      return TextField(
-        controller: urlController,
-        keyboardType: TextInputType.url,
-        style: Styles.formStyle,
-        decoration: const InputDecoration(labelText: 'Url')
-      );
-    }
-
-    return Container();
-  }
-
-  List<Widget> buildLoginFields(BuildContext context) {
-    final vm = context.read<LoginViewModel>();
+  List<Widget> buildRegisterFields(BuildContext context) {
+    final vm = context.read<RegisterViewModel>();
 
     return [
-      loginField(context),
+      emailField(context),
+      telNumField(context),
       passwordField(context),
-      urlField(context),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -161,26 +136,9 @@ class _LoginViewState extends State<_LoginView> {
                 ),
                 onPressed: () {
                   Misc.unfocus(context);
-                  vm.apiLogin(urlController.text, loginController.text, passwordController.text);
+                  vm.apiRegister(emailController.text, telNumController.text, passwordController.text);
                 },
-                child: const Text('Войти', style: Styles.formStyle),
-              ),
-            )
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-            child: SizedBox(
-              width: 120,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                ),
-                onPressed: () {
-                  Misc.unfocus(context);
-                  vm.getNewPassword(urlController.text, loginController.text);
-                },
-                child: const Text('Получить пароль', textAlign: TextAlign.center, style: Styles.formStyle),
+                child: const Text('Создать', style: Styles.formStyle),
               ),
             )
           ),

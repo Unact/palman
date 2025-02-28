@@ -14,8 +14,6 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
     if (password == Strings.optsPasswordKeyword && login == Strings.optsLoginKeyword) {
       emit(state.copyWith(
         status: LoginStateStatus.urlFieldActivated,
-        login: '',
-        password: '',
         optsEnabled: true
       ));
 
@@ -42,7 +40,7 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
     try {
       await usersRepository.login(url, login, password);
 
-      emit(state.copyWith(status: LoginStateStatus.loggedIn));
+      emit(state.copyWith(status: LoginStateStatus.success));
     } on AppError catch(e) {
       emit(state.copyWith(status: LoginStateStatus.failure, message: e.message));
     }
