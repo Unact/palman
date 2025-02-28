@@ -35,6 +35,20 @@ class UsersRepository extends BaseRepository {
     }
   }
 
+  Future<void> register(String url, String email, String telNum, String password) async {
+    try {
+      await api.register(url: url, email: email, telNum: telNum, password: password);
+      _loggedInController.add(api.isLoggedIn);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      await Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+
+    await loadUserData();
+  }
+
   Future<void> login(String url, String login, String password) async {
     try {
       await api.login(url: url, login: login, password: password);
