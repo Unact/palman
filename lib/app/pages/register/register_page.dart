@@ -50,20 +50,13 @@ class _RegisterViewState extends State<_RegisterView> {
   Widget build(BuildContext context) {
     return BlocConsumer<RegisterViewModel, RegisterState>(
       builder: (context, state) {
-        return Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            buildRegisterForm(context),
-            Expanded(child: Container()),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-              child: FutureBuilder(
-                future: Misc.fullVersion,
-                builder: (context, snapshot) => Text('Версия ${snapshot.data ?? ''}', style: Styles.formStyle),
-              )
-            )
-          ]
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: buildRegisterFields(context)
+          )
         );
       },
       listener: (context, state) async {
@@ -122,41 +115,35 @@ class _RegisterViewState extends State<_RegisterView> {
     );
   }
 
-  Widget buildRegisterForm(BuildContext context) {
+  List<Widget> buildRegisterFields(BuildContext context) {
     final vm = context.read<RegisterViewModel>();
 
-    return SizedBox(
-      height: 320,
-      child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
+    return [
+      emailField(context),
+      telNumField(context),
+      passwordField(context),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          emailField(context),
-          telNumField(context),
-          passwordField(context),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-                child: SizedBox(
-                  width: 120,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                    ),
-                    onPressed: () {
-                      Misc.unfocus(context);
-                      vm.apiRegister(emailController.text, telNumController.text, passwordController.text);
-                    },
-                    child: const Text('Создать', style: Styles.formStyle),
-                  ),
-                )
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+            child: SizedBox(
+              width: 120,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                ),
+                onPressed: () {
+                  Misc.unfocus(context);
+                  vm.apiRegister(emailController.text, telNumController.text, passwordController.text);
+                },
+                child: const Text('Создать', style: Styles.formStyle),
               ),
-            ],
+            )
           ),
         ],
-      )
-    );
+      ),
+    ];
   }
 }

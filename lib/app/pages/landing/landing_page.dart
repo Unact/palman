@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/styles.dart';
 import '/app/constants/strings.dart';
@@ -90,43 +91,54 @@ class _LandingViewState extends State<_LandingView> {
         centerTitle: true,
       ),
       resizeToAvoidBottomInset: false,
-      body: Stack(
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-                child: SizedBox(
-                  width: 120,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                    ),
-                    onPressed: () => vm.changeCurrentUserView(UserView.login),
-                    child: const Text('Войти', style: Styles.formStyle),
+      body: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 8.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Spacer(),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: SizedBox(
+                width: 120,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
+                  onPressed: () => vm.changeCurrentUserView(UserView.login),
+                  child: const Text('Войти', style: Styles.formStyle),
+                ),
+              )
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8.0),
+              child: SizedBox(
+                width: 120,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                  ),
+                  onPressed: () => vm.changeCurrentUserView(UserView.register),
+                  child: const Text('Зарегистрироваться', style: Styles.formStyle),
+                ),
+              )
+            ),
+            Spacer(),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: FutureBuilder(
+                  future: Misc.fullVersion,
+                  builder: (context, snapshot) => Text('Версия ${snapshot.data ?? ''}', style: Styles.formStyle),
                 )
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
-                child: SizedBox(
-                  width: 120,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                    ),
-                    onPressed: () => vm.changeCurrentUserView(UserView.register),
-                    child: const Text('Зарегистрироваться', style: Styles.formStyle),
-                  ),
-                )
-              ),
-            ],
-          )
-        ],
+            )
+          ],
+        )
       )
     );
   }

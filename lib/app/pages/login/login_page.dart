@@ -53,20 +53,13 @@ class _LoginViewState extends State<_LoginView> {
   Widget build(BuildContext context) {
     return BlocConsumer<LoginViewModel, LoginState>(
       builder: (context, state) {
-        return Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: <Widget>[
-            buildLoginForm(context),
-            Expanded(child: Container()),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-              child: FutureBuilder(
-                future: Misc.fullVersion,
-                builder: (context, snapshot) => Text('Версия ${snapshot.data ?? ''}', style: Styles.formStyle),
-              )
-            )
-          ]
+        return Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: buildLoginFields(context)
+          )
         );
       },
       listener: (context, state) async {
@@ -147,58 +140,52 @@ class _LoginViewState extends State<_LoginView> {
     return Container();
   }
 
-  Widget buildLoginForm(BuildContext context) {
+  List<Widget> buildLoginFields(BuildContext context) {
     final vm = context.read<LoginViewModel>();
 
-    return SizedBox(
-      height: 320,
-      child: ListView(
-        padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
+    return [
+      loginField(context),
+      passwordField(context),
+      urlField(context),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          loginField(context),
-          passwordField(context),
-          urlField(context),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-                child: SizedBox(
-                  width: 120,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                    ),
-                    onPressed: () {
-                      Misc.unfocus(context);
-                      vm.apiLogin(urlController.text, loginController.text, passwordController.text);
-                    },
-                    child: const Text('Войти', style: Styles.formStyle),
-                  ),
-                )
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+            child: SizedBox(
+              width: 120,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                ),
+                onPressed: () {
+                  Misc.unfocus(context);
+                  vm.apiLogin(urlController.text, loginController.text, passwordController.text);
+                },
+                child: const Text('Войти', style: Styles.formStyle),
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
-                child: SizedBox(
-                  width: 120,
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                    ),
-                    onPressed: () {
-                      Misc.unfocus(context);
-                      vm.getNewPassword(urlController.text, loginController.text);
-                    },
-                    child: const Text('Получить пароль', textAlign: TextAlign.center, style: Styles.formStyle),
-                  ),
-                )
+            )
+          ),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 8.0),
+            child: SizedBox(
+              width: 120,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                ),
+                onPressed: () {
+                  Misc.unfocus(context);
+                  vm.getNewPassword(urlController.text, loginController.text);
+                },
+                child: const Text('Получить пароль', textAlign: TextAlign.center, style: Styles.formStyle),
               ),
-            ],
+            )
           ),
         ],
-      )
-    );
+      ),
+    ];
   }
 }
