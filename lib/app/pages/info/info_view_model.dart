@@ -89,7 +89,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       altitude: position.altitude,
       heading: position.heading,
       speed: position.speed,
-      timestamp: position.timestamp,
+      deviceTimestamp: position.timestamp,
       batteryLevel: await battery.batteryLevel,
       batteryState: (await battery.batteryState).name
     );
@@ -329,6 +329,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
 
     try {
       await usersRepository.reverseDay();
+      await locationsRepository.deleteLocations();
       emit(state.copyWith(
         status: InfoStateStatus.reverseSuccess,
         message: 'День успешно ${state.closed ? 'открыт' : 'закрыт'}'

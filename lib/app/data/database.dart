@@ -20,6 +20,7 @@ part 'schema.dart';
 part 'database.g.dart';
 part 'bonus_programs_dao.dart';
 part 'debts_dao.dart';
+part 'locations_dao.dart';
 part 'orders_dao.dart';
 part 'partners_dao.dart';
 part 'points_dao.dart';
@@ -98,7 +99,8 @@ part 'visits_dao.dart';
     ShipmentsDao,
     ReturnActsDao,
     UsersDao,
-    VisitsDao
+    VisitsDao,
+    LocationsDao
   ],
   queries: {
     'appInfo': '''
@@ -161,18 +163,6 @@ class AppDataStore extends _$AppDataStore {
 
   Future<int> updatePref(PrefsCompanion pref) {
     return update(prefs).write(pref);
-  }
-
-  Future<int> insertLocation(LocationsCompanion location) async {
-    return await into(locations).insert(location);
-  }
-
-  Future<void> deleteLocation(int id) async {
-    (delete(locations)..where((tbl) => tbl.id.equals(id))).go();
-  }
-
-  Future<List<Location>> getLocations() async {
-    return select(locations).get();
   }
 
   Future<void> clearData() async {

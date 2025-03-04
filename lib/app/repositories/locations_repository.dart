@@ -12,6 +12,14 @@ class LocationsRepository extends BaseRepository {
 
   LocationsRepository(super.dataStore, super.api);
 
+  Stream<List<Location>> watchLocations() {
+    return dataStore.locationsDao.watchLocations();
+  }
+
+  Future<void> deleteLocations() async {
+    await dataStore.locationsDao.deleteLocations();
+  }
+
   Future<void> saveLocation({
     required double latitude,
     required double longitude,
@@ -19,19 +27,20 @@ class LocationsRepository extends BaseRepository {
     required double altitude,
     required double heading,
     required double speed,
-    required DateTime timestamp,
+    required DateTime deviceTimestamp,
     required int batteryLevel,
     required String batteryState
   }) async {
-    await dataStore.insertLocation(
+    await dataStore.locationsDao.insertLocation(
       LocationsCompanion(
+        guid: Value(dataStore.generateGuid()),
         latitude: Value(latitude),
         longitude: Value(longitude),
         accuracy: Value(accuracy),
         altitude: Value(altitude),
         heading: Value(heading),
         speed: Value(speed),
-        timestamp: Value(timestamp),
+        deviceTimestamp: Value(deviceTimestamp),
         batteryLevel: Value(batteryLevel),
         batteryState: Value(batteryState)
       )
@@ -40,6 +49,7 @@ class LocationsRepository extends BaseRepository {
 
   Future<void> syncLocationChanges(List<Location> locations) async {
     try {
+      DateTime lastSyncTime = DateTime.now();
       List<Map<String, dynamic>> locationsData = locations.map((e) => {
         'latitude': e.latitude,
         'longitude': e.longitude,
@@ -47,15 +57,20 @@ class LocationsRepository extends BaseRepository {
         'altitude': e.altitude,
         'heading': e.heading,
         'speed': e.speed,
-        'timestamp': e.timestamp.toIso8601String(),
+        'timestamp': e.deviceTimestamp.toIso8601String(),
         'batteryLevel': e.batteryLevel,
         'batteryState': e.batteryState,
       }).toList();
       await api.locations(locationsData);
 
-      for (var e in locations) {
-        await dataStore.deleteLocation(e.id);
-      }
+      await dataStore.transaction(() async {
+        for (var location in locations) {
+          await dataStore.locationsDao.updateLocation(
+            location.guid,
+            LocationsCompanion(lastSyncTime: Value(lastSyncTime))
+          );
+        }
+      });
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);
     } catch(e, trace) {
@@ -65,7 +80,7 @@ class LocationsRepository extends BaseRepository {
   }
 
   Future<void> syncChanges() async {
-    final locations = await dataStore.getLocations();
+    final locations = await dataStore.locationsDao.getLocationsForSync();
 
     if (locations.length < kMinLocationPoint) return;
 
