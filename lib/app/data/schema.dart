@@ -102,15 +102,14 @@ class AllGoodsListGoods extends Table {
   Set<Column> get primaryKey => {goodsListId, goodsId};
 }
 
-class Locations extends Table {
-  IntColumn get id => integer().autoIncrement()();
+class Locations extends Table with Syncable {
   RealColumn get latitude => real()();
   RealColumn get longitude => real()();
   RealColumn get accuracy => real()();
   RealColumn get altitude => real()();
   RealColumn get heading => real()();
   RealColumn get speed => real()();
-  DateTimeColumn get timestamp => dateTime()();
+  DateTimeColumn get deviceTimestamp => dateTime()();
   IntColumn get batteryLevel => integer()();
   TextColumn get batteryState => text()();
 }

@@ -28,8 +28,6 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>Для фотографирования точки</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-	<string>Для отображения информации о торговых точках рядом с пользователем</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Для отображения информации о торговых точках рядом с пользователем</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -40,6 +38,8 @@
 		<string>Для проставления посещения</string>
 	</dict>
 	<key>NSLocationUsageDescription</key>
+	<string>Для отображения информации о торговых точках рядом с пользователем</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Для отображения информации о торговых точках рядом с пользователем</string>
 	<key>PALMAN_YANDEX_API_KEY</key>
 	<string>$(PALMAN_YANDEX_API_KEY)</string>

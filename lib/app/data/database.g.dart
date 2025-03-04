@@ -1201,15 +1201,66 @@ class $LocationsTable extends Locations
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
   $LocationsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  static const VerificationMeta _guidMeta = const VerificationMeta('guid');
   @override
-  late final GeneratedColumn<int> id = GeneratedColumn<int>(
-      'id', aliasedName, false,
-      hasAutoIncrement: true,
-      type: DriftSqlType.int,
+  late final GeneratedColumn<String> guid = GeneratedColumn<String>(
+      'guid', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _isDeletedMeta =
+      const VerificationMeta('isDeleted');
+  @override
+  late final GeneratedColumn<bool> isDeleted = GeneratedColumn<bool>(
+      'is_deleted', aliasedName, false,
+      type: DriftSqlType.bool,
       requiredDuringInsert: false,
       defaultConstraints:
-          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+          GeneratedColumn.constraintIsAlways('CHECK ("is_deleted" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _timestampMeta =
+      const VerificationMeta('timestamp');
+  @override
+  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
+      'timestamp', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _currentTimestampMeta =
+      const VerificationMeta('currentTimestamp');
+  @override
+  late final GeneratedColumn<DateTime> currentTimestamp =
+      GeneratedColumn<DateTime>('current_timestamp', aliasedName, false,
+          type: DriftSqlType.dateTime,
+          requiredDuringInsert: false,
+          defaultValue: currentDateAndTime);
+  static const VerificationMeta _lastSyncTimeMeta =
+      const VerificationMeta('lastSyncTime');
+  @override
+  late final GeneratedColumn<DateTime> lastSyncTime = GeneratedColumn<DateTime>(
+      'last_sync_time', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _needSyncMeta =
+      const VerificationMeta('needSync');
+  @override
+  late final GeneratedColumn<bool> needSync = GeneratedColumn<bool>(
+      'need_sync', aliasedName, false,
+      generatedAs: GeneratedAs(
+          (isNew & BooleanExpressionOperators(isDeleted).not()) |
+              (BooleanExpressionOperators(isNew).not() &
+                  ComparableExpr(lastSyncTime).isSmallerThan(timestamp)),
+          true),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("need_sync" IN (0, 1))'));
+  static const VerificationMeta _isNewMeta = const VerificationMeta('isNew');
+  @override
+  late final GeneratedColumn<bool> isNew = GeneratedColumn<bool>(
+      'is_new', aliasedName, false,
+      generatedAs: GeneratedAs(lastSyncTime.isNull(), false),
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_new" IN (0, 1))'));
   static const VerificationMeta _latitudeMeta =
       const VerificationMeta('latitude');
   @override
@@ -1245,12 +1296,12 @@ class $LocationsTable extends Locations
   late final GeneratedColumn<double> speed = GeneratedColumn<double>(
       'speed', aliasedName, false,
       type: DriftSqlType.double, requiredDuringInsert: true);
-  static const VerificationMeta _timestampMeta =
-      const VerificationMeta('timestamp');
+  static const VerificationMeta _deviceTimestampMeta =
+      const VerificationMeta('deviceTimestamp');
   @override
-  late final GeneratedColumn<DateTime> timestamp = GeneratedColumn<DateTime>(
-      'timestamp', aliasedName, false,
-      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  late final GeneratedColumn<DateTime> deviceTimestamp =
+      GeneratedColumn<DateTime>('device_timestamp', aliasedName, false,
+          type: DriftSqlType.dateTime, requiredDuringInsert: true);
   static const VerificationMeta _batteryLevelMeta =
       const VerificationMeta('batteryLevel');
   @override
@@ -1265,14 +1316,20 @@ class $LocationsTable extends Locations
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns => [
-        id,
+        guid,
+        isDeleted,
+        timestamp,
+        currentTimestamp,
+        lastSyncTime,
+        needSync,
+        isNew,
         latitude,
         longitude,
         accuracy,
         altitude,
         heading,
         speed,
-        timestamp,
+        deviceTimestamp,
         batteryLevel,
         batteryState
       ];
@@ -1286,8 +1343,39 @@ class $LocationsTable extends Locations
       {bool isInserting = false}) {
     final context = VerificationContext();
     final data = instance.toColumns(true);
-    if (data.containsKey('id')) {
-      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    if (data.containsKey('guid')) {
+      context.handle(
+          _guidMeta, guid.isAcceptableOrUnknown(data['guid']!, _guidMeta));
+    } else if (isInserting) {
+      context.missing(_guidMeta);
+    }
+    if (data.containsKey('is_deleted')) {
+      context.handle(_isDeletedMeta,
+          isDeleted.isAcceptableOrUnknown(data['is_deleted']!, _isDeletedMeta));
+    }
+    if (data.containsKey('timestamp')) {
+      context.handle(_timestampMeta,
+          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    }
+    if (data.containsKey('current_timestamp')) {
+      context.handle(
+          _currentTimestampMeta,
+          currentTimestamp.isAcceptableOrUnknown(
+              data['current_timestamp']!, _currentTimestampMeta));
+    }
+    if (data.containsKey('last_sync_time')) {
+      context.handle(
+          _lastSyncTimeMeta,
+          lastSyncTime.isAcceptableOrUnknown(
+              data['last_sync_time']!, _lastSyncTimeMeta));
+    }
+    if (data.containsKey('need_sync')) {
+      context.handle(_needSyncMeta,
+          needSync.isAcceptableOrUnknown(data['need_sync']!, _needSyncMeta));
+    }
+    if (data.containsKey('is_new')) {
+      context.handle(
+          _isNewMeta, isNew.isAcceptableOrUnknown(data['is_new']!, _isNewMeta));
     }
     if (data.containsKey('latitude')) {
       context.handle(_latitudeMeta,
@@ -1325,11 +1413,13 @@ class $LocationsTable extends Locations
     } else if (isInserting) {
       context.missing(_speedMeta);
     }
-    if (data.containsKey('timestamp')) {
-      context.handle(_timestampMeta,
-          timestamp.isAcceptableOrUnknown(data['timestamp']!, _timestampMeta));
+    if (data.containsKey('device_timestamp')) {
+      context.handle(
+          _deviceTimestampMeta,
+          deviceTimestamp.isAcceptableOrUnknown(
+              data['device_timestamp']!, _deviceTimestampMeta));
     } else if (isInserting) {
-      context.missing(_timestampMeta);
+      context.missing(_deviceTimestampMeta);
     }
     if (data.containsKey('battery_level')) {
       context.handle(
@@ -1351,13 +1441,25 @@ class $LocationsTable extends Locations
   }
 
   @override
-  Set<GeneratedColumn> get $primaryKey => {id};
+  Set<GeneratedColumn> get $primaryKey => {guid};
   @override
   Location map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Location(
-      id: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      guid: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}guid'])!,
+      isDeleted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_deleted'])!,
+      timestamp: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      currentTimestamp: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}current_timestamp'])!,
+      lastSyncTime: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}last_sync_time']),
+      needSync: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_sync'])!,
+      isNew: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_new'])!,
       latitude: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}latitude'])!,
       longitude: attachedDatabase.typeMapping
@@ -1370,8 +1472,8 @@ class $LocationsTable extends Locations
           .read(DriftSqlType.double, data['${effectivePrefix}heading'])!,
       speed: attachedDatabase.typeMapping
           .read(DriftSqlType.double, data['${effectivePrefix}speed'])!,
-      timestamp: attachedDatabase.typeMapping
-          .read(DriftSqlType.dateTime, data['${effectivePrefix}timestamp'])!,
+      deviceTimestamp: attachedDatabase.typeMapping.read(
+          DriftSqlType.dateTime, data['${effectivePrefix}device_timestamp'])!,
       batteryLevel: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}battery_level'])!,
       batteryState: attachedDatabase.typeMapping
@@ -1386,38 +1488,56 @@ class $LocationsTable extends Locations
 }
 
 class Location extends DataClass implements Insertable<Location> {
-  final int id;
+  final String guid;
+  final bool isDeleted;
+  final DateTime timestamp;
+  final DateTime currentTimestamp;
+  final DateTime? lastSyncTime;
+  final bool needSync;
+  final bool isNew;
   final double latitude;
   final double longitude;
   final double accuracy;
   final double altitude;
   final double heading;
   final double speed;
-  final DateTime timestamp;
+  final DateTime deviceTimestamp;
   final int batteryLevel;
   final String batteryState;
   const Location(
-      {required this.id,
+      {required this.guid,
+      required this.isDeleted,
+      required this.timestamp,
+      required this.currentTimestamp,
+      this.lastSyncTime,
+      required this.needSync,
+      required this.isNew,
       required this.latitude,
       required this.longitude,
       required this.accuracy,
       required this.altitude,
       required this.heading,
       required this.speed,
-      required this.timestamp,
+      required this.deviceTimestamp,
       required this.batteryLevel,
       required this.batteryState});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    map['id'] = Variable<int>(id);
+    map['guid'] = Variable<String>(guid);
+    map['is_deleted'] = Variable<bool>(isDeleted);
+    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['current_timestamp'] = Variable<DateTime>(currentTimestamp);
+    if (!nullToAbsent || lastSyncTime != null) {
+      map['last_sync_time'] = Variable<DateTime>(lastSyncTime);
+    }
     map['latitude'] = Variable<double>(latitude);
     map['longitude'] = Variable<double>(longitude);
     map['accuracy'] = Variable<double>(accuracy);
     map['altitude'] = Variable<double>(altitude);
     map['heading'] = Variable<double>(heading);
     map['speed'] = Variable<double>(speed);
-    map['timestamp'] = Variable<DateTime>(timestamp);
+    map['device_timestamp'] = Variable<DateTime>(deviceTimestamp);
     map['battery_level'] = Variable<int>(batteryLevel);
     map['battery_state'] = Variable<String>(batteryState);
     return map;
@@ -1425,14 +1545,20 @@ class Location extends DataClass implements Insertable<Location> {
 
   LocationsCompanion toCompanion(bool nullToAbsent) {
     return LocationsCompanion(
-      id: Value(id),
+      guid: Value(guid),
+      isDeleted: Value(isDeleted),
+      timestamp: Value(timestamp),
+      currentTimestamp: Value(currentTimestamp),
+      lastSyncTime: lastSyncTime == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastSyncTime),
       latitude: Value(latitude),
       longitude: Value(longitude),
       accuracy: Value(accuracy),
       altitude: Value(altitude),
       heading: Value(heading),
       speed: Value(speed),
-      timestamp: Value(timestamp),
+      deviceTimestamp: Value(deviceTimestamp),
       batteryLevel: Value(batteryLevel),
       batteryState: Value(batteryState),
     );
@@ -1442,14 +1568,20 @@ class Location extends DataClass implements Insertable<Location> {
       {ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return Location(
-      id: serializer.fromJson<int>(json['id']),
+      guid: serializer.fromJson<String>(json['guid']),
+      isDeleted: serializer.fromJson<bool>(json['isDeleted']),
+      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      currentTimestamp: serializer.fromJson<DateTime>(json['currentTimestamp']),
+      lastSyncTime: serializer.fromJson<DateTime?>(json['lastSyncTime']),
+      needSync: serializer.fromJson<bool>(json['needSync']),
+      isNew: serializer.fromJson<bool>(json['isNew']),
       latitude: serializer.fromJson<double>(json['latitude']),
       longitude: serializer.fromJson<double>(json['longitude']),
       accuracy: serializer.fromJson<double>(json['accuracy']),
       altitude: serializer.fromJson<double>(json['altitude']),
       heading: serializer.fromJson<double>(json['heading']),
       speed: serializer.fromJson<double>(json['speed']),
-      timestamp: serializer.fromJson<DateTime>(json['timestamp']),
+      deviceTimestamp: serializer.fromJson<DateTime>(json['deviceTimestamp']),
       batteryLevel: serializer.fromJson<int>(json['batteryLevel']),
       batteryState: serializer.fromJson<String>(json['batteryState']),
     );
@@ -1458,72 +1590,78 @@ class Location extends DataClass implements Insertable<Location> {
   Map<String, dynamic> toJson({ValueSerializer? serializer}) {
     serializer ??= driftRuntimeOptions.defaultSerializer;
     return <String, dynamic>{
-      'id': serializer.toJson<int>(id),
+      'guid': serializer.toJson<String>(guid),
+      'isDeleted': serializer.toJson<bool>(isDeleted),
+      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'currentTimestamp': serializer.toJson<DateTime>(currentTimestamp),
+      'lastSyncTime': serializer.toJson<DateTime?>(lastSyncTime),
+      'needSync': serializer.toJson<bool>(needSync),
+      'isNew': serializer.toJson<bool>(isNew),
       'latitude': serializer.toJson<double>(latitude),
       'longitude': serializer.toJson<double>(longitude),
       'accuracy': serializer.toJson<double>(accuracy),
       'altitude': serializer.toJson<double>(altitude),
       'heading': serializer.toJson<double>(heading),
       'speed': serializer.toJson<double>(speed),
-      'timestamp': serializer.toJson<DateTime>(timestamp),
+      'deviceTimestamp': serializer.toJson<DateTime>(deviceTimestamp),
       'batteryLevel': serializer.toJson<int>(batteryLevel),
       'batteryState': serializer.toJson<String>(batteryState),
     };
   }
 
   Location copyWith(
-          {int? id,
+          {String? guid,
+          bool? isDeleted,
+          DateTime? timestamp,
+          DateTime? currentTimestamp,
+          Value<DateTime?> lastSyncTime = const Value.absent(),
+          bool? needSync,
+          bool? isNew,
           double? latitude,
           double? longitude,
           double? accuracy,
           double? altitude,
           double? heading,
           double? speed,
-          DateTime? timestamp,
+          DateTime? deviceTimestamp,
           int? batteryLevel,
           String? batteryState}) =>
       Location(
-        id: id ?? this.id,
+        guid: guid ?? this.guid,
+        isDeleted: isDeleted ?? this.isDeleted,
+        timestamp: timestamp ?? this.timestamp,
+        currentTimestamp: currentTimestamp ?? this.currentTimestamp,
+        lastSyncTime:
+            lastSyncTime.present ? lastSyncTime.value : this.lastSyncTime,
+        needSync: needSync ?? this.needSync,
+        isNew: isNew ?? this.isNew,
         latitude: latitude ?? this.latitude,
         longitude: longitude ?? this.longitude,
         accuracy: accuracy ?? this.accuracy,
         altitude: altitude ?? this.altitude,
         heading: heading ?? this.heading,
         speed: speed ?? this.speed,
-        timestamp: timestamp ?? this.timestamp,
+        deviceTimestamp: deviceTimestamp ?? this.deviceTimestamp,
         batteryLevel: batteryLevel ?? this.batteryLevel,
         batteryState: batteryState ?? this.batteryState,
       );
-  Location copyWithCompanion(LocationsCompanion data) {
-    return Location(
-      id: data.id.present ? data.id.value : this.id,
-      latitude: data.latitude.present ? data.latitude.value : this.latitude,
-      longitude: data.longitude.present ? data.longitude.value : this.longitude,
-      accuracy: data.accuracy.present ? data.accuracy.value : this.accuracy,
-      altitude: data.altitude.present ? data.altitude.value : this.altitude,
-      heading: data.heading.present ? data.heading.value : this.heading,
-      speed: data.speed.present ? data.speed.value : this.speed,
-      timestamp: data.timestamp.present ? data.timestamp.value : this.timestamp,
-      batteryLevel: data.batteryLevel.present
-          ? data.batteryLevel.value
-          : this.batteryLevel,
-      batteryState: data.batteryState.present
-          ? data.batteryState.value
-          : this.batteryState,
-    );
-  }
-
   @override
   String toString() {
     return (StringBuffer('Location(')
-          ..write('id: $id, ')
+          ..write('guid: $guid, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('currentTimestamp: $currentTimestamp, ')
+          ..write('lastSyncTime: $lastSyncTime, ')
+          ..write('needSync: $needSync, ')
+          ..write('isNew: $isNew, ')
           ..write('latitude: $latitude, ')
           ..write('longitude: $longitude, ')
           ..write('accuracy: $accuracy, ')
           ..write('altitude: $altitude, ')
           ..write('heading: $heading, ')
           ..write('speed: $speed, ')
-          ..write('timestamp: $timestamp, ')
+          ..write('deviceTimestamp: $deviceTimestamp, ')
           ..write('batteryLevel: $batteryLevel, ')
           ..write('batteryState: $batteryState')
           ..write(')'))
@@ -1531,123 +1669,192 @@ class Location extends DataClass implements Insertable<Location> {
   }
 
   @override
-  int get hashCode => Object.hash(id, latitude, longitude, accuracy, altitude,
-      heading, speed, timestamp, batteryLevel, batteryState);
+  int get hashCode => Object.hash(
+      guid,
+      isDeleted,
+      timestamp,
+      currentTimestamp,
+      lastSyncTime,
+      needSync,
+      isNew,
+      latitude,
+      longitude,
+      accuracy,
+      altitude,
+      heading,
+      speed,
+      deviceTimestamp,
+      batteryLevel,
+      batteryState);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is Location &&
-          other.id == this.id &&
+          other.guid == this.guid &&
+          other.isDeleted == this.isDeleted &&
+          other.timestamp == this.timestamp &&
+          other.currentTimestamp == this.currentTimestamp &&
+          other.lastSyncTime == this.lastSyncTime &&
+          other.needSync == this.needSync &&
+          other.isNew == this.isNew &&
           other.latitude == this.latitude &&
           other.longitude == this.longitude &&
           other.accuracy == this.accuracy &&
           other.altitude == this.altitude &&
           other.heading == this.heading &&
           other.speed == this.speed &&
-          other.timestamp == this.timestamp &&
+          other.deviceTimestamp == this.deviceTimestamp &&
           other.batteryLevel == this.batteryLevel &&
           other.batteryState == this.batteryState);
 }
 
 class LocationsCompanion extends UpdateCompanion<Location> {
-  final Value<int> id;
+  final Value<String> guid;
+  final Value<bool> isDeleted;
+  final Value<DateTime> timestamp;
+  final Value<DateTime> currentTimestamp;
+  final Value<DateTime?> lastSyncTime;
   final Value<double> latitude;
   final Value<double> longitude;
   final Value<double> accuracy;
   final Value<double> altitude;
   final Value<double> heading;
   final Value<double> speed;
-  final Value<DateTime> timestamp;
+  final Value<DateTime> deviceTimestamp;
   final Value<int> batteryLevel;
   final Value<String> batteryState;
+  final Value<int> rowid;
   const LocationsCompanion({
-    this.id = const Value.absent(),
+    this.guid = const Value.absent(),
+    this.isDeleted = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.currentTimestamp = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
     this.latitude = const Value.absent(),
     this.longitude = const Value.absent(),
     this.accuracy = const Value.absent(),
     this.altitude = const Value.absent(),
     this.heading = const Value.absent(),
     this.speed = const Value.absent(),
-    this.timestamp = const Value.absent(),
+    this.deviceTimestamp = const Value.absent(),
     this.batteryLevel = const Value.absent(),
     this.batteryState = const Value.absent(),
+    this.rowid = const Value.absent(),
   });
   LocationsCompanion.insert({
-    this.id = const Value.absent(),
+    required String guid,
+    this.isDeleted = const Value.absent(),
+    this.timestamp = const Value.absent(),
+    this.currentTimestamp = const Value.absent(),
+    this.lastSyncTime = const Value.absent(),
     required double latitude,
     required double longitude,
     required double accuracy,
     required double altitude,
     required double heading,
     required double speed,
-    required DateTime timestamp,
+    required DateTime deviceTimestamp,
     required int batteryLevel,
     required String batteryState,
-  })  : latitude = Value(latitude),
+    this.rowid = const Value.absent(),
+  })  : guid = Value(guid),
+        latitude = Value(latitude),
         longitude = Value(longitude),
         accuracy = Value(accuracy),
         altitude = Value(altitude),
         heading = Value(heading),
         speed = Value(speed),
-        timestamp = Value(timestamp),
+        deviceTimestamp = Value(deviceTimestamp),
         batteryLevel = Value(batteryLevel),
         batteryState = Value(batteryState);
   static Insertable<Location> custom({
-    Expression<int>? id,
+    Expression<String>? guid,
+    Expression<bool>? isDeleted,
+    Expression<DateTime>? timestamp,
+    Expression<DateTime>? currentTimestamp,
+    Expression<DateTime>? lastSyncTime,
     Expression<double>? latitude,
     Expression<double>? longitude,
     Expression<double>? accuracy,
     Expression<double>? altitude,
     Expression<double>? heading,
     Expression<double>? speed,
-    Expression<DateTime>? timestamp,
+    Expression<DateTime>? deviceTimestamp,
     Expression<int>? batteryLevel,
     Expression<String>? batteryState,
+    Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
-      if (id != null) 'id': id,
+      if (guid != null) 'guid': guid,
+      if (isDeleted != null) 'is_deleted': isDeleted,
+      if (timestamp != null) 'timestamp': timestamp,
+      if (currentTimestamp != null) 'current_timestamp': currentTimestamp,
+      if (lastSyncTime != null) 'last_sync_time': lastSyncTime,
       if (latitude != null) 'latitude': latitude,
       if (longitude != null) 'longitude': longitude,
       if (accuracy != null) 'accuracy': accuracy,
       if (altitude != null) 'altitude': altitude,
       if (heading != null) 'heading': heading,
       if (speed != null) 'speed': speed,
-      if (timestamp != null) 'timestamp': timestamp,
+      if (deviceTimestamp != null) 'device_timestamp': deviceTimestamp,
       if (batteryLevel != null) 'battery_level': batteryLevel,
       if (batteryState != null) 'battery_state': batteryState,
+      if (rowid != null) 'rowid': rowid,
     });
   }
 
   LocationsCompanion copyWith(
-      {Value<int>? id,
+      {Value<String>? guid,
+      Value<bool>? isDeleted,
+      Value<DateTime>? timestamp,
+      Value<DateTime>? currentTimestamp,
+      Value<DateTime?>? lastSyncTime,
       Value<double>? latitude,
       Value<double>? longitude,
       Value<double>? accuracy,
       Value<double>? altitude,
       Value<double>? heading,
       Value<double>? speed,
-      Value<DateTime>? timestamp,
+      Value<DateTime>? deviceTimestamp,
       Value<int>? batteryLevel,
-      Value<String>? batteryState}) {
+      Value<String>? batteryState,
+      Value<int>? rowid}) {
     return LocationsCompanion(
-      id: id ?? this.id,
+      guid: guid ?? this.guid,
+      isDeleted: isDeleted ?? this.isDeleted,
+      timestamp: timestamp ?? this.timestamp,
+      currentTimestamp: currentTimestamp ?? this.currentTimestamp,
+      lastSyncTime: lastSyncTime ?? this.lastSyncTime,
       latitude: latitude ?? this.latitude,
       longitude: longitude ?? this.longitude,
       accuracy: accuracy ?? this.accuracy,
       altitude: altitude ?? this.altitude,
       heading: heading ?? this.heading,
       speed: speed ?? this.speed,
-      timestamp: timestamp ?? this.timestamp,
+      deviceTimestamp: deviceTimestamp ?? this.deviceTimestamp,
       batteryLevel: batteryLevel ?? this.batteryLevel,
       batteryState: batteryState ?? this.batteryState,
+      rowid: rowid ?? this.rowid,
     );
   }
 
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
-    if (id.present) {
-      map['id'] = Variable<int>(id.value);
+    if (guid.present) {
+      map['guid'] = Variable<String>(guid.value);
+    }
+    if (isDeleted.present) {
+      map['is_deleted'] = Variable<bool>(isDeleted.value);
+    }
+    if (timestamp.present) {
+      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    }
+    if (currentTimestamp.present) {
+      map['current_timestamp'] = Variable<DateTime>(currentTimestamp.value);
+    }
+    if (lastSyncTime.present) {
+      map['last_sync_time'] = Variable<DateTime>(lastSyncTime.value);
     }
     if (latitude.present) {
       map['latitude'] = Variable<double>(latitude.value);
@@ -1667,8 +1874,8 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     if (speed.present) {
       map['speed'] = Variable<double>(speed.value);
     }
-    if (timestamp.present) {
-      map['timestamp'] = Variable<DateTime>(timestamp.value);
+    if (deviceTimestamp.present) {
+      map['device_timestamp'] = Variable<DateTime>(deviceTimestamp.value);
     }
     if (batteryLevel.present) {
       map['battery_level'] = Variable<int>(batteryLevel.value);
@@ -1676,22 +1883,30 @@ class LocationsCompanion extends UpdateCompanion<Location> {
     if (batteryState.present) {
       map['battery_state'] = Variable<String>(batteryState.value);
     }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
     return map;
   }
 
   @override
   String toString() {
     return (StringBuffer('LocationsCompanion(')
-          ..write('id: $id, ')
+          ..write('guid: $guid, ')
+          ..write('isDeleted: $isDeleted, ')
+          ..write('timestamp: $timestamp, ')
+          ..write('currentTimestamp: $currentTimestamp, ')
+          ..write('lastSyncTime: $lastSyncTime, ')
           ..write('latitude: $latitude, ')
           ..write('longitude: $longitude, ')
           ..write('accuracy: $accuracy, ')
           ..write('altitude: $altitude, ')
           ..write('heading: $heading, ')
           ..write('speed: $speed, ')
-          ..write('timestamp: $timestamp, ')
+          ..write('deviceTimestamp: $deviceTimestamp, ')
           ..write('batteryLevel: $batteryLevel, ')
-          ..write('batteryState: $batteryState')
+          ..write('batteryState: $batteryState, ')
+          ..write('rowid: $rowid')
           ..write(')'))
         .toString();
   }
@@ -22017,6 +22232,7 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final ReturnActsDao returnActsDao = ReturnActsDao(this as AppDataStore);
   late final UsersDao usersDao = UsersDao(this as AppDataStore);
   late final VisitsDao visitsDao = VisitsDao(this as AppDataStore);
+  late final LocationsDao locationsDao = LocationsDao(this as AppDataStore);
   Selectable<AppInfoResult> appInfo() {
     return customSelect(
         'SELECT prefs.*, (SELECT COUNT(*) FROM points WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM point_images WHERE point_guid = points.guid AND need_sync = 1)) AS points_to_sync, (SELECT COUNT(*) FROM orders WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM order_lines WHERE order_guid = orders.guid AND need_sync = 1)) AS orders_to_sync, (SELECT COUNT(*) FROM return_acts WHERE need_sync = 1 OR EXISTS (SELECT 1 FROM return_act_lines WHERE return_act_guid = return_acts.guid AND need_sync = 1)) AS return_acts_to_sync, (SELECT COUNT(*) FROM pre_encashments WHERE need_sync = 1) AS pre_encashments_to_sync, (SELECT COUNT(*) FROM inc_requests WHERE need_sync = 1) AS inc_requests_to_sync, (SELECT COUNT(*) FROM partners_prices WHERE need_sync = 1) AS partner_prices_to_sync, (SELECT COUNT(*) FROM partners_pricelists WHERE need_sync = 1) AS partners_pricelists_to_sync, (SELECT COUNT(*) FROM route_points) AS route_points_total, (SELECT COUNT(*) FROM points) AS points_total, (SELECT COUNT(*) FROM pre_encashments) AS pre_encashments_total, (SELECT COUNT(*) FROM shipments) AS shipments_total, (SELECT COUNT(*) FROM orders) AS orders_total, (SELECT COUNT(*) FROM pre_orders) AS pre_orders_total, (SELECT COUNT(*) FROM return_acts) AS return_acts_total FROM prefs',
@@ -22873,28 +23089,38 @@ typedef $$PartnersTableProcessedTableManager = ProcessedTableManager<
     Partner,
     PrefetchHooks Function()>;
 typedef $$LocationsTableCreateCompanionBuilder = LocationsCompanion Function({
-  Value<int> id,
+  required String guid,
+  Value<bool> isDeleted,
+  Value<DateTime> timestamp,
+  Value<DateTime> currentTimestamp,
+  Value<DateTime?> lastSyncTime,
   required double latitude,
   required double longitude,
   required double accuracy,
   required double altitude,
   required double heading,
   required double speed,
-  required DateTime timestamp,
+  required DateTime deviceTimestamp,
   required int batteryLevel,
   required String batteryState,
+  Value<int> rowid,
 });
 typedef $$LocationsTableUpdateCompanionBuilder = LocationsCompanion Function({
-  Value<int> id,
+  Value<String> guid,
+  Value<bool> isDeleted,
+  Value<DateTime> timestamp,
+  Value<DateTime> currentTimestamp,
+  Value<DateTime?> lastSyncTime,
   Value<double> latitude,
   Value<double> longitude,
   Value<double> accuracy,
   Value<double> altitude,
   Value<double> heading,
   Value<double> speed,
-  Value<DateTime> timestamp,
+  Value<DateTime> deviceTimestamp,
   Value<int> batteryLevel,
   Value<String> batteryState,
+  Value<int> rowid,
 });
 
 class $$LocationsTableFilterComposer
@@ -22906,8 +23132,27 @@ class $$LocationsTableFilterComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnFilters<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get guid => $composableBuilder(
+      column: $table.guid, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get currentTimestamp => $composableBuilder(
+      column: $table.currentTimestamp,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get lastSyncTime => $composableBuilder(
+      column: $table.lastSyncTime, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get needSync => $composableBuilder(
+      column: $table.needSync, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isNew => $composableBuilder(
+      column: $table.isNew, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<double> get latitude => $composableBuilder(
       column: $table.latitude, builder: (column) => ColumnFilters(column));
@@ -22927,8 +23172,9 @@ class $$LocationsTableFilterComposer
   ColumnFilters<double> get speed => $composableBuilder(
       column: $table.speed, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<DateTime> get timestamp => $composableBuilder(
-      column: $table.timestamp, builder: (column) => ColumnFilters(column));
+  ColumnFilters<DateTime> get deviceTimestamp => $composableBuilder(
+      column: $table.deviceTimestamp,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get batteryLevel => $composableBuilder(
       column: $table.batteryLevel, builder: (column) => ColumnFilters(column));
@@ -22946,8 +23192,28 @@ class $$LocationsTableOrderingComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  ColumnOrderings<int> get id => $composableBuilder(
-      column: $table.id, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get guid => $composableBuilder(
+      column: $table.guid, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isDeleted => $composableBuilder(
+      column: $table.isDeleted, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
+      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get currentTimestamp => $composableBuilder(
+      column: $table.currentTimestamp,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get lastSyncTime => $composableBuilder(
+      column: $table.lastSyncTime,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get needSync => $composableBuilder(
+      column: $table.needSync, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isNew => $composableBuilder(
+      column: $table.isNew, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<double> get latitude => $composableBuilder(
       column: $table.latitude, builder: (column) => ColumnOrderings(column));
@@ -22967,8 +23233,9 @@ class $$LocationsTableOrderingComposer
   ColumnOrderings<double> get speed => $composableBuilder(
       column: $table.speed, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<DateTime> get timestamp => $composableBuilder(
-      column: $table.timestamp, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<DateTime> get deviceTimestamp => $composableBuilder(
+      column: $table.deviceTimestamp,
+      builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get batteryLevel => $composableBuilder(
       column: $table.batteryLevel,
@@ -22988,8 +23255,26 @@ class $$LocationsTableAnnotationComposer
     super.$addJoinBuilderToRootComposer,
     super.$removeJoinBuilderFromRootComposer,
   });
-  GeneratedColumn<int> get id =>
-      $composableBuilder(column: $table.id, builder: (column) => column);
+  GeneratedColumn<String> get guid =>
+      $composableBuilder(column: $table.guid, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDeleted =>
+      $composableBuilder(column: $table.isDeleted, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get timestamp =>
+      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get currentTimestamp => $composableBuilder(
+      column: $table.currentTimestamp, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncTime => $composableBuilder(
+      column: $table.lastSyncTime, builder: (column) => column);
+
+  GeneratedColumn<bool> get needSync =>
+      $composableBuilder(column: $table.needSync, builder: (column) => column);
+
+  GeneratedColumn<bool> get isNew =>
+      $composableBuilder(column: $table.isNew, builder: (column) => column);
 
   GeneratedColumn<double> get latitude =>
       $composableBuilder(column: $table.latitude, builder: (column) => column);
@@ -23009,8 +23294,8 @@ class $$LocationsTableAnnotationComposer
   GeneratedColumn<double> get speed =>
       $composableBuilder(column: $table.speed, builder: (column) => column);
 
-  GeneratedColumn<DateTime> get timestamp =>
-      $composableBuilder(column: $table.timestamp, builder: (column) => column);
+  GeneratedColumn<DateTime> get deviceTimestamp => $composableBuilder(
+      column: $table.deviceTimestamp, builder: (column) => column);
 
   GeneratedColumn<int> get batteryLevel => $composableBuilder(
       column: $table.batteryLevel, builder: (column) => column);
@@ -23042,52 +23327,72 @@ class $$LocationsTableTableManager extends RootTableManager<
           createComputedFieldComposer: () =>
               $$LocationsTableAnnotationComposer($db: db, $table: table),
           updateCompanionCallback: ({
-            Value<int> id = const Value.absent(),
+            Value<String> guid = const Value.absent(),
+            Value<bool> isDeleted = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<DateTime> currentTimestamp = const Value.absent(),
+            Value<DateTime?> lastSyncTime = const Value.absent(),
             Value<double> latitude = const Value.absent(),
             Value<double> longitude = const Value.absent(),
             Value<double> accuracy = const Value.absent(),
             Value<double> altitude = const Value.absent(),
             Value<double> heading = const Value.absent(),
             Value<double> speed = const Value.absent(),
-            Value<DateTime> timestamp = const Value.absent(),
+            Value<DateTime> deviceTimestamp = const Value.absent(),
             Value<int> batteryLevel = const Value.absent(),
             Value<String> batteryState = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
           }) =>
               LocationsCompanion(
-            id: id,
+            guid: guid,
+            isDeleted: isDeleted,
+            timestamp: timestamp,
+            currentTimestamp: currentTimestamp,
+            lastSyncTime: lastSyncTime,
             latitude: latitude,
             longitude: longitude,
             accuracy: accuracy,
             altitude: altitude,
             heading: heading,
             speed: speed,
-            timestamp: timestamp,
+            deviceTimestamp: deviceTimestamp,
             batteryLevel: batteryLevel,
             batteryState: batteryState,
+            rowid: rowid,
           ),
           createCompanionCallback: ({
-            Value<int> id = const Value.absent(),
+            required String guid,
+            Value<bool> isDeleted = const Value.absent(),
+            Value<DateTime> timestamp = const Value.absent(),
+            Value<DateTime> currentTimestamp = const Value.absent(),
+            Value<DateTime?> lastSyncTime = const Value.absent(),
             required double latitude,
             required double longitude,
             required double accuracy,
             required double altitude,
             required double heading,
             required double speed,
-            required DateTime timestamp,
+            required DateTime deviceTimestamp,
             required int batteryLevel,
             required String batteryState,
+            Value<int> rowid = const Value.absent(),
           }) =>
               LocationsCompanion.insert(
-            id: id,
+            guid: guid,
+            isDeleted: isDeleted,
+            timestamp: timestamp,
+            currentTimestamp: currentTimestamp,
+            lastSyncTime: lastSyncTime,
             latitude: latitude,
             longitude: longitude,
             accuracy: accuracy,
             altitude: altitude,
             heading: heading,
             speed: speed,
-            timestamp: timestamp,
+            deviceTimestamp: deviceTimestamp,
             batteryLevel: batteryLevel,
             batteryState: batteryState,
+            rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
               .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
@@ -35828,4 +36133,8 @@ class GoodsListVisitExVisitGoods {
     required this.id,
     required this.name,
   });
+}
+
+mixin _$LocationsDaoMixin on DatabaseAccessor<AppDataStore> {
+  $LocationsTable get locations => attachedDatabase.locations;
 }

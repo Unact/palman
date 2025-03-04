@@ -14,6 +14,7 @@ import '/app/constants/styles.dart';
 import '/app/data/database.dart';
 import '/app/entities/entities.dart';
 import '/app/pages/home/home_page.dart';
+import '/app/pages/locations/locations_page.dart';
 import '/app/pages/person/person_page.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
@@ -106,6 +107,22 @@ class _InfoViewState extends State<_InfoView> {
                 onPressed: state.isLoading || !state.goodsImagePreloadCanceled ?
                   null :
                   vm.preloadGoodsImages
+              ),
+              IconButton(
+                color: Colors.white,
+                icon: const Icon(Icons.map),
+                tooltip: 'Маршрут',
+                onPressed: state.isLoading ?
+                  null :
+                  () async {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => LocationsPage(),
+                        fullscreenDialog: false
+                      )
+                    );
+                  }
               ),
               IconButton(
                 color: Colors.white,
