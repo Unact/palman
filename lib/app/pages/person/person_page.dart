@@ -69,7 +69,7 @@ class _PersonViewState extends State<_PersonView> {
           case PersonStateStatus.failure:
             Misc.showMessage(context, state.message);
             break;
-          case PersonStateStatus.loggedOut:
+          case PersonStateStatus.success:
             progressDialog.close();
             WidgetsBinding.instance.addPostFrameCallback((_) {
               Navigator.of(context).pop();
@@ -133,6 +133,14 @@ class _PersonViewState extends State<_PersonView> {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
+              ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
+                  backgroundColor: Theme.of(context).colorScheme.primary
+                ),
+                onPressed: vm.apiUnregister,
+                child: const Text('Удалить аккаунт', style: Styles.formStyle),
+              ),
               ElevatedButton(
                 style: ElevatedButton.styleFrom(
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18.0)),
