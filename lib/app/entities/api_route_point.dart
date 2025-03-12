@@ -5,11 +5,13 @@ class ApiRoutePoint extends Equatable {
   final DateTime date;
   final int buyerId;
   final bool? visited;
+  final String? purposeDescription;
 
   const ApiRoutePoint({
     required this.id,
     required this.date,
     required this.buyerId,
+    required this.purposeDescription,
     this.visited
   });
 
@@ -18,6 +20,7 @@ class ApiRoutePoint extends Equatable {
       id: json['id'],
       date: Parsing.parseDate(json['date'])!,
       buyerId: json['buyerId'],
+      purposeDescription: json['purposeDescription'],
       visited: json['visited']
     );
   }
@@ -27,6 +30,7 @@ class ApiRoutePoint extends Equatable {
       id: id,
       date: date,
       buyerId: buyerId,
+      purposeDescription: purposeDescription,
       visited: visited
     );
   }
@@ -36,6 +40,7 @@ class ApiRoutePoint extends Equatable {
     id,
     date,
     buyerId,
+    purposeDescription,
     visited
   ];
 }
