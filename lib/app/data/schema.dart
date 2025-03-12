@@ -494,6 +494,7 @@ class RoutePoints extends Table {
   IntColumn get id => integer().autoIncrement()();
   DateTimeColumn get date => dateTime()();
   IntColumn get buyerId => integer()();
+  TextColumn get purposeDescription => text().nullable()();
   BoolColumn get visited => boolean().nullable()();
 }
 

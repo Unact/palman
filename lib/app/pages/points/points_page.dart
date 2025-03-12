@@ -295,18 +295,48 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
     );
   }
 
+  Widget buildRoutePointTileLeading(BuildContext context, RoutePointEx routePointEx) {
+    if (routePointEx.routePoint.visited == null) {
+      if (routePointEx.routePoint.purposeDescription != null) {
+        return IconButton(
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext ctx) {
+                return AlertDialog(
+                  title: const Text('Цель посещения'),
+                  content: SingleChildScrollView(child: ListBody(children: [
+                    Text(routePointEx.routePoint.purposeDescription!)
+                  ])),
+                  actions: [
+                    TextButton(child: const Text('Закрыть'), onPressed: () => Navigator.of(ctx).pop())
+                  ]
+                );
+              },
+            );
+          },
+          icon: const Icon(Icons.hourglass_empty, color: Colors.blue)
+        );
+      }
+
+      return const Icon(Icons.hourglass_empty, color: Colors.yellow);
+    }
+
+    if (routePointEx.routePoint.visited!) return const Icon(Icons.check, color: Colors.green);
+
+    return const Icon(Icons.clear, color: Colors.red);
+  }
+
   Widget buildRoutePointTile(BuildContext context, RoutePointEx routePointEx) {
     final vm = context.read<PointsViewModel>();
 
     return ListTile(
       minLeadingWidth: 1,
       leading: Padding(
-        padding: const EdgeInsets.only(left: 4),
-        child: routePointEx.routePoint.visited == null ?
-          const Icon(Icons.hourglass_empty, color: Colors.yellow) :
-          routePointEx.routePoint.visited! ?
-            const Icon(Icons.check, color: Colors.green) :
-            const Icon(Icons.clear, color: Colors.red)
+      padding: const EdgeInsets.only(left: 4),
+        child: buildRoutePointTileLeading(context, routePointEx)
       ),
       title: Text(routePointEx.buyerEx.buyer.fullname, style: Styles.tileText),
       subtitle: Text("${routePointEx.buyerEx.site.name}, ${routePointEx.buyerEx.partner.name}", style: Styles.tileText),
