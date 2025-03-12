@@ -24,15 +24,17 @@ class RegisterViewModel extends PageViewModel<RegisterState, RegisterStateStatus
       return;
     }
 
+    final normTelNum = telNum.replaceAll(RegExp(r'[+\s\(\)-]'), '').replaceFirst('7', '8');
+
     emit(state.copyWith(
       email: email,
       password: password,
-      telNum: telNum,
+      telNum: normTelNum,
       status: RegisterStateStatus.inProgress
     ));
 
     try {
-      await usersRepository.register(const String.fromEnvironment('PALMAN_RENEW_URL'), email, telNum, password);
+      await usersRepository.register(const String.fromEnvironment('PALMAN_RENEW_URL'), email, normTelNum, password);
 
       emit(state.copyWith(status: RegisterStateStatus.success));
     } on AppError catch(e) {

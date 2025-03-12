@@ -17411,6 +17411,12 @@ class $RoutePointsTable extends RoutePoints
   late final GeneratedColumn<int> buyerId = GeneratedColumn<int>(
       'buyer_id', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _purposeDescriptionMeta =
+      const VerificationMeta('purposeDescription');
+  @override
+  late final GeneratedColumn<String> purposeDescription =
+      GeneratedColumn<String>('purpose_description', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _visitedMeta =
       const VerificationMeta('visited');
   @override
@@ -17421,7 +17427,8 @@ class $RoutePointsTable extends RoutePoints
       defaultConstraints:
           GeneratedColumn.constraintIsAlways('CHECK ("visited" IN (0, 1))'));
   @override
-  List<GeneratedColumn> get $columns => [id, date, buyerId, visited];
+  List<GeneratedColumn> get $columns =>
+      [id, date, buyerId, purposeDescription, visited];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -17447,6 +17454,12 @@ class $RoutePointsTable extends RoutePoints
     } else if (isInserting) {
       context.missing(_buyerIdMeta);
     }
+    if (data.containsKey('purpose_description')) {
+      context.handle(
+          _purposeDescriptionMeta,
+          purposeDescription.isAcceptableOrUnknown(
+              data['purpose_description']!, _purposeDescriptionMeta));
+    }
     if (data.containsKey('visited')) {
       context.handle(_visitedMeta,
           visited.isAcceptableOrUnknown(data['visited']!, _visitedMeta));
@@ -17466,6 +17479,8 @@ class $RoutePointsTable extends RoutePoints
           .read(DriftSqlType.dateTime, data['${effectivePrefix}date'])!,
       buyerId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}buyer_id'])!,
+      purposeDescription: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}purpose_description']),
       visited: attachedDatabase.typeMapping
           .read(DriftSqlType.bool, data['${effectivePrefix}visited']),
     );
@@ -17481,11 +17496,13 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
   final int id;
   final DateTime date;
   final int buyerId;
+  final String? purposeDescription;
   final bool? visited;
   const RoutePoint(
       {required this.id,
       required this.date,
       required this.buyerId,
+      this.purposeDescription,
       this.visited});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -17493,6 +17510,9 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
     map['id'] = Variable<int>(id);
     map['date'] = Variable<DateTime>(date);
     map['buyer_id'] = Variable<int>(buyerId);
+    if (!nullToAbsent || purposeDescription != null) {
+      map['purpose_description'] = Variable<String>(purposeDescription);
+    }
     if (!nullToAbsent || visited != null) {
       map['visited'] = Variable<bool>(visited);
     }
@@ -17504,6 +17524,9 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
       id: Value(id),
       date: Value(date),
       buyerId: Value(buyerId),
+      purposeDescription: purposeDescription == null && nullToAbsent
+          ? const Value.absent()
+          : Value(purposeDescription),
       visited: visited == null && nullToAbsent
           ? const Value.absent()
           : Value(visited),
@@ -17517,6 +17540,8 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
       id: serializer.fromJson<int>(json['id']),
       date: serializer.fromJson<DateTime>(json['date']),
       buyerId: serializer.fromJson<int>(json['buyerId']),
+      purposeDescription:
+          serializer.fromJson<String?>(json['purposeDescription']),
       visited: serializer.fromJson<bool?>(json['visited']),
     );
   }
@@ -17527,6 +17552,7 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
       'id': serializer.toJson<int>(id),
       'date': serializer.toJson<DateTime>(date),
       'buyerId': serializer.toJson<int>(buyerId),
+      'purposeDescription': serializer.toJson<String?>(purposeDescription),
       'visited': serializer.toJson<bool?>(visited),
     };
   }
@@ -17535,11 +17561,15 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
           {int? id,
           DateTime? date,
           int? buyerId,
+          Value<String?> purposeDescription = const Value.absent(),
           Value<bool?> visited = const Value.absent()}) =>
       RoutePoint(
         id: id ?? this.id,
         date: date ?? this.date,
         buyerId: buyerId ?? this.buyerId,
+        purposeDescription: purposeDescription.present
+            ? purposeDescription.value
+            : this.purposeDescription,
         visited: visited.present ? visited.value : this.visited,
       );
   RoutePoint copyWithCompanion(RoutePointsCompanion data) {
@@ -17547,6 +17577,9 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
       id: data.id.present ? data.id.value : this.id,
       date: data.date.present ? data.date.value : this.date,
       buyerId: data.buyerId.present ? data.buyerId.value : this.buyerId,
+      purposeDescription: data.purposeDescription.present
+          ? data.purposeDescription.value
+          : this.purposeDescription,
       visited: data.visited.present ? data.visited.value : this.visited,
     );
   }
@@ -17557,13 +17590,15 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
           ..write('id: $id, ')
           ..write('date: $date, ')
           ..write('buyerId: $buyerId, ')
+          ..write('purposeDescription: $purposeDescription, ')
           ..write('visited: $visited')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, date, buyerId, visited);
+  int get hashCode =>
+      Object.hash(id, date, buyerId, purposeDescription, visited);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -17571,6 +17606,7 @@ class RoutePoint extends DataClass implements Insertable<RoutePoint> {
           other.id == this.id &&
           other.date == this.date &&
           other.buyerId == this.buyerId &&
+          other.purposeDescription == this.purposeDescription &&
           other.visited == this.visited);
 }
 
@@ -17578,17 +17614,20 @@ class RoutePointsCompanion extends UpdateCompanion<RoutePoint> {
   final Value<int> id;
   final Value<DateTime> date;
   final Value<int> buyerId;
+  final Value<String?> purposeDescription;
   final Value<bool?> visited;
   const RoutePointsCompanion({
     this.id = const Value.absent(),
     this.date = const Value.absent(),
     this.buyerId = const Value.absent(),
+    this.purposeDescription = const Value.absent(),
     this.visited = const Value.absent(),
   });
   RoutePointsCompanion.insert({
     this.id = const Value.absent(),
     required DateTime date,
     required int buyerId,
+    this.purposeDescription = const Value.absent(),
     this.visited = const Value.absent(),
   })  : date = Value(date),
         buyerId = Value(buyerId);
@@ -17596,12 +17635,14 @@ class RoutePointsCompanion extends UpdateCompanion<RoutePoint> {
     Expression<int>? id,
     Expression<DateTime>? date,
     Expression<int>? buyerId,
+    Expression<String>? purposeDescription,
     Expression<bool>? visited,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (date != null) 'date': date,
       if (buyerId != null) 'buyer_id': buyerId,
+      if (purposeDescription != null) 'purpose_description': purposeDescription,
       if (visited != null) 'visited': visited,
     });
   }
@@ -17610,11 +17651,13 @@ class RoutePointsCompanion extends UpdateCompanion<RoutePoint> {
       {Value<int>? id,
       Value<DateTime>? date,
       Value<int>? buyerId,
+      Value<String?>? purposeDescription,
       Value<bool?>? visited}) {
     return RoutePointsCompanion(
       id: id ?? this.id,
       date: date ?? this.date,
       buyerId: buyerId ?? this.buyerId,
+      purposeDescription: purposeDescription ?? this.purposeDescription,
       visited: visited ?? this.visited,
     );
   }
@@ -17631,6 +17674,9 @@ class RoutePointsCompanion extends UpdateCompanion<RoutePoint> {
     if (buyerId.present) {
       map['buyer_id'] = Variable<int>(buyerId.value);
     }
+    if (purposeDescription.present) {
+      map['purpose_description'] = Variable<String>(purposeDescription.value);
+    }
     if (visited.present) {
       map['visited'] = Variable<bool>(visited.value);
     }
@@ -17643,6 +17689,7 @@ class RoutePointsCompanion extends UpdateCompanion<RoutePoint> {
           ..write('id: $id, ')
           ..write('date: $date, ')
           ..write('buyerId: $buyerId, ')
+          ..write('purposeDescription: $purposeDescription, ')
           ..write('visited: $visited')
           ..write(')'))
         .toString();
@@ -31955,6 +32002,7 @@ typedef $$RoutePointsTableCreateCompanionBuilder = RoutePointsCompanion
   Value<int> id,
   required DateTime date,
   required int buyerId,
+  Value<String?> purposeDescription,
   Value<bool?> visited,
 });
 typedef $$RoutePointsTableUpdateCompanionBuilder = RoutePointsCompanion
@@ -31962,6 +32010,7 @@ typedef $$RoutePointsTableUpdateCompanionBuilder = RoutePointsCompanion
   Value<int> id,
   Value<DateTime> date,
   Value<int> buyerId,
+  Value<String?> purposeDescription,
   Value<bool?> visited,
 });
 
@@ -31982,6 +32031,10 @@ class $$RoutePointsTableFilterComposer
 
   ColumnFilters<int> get buyerId => $composableBuilder(
       column: $table.buyerId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get purposeDescription => $composableBuilder(
+      column: $table.purposeDescription,
+      builder: (column) => ColumnFilters(column));
 
   ColumnFilters<bool> get visited => $composableBuilder(
       column: $table.visited, builder: (column) => ColumnFilters(column));
@@ -32005,6 +32058,10 @@ class $$RoutePointsTableOrderingComposer
   ColumnOrderings<int> get buyerId => $composableBuilder(
       column: $table.buyerId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get purposeDescription => $composableBuilder(
+      column: $table.purposeDescription,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<bool> get visited => $composableBuilder(
       column: $table.visited, builder: (column) => ColumnOrderings(column));
 }
@@ -32026,6 +32083,9 @@ class $$RoutePointsTableAnnotationComposer
 
   GeneratedColumn<int> get buyerId =>
       $composableBuilder(column: $table.buyerId, builder: (column) => column);
+
+  GeneratedColumn<String> get purposeDescription => $composableBuilder(
+      column: $table.purposeDescription, builder: (column) => column);
 
   GeneratedColumn<bool> get visited =>
       $composableBuilder(column: $table.visited, builder: (column) => column);
@@ -32057,24 +32117,28 @@ class $$RoutePointsTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             Value<DateTime> date = const Value.absent(),
             Value<int> buyerId = const Value.absent(),
+            Value<String?> purposeDescription = const Value.absent(),
             Value<bool?> visited = const Value.absent(),
           }) =>
               RoutePointsCompanion(
             id: id,
             date: date,
             buyerId: buyerId,
+            purposeDescription: purposeDescription,
             visited: visited,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required DateTime date,
             required int buyerId,
+            Value<String?> purposeDescription = const Value.absent(),
             Value<bool?> visited = const Value.absent(),
           }) =>
               RoutePointsCompanion.insert(
             id: id,
             date: date,
             buyerId: buyerId,
+            purposeDescription: purposeDescription,
             visited: visited,
           ),
           withReferenceMapper: (p0) => p0
