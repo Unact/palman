@@ -335,7 +335,7 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
     return ListTile(
       minLeadingWidth: 1,
       leading: Padding(
-      padding: const EdgeInsets.only(left: 4),
+        padding: const EdgeInsets.only(left: 4),
         child: buildRoutePointTileLeading(context, routePointEx)
       ),
       title: Text(routePointEx.buyerEx.buyer.fullname, style: Styles.tileText),
