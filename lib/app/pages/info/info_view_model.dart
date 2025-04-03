@@ -325,6 +325,8 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
   }
 
   Future<void> reverseDay() async {
+    final oldClosed = state.closed;
+
     emit(state.copyWith(status: InfoStateStatus.reverseInProgress));
 
     try {
@@ -332,7 +334,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       await locationsRepository.deleteLocations();
       emit(state.copyWith(
         status: InfoStateStatus.reverseSuccess,
-        message: 'День успешно ${state.closed ? 'открыт' : 'закрыт'}'
+        message: 'День успешно ${oldClosed ? 'открыт' : 'закрыт'}'
       ));
     } on AppError catch(e) {
       emit(state.copyWith(status: InfoStateStatus.reverseFailure, message: e.message));
