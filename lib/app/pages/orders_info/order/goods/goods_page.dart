@@ -56,8 +56,6 @@ class _GoodsViewState extends State<_GoodsView> {
       context,
       MaterialPageRoute(builder: (context) => ScanView(
         onRead: vm.changeBarcode,
-        showScanner: false,
-        barcodeMode: true,
         child: Text('Отсканируйте штрих-код', style: Styles.formStyle.copyWith(fontSize: 18, color: Colors.white)),
       ))
     );
@@ -304,7 +302,7 @@ class _GoodsViewState extends State<_GoodsView> {
               )
             ],
           ),
-          buildGoodsFiltersRow(context),
+          SizedBox(height: 48, child: buildGoodsFiltersRow(context))
         ],
       )
     );
@@ -313,8 +311,8 @@ class _GoodsViewState extends State<_GoodsView> {
   Widget buildGoodsFiltersRow(BuildContext context) {
     final vm = context.read<GoodsViewModel>();
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return ListView(
+      scrollDirection: Axis.horizontal,
       children: [
         ...vm.state.goodsFilters.map((e) => ChoiceChip(
           label: Text(e.name),
