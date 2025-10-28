@@ -55,8 +55,6 @@ class _GoodsViewState extends State<_GoodsView> {
       context,
       MaterialPageRoute(builder: (context) => ScanView(
         onRead: vm.changeBarcode,
-        showScanner: false,
-        barcodeMode: true,
         child: Text('Отсканируйте штрих-код', style: Styles.formStyle.copyWith(fontSize: 18, color: Colors.white)),
       ))
     );

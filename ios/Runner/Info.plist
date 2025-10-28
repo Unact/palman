@@ -27,7 +27,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>Для фотографирования точки</string>
+	<string>Для фотографирования точки и сканирования штрих-кодов</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>Для отображения информации о торговых точках рядом с пользователем</string>
 	<key>NSLocationAlwaysUsageDescription</key>
@@ -70,5 +70,9 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSBluetoothAlwaysUsageDescription</key>
+	<string>Для подключения сканера штрих-кодов</string>
+	<key>NSBluetoothPeripheralUsageDescription</key>
+	<string>Для подключения сканера штрих-кодов</string>
 </dict>
 </plist>
