@@ -80,7 +80,11 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
   }
 
   Future<void> addNewOrder(RoutePointEx routePointEx) async {
-    final workdate = state.workdates.where((el) => el.date.isAfter(routePointEx.routePoint.date)).firstOrNull;
+    final workdate = state.workdates
+      .where((el) =>
+        el.date.isAfter(routePointEx.routePoint.date) &&
+        routePointEx.buyerEx.buyer.weekdays[el.date.weekday % 7]
+      ).firstOrNull;
     final newOrder = await ordersRepository.addOrder(
       date: workdate?.date,
       buyerId: routePointEx.routePoint.buyerId
