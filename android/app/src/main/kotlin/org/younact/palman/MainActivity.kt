@@ -1,4 +1,4 @@
-package com.selvis.palman
+package org.younact.palman
 
 import io.flutter.embedding.android.FlutterActivity
 
