@@ -69,7 +69,6 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
       shipmentsRepository.syncChanges
     ];
 
-    await usersRepository.refresh();
     await Future.wait(futures.map((e) => e.call()));
   }
 
@@ -84,7 +83,6 @@ class OrdersInfoViewModel extends PageViewModel<OrdersInfoState, OrdersInfoState
 
     try {
       emit(state.copyWith(isLoading: true));
-      await usersRepository.refresh();
       await Future.wait(futures.map((e) => e.call()));
     } finally {
       emit(state.copyWith(isLoading: false));

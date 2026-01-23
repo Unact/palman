@@ -56,7 +56,6 @@ class ReturnActsViewModel extends PageViewModel<ReturnActsState, ReturnActsState
       returnActsRepository.syncChanges
     ];
 
-    await usersRepository.refresh();
     await Future.wait(futures.map((e) => e.call()));
   }
 
@@ -69,7 +68,6 @@ class ReturnActsViewModel extends PageViewModel<ReturnActsState, ReturnActsState
 
     try {
       emit(state.copyWith(isLoading: true));
-      await usersRepository.refresh();
       await Future.wait(futures.map((e) => e.call()));
     } finally {
       emit(state.copyWith(isLoading: false));

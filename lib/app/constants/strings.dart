@@ -4,8 +4,6 @@ class Strings {
   static const ruAppName = 'Продажи';
   static const envDevelopment = 'development';
   static const envProduction = 'production';
-  static const optsLoginKeyword = '81234567890';
-  static const optsPasswordKeyword = '5005';
 
   static const infoPageName = 'Главная';
   static const pointsPageName = 'Точки';

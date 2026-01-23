@@ -67,7 +67,7 @@ class _VolFieldState extends State<VolField> {
       enabled: widget.enabled,
       textAlign: TextAlign.center,
       textAlignVertical: TextAlignVertical.center,
-      decimal: widget.decimal,
+      keyboardType: TextInputType.numberWithOptions(decimal: widget.decimal),
       controller: controller,
       style: widget.style,
       decoration: InputDecoration(
@@ -84,7 +84,7 @@ class _VolFieldState extends State<VolField> {
           onPressed: () => updateVol((widget.vol ?? 0) - widget.subStep)
         )
       ),
-      onTap: () => updateVol(Parsing.parseDouble(controller.text))
+      onChanged: (_) => updateVol(Parsing.parseDouble(controller.text))
     );
   }
 

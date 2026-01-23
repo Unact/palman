@@ -194,10 +194,10 @@ class _PointViewState extends State<_PointView> {
       InfoRow.page(
         title: const Text('Кол-во касс', style: Styles.formStyle),
         trailing: NumTextField(
-          decimal: false,
+          keyboardType: TextInputType.numberWithOptions(decimal: false),
           textAlign: TextAlign.start,
           controller: numberOfCdesksController,
-          onTap: () => vm.updateNumberOfCdesk(numberOfCdesksController!.text),
+          onChanged: (_) => vm.updateNumberOfCdesk(numberOfCdesksController!.text),
           style: Styles.formStyle
         )
       ),
@@ -236,40 +236,40 @@ class _PointViewState extends State<_PointView> {
       InfoRow.page(
         title: const Text('Лимит', style: Styles.formStyle),
         trailing: NumTextField(
-          decimal: false,
+          keyboardType: TextInputType.numberWithOptions(decimal: false),
           textAlign: TextAlign.start,
           controller: maxDebtController,
-          onTap: () => vm.updateMaxdebt(maxDebtController!.text),
+          onChanged: (_) => vm.updateMaxdebt(maxDebtController!.text),
           style: Styles.formStyle
         )
       ),
       InfoRow.page(
         title: const Text('НДС10', style: Styles.formStyle),
         trailing: NumTextField(
-          decimal: false,
+          keyboardType: TextInputType.numberWithOptions(decimal: false),
           textAlign: TextAlign.start,
           controller: nds10Controller,
-          onTap: () => vm.updateNds10(nds10Controller!.text),
+          onChanged: (_) => vm.updateNds10(nds10Controller!.text),
           style: Styles.formStyle
         )
       ),
       InfoRow.page(
         title: const Text('НДС20', style: Styles.formStyle),
         trailing: NumTextField(
-          decimal: false,
+          keyboardType: TextInputType.numberWithOptions(decimal: false),
           textAlign: TextAlign.start,
           controller: nds20Controller,
-          onTap: () => vm.updateNds20(nds20Controller!.text),
+          onChanged: (_) => vm.updateNds20(nds20Controller!.text),
           style: Styles.formStyle
         )
       ),
       InfoRow.page(
         title: const Text('Срок', style: Styles.formStyle),
         trailing: NumTextField(
-          decimal: false,
+          keyboardType: TextInputType.numberWithOptions(decimal: false),
           textAlign: TextAlign.start,
           controller: plongController,
-          onTap: () => vm.updatePlong(plongController!.text),
+          onChanged: (_) => vm.updatePlong(plongController!.text),
           style: Styles.formStyle
         )
       ),

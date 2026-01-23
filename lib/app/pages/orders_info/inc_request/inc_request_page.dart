@@ -126,7 +126,7 @@ class _IncRequestViewState extends State<_IncRequestView> {
                 controller: sumController,
                 enabled: vm.state.isEditable,
                 style: Styles.formStyle,
-                onTap: () => vm.updateIncSum(Parsing.parseDouble(sumController!.text))
+                onChanged: (_) => vm.updateIncSum(Parsing.parseDouble(sumController!.text))
               )
           ),
           InfoRow.page(

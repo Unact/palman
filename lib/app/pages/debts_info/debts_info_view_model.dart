@@ -104,7 +104,6 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
       debtsRepository.syncChanges
     ];
 
-    await usersRepository.refresh();
     await Future.wait(futures.map((e) => e.call()));
   }
 
@@ -117,7 +116,6 @@ class DebtsInfoViewModel extends PageViewModel<DebtsInfoState, DebtsInfoStateSta
 
     try {
       emit(state.copyWith(isLoading: true));
-      await usersRepository.refresh();
       await Future.wait(futures.map((e) => e.call()));
     } finally {
       emit(state.copyWith(isLoading: false));

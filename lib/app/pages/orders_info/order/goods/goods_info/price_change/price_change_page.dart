@@ -239,7 +239,7 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
                   )
                 )
               ),
-              onTap: () => vm.updatePrice(Parsing.parseDouble(controller!.text))
+              onChanged: (_) => vm.updatePrice(Parsing.parseDouble(controller!.text))
             )
           ]
         )

@@ -117,7 +117,6 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
       pointsRepository.syncChanges
     ];
 
-    await usersRepository.refresh();
     await Future.wait(futures.map((e) => e.call()));
   }
 
@@ -131,7 +130,6 @@ class PointsViewModel extends PageViewModel<PointsState, PointsStateStatus> {
 
     try {
       emit(state.copyWith(isLoading: true));
-      await usersRepository.refresh();
       await Future.wait(futures.map((e) => e.call()));
     } finally {
       emit(state.copyWith(isLoading: false));
