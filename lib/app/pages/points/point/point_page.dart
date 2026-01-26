@@ -194,7 +194,7 @@ class _PointViewState extends State<_PointView> {
       InfoRow.page(
         title: const Text('Кол-во касс', style: Styles.formStyle),
         trailing: NumTextField(
-          keyboardType: TextInputType.numberWithOptions(decimal: false),
+          keyboardType: TextInputType.numberWithOptions(decimal: false, signed: true),
           textAlign: TextAlign.start,
           controller: numberOfCdesksController,
           onChanged: (_) => vm.updateNumberOfCdesk(numberOfCdesksController!.text),
@@ -236,7 +236,7 @@ class _PointViewState extends State<_PointView> {
       InfoRow.page(
         title: const Text('Лимит', style: Styles.formStyle),
         trailing: NumTextField(
-          keyboardType: TextInputType.numberWithOptions(decimal: false),
+          keyboardType: TextInputType.numberWithOptions(decimal: false, signed: true),
           textAlign: TextAlign.start,
           controller: maxDebtController,
           onChanged: (_) => vm.updateMaxdebt(maxDebtController!.text),
@@ -246,7 +246,7 @@ class _PointViewState extends State<_PointView> {
       InfoRow.page(
         title: const Text('НДС10', style: Styles.formStyle),
         trailing: NumTextField(
-          keyboardType: TextInputType.numberWithOptions(decimal: false),
+          keyboardType: TextInputType.numberWithOptions(decimal: false, signed: true),
           textAlign: TextAlign.start,
           controller: nds10Controller,
           onChanged: (_) => vm.updateNds10(nds10Controller!.text),
@@ -256,7 +256,7 @@ class _PointViewState extends State<_PointView> {
       InfoRow.page(
         title: const Text('НДС20', style: Styles.formStyle),
         trailing: NumTextField(
-          keyboardType: TextInputType.numberWithOptions(decimal: false),
+          keyboardType: TextInputType.numberWithOptions(decimal: false, signed: true),
           textAlign: TextAlign.start,
           controller: nds20Controller,
           onChanged: (_) => vm.updateNds20(nds20Controller!.text),
@@ -266,7 +266,7 @@ class _PointViewState extends State<_PointView> {
       InfoRow.page(
         title: const Text('Срок', style: Styles.formStyle),
         trailing: NumTextField(
-          keyboardType: TextInputType.numberWithOptions(decimal: false),
+          keyboardType: TextInputType.numberWithOptions(decimal: false, signed: true),
           textAlign: TextAlign.start,
           controller: plongController,
           onChanged: (_) => vm.updatePlong(plongController!.text),

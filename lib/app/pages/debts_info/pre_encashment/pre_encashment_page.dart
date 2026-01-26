@@ -88,6 +88,7 @@ class _PreEncashmentViewState extends State<_PreEncashmentView> {
           InfoRow.page(
             title: const Text('Оплата', style: Styles.formStyle),
             trailing: NumTextField(
+              keyboardType: TextInputType.numberWithOptions(signed: true, decimal: true),
               textAlign: TextAlign.start,
               controller: controller,
               style: Styles.formStyle,
