@@ -264,6 +264,9 @@ class AppDataStore extends _$AppDataStore {
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
+      await customStatement('PRAGMA journal_mode = WAL');
+      await customStatement('PRAGMA busy_timeout = 500');
+      await customStatement('PRAGMA synchronous = FULL');
 
       if (details.hadUpgrade || details.wasCreated) await _populateData();
     },
