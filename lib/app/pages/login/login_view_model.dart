@@ -8,17 +8,8 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
   @override
   LoginStateStatus get status => state.status;
 
-  Future<void> apiLogin(String url, String login, String password) async {
-    if (!state.optsEnabled) login = _formatLogin(login);
-
-    if (password == Strings.optsPasswordKeyword && login == Strings.optsLoginKeyword) {
-      emit(state.copyWith(
-        status: LoginStateStatus.urlFieldActivated,
-        optsEnabled: true
-      ));
-
-      return;
-    }
+  Future<void> apiLogin(String login, String password) async {
+    login = _formatLogin(login);
 
     if (login == '') {
       emit(state.copyWith(status: LoginStateStatus.failure, message: 'Не заполнено поле с логином'));
@@ -33,12 +24,11 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
     emit(state.copyWith(
       login: login,
       password: password,
-      url: url,
       status: LoginStateStatus.inProgress
     ));
 
     try {
-      await usersRepository.login(url, login, password);
+      await usersRepository.login(login, password);
 
       emit(state.copyWith(status: LoginStateStatus.success));
     } on AppError catch(e) {
@@ -46,8 +36,8 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
     }
   }
 
-  Future<void> getNewPassword(String url, String login) async {
-    if (!state.optsEnabled) login = _formatLogin(login);
+  Future<void> getNewPassword(String login) async {
+    login = _formatLogin(login);
 
     if (login == '') {
       emit(state.copyWith(status: LoginStateStatus.failure, message: 'Не заполнено поле с логином'));
@@ -57,12 +47,11 @@ class LoginViewModel extends PageViewModel<LoginState, LoginStateStatus> {
     emit(state.copyWith(
       login: login,
       password: '',
-      url: url,
       status: LoginStateStatus.inProgress
     ));
 
     try {
-      await usersRepository.resetPassword(url, login);
+      await usersRepository.resetPassword(login);
       emit(state.copyWith(status: LoginStateStatus.passwordSent, message: 'Пароль отправлен на почту'));
     } on AppError catch(e) {
       emit(state.copyWith(status: LoginStateStatus.failure, message: e.message));

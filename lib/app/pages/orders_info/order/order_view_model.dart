@@ -179,7 +179,6 @@ class OrderViewModel extends PageViewModel<OrderState, OrderStateStatus> {
       }
     ];
 
-    await usersRepository.refresh();
     await Future.wait(futures.map((e) => e.call()));
   }
 

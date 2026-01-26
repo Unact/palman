@@ -108,7 +108,7 @@ class _PreEncashmentViewState extends State<_PreEncashmentView> {
                 errorMaxLines: 2,
                 isDense: true
               ),
-              onTap: () => vm.updateEncSum(Parsing.parseDouble(controller!.text))
+              onChanged: (_) => vm.updateEncSum(Parsing.parseDouble(controller!.text))
             )
           )
         ],
