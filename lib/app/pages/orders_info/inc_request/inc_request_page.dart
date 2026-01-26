@@ -122,6 +122,7 @@ class _IncRequestViewState extends State<_IncRequestView> {
             trailing: !vm.state.isEditable ?
               Text(Format.numberStr(incRequestEx.incRequest.incSum), style: Styles.formStyle) :
               NumTextField(
+                keyboardType: TextInputType.numberWithOptions(signed: true, decimal: true),
                 textAlign: TextAlign.start,
                 controller: sumController,
                 enabled: vm.state.isEditable,

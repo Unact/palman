@@ -25,6 +25,7 @@ import 'app/repositories/users_repository.dart';
 import 'app/repositories/visits_repository.dart';
 
 void main() async {
+  FilteringFlutterBinding();
   Provider.debugCheckInvalidValueType = null;
   WidgetsFlutterBinding.ensureInitialized();
   await PackageInfo.fromPlatform();
@@ -114,4 +115,15 @@ void main() async {
       )
     )
   );
+}
+
+// Fix https://github.com/flutter/flutter/issues/177992
+class FilteringFlutterBinding extends WidgetsFlutterBinding {
+  @override
+  void handlePointerEvent(PointerEvent event) {
+    if (event.position == Offset.zero) {
+      return;
+    }
+    super.handlePointerEvent(event);
+  }
 }

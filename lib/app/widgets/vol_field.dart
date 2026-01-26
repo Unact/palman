@@ -67,7 +67,7 @@ class _VolFieldState extends State<VolField> {
       enabled: widget.enabled,
       textAlign: TextAlign.center,
       textAlignVertical: TextAlignVertical.center,
-      keyboardType: TextInputType.numberWithOptions(decimal: widget.decimal),
+      keyboardType: TextInputType.numberWithOptions(decimal: widget.decimal, signed: true),
       controller: controller,
       style: widget.style,
       decoration: InputDecoration(

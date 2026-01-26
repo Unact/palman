@@ -221,6 +221,7 @@ class _PriceChangeViewState extends State<_PriceChangeView> {
               controller: controller,
               style: Styles.formStyle,
               textAlignVertical: TextAlignVertical.center,
+              keyboardType: TextInputType.numberWithOptions(signed: true, decimal: true),
               decoration: InputDecoration(
                 suffixIcon: HoldDetector(
                   onHold: () => validPrice(incrPrice) ? updatePriceAndText(incrPrice) : null,
