@@ -774,7 +774,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
                 child: Text(value ? 'Некондиция' : 'Кондиция'),
               );
             }).toList(),
-            value: returnActLineEx?.line.isBad,
+            initialValue: returnActLineEx?.line.isBad,
             onChanged: (bool? value) => widget.onIsBadChange(goodsReturnDetail, value!)
           )
         ),
@@ -817,14 +817,11 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     GoodsReturnDetail goodsReturnDetail,
     ReturnActLineExResult? returnActLineEx
   ) {
-    return SizedBox(
-      width: 140,
-      child: VolField(
-        minValue: 0,
-        vol: returnActLineEx?.line.vol,
-        style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
-        onVolChange: (vol) => widget.onVolChange(goodsReturnDetail, vol)
-      )
+    return VolField(
+      minValue: 0,
+      vol: returnActLineEx?.line.vol,
+      style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
+      onVolChange: (vol) => widget.onVolChange(goodsReturnDetail, vol)
     );
   }
 }

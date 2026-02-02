@@ -16,4 +16,6 @@ class Styles {
   static const Color greenColor = Color.fromRGBO(0, 127, 0, 1);
   static const Color blackColor = Colors.black;
   static const Color yellowColor = Color.fromRGBO(255, 255, 0, 1);
+
+  static const double volFieldWidth = 160;
 }

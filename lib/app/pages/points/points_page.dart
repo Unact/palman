@@ -86,7 +86,7 @@ class _PointsViewState extends State<_PointsView> with SingleTickerProviderState
               content: SingleChildScrollView(
                 child: DropdownButtonFormField(
                   decoration: const InputDecoration(labelText: 'Причина'),
-                  value: visitSkipReason,
+                  initialValue: visitSkipReason,
                   items: vm.state.visitSkipReasons.map((e) => DropdownMenuItem<VisitSkipReason>(
                     value: e,
                     child: Text(e.name)
