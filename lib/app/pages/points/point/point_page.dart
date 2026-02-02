@@ -179,7 +179,7 @@ class _PointViewState extends State<_PointView> {
         title: const Text('Формат', style: Styles.formStyle),
         trailing: DropdownButtonFormField(
           isExpanded: true,
-          value: point.pointFormat,
+          initialValue: point.pointFormat,
           style: Theme.of(context).textTheme.titleMedium!.merge(Styles.formStyle),
           alignment: AlignmentDirectional.center,
           items: vm.state.pointFormats.map((PointFormat v) {
@@ -293,7 +293,7 @@ class _PointViewState extends State<_PointView> {
         title: const Text('Вид отдела НТ', style: Styles.formStyle),
         trailing: DropdownButtonFormField(
           isExpanded: true,
-          value: point.ntDeptTypeId,
+          initialValue: point.ntDeptTypeId,
           style: Theme.of(context).textTheme.titleMedium!.merge(Styles.formStyle),
           alignment: AlignmentDirectional.center,
           items: vm.state.ntDeptTypes.map((NtDeptType v) {

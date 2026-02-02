@@ -2,6 +2,7 @@ part of 'widgets.dart';
 
 class VolField extends StatefulWidget {
   final bool enabled;
+  final double width;
   final double maxValue;
   final double minValue;
   final double? vol;
@@ -25,6 +26,7 @@ class VolField extends StatefulWidget {
     required this.onVolChange,
     this.validateVol,
     this.style,
+    this.width = Styles.volFieldWidth,
     super.key
   });
 
@@ -63,28 +65,33 @@ class _VolFieldState extends State<VolField> {
 
   @override
   Widget build(BuildContext context) {
-    return NumTextField(
-      enabled: widget.enabled,
-      textAlign: TextAlign.center,
-      textAlignVertical: TextAlignVertical.center,
-      keyboardType: TextInputType.numberWithOptions(decimal: widget.decimal, signed: true),
-      controller: controller,
-      style: widget.style,
-      decoration: InputDecoration(
-        errorText: error ? 'Не корректное кол-во' : null,
-        border: error ? null : InputBorder.none,
-        suffixIcon: !widget.enabled ? null : IconButton(
-          icon: const Icon(Icons.add),
-          tooltip: 'Увеличить кол-во',
-          onPressed: () => updateVol((widget.vol ?? 0) + widget.addStep)
+    return SizedBox(
+      width: widget.width,
+      child: NumTextField(
+        maxLines: 1,
+        enabled: widget.enabled,
+        textAlign: TextAlign.center,
+        textAlignVertical: TextAlignVertical.center,
+        keyboardType: TextInputType.numberWithOptions(decimal: widget.decimal, signed: true),
+        controller: controller,
+        style: widget.style,
+        decoration: InputDecoration(
+          contentPadding: EdgeInsets.zero,
+          errorText: error ? 'Не корректное кол-во' : null,
+          border: error ? null : InputBorder.none,
+          suffixIcon: !widget.enabled ? null : IconButton(
+            icon: const Icon(Icons.add),
+            tooltip: 'Увеличить кол-во',
+            onPressed: () => updateVol((widget.vol ?? 0) + widget.addStep)
+          ),
+          prefixIcon: !widget.enabled ? null : IconButton(
+            icon: const Icon(Icons.remove),
+            tooltip: 'Уменьшить кол-во',
+            onPressed: () => updateVol((widget.vol ?? 0) - widget.subStep)
+          )
         ),
-        prefixIcon: !widget.enabled ? null : IconButton(
-          icon: const Icon(Icons.remove),
-          tooltip: 'Уменьшить кол-во',
-          onPressed: () => updateVol((widget.vol ?? 0) - widget.subStep)
-        )
-      ),
-      onChanged: (_) => updateVol(Parsing.parseDouble(controller.text))
+        onChanged: (_) => updateVol(Parsing.parseDouble(controller.text))
+      )
     );
   }
 

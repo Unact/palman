@@ -906,69 +906,60 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     final goods = goodsDetail.goods;
 
     if (goods.categoryBoxRel != 0 && goodsDetail.minVol % goods.categoryBoxRel == 0) {
-      return SizedBox(
-        width: 140,
-        child: VolField(
-          enabled: enabled,
-          minValue: 0,
-          vol: orderLineEx?.line.vol,
-          addStep: orderLineEx?.line.vol == null ? goodsDetail.minVol : goods.categoryBoxRel,
-          subStep: orderLineEx?.line.vol == goodsDetail.minVol ? goodsDetail.minVol : goods.categoryBoxRel,
-          style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
-          validateVol: (vol) {
-            if (vol == null || vol == 0) return true;
-
-            if (vol % goods.categoryBoxRel != 0) return false;
-            if (vol < goodsDetail.minVol) return false;
-
-            return true;
-          },
-          onVolChange: (vol) => widget.onVolChange(goodsDetail, vol)
-        )
-      );
-    }
-
-    if (goods.categoryBlockRel != 0 && goodsDetail.minVol % goods.categoryBlockRel == 0) {
-      return SizedBox(
-        width: 140,
-        child: VolField(
-          enabled: enabled,
-          minValue: 0,
-          vol: orderLineEx?.line.vol,
-          addStep: orderLineEx?.line.vol == null ? goodsDetail.minVol : goods.categoryBlockRel,
-          subStep: orderLineEx?.line.vol == goodsDetail.minVol ? goodsDetail.minVol : goods.categoryBlockRel,
-          style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
-          validateVol: (vol) {
-            if (vol == null || vol == 0) return true;
-
-            if (vol % goods.categoryBlockRel != 0) return false;
-            if (vol < goodsDetail.minVol) return false;
-
-            return true;
-          },
-          onVolChange: (vol) => widget.onVolChange(goodsDetail, vol)
-        )
-      );
-    }
-
-    return SizedBox(
-      width: 140,
-      child: VolField(
+      return VolField(
         enabled: enabled,
         minValue: 0,
         vol: orderLineEx?.line.vol,
-        addStep: orderLineEx?.line.vol == null ? goodsDetail.minVol : 1,
-        subStep: orderLineEx?.line.vol == goodsDetail.minVol ? goodsDetail.minVol : 1,
+        addStep: orderLineEx?.line.vol == null ? goodsDetail.minVol : goods.categoryBoxRel,
+        subStep: orderLineEx?.line.vol == goodsDetail.minVol ? goodsDetail.minVol : goods.categoryBoxRel,
         style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
         validateVol: (vol) {
           if (vol == null || vol == 0) return true;
 
+          if (vol % goods.categoryBoxRel != 0) return false;
           if (vol < goodsDetail.minVol) return false;
 
           return true;
         },
         onVolChange: (vol) => widget.onVolChange(goodsDetail, vol)
-      )
+      );
+    }
+
+    if (goods.categoryBlockRel != 0 && goodsDetail.minVol % goods.categoryBlockRel == 0) {
+      return VolField(
+        enabled: enabled,
+        minValue: 0,
+        vol: orderLineEx?.line.vol,
+        addStep: orderLineEx?.line.vol == null ? goodsDetail.minVol : goods.categoryBlockRel,
+        subStep: orderLineEx?.line.vol == goodsDetail.minVol ? goodsDetail.minVol : goods.categoryBlockRel,
+        style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
+        validateVol: (vol) {
+          if (vol == null || vol == 0) return true;
+
+          if (vol % goods.categoryBlockRel != 0) return false;
+          if (vol < goodsDetail.minVol) return false;
+
+          return true;
+        },
+        onVolChange: (vol) => widget.onVolChange(goodsDetail, vol)
+      );
+    }
+
+    return VolField(
+      enabled: enabled,
+      minValue: 0,
+      vol: orderLineEx?.line.vol,
+      addStep: orderLineEx?.line.vol == null ? goodsDetail.minVol : 1,
+      subStep: orderLineEx?.line.vol == goodsDetail.minVol ? goodsDetail.minVol : 1,
+      style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
+      validateVol: (vol) {
+        if (vol == null || vol == 0) return true;
+
+        if (vol < goodsDetail.minVol) return false;
+
+        return true;
+      },
+      onVolChange: (vol) => widget.onVolChange(goodsDetail, vol)
     );
   }
 }

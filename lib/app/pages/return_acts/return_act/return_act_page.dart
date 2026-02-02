@@ -158,7 +158,7 @@ class _ReturnActViewState extends State<_ReturnActView> {
           Text(vm.state.returnActEx.returnActTypeName, style: Styles.formStyle) :
           DropdownButtonFormField(
             isExpanded: true,
-            value: returnAct.returnActTypeId,
+            initialValue: returnAct.returnActTypeId,
             style: Theme.of(context).textTheme.titleMedium!.merge(Styles.formStyle),
             alignment: AlignmentDirectional.center,
             items: vm.state.returnActTypes.map((ReturnActType v) {
@@ -178,7 +178,7 @@ class _ReturnActViewState extends State<_ReturnActView> {
           Text(vm.state.returnActEx.returnAct.receptName ?? '', style: Styles.formStyle) :
           DropdownButtonFormField(
             isExpanded: true,
-            value: returnAct.receptId,
+            initialValue: returnAct.receptId,
             style: Theme.of(context).textTheme.titleMedium!.merge(Styles.formStyle),
             alignment: AlignmentDirectional.center,
             items: vm.state.receptExList.map((ReceptExResult v) {
