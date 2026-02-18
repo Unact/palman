@@ -8,7 +8,8 @@ enum GoodsStateStatus {
   scanOpened,
   scanClosed,
   scanSuccess,
-  scanFailure
+  scanFailure,
+  goodsNameCopied
 }
 
 class GoodsState {

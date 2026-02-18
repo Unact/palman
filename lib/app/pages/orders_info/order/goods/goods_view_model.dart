@@ -267,4 +267,10 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       package: goodsDetail.package
     );
   }
+
+  Future<void> copyGoodsName(GoodsDetail goodsDetail) async {
+    await Clipboard.setData(ClipboardData(text: goodsDetail.goods.name));
+
+    emit(state.copyWith(status: GoodsStateStatus.goodsNameCopied, message: 'Название товара скопировано'));
+  }
 }
