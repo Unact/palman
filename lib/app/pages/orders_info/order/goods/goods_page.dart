@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:collection/collection.dart';
 import 'package:expandable_sliver_list/expandable_sliver_list.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:quiver/core.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
@@ -190,6 +191,7 @@ class _GoodsViewState extends State<_GoodsView> {
           case GoodsStateStatus.scanSuccess:
             Navigator.of(context).pop();
             break;
+          case GoodsStateStatus.goodsNameCopied:
           case GoodsStateStatus.scanFailure:
           case GoodsStateStatus.showScanFailure:
             Misc.showMessage(context, state.message);
@@ -752,6 +754,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
   }
 
   Widget buildGoodsTileTitle(BuildContext context, GoodsDetail goodsDetail) {
+    final vm = context.read<GoodsViewModel>();
     final goodsEx = goodsDetail.goodsEx;
     final tags = goodsDetail.bonusPrograms;
     final daysDiff = goodsDetail.hadShipment ? DateTime.now().difference(goodsEx.lastShipmentDate!) : null;
@@ -760,6 +763,21 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
       TextSpan(
         style: Styles.tileTitleText,
         children: <InlineSpan>[
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            child: Padding(
+              padding: const EdgeInsets.all(1),
+              child: ActionChip(
+                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                labelPadding: EdgeInsets.zero,
+                visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+                label: Icon(Icons.copy),
+                backgroundColor: Colors.transparent,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
+                onPressed: () => vm.copyGoodsName(goodsDetail)
+              )
+            )
+          ),
           TextSpan(
             text: goodsEx.goods.name,
             style: Styles.tileTitleText.copyWith(
