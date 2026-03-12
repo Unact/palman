@@ -565,6 +565,7 @@ class Paybacks extends Table {
   DateTimeColumn get dateFrom => dateTime()();
   DateTimeColumn get dateTo => dateTime()();
 }
+
 class GoodsPaybacks extends Table {
   IntColumn get paybackId => integer()();
   IntColumn get goodsId => integer()();
