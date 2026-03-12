@@ -22192,6 +22192,495 @@ class VisitPurposesCompanion extends UpdateCompanion<VisitPurpose> {
   }
 }
 
+class $PaybacksTable extends Paybacks with TableInfo<$PaybacksTable, Payback> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PaybacksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _partnerIdMeta =
+      const VerificationMeta('partnerId');
+  @override
+  late final GeneratedColumn<int> partnerId = GeneratedColumn<int>(
+      'partner_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _percentMeta =
+      const VerificationMeta('percent');
+  @override
+  late final GeneratedColumn<double> percent = GeneratedColumn<double>(
+      'percent', aliasedName, false,
+      type: DriftSqlType.double, requiredDuringInsert: true);
+  static const VerificationMeta _dateFromMeta =
+      const VerificationMeta('dateFrom');
+  @override
+  late final GeneratedColumn<DateTime> dateFrom = GeneratedColumn<DateTime>(
+      'date_from', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _dateToMeta = const VerificationMeta('dateTo');
+  @override
+  late final GeneratedColumn<DateTime> dateTo = GeneratedColumn<DateTime>(
+      'date_to', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, partnerId, percent, dateFrom, dateTo];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'paybacks';
+  @override
+  VerificationContext validateIntegrity(Insertable<Payback> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('partner_id')) {
+      context.handle(_partnerIdMeta,
+          partnerId.isAcceptableOrUnknown(data['partner_id']!, _partnerIdMeta));
+    } else if (isInserting) {
+      context.missing(_partnerIdMeta);
+    }
+    if (data.containsKey('percent')) {
+      context.handle(_percentMeta,
+          percent.isAcceptableOrUnknown(data['percent']!, _percentMeta));
+    } else if (isInserting) {
+      context.missing(_percentMeta);
+    }
+    if (data.containsKey('date_from')) {
+      context.handle(_dateFromMeta,
+          dateFrom.isAcceptableOrUnknown(data['date_from']!, _dateFromMeta));
+    } else if (isInserting) {
+      context.missing(_dateFromMeta);
+    }
+    if (data.containsKey('date_to')) {
+      context.handle(_dateToMeta,
+          dateTo.isAcceptableOrUnknown(data['date_to']!, _dateToMeta));
+    } else if (isInserting) {
+      context.missing(_dateToMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Payback map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Payback(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      partnerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}partner_id'])!,
+      percent: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}percent'])!,
+      dateFrom: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date_from'])!,
+      dateTo: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}date_to'])!,
+    );
+  }
+
+  @override
+  $PaybacksTable createAlias(String alias) {
+    return $PaybacksTable(attachedDatabase, alias);
+  }
+}
+
+class Payback extends DataClass implements Insertable<Payback> {
+  final int id;
+  final int partnerId;
+  final double percent;
+  final DateTime dateFrom;
+  final DateTime dateTo;
+  const Payback(
+      {required this.id,
+      required this.partnerId,
+      required this.percent,
+      required this.dateFrom,
+      required this.dateTo});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['partner_id'] = Variable<int>(partnerId);
+    map['percent'] = Variable<double>(percent);
+    map['date_from'] = Variable<DateTime>(dateFrom);
+    map['date_to'] = Variable<DateTime>(dateTo);
+    return map;
+  }
+
+  PaybacksCompanion toCompanion(bool nullToAbsent) {
+    return PaybacksCompanion(
+      id: Value(id),
+      partnerId: Value(partnerId),
+      percent: Value(percent),
+      dateFrom: Value(dateFrom),
+      dateTo: Value(dateTo),
+    );
+  }
+
+  factory Payback.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Payback(
+      id: serializer.fromJson<int>(json['id']),
+      partnerId: serializer.fromJson<int>(json['partnerId']),
+      percent: serializer.fromJson<double>(json['percent']),
+      dateFrom: serializer.fromJson<DateTime>(json['dateFrom']),
+      dateTo: serializer.fromJson<DateTime>(json['dateTo']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'partnerId': serializer.toJson<int>(partnerId),
+      'percent': serializer.toJson<double>(percent),
+      'dateFrom': serializer.toJson<DateTime>(dateFrom),
+      'dateTo': serializer.toJson<DateTime>(dateTo),
+    };
+  }
+
+  Payback copyWith(
+          {int? id,
+          int? partnerId,
+          double? percent,
+          DateTime? dateFrom,
+          DateTime? dateTo}) =>
+      Payback(
+        id: id ?? this.id,
+        partnerId: partnerId ?? this.partnerId,
+        percent: percent ?? this.percent,
+        dateFrom: dateFrom ?? this.dateFrom,
+        dateTo: dateTo ?? this.dateTo,
+      );
+  Payback copyWithCompanion(PaybacksCompanion data) {
+    return Payback(
+      id: data.id.present ? data.id.value : this.id,
+      partnerId: data.partnerId.present ? data.partnerId.value : this.partnerId,
+      percent: data.percent.present ? data.percent.value : this.percent,
+      dateFrom: data.dateFrom.present ? data.dateFrom.value : this.dateFrom,
+      dateTo: data.dateTo.present ? data.dateTo.value : this.dateTo,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Payback(')
+          ..write('id: $id, ')
+          ..write('partnerId: $partnerId, ')
+          ..write('percent: $percent, ')
+          ..write('dateFrom: $dateFrom, ')
+          ..write('dateTo: $dateTo')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, partnerId, percent, dateFrom, dateTo);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Payback &&
+          other.id == this.id &&
+          other.partnerId == this.partnerId &&
+          other.percent == this.percent &&
+          other.dateFrom == this.dateFrom &&
+          other.dateTo == this.dateTo);
+}
+
+class PaybacksCompanion extends UpdateCompanion<Payback> {
+  final Value<int> id;
+  final Value<int> partnerId;
+  final Value<double> percent;
+  final Value<DateTime> dateFrom;
+  final Value<DateTime> dateTo;
+  const PaybacksCompanion({
+    this.id = const Value.absent(),
+    this.partnerId = const Value.absent(),
+    this.percent = const Value.absent(),
+    this.dateFrom = const Value.absent(),
+    this.dateTo = const Value.absent(),
+  });
+  PaybacksCompanion.insert({
+    this.id = const Value.absent(),
+    required int partnerId,
+    required double percent,
+    required DateTime dateFrom,
+    required DateTime dateTo,
+  })  : partnerId = Value(partnerId),
+        percent = Value(percent),
+        dateFrom = Value(dateFrom),
+        dateTo = Value(dateTo);
+  static Insertable<Payback> custom({
+    Expression<int>? id,
+    Expression<int>? partnerId,
+    Expression<double>? percent,
+    Expression<DateTime>? dateFrom,
+    Expression<DateTime>? dateTo,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (partnerId != null) 'partner_id': partnerId,
+      if (percent != null) 'percent': percent,
+      if (dateFrom != null) 'date_from': dateFrom,
+      if (dateTo != null) 'date_to': dateTo,
+    });
+  }
+
+  PaybacksCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? partnerId,
+      Value<double>? percent,
+      Value<DateTime>? dateFrom,
+      Value<DateTime>? dateTo}) {
+    return PaybacksCompanion(
+      id: id ?? this.id,
+      partnerId: partnerId ?? this.partnerId,
+      percent: percent ?? this.percent,
+      dateFrom: dateFrom ?? this.dateFrom,
+      dateTo: dateTo ?? this.dateTo,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (partnerId.present) {
+      map['partner_id'] = Variable<int>(partnerId.value);
+    }
+    if (percent.present) {
+      map['percent'] = Variable<double>(percent.value);
+    }
+    if (dateFrom.present) {
+      map['date_from'] = Variable<DateTime>(dateFrom.value);
+    }
+    if (dateTo.present) {
+      map['date_to'] = Variable<DateTime>(dateTo.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PaybacksCompanion(')
+          ..write('id: $id, ')
+          ..write('partnerId: $partnerId, ')
+          ..write('percent: $percent, ')
+          ..write('dateFrom: $dateFrom, ')
+          ..write('dateTo: $dateTo')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $GoodsPaybacksTable extends GoodsPaybacks
+    with TableInfo<$GoodsPaybacksTable, GoodsPayback> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GoodsPaybacksTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _paybackIdMeta =
+      const VerificationMeta('paybackId');
+  @override
+  late final GeneratedColumn<int> paybackId = GeneratedColumn<int>(
+      'payback_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _goodsIdMeta =
+      const VerificationMeta('goodsId');
+  @override
+  late final GeneratedColumn<int> goodsId = GeneratedColumn<int>(
+      'goods_id', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [paybackId, goodsId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'goods_paybacks';
+  @override
+  VerificationContext validateIntegrity(Insertable<GoodsPayback> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('payback_id')) {
+      context.handle(_paybackIdMeta,
+          paybackId.isAcceptableOrUnknown(data['payback_id']!, _paybackIdMeta));
+    } else if (isInserting) {
+      context.missing(_paybackIdMeta);
+    }
+    if (data.containsKey('goods_id')) {
+      context.handle(_goodsIdMeta,
+          goodsId.isAcceptableOrUnknown(data['goods_id']!, _goodsIdMeta));
+    } else if (isInserting) {
+      context.missing(_goodsIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {paybackId, goodsId};
+  @override
+  GoodsPayback map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GoodsPayback(
+      paybackId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}payback_id'])!,
+      goodsId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}goods_id'])!,
+    );
+  }
+
+  @override
+  $GoodsPaybacksTable createAlias(String alias) {
+    return $GoodsPaybacksTable(attachedDatabase, alias);
+  }
+}
+
+class GoodsPayback extends DataClass implements Insertable<GoodsPayback> {
+  final int paybackId;
+  final int goodsId;
+  const GoodsPayback({required this.paybackId, required this.goodsId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['payback_id'] = Variable<int>(paybackId);
+    map['goods_id'] = Variable<int>(goodsId);
+    return map;
+  }
+
+  GoodsPaybacksCompanion toCompanion(bool nullToAbsent) {
+    return GoodsPaybacksCompanion(
+      paybackId: Value(paybackId),
+      goodsId: Value(goodsId),
+    );
+  }
+
+  factory GoodsPayback.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GoodsPayback(
+      paybackId: serializer.fromJson<int>(json['paybackId']),
+      goodsId: serializer.fromJson<int>(json['goodsId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'paybackId': serializer.toJson<int>(paybackId),
+      'goodsId': serializer.toJson<int>(goodsId),
+    };
+  }
+
+  GoodsPayback copyWith({int? paybackId, int? goodsId}) => GoodsPayback(
+        paybackId: paybackId ?? this.paybackId,
+        goodsId: goodsId ?? this.goodsId,
+      );
+  GoodsPayback copyWithCompanion(GoodsPaybacksCompanion data) {
+    return GoodsPayback(
+      paybackId: data.paybackId.present ? data.paybackId.value : this.paybackId,
+      goodsId: data.goodsId.present ? data.goodsId.value : this.goodsId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoodsPayback(')
+          ..write('paybackId: $paybackId, ')
+          ..write('goodsId: $goodsId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(paybackId, goodsId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GoodsPayback &&
+          other.paybackId == this.paybackId &&
+          other.goodsId == this.goodsId);
+}
+
+class GoodsPaybacksCompanion extends UpdateCompanion<GoodsPayback> {
+  final Value<int> paybackId;
+  final Value<int> goodsId;
+  final Value<int> rowid;
+  const GoodsPaybacksCompanion({
+    this.paybackId = const Value.absent(),
+    this.goodsId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GoodsPaybacksCompanion.insert({
+    required int paybackId,
+    required int goodsId,
+    this.rowid = const Value.absent(),
+  })  : paybackId = Value(paybackId),
+        goodsId = Value(goodsId);
+  static Insertable<GoodsPayback> custom({
+    Expression<int>? paybackId,
+    Expression<int>? goodsId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (paybackId != null) 'payback_id': paybackId,
+      if (goodsId != null) 'goods_id': goodsId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GoodsPaybacksCompanion copyWith(
+      {Value<int>? paybackId, Value<int>? goodsId, Value<int>? rowid}) {
+    return GoodsPaybacksCompanion(
+      paybackId: paybackId ?? this.paybackId,
+      goodsId: goodsId ?? this.goodsId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (paybackId.present) {
+      map['payback_id'] = Variable<int>(paybackId.value);
+    }
+    if (goodsId.present) {
+      map['goods_id'] = Variable<int>(goodsId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GoodsPaybacksCompanion(')
+          ..write('paybackId: $paybackId, ')
+          ..write('goodsId: $goodsId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDataStore extends GeneratedDatabase {
   _$AppDataStore(QueryExecutor e) : super(e);
   $AppDataStoreManager get managers => $AppDataStoreManager(this);
@@ -22268,11 +22757,14 @@ abstract class _$AppDataStore extends GeneratedDatabase {
   late final $AllVisitGoodsListGoodsTable allVisitGoodsListGoods =
       $AllVisitGoodsListGoodsTable(this);
   late final $VisitPurposesTable visitPurposes = $VisitPurposesTable(this);
+  late final $PaybacksTable paybacks = $PaybacksTable(this);
+  late final $GoodsPaybacksTable goodsPaybacks = $GoodsPaybacksTable(this);
   late final BonusProgramsDao bonusProgramsDao =
       BonusProgramsDao(this as AppDataStore);
   late final DebtsDao debtsDao = DebtsDao(this as AppDataStore);
   late final OrdersDao ordersDao = OrdersDao(this as AppDataStore);
   late final PartnersDao partnersDao = PartnersDao(this as AppDataStore);
+  late final PaybacksDao paybacksDao = PaybacksDao(this as AppDataStore);
   late final PointsDao pointsDao = PointsDao(this as AppDataStore);
   late final PricesDao pricesDao = PricesDao(this as AppDataStore);
   late final ShipmentsDao shipmentsDao = ShipmentsDao(this as AppDataStore);
@@ -22381,7 +22873,9 @@ abstract class _$AppDataStore extends GeneratedDatabase {
         visitSoftwares,
         visitGoodsLists,
         allVisitGoodsListGoods,
-        visitPurposes
+        visitPurposes,
+        paybacks,
+        goodsPaybacks
       ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules(
@@ -35371,6 +35865,293 @@ typedef $$VisitPurposesTableProcessedTableManager = ProcessedTableManager<
     (VisitPurpose, $$VisitPurposesTableReferences),
     VisitPurpose,
     PrefetchHooks Function({bool visitGuid})>;
+typedef $$PaybacksTableCreateCompanionBuilder = PaybacksCompanion Function({
+  Value<int> id,
+  required int partnerId,
+  required double percent,
+  required DateTime dateFrom,
+  required DateTime dateTo,
+});
+typedef $$PaybacksTableUpdateCompanionBuilder = PaybacksCompanion Function({
+  Value<int> id,
+  Value<int> partnerId,
+  Value<double> percent,
+  Value<DateTime> dateFrom,
+  Value<DateTime> dateTo,
+});
+
+class $$PaybacksTableFilterComposer
+    extends Composer<_$AppDataStore, $PaybacksTable> {
+  $$PaybacksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get partnerId => $composableBuilder(
+      column: $table.partnerId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get percent => $composableBuilder(
+      column: $table.percent, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get dateFrom => $composableBuilder(
+      column: $table.dateFrom, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get dateTo => $composableBuilder(
+      column: $table.dateTo, builder: (column) => ColumnFilters(column));
+}
+
+class $$PaybacksTableOrderingComposer
+    extends Composer<_$AppDataStore, $PaybacksTable> {
+  $$PaybacksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get partnerId => $composableBuilder(
+      column: $table.partnerId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get percent => $composableBuilder(
+      column: $table.percent, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get dateFrom => $composableBuilder(
+      column: $table.dateFrom, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get dateTo => $composableBuilder(
+      column: $table.dateTo, builder: (column) => ColumnOrderings(column));
+}
+
+class $$PaybacksTableAnnotationComposer
+    extends Composer<_$AppDataStore, $PaybacksTable> {
+  $$PaybacksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get partnerId =>
+      $composableBuilder(column: $table.partnerId, builder: (column) => column);
+
+  GeneratedColumn<double> get percent =>
+      $composableBuilder(column: $table.percent, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get dateFrom =>
+      $composableBuilder(column: $table.dateFrom, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get dateTo =>
+      $composableBuilder(column: $table.dateTo, builder: (column) => column);
+}
+
+class $$PaybacksTableTableManager extends RootTableManager<
+    _$AppDataStore,
+    $PaybacksTable,
+    Payback,
+    $$PaybacksTableFilterComposer,
+    $$PaybacksTableOrderingComposer,
+    $$PaybacksTableAnnotationComposer,
+    $$PaybacksTableCreateCompanionBuilder,
+    $$PaybacksTableUpdateCompanionBuilder,
+    (Payback, BaseReferences<_$AppDataStore, $PaybacksTable, Payback>),
+    Payback,
+    PrefetchHooks Function()> {
+  $$PaybacksTableTableManager(_$AppDataStore db, $PaybacksTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PaybacksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PaybacksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PaybacksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> partnerId = const Value.absent(),
+            Value<double> percent = const Value.absent(),
+            Value<DateTime> dateFrom = const Value.absent(),
+            Value<DateTime> dateTo = const Value.absent(),
+          }) =>
+              PaybacksCompanion(
+            id: id,
+            partnerId: partnerId,
+            percent: percent,
+            dateFrom: dateFrom,
+            dateTo: dateTo,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int partnerId,
+            required double percent,
+            required DateTime dateFrom,
+            required DateTime dateTo,
+          }) =>
+              PaybacksCompanion.insert(
+            id: id,
+            partnerId: partnerId,
+            percent: percent,
+            dateFrom: dateFrom,
+            dateTo: dateTo,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$PaybacksTableProcessedTableManager = ProcessedTableManager<
+    _$AppDataStore,
+    $PaybacksTable,
+    Payback,
+    $$PaybacksTableFilterComposer,
+    $$PaybacksTableOrderingComposer,
+    $$PaybacksTableAnnotationComposer,
+    $$PaybacksTableCreateCompanionBuilder,
+    $$PaybacksTableUpdateCompanionBuilder,
+    (Payback, BaseReferences<_$AppDataStore, $PaybacksTable, Payback>),
+    Payback,
+    PrefetchHooks Function()>;
+typedef $$GoodsPaybacksTableCreateCompanionBuilder = GoodsPaybacksCompanion
+    Function({
+  required int paybackId,
+  required int goodsId,
+  Value<int> rowid,
+});
+typedef $$GoodsPaybacksTableUpdateCompanionBuilder = GoodsPaybacksCompanion
+    Function({
+  Value<int> paybackId,
+  Value<int> goodsId,
+  Value<int> rowid,
+});
+
+class $$GoodsPaybacksTableFilterComposer
+    extends Composer<_$AppDataStore, $GoodsPaybacksTable> {
+  $$GoodsPaybacksTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get paybackId => $composableBuilder(
+      column: $table.paybackId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get goodsId => $composableBuilder(
+      column: $table.goodsId, builder: (column) => ColumnFilters(column));
+}
+
+class $$GoodsPaybacksTableOrderingComposer
+    extends Composer<_$AppDataStore, $GoodsPaybacksTable> {
+  $$GoodsPaybacksTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get paybackId => $composableBuilder(
+      column: $table.paybackId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get goodsId => $composableBuilder(
+      column: $table.goodsId, builder: (column) => ColumnOrderings(column));
+}
+
+class $$GoodsPaybacksTableAnnotationComposer
+    extends Composer<_$AppDataStore, $GoodsPaybacksTable> {
+  $$GoodsPaybacksTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get paybackId =>
+      $composableBuilder(column: $table.paybackId, builder: (column) => column);
+
+  GeneratedColumn<int> get goodsId =>
+      $composableBuilder(column: $table.goodsId, builder: (column) => column);
+}
+
+class $$GoodsPaybacksTableTableManager extends RootTableManager<
+    _$AppDataStore,
+    $GoodsPaybacksTable,
+    GoodsPayback,
+    $$GoodsPaybacksTableFilterComposer,
+    $$GoodsPaybacksTableOrderingComposer,
+    $$GoodsPaybacksTableAnnotationComposer,
+    $$GoodsPaybacksTableCreateCompanionBuilder,
+    $$GoodsPaybacksTableUpdateCompanionBuilder,
+    (
+      GoodsPayback,
+      BaseReferences<_$AppDataStore, $GoodsPaybacksTable, GoodsPayback>
+    ),
+    GoodsPayback,
+    PrefetchHooks Function()> {
+  $$GoodsPaybacksTableTableManager(_$AppDataStore db, $GoodsPaybacksTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GoodsPaybacksTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GoodsPaybacksTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GoodsPaybacksTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> paybackId = const Value.absent(),
+            Value<int> goodsId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              GoodsPaybacksCompanion(
+            paybackId: paybackId,
+            goodsId: goodsId,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required int paybackId,
+            required int goodsId,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              GoodsPaybacksCompanion.insert(
+            paybackId: paybackId,
+            goodsId: goodsId,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$GoodsPaybacksTableProcessedTableManager = ProcessedTableManager<
+    _$AppDataStore,
+    $GoodsPaybacksTable,
+    GoodsPayback,
+    $$GoodsPaybacksTableFilterComposer,
+    $$GoodsPaybacksTableOrderingComposer,
+    $$GoodsPaybacksTableAnnotationComposer,
+    $$GoodsPaybacksTableCreateCompanionBuilder,
+    $$GoodsPaybacksTableUpdateCompanionBuilder,
+    (
+      GoodsPayback,
+      BaseReferences<_$AppDataStore, $GoodsPaybacksTable, GoodsPayback>
+    ),
+    GoodsPayback,
+    PrefetchHooks Function()>;
 
 class $AppDataStoreManager {
   final _$AppDataStore _db;
@@ -35493,6 +36274,10 @@ class $AppDataStoreManager {
           _db, _db.allVisitGoodsListGoods);
   $$VisitPurposesTableTableManager get visitPurposes =>
       $$VisitPurposesTableTableManager(_db, _db.visitPurposes);
+  $$PaybacksTableTableManager get paybacks =>
+      $$PaybacksTableTableManager(_db, _db.paybacks);
+  $$GoodsPaybacksTableTableManager get goodsPaybacks =>
+      $$GoodsPaybacksTableTableManager(_db, _db.goodsPaybacks);
 }
 
 class AppInfoResult {
@@ -35851,6 +36636,42 @@ mixin _$PartnersDaoMixin on DatabaseAccessor<AppDataStore> {
   $PartnersTable get partners => attachedDatabase.partners;
   $SitesTable get sites => attachedDatabase.sites;
 }
+mixin _$PaybacksDaoMixin on DatabaseAccessor<AppDataStore> {
+  $BuyersTable get buyers => attachedDatabase.buyers;
+  $PaybacksTable get paybacks => attachedDatabase.paybacks;
+  $GoodsPaybacksTable get goodsPaybacks => attachedDatabase.goodsPaybacks;
+  Selectable<FilteredGoodsPaybacksResult> filteredGoodsPaybacks(
+      List<int> goodsIds, int buyerId, DateTime date) {
+    var $arrayStartIndex = 3;
+    final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
+    $arrayStartIndex += goodsIds.length;
+    return customSelect(
+        'SELECT paybacks.percent, goods_paybacks.goods_id FROM paybacks JOIN buyers ON buyers.partner_id = paybacks.partner_id JOIN goods_paybacks ON goods_paybacks.payback_id = paybacks.id WHERE goods_paybacks.goods_id IN ($expandedgoodsIds) AND buyers.id = ?1 AND ?2 BETWEEN paybacks.date_from AND paybacks.date_to',
+        variables: [
+          Variable<int>(buyerId),
+          Variable<DateTime>(date),
+          for (var $ in goodsIds) Variable<int>($)
+        ],
+        readsFrom: {
+          paybacks,
+          goodsPaybacks,
+          buyers,
+        }).map((QueryRow row) => FilteredGoodsPaybacksResult(
+          percent: row.read<double>('percent'),
+          goodsId: row.read<int>('goods_id'),
+        ));
+  }
+}
+
+class FilteredGoodsPaybacksResult {
+  final double percent;
+  final int goodsId;
+  FilteredGoodsPaybacksResult({
+    required this.percent,
+    required this.goodsId,
+  });
+}
+
 mixin _$PointsDaoMixin on DatabaseAccessor<AppDataStore> {
   $BuyersTable get buyers => attachedDatabase.buyers;
   $PointsTable get points => attachedDatabase.points;

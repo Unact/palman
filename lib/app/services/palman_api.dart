@@ -17,6 +17,10 @@ extension PalmanApi on RenewApi {
     return ApiBonusProgramsData.fromJson(await get('v1/palman/bonus_programs'));
   }
 
+  Future<ApiPaybacksData> getPaybacks() async {
+    return ApiPaybacksData.fromJson(await get('v1/palman/paybacks'));
+  }
+
   Future<ApiRemainsData> getRemains() async {
     return ApiRemainsData.fromJson(await get('v1/palman/remains'));
   }

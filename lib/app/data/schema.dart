@@ -557,3 +557,18 @@ class AllVisitGoodsListGoods extends Table with Syncable {
   TextColumn get visitGoodsListGuid => text()
     .references(VisitGoodsLists, #guid, onUpdate: KeyAction.cascade, onDelete: KeyAction.cascade)();
 }
+
+class Paybacks extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get partnerId => integer()();
+  RealColumn get percent => real()();
+  DateTimeColumn get dateFrom => dateTime()();
+  DateTimeColumn get dateTo => dateTime()();
+}
+class GoodsPaybacks extends Table {
+  IntColumn get paybackId => integer()();
+  IntColumn get goodsId => integer()();
+
+  @override
+  Set<Column> get primaryKey => {paybackId, goodsId};
+}

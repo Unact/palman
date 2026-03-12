@@ -30,6 +30,25 @@ class OrdersRepository extends BaseRepository {
 
   OrdersRepository(super.dataStore, super.api);
 
+  Future<void> loadPaybacks() async {
+    try {
+      final data = await api.getPaybacks();
+
+      await dataStore.transaction(() async {
+        final paybacks = data.paybacks.map((e) => e.toDatabaseEnt()).toList();
+        final goodsPaybacks = data.goodsPaybacks.map((e) => e.toDatabaseEnt()).toList();
+
+        await dataStore.paybacksDao.loadPaybacks(paybacks);
+        await dataStore.paybacksDao.loadGoodsPaybacks(goodsPaybacks);
+      });
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
   Future<void> loadBonusPrograms() async {
     try {
       final data = await api.getBonusPrograms();
