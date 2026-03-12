@@ -289,16 +289,20 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
   }) async {
     final goodsPrices = await db.pricesDao.goodsPrices(buyerId, goodsIds, date).get();
     final bonusPrograms = await db.bonusProgramsDao.filteredGoodsBonusPrograms(goodsIds, buyerId, date).get();
+    final paybacks = await db.paybacksDao.filteredGoodsPaybacks(goodsIds, buyerId, date).get();
     final goodsExList = await goodsEx(buyerId, goodsIds).get();
     final groupedGoodsPrices = goodsPrices
       .groupFoldBy<int, List<GoodsPricesResult>>((e) => e.goodsId, (acc, e) => (acc ?? [])..add(e));
     final groupedBonusPrograms = bonusPrograms
       .groupFoldBy<int, List<FilteredGoodsBonusProgramsResult>>((e) => e.goodsId, (acc, e) => (acc ?? [])..add(e));
+    final groupedPaybacks = paybacks
+      .groupFoldBy<int, List<FilteredGoodsPaybacksResult>>((e) => e.goodsId, (acc, e) => (acc ?? [])..add(e));
 
     return goodsExList.map((e) => GoodsDetail(
       e,
       groupedGoodsPrices[e.goods.id] ?? [],
-      groupedBonusPrograms[e.goods.id] ?? []
+      groupedBonusPrograms[e.goods.id] ?? [],
+      groupedPaybacks[e.goods.id] ?? []
     )).toList();
   }
 
@@ -309,26 +313,32 @@ class OrdersDao extends DatabaseAccessor<AppDataStore> with _$OrdersDaoMixin {
   }) {
     final goodsPricesStream = db.pricesDao.goodsPrices(buyerId, goodsIds, date).watch();
     final bonusProgramsStream = db.bonusProgramsDao.filteredGoodsBonusPrograms(goodsIds, buyerId, date).watch();
+    final paybacksStream = db.paybacksDao.filteredGoodsPaybacks(goodsIds, buyerId, date).watch();
     final goodsExListStream = goodsEx(buyerId, goodsIds).watch();
 
-    return Rx.combineLatest3(
+    return Rx.combineLatest4(
       goodsPricesStream,
       bonusProgramsStream,
+      paybacksStream,
       goodsExListStream,
       (
         List<GoodsPricesResult> goodsPrices,
         List<FilteredGoodsBonusProgramsResult> bonusPrograms,
+        List<FilteredGoodsPaybacksResult> paybacks,
         List<GoodsExResult> goodsExList
       ) {
         final groupedGoodsPrices = goodsPrices
           .groupFoldBy<int, List<GoodsPricesResult>>((e) => e.goodsId, (acc, e) => (acc ?? [])..add(e));
         final groupedBonusPrograms = bonusPrograms
           .groupFoldBy<int, List<FilteredGoodsBonusProgramsResult>>((e) => e.goodsId, (acc, e) => (acc ?? [])..add(e));
+        final groupedPaybacks = paybacks
+          .groupFoldBy<int, List<FilteredGoodsPaybacksResult>>((e) => e.goodsId, (acc, e) => (acc ?? [])..add(e));
 
         return goodsExList.map((e) => GoodsDetail(
           e,
           groupedGoodsPrices[e.goods.id] ?? [],
-          groupedBonusPrograms[e.goods.id] ?? []
+          groupedBonusPrograms[e.goods.id] ?? [],
+          groupedPaybacks[e.goods.id] ?? []
         )).toList();
       }
     );
@@ -363,8 +373,9 @@ class GoodsDetail {
   final GoodsExResult goodsEx;
   final List<GoodsPricesResult> prices;
   final List<FilteredGoodsBonusProgramsResult> bonusPrograms;
+  final List<FilteredGoodsPaybacksResult> paybacks;
 
-  GoodsDetail(this.goodsEx, this.prices, this.bonusPrograms);
+  GoodsDetail(this.goodsEx, this.prices, this.bonusPrograms, this.paybacks);
 
   bool get hadShipment => goodsEx.lastShipmentDate != null;
   Goods get goods => goodsEx.goods;
@@ -376,22 +387,21 @@ class GoodsDetail {
   int get package => goods.orderPackage;
   double get pricelistPrice => (prices.firstWhereOrNull((e) => e.goodsId == goods.id)?.price ?? 0).roundDigits(2);
   double get price {
-    final goodsBonusPrograms = bonusPrograms.where((e) => e.goodsId == goods.id).toList();
-
     if (pricelistPrice == 0) return 0;
 
-    double? totalDiscount = goodsBonusPrograms.isNotEmpty ?
-      goodsBonusPrograms.fold<double>(0, (acc, e) => (e.discount ?? 0) + acc) :
+    double? totalDiscount = bonusPrograms.isNotEmpty ?
+      bonusPrograms.fold<double>(0, (acc, e) => (e.discount ?? 0) + acc) :
       null;
-    double? minCoef = goodsBonusPrograms.map((e) => e.coef ?? 0).minOrNull;
+    double? minCoef = bonusPrograms.map((e) => e.coef ?? 0).minOrNull;
     double bonusPrice =
-      goodsBonusPrograms.where((e) => e.goodsPrice != null).map((e) => e.goodsPrice!).maxOrNull ??
+      bonusPrograms.where((e) => e.goodsPrice != null).map((e) => e.goodsPrice!).maxOrNull ??
       [
         (totalDiscount != null ? (1 - totalDiscount / 100) * pricelistPrice : null),
         (minCoef != null ? minCoef * goods.cost : null)
       ].nonNulls.maxOrNull ??
       pricelistPrice;
+    double paybackPercent = paybacks.map((e) => e.percent).maxOrNull ?? 0;
 
-    return bonusPrice.roundDigits(2);
+    return (bonusPrice * (1 + paybackPercent/100)).roundDigits(2);
   }
 }

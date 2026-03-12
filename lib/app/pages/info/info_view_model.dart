@@ -146,6 +146,7 @@ class InfoViewModel extends PageViewModel<InfoState, InfoStateStatus> {
       pointsRepository.loadPoints,
       debtsRepository.loadDebts,
       ordersRepository.loadBonusPrograms,
+      ordersRepository.loadPaybacks,
       ordersRepository.loadRemains,
       ordersRepository.loadOrders,
       pricesRepository.loadPrices,

@@ -23,6 +23,7 @@ part 'debts_dao.dart';
 part 'locations_dao.dart';
 part 'orders_dao.dart';
 part 'partners_dao.dart';
+part 'paybacks_dao.dart';
 part 'points_dao.dart';
 part 'prices_dao.dart';
 part 'shipments_dao.dart';
@@ -87,13 +88,16 @@ part 'visits_dao.dart';
     VisitSoftwares,
     VisitGoodsLists,
     AllVisitGoodsListGoods,
-    VisitPurposes
+    VisitPurposes,
+    Paybacks,
+    GoodsPaybacks
   ],
   daos: [
     BonusProgramsDao,
     DebtsDao,
     OrdersDao,
     PartnersDao,
+    PaybacksDao,
     PointsDao,
     PricesDao,
     ShipmentsDao,
@@ -245,7 +249,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 40;
+  int get schemaVersion => 41;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -322,7 +326,8 @@ class AppDataStore extends _$AppDataStore {
       (visitSoftwares, ['visit_guid']),
       (visitGoodsLists, ['visit_guid']),
       (allVisitGoodsListGoods, ['visit_goods_list_guid']),
-      (allVisitGoodsListGoods, ['goods_id', 'visit_goods_list_guid'])
+      (allVisitGoodsListGoods, ['goods_id', 'visit_goods_list_guid']),
+      (goodsPaybacks, ['goods_id', 'payback_id']),
     ];
 
     for (final index in indices) {
