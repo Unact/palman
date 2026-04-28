@@ -92,6 +92,7 @@ class PointsRepository extends BaseRepository {
       PointsCompanion.insert(
         guid: guid,
         name: Strings.newPointName,
+        buyerId: '',
         buyerName: Strings.newPointName,
         reason: Strings.pointReasonArchive
       )

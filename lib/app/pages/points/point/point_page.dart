@@ -157,6 +157,10 @@ class _PointViewState extends State<_PointView> {
 
     return [
       InfoRow.page(
+        title: const Text('Юр. лица. ID', style: Styles.formStyle),
+        trailing: ExpandingText(point.buyerId, style: Styles.formStyle)
+      ),
+      InfoRow.page(
         title: const Text('Юр. лица', style: Styles.formStyle),
         trailing: ExpandingText(point.buyerName, style: Styles.formStyle)
       ),

@@ -118,6 +118,7 @@ class Points extends Table with Syncable {
   IntColumn get id => integer().nullable()();
   TextColumn get name => text()();
   TextColumn get address => text().nullable()();
+  TextColumn get buyerId => text()();
   TextColumn get buyerName => text()();
   TextColumn get reason => text()();
   RealColumn get latitude => real().nullable()();
