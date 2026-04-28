@@ -2170,6 +2170,12 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
   late final GeneratedColumn<String> address = GeneratedColumn<String>(
       'address', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _buyerIdMeta =
+      const VerificationMeta('buyerId');
+  @override
+  late final GeneratedColumn<String> buyerId = GeneratedColumn<String>(
+      'buyer_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _buyerNameMeta =
       const VerificationMeta('buyerName');
   @override
@@ -2277,6 +2283,7 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
         id,
         name,
         address,
+        buyerId,
         buyerName,
         reason,
         latitude,
@@ -2351,6 +2358,12 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
     if (data.containsKey('address')) {
       context.handle(_addressMeta,
           address.isAcceptableOrUnknown(data['address']!, _addressMeta));
+    }
+    if (data.containsKey('buyer_id')) {
+      context.handle(_buyerIdMeta,
+          buyerId.isAcceptableOrUnknown(data['buyer_id']!, _buyerIdMeta));
+    } else if (isInserting) {
+      context.missing(_buyerIdMeta);
     }
     if (data.containsKey('buyer_name')) {
       context.handle(_buyerNameMeta,
@@ -2463,6 +2476,8 @@ class $PointsTable extends Points with TableInfo<$PointsTable, Point> {
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
       address: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}address']),
+      buyerId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}buyer_id'])!,
       buyerName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}buyer_name'])!,
       reason: attachedDatabase.typeMapping
@@ -2517,6 +2532,7 @@ class Point extends DataClass implements Insertable<Point> {
   final int? id;
   final String name;
   final String? address;
+  final String buyerId;
   final String buyerName;
   final String reason;
   final double? latitude;
@@ -2545,6 +2561,7 @@ class Point extends DataClass implements Insertable<Point> {
       this.id,
       required this.name,
       this.address,
+      required this.buyerId,
       required this.buyerName,
       required this.reason,
       this.latitude,
@@ -2579,6 +2596,7 @@ class Point extends DataClass implements Insertable<Point> {
     if (!nullToAbsent || address != null) {
       map['address'] = Variable<String>(address);
     }
+    map['buyer_id'] = Variable<String>(buyerId);
     map['buyer_name'] = Variable<String>(buyerName);
     map['reason'] = Variable<String>(reason);
     if (!nullToAbsent || latitude != null) {
@@ -2643,6 +2661,7 @@ class Point extends DataClass implements Insertable<Point> {
       address: address == null && nullToAbsent
           ? const Value.absent()
           : Value(address),
+      buyerId: Value(buyerId),
       buyerName: Value(buyerName),
       reason: Value(reason),
       latitude: latitude == null && nullToAbsent
@@ -2699,6 +2718,7 @@ class Point extends DataClass implements Insertable<Point> {
       id: serializer.fromJson<int?>(json['id']),
       name: serializer.fromJson<String>(json['name']),
       address: serializer.fromJson<String?>(json['address']),
+      buyerId: serializer.fromJson<String>(json['buyerId']),
       buyerName: serializer.fromJson<String>(json['buyerName']),
       reason: serializer.fromJson<String>(json['reason']),
       latitude: serializer.fromJson<double?>(json['latitude']),
@@ -2732,6 +2752,7 @@ class Point extends DataClass implements Insertable<Point> {
       'id': serializer.toJson<int?>(id),
       'name': serializer.toJson<String>(name),
       'address': serializer.toJson<String?>(address),
+      'buyerId': serializer.toJson<String>(buyerId),
       'buyerName': serializer.toJson<String>(buyerName),
       'reason': serializer.toJson<String>(reason),
       'latitude': serializer.toJson<double?>(latitude),
@@ -2763,6 +2784,7 @@ class Point extends DataClass implements Insertable<Point> {
           Value<int?> id = const Value.absent(),
           String? name,
           Value<String?> address = const Value.absent(),
+          String? buyerId,
           String? buyerName,
           String? reason,
           Value<double?> latitude = const Value.absent(),
@@ -2792,6 +2814,7 @@ class Point extends DataClass implements Insertable<Point> {
         id: id.present ? id.value : this.id,
         name: name ?? this.name,
         address: address.present ? address.value : this.address,
+        buyerId: buyerId ?? this.buyerId,
         buyerName: buyerName ?? this.buyerName,
         reason: reason ?? this.reason,
         latitude: latitude.present ? latitude.value : this.latitude,
@@ -2829,6 +2852,7 @@ class Point extends DataClass implements Insertable<Point> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('address: $address, ')
+          ..write('buyerId: $buyerId, ')
           ..write('buyerName: $buyerName, ')
           ..write('reason: $reason, ')
           ..write('latitude: $latitude, ')
@@ -2862,6 +2886,7 @@ class Point extends DataClass implements Insertable<Point> {
         id,
         name,
         address,
+        buyerId,
         buyerName,
         reason,
         latitude,
@@ -2894,6 +2919,7 @@ class Point extends DataClass implements Insertable<Point> {
           other.id == this.id &&
           other.name == this.name &&
           other.address == this.address &&
+          other.buyerId == this.buyerId &&
           other.buyerName == this.buyerName &&
           other.reason == this.reason &&
           other.latitude == this.latitude &&
@@ -2922,6 +2948,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
   final Value<int?> id;
   final Value<String> name;
   final Value<String?> address;
+  final Value<String> buyerId;
   final Value<String> buyerName;
   final Value<String> reason;
   final Value<double?> latitude;
@@ -2949,6 +2976,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
     this.id = const Value.absent(),
     this.name = const Value.absent(),
     this.address = const Value.absent(),
+    this.buyerId = const Value.absent(),
     this.buyerName = const Value.absent(),
     this.reason = const Value.absent(),
     this.latitude = const Value.absent(),
@@ -2977,6 +3005,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
     this.id = const Value.absent(),
     required String name,
     this.address = const Value.absent(),
+    required String buyerId,
     required String buyerName,
     required String reason,
     this.latitude = const Value.absent(),
@@ -2997,6 +3026,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
     this.rowid = const Value.absent(),
   })  : guid = Value(guid),
         name = Value(name),
+        buyerId = Value(buyerId),
         buyerName = Value(buyerName),
         reason = Value(reason);
   static Insertable<Point> custom({
@@ -3008,6 +3038,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
     Expression<int>? id,
     Expression<String>? name,
     Expression<String>? address,
+    Expression<String>? buyerId,
     Expression<String>? buyerName,
     Expression<String>? reason,
     Expression<double>? latitude,
@@ -3036,6 +3067,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
       if (id != null) 'id': id,
       if (name != null) 'name': name,
       if (address != null) 'address': address,
+      if (buyerId != null) 'buyer_id': buyerId,
       if (buyerName != null) 'buyer_name': buyerName,
       if (reason != null) 'reason': reason,
       if (latitude != null) 'latitude': latitude,
@@ -3066,6 +3098,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
       Value<int?>? id,
       Value<String>? name,
       Value<String?>? address,
+      Value<String>? buyerId,
       Value<String>? buyerName,
       Value<String>? reason,
       Value<double?>? latitude,
@@ -3093,6 +3126,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
       id: id ?? this.id,
       name: name ?? this.name,
       address: address ?? this.address,
+      buyerId: buyerId ?? this.buyerId,
       buyerName: buyerName ?? this.buyerName,
       reason: reason ?? this.reason,
       latitude: latitude ?? this.latitude,
@@ -3140,6 +3174,9 @@ class PointsCompanion extends UpdateCompanion<Point> {
     }
     if (address.present) {
       map['address'] = Variable<String>(address.value);
+    }
+    if (buyerId.present) {
+      map['buyer_id'] = Variable<String>(buyerId.value);
     }
     if (buyerName.present) {
       map['buyer_name'] = Variable<String>(buyerName.value);
@@ -3209,6 +3246,7 @@ class PointsCompanion extends UpdateCompanion<Point> {
           ..write('id: $id, ')
           ..write('name: $name, ')
           ..write('address: $address, ')
+          ..write('buyerId: $buyerId, ')
           ..write('buyerName: $buyerName, ')
           ..write('reason: $reason, ')
           ..write('latitude: $latitude, ')
@@ -24085,6 +24123,7 @@ typedef $$PointsTableCreateCompanionBuilder = PointsCompanion Function({
   Value<int?> id,
   required String name,
   Value<String?> address,
+  required String buyerId,
   required String buyerName,
   required String reason,
   Value<double?> latitude,
@@ -24113,6 +24152,7 @@ typedef $$PointsTableUpdateCompanionBuilder = PointsCompanion Function({
   Value<int?> id,
   Value<String> name,
   Value<String?> address,
+  Value<String> buyerId,
   Value<String> buyerName,
   Value<String> reason,
   Value<double?> latitude,
@@ -24193,6 +24233,9 @@ class $$PointsTableFilterComposer
 
   ColumnFilters<String> get address => $composableBuilder(
       column: $table.address, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get buyerId => $composableBuilder(
+      column: $table.buyerId, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get buyerName => $composableBuilder(
       column: $table.buyerName, builder: (column) => ColumnFilters(column));
@@ -24311,6 +24354,9 @@ class $$PointsTableOrderingComposer
   ColumnOrderings<String> get address => $composableBuilder(
       column: $table.address, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get buyerId => $composableBuilder(
+      column: $table.buyerId, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get buyerName => $composableBuilder(
       column: $table.buyerName, builder: (column) => ColumnOrderings(column));
 
@@ -24405,6 +24451,9 @@ class $$PointsTableAnnotationComposer
 
   GeneratedColumn<String> get address =>
       $composableBuilder(column: $table.address, builder: (column) => column);
+
+  GeneratedColumn<String> get buyerId =>
+      $composableBuilder(column: $table.buyerId, builder: (column) => column);
 
   GeneratedColumn<String> get buyerName =>
       $composableBuilder(column: $table.buyerName, builder: (column) => column);
@@ -24510,6 +24559,7 @@ class $$PointsTableTableManager extends RootTableManager<
             Value<int?> id = const Value.absent(),
             Value<String> name = const Value.absent(),
             Value<String?> address = const Value.absent(),
+            Value<String> buyerId = const Value.absent(),
             Value<String> buyerName = const Value.absent(),
             Value<String> reason = const Value.absent(),
             Value<double?> latitude = const Value.absent(),
@@ -24538,6 +24588,7 @@ class $$PointsTableTableManager extends RootTableManager<
             id: id,
             name: name,
             address: address,
+            buyerId: buyerId,
             buyerName: buyerName,
             reason: reason,
             latitude: latitude,
@@ -24566,6 +24617,7 @@ class $$PointsTableTableManager extends RootTableManager<
             Value<int?> id = const Value.absent(),
             required String name,
             Value<String?> address = const Value.absent(),
+            required String buyerId,
             required String buyerName,
             required String reason,
             Value<double?> latitude = const Value.absent(),
@@ -24594,6 +24646,7 @@ class $$PointsTableTableManager extends RootTableManager<
             id: id,
             name: name,
             address: address,
+            buyerId: buyerId,
             buyerName: buyerName,
             reason: reason,
             latitude: latitude,

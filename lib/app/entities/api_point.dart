@@ -6,6 +6,7 @@ class ApiPoint extends Equatable {
   final String name;
   final String address;
   final String buyerName;
+  final String buyerId;
   final String reason;
   final double latitude;
   final double longitude;
@@ -30,6 +31,7 @@ class ApiPoint extends Equatable {
     required this.guid,
     required this.name,
     required this.address,
+    required this.buyerId,
     required this.buyerName,
     required this.reason,
     required this.latitude,
@@ -57,6 +59,7 @@ class ApiPoint extends Equatable {
       guid: json['guid'],
       name: json['name'],
       address: json['address'],
+      buyerId: json['buyerId'],
       buyerName: json['buyerName'],
       reason: json['reason'],
       latitude: Parsing.parseDouble(json['latitude'])!,
@@ -84,6 +87,7 @@ class ApiPoint extends Equatable {
       id: id,
       name: name,
       address: address,
+      buyerId: buyerId,
       buyerName: buyerName,
       reason: reason,
       latitude: latitude,
@@ -118,6 +122,7 @@ class ApiPoint extends Equatable {
     guid,
     name,
     address,
+    buyerId,
     buyerName,
     reason,
     latitude,
