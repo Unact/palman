@@ -34,9 +34,9 @@ class ApiReturnActLine extends Equatable {
       price: Parsing.parseDouble(json['price'])!,
       productionDate: Parsing.parseDate(json['productionDate']),
       isBad: json['isBad'],
-      code: json['code'],
       guid: json['guid'],
       timestamp: Parsing.parseDate(json['timestamp'])!,
+      code: json['code'],
     );
   }
 
@@ -50,11 +50,11 @@ class ApiReturnActLine extends Equatable {
       price: price,
       productionDate: productionDate,
       isBad: isBad,
-      code: code,
       guid: guid,
       isNew: false,
       isDeleted: false,
       timestamp: timestamp,
+      code: code,
       currentTimestamp: timestamp,
       lastSyncTime: timestamp,
       needSync: false
@@ -70,8 +70,8 @@ class ApiReturnActLine extends Equatable {
     price,
     productionDate,
     isBad,
-    code,
     guid,
     timestamp,
+    code,
   ];
 }
