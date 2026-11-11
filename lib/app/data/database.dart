@@ -249,7 +249,7 @@ class AppDataStore extends _$AppDataStore {
   }
 
   @override
-  int get schemaVersion => 42;
+  int get schemaVersion => 43;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(

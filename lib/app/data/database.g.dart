@@ -6590,6 +6590,11 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
   late final GeneratedColumn<String> name = GeneratedColumn<String>(
       'name', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _gtinMeta = const VerificationMeta('gtin');
+  @override
+  late final GeneratedColumn<String> gtin = GeneratedColumn<String>(
+      'gtin', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _categoryIdMeta =
       const VerificationMeta('categoryId');
   @override
@@ -6720,6 +6725,7 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
         imageKey,
         id,
         name,
+        gtin,
         categoryId,
         manufacturer,
         isLatest,
@@ -6770,6 +6776,12 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('gtin')) {
+      context.handle(
+          _gtinMeta, gtin.isAcceptableOrUnknown(data['gtin']!, _gtinMeta));
+    } else if (isInserting) {
+      context.missing(_gtinMeta);
     }
     if (data.containsKey('category_id')) {
       context.handle(
@@ -6917,6 +6929,8 @@ class $AllGoodsTable extends AllGoods with TableInfo<$AllGoodsTable, Goods> {
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       name: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      gtin: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}gtin'])!,
       categoryId: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}category_id'])!,
       manufacturer: attachedDatabase.typeMapping
@@ -6973,6 +6987,7 @@ class Goods extends DataClass implements Insertable<Goods> {
   final String imageKey;
   final int id;
   final String name;
+  final String gtin;
   final int categoryId;
   final String? manufacturer;
   final bool isLatest;
@@ -6997,6 +7012,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       required this.imageKey,
       required this.id,
       required this.name,
+      required this.gtin,
       required this.categoryId,
       this.manufacturer,
       required this.isLatest,
@@ -7023,6 +7039,7 @@ class Goods extends DataClass implements Insertable<Goods> {
     map['image_key'] = Variable<String>(imageKey);
     map['id'] = Variable<int>(id);
     map['name'] = Variable<String>(name);
+    map['gtin'] = Variable<String>(gtin);
     map['category_id'] = Variable<int>(categoryId);
     if (!nullToAbsent || manufacturer != null) {
       map['manufacturer'] = Variable<String>(manufacturer);
@@ -7056,6 +7073,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       imageKey: Value(imageKey),
       id: Value(id),
       name: Value(name),
+      gtin: Value(gtin),
       categoryId: Value(categoryId),
       manufacturer: manufacturer == null && nullToAbsent
           ? const Value.absent()
@@ -7088,6 +7106,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       imageKey: serializer.fromJson<String>(json['imageKey']),
       id: serializer.fromJson<int>(json['id']),
       name: serializer.fromJson<String>(json['name']),
+      gtin: serializer.fromJson<String>(json['gtin']),
       categoryId: serializer.fromJson<int>(json['categoryId']),
       manufacturer: serializer.fromJson<String?>(json['manufacturer']),
       isLatest: serializer.fromJson<bool>(json['isLatest']),
@@ -7117,6 +7136,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       'imageKey': serializer.toJson<String>(imageKey),
       'id': serializer.toJson<int>(id),
       'name': serializer.toJson<String>(name),
+      'gtin': serializer.toJson<String>(gtin),
       'categoryId': serializer.toJson<int>(categoryId),
       'manufacturer': serializer.toJson<String?>(manufacturer),
       'isLatest': serializer.toJson<bool>(isLatest),
@@ -7144,6 +7164,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           String? imageKey,
           int? id,
           String? name,
+          String? gtin,
           int? categoryId,
           Value<String?> manufacturer = const Value.absent(),
           bool? isLatest,
@@ -7168,6 +7189,7 @@ class Goods extends DataClass implements Insertable<Goods> {
         imageKey: imageKey ?? this.imageKey,
         id: id ?? this.id,
         name: name ?? this.name,
+        gtin: gtin ?? this.gtin,
         categoryId: categoryId ?? this.categoryId,
         manufacturer:
             manufacturer.present ? manufacturer.value : this.manufacturer,
@@ -7195,6 +7217,7 @@ class Goods extends DataClass implements Insertable<Goods> {
       imageKey: data.imageKey.present ? data.imageKey.value : this.imageKey,
       id: data.id.present ? data.id.value : this.id,
       name: data.name.present ? data.name.value : this.name,
+      gtin: data.gtin.present ? data.gtin.value : this.gtin,
       categoryId:
           data.categoryId.present ? data.categoryId.value : this.categoryId,
       manufacturer: data.manufacturer.present
@@ -7242,6 +7265,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           ..write('imageKey: $imageKey, ')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('gtin: $gtin, ')
           ..write('categoryId: $categoryId, ')
           ..write('manufacturer: $manufacturer, ')
           ..write('isLatest: $isLatest, ')
@@ -7271,6 +7295,7 @@ class Goods extends DataClass implements Insertable<Goods> {
         imageKey,
         id,
         name,
+        gtin,
         categoryId,
         manufacturer,
         isLatest,
@@ -7299,6 +7324,7 @@ class Goods extends DataClass implements Insertable<Goods> {
           other.imageKey == this.imageKey &&
           other.id == this.id &&
           other.name == this.name &&
+          other.gtin == this.gtin &&
           other.categoryId == this.categoryId &&
           other.manufacturer == this.manufacturer &&
           other.isLatest == this.isLatest &&
@@ -7325,6 +7351,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   final Value<String> imageKey;
   final Value<int> id;
   final Value<String> name;
+  final Value<String> gtin;
   final Value<int> categoryId;
   final Value<String?> manufacturer;
   final Value<bool> isLatest;
@@ -7349,6 +7376,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     this.imageKey = const Value.absent(),
     this.id = const Value.absent(),
     this.name = const Value.absent(),
+    this.gtin = const Value.absent(),
     this.categoryId = const Value.absent(),
     this.manufacturer = const Value.absent(),
     this.isLatest = const Value.absent(),
@@ -7374,6 +7402,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     required String imageKey,
     this.id = const Value.absent(),
     required String name,
+    required String gtin,
     required int categoryId,
     this.manufacturer = const Value.absent(),
     required bool isLatest,
@@ -7396,6 +7425,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
   })  : imageUrl = Value(imageUrl),
         imageKey = Value(imageKey),
         name = Value(name),
+        gtin = Value(gtin),
         categoryId = Value(categoryId),
         isLatest = Value(isLatest),
         isOrderable = Value(isOrderable),
@@ -7419,6 +7449,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     Expression<String>? imageKey,
     Expression<int>? id,
     Expression<String>? name,
+    Expression<String>? gtin,
     Expression<int>? categoryId,
     Expression<String>? manufacturer,
     Expression<bool>? isLatest,
@@ -7444,6 +7475,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       if (imageKey != null) 'image_key': imageKey,
       if (id != null) 'id': id,
       if (name != null) 'name': name,
+      if (gtin != null) 'gtin': gtin,
       if (categoryId != null) 'category_id': categoryId,
       if (manufacturer != null) 'manufacturer': manufacturer,
       if (isLatest != null) 'is_latest': isLatest,
@@ -7471,6 +7503,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       Value<String>? imageKey,
       Value<int>? id,
       Value<String>? name,
+      Value<String>? gtin,
       Value<int>? categoryId,
       Value<String?>? manufacturer,
       Value<bool>? isLatest,
@@ -7495,6 +7528,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
       imageKey: imageKey ?? this.imageKey,
       id: id ?? this.id,
       name: name ?? this.name,
+      gtin: gtin ?? this.gtin,
       categoryId: categoryId ?? this.categoryId,
       manufacturer: manufacturer ?? this.manufacturer,
       isLatest: isLatest ?? this.isLatest,
@@ -7531,6 +7565,9 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (gtin.present) {
+      map['gtin'] = Variable<String>(gtin.value);
     }
     if (categoryId.present) {
       map['category_id'] = Variable<int>(categoryId.value);
@@ -7600,6 +7637,7 @@ class AllGoodsCompanion extends UpdateCompanion<Goods> {
           ..write('imageKey: $imageKey, ')
           ..write('id: $id, ')
           ..write('name: $name, ')
+          ..write('gtin: $gtin, ')
           ..write('categoryId: $categoryId, ')
           ..write('manufacturer: $manufacturer, ')
           ..write('isLatest: $isLatest, ')
@@ -15243,6 +15281,15 @@ class $GoodsReturnStocksTable extends GoodsReturnStocks
   late final GeneratedColumn<String> receptNdoc = GeneratedColumn<String>(
       'recept_ndoc', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _needMarkingMeta =
+      const VerificationMeta('needMarking');
+  @override
+  late final GeneratedColumn<bool> needMarking = GeneratedColumn<bool>(
+      'need_marking', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: true,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("need_marking" IN (0, 1))'));
   @override
   List<GeneratedColumn> get $columns => [
         goodsId,
@@ -15252,7 +15299,8 @@ class $GoodsReturnStocksTable extends GoodsReturnStocks
         receptId,
         receptSubid,
         receptDate,
-        receptNdoc
+        receptNdoc,
+        needMarking
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -15320,6 +15368,14 @@ class $GoodsReturnStocksTable extends GoodsReturnStocks
     } else if (isInserting) {
       context.missing(_receptNdocMeta);
     }
+    if (data.containsKey('need_marking')) {
+      context.handle(
+          _needMarkingMeta,
+          needMarking.isAcceptableOrUnknown(
+              data['need_marking']!, _needMarkingMeta));
+    } else if (isInserting) {
+      context.missing(_needMarkingMeta);
+    }
     return context;
   }
 
@@ -15346,6 +15402,8 @@ class $GoodsReturnStocksTable extends GoodsReturnStocks
           .read(DriftSqlType.dateTime, data['${effectivePrefix}recept_date'])!,
       receptNdoc: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}recept_ndoc'])!,
+      needMarking: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}need_marking'])!,
     );
   }
 
@@ -15365,6 +15423,7 @@ class GoodsReturnStock extends DataClass
   final int receptSubid;
   final DateTime receptDate;
   final String receptNdoc;
+  final bool needMarking;
   const GoodsReturnStock(
       {required this.goodsId,
       required this.returnActTypeId,
@@ -15373,7 +15432,8 @@ class GoodsReturnStock extends DataClass
       required this.receptId,
       required this.receptSubid,
       required this.receptDate,
-      required this.receptNdoc});
+      required this.receptNdoc,
+      required this.needMarking});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -15385,6 +15445,7 @@ class GoodsReturnStock extends DataClass
     map['recept_subid'] = Variable<int>(receptSubid);
     map['recept_date'] = Variable<DateTime>(receptDate);
     map['recept_ndoc'] = Variable<String>(receptNdoc);
+    map['need_marking'] = Variable<bool>(needMarking);
     return map;
   }
 
@@ -15398,6 +15459,7 @@ class GoodsReturnStock extends DataClass
       receptSubid: Value(receptSubid),
       receptDate: Value(receptDate),
       receptNdoc: Value(receptNdoc),
+      needMarking: Value(needMarking),
     );
   }
 
@@ -15413,6 +15475,7 @@ class GoodsReturnStock extends DataClass
       receptSubid: serializer.fromJson<int>(json['receptSubid']),
       receptDate: serializer.fromJson<DateTime>(json['receptDate']),
       receptNdoc: serializer.fromJson<String>(json['receptNdoc']),
+      needMarking: serializer.fromJson<bool>(json['needMarking']),
     );
   }
   @override
@@ -15427,6 +15490,7 @@ class GoodsReturnStock extends DataClass
       'receptSubid': serializer.toJson<int>(receptSubid),
       'receptDate': serializer.toJson<DateTime>(receptDate),
       'receptNdoc': serializer.toJson<String>(receptNdoc),
+      'needMarking': serializer.toJson<bool>(needMarking),
     };
   }
 
@@ -15438,7 +15502,8 @@ class GoodsReturnStock extends DataClass
           int? receptId,
           int? receptSubid,
           DateTime? receptDate,
-          String? receptNdoc}) =>
+          String? receptNdoc,
+          bool? needMarking}) =>
       GoodsReturnStock(
         goodsId: goodsId ?? this.goodsId,
         returnActTypeId: returnActTypeId ?? this.returnActTypeId,
@@ -15448,6 +15513,7 @@ class GoodsReturnStock extends DataClass
         receptSubid: receptSubid ?? this.receptSubid,
         receptDate: receptDate ?? this.receptDate,
         receptNdoc: receptNdoc ?? this.receptNdoc,
+        needMarking: needMarking ?? this.needMarking,
       );
   GoodsReturnStock copyWithCompanion(GoodsReturnStocksCompanion data) {
     return GoodsReturnStock(
@@ -15464,6 +15530,8 @@ class GoodsReturnStock extends DataClass
           data.receptDate.present ? data.receptDate.value : this.receptDate,
       receptNdoc:
           data.receptNdoc.present ? data.receptNdoc.value : this.receptNdoc,
+      needMarking:
+          data.needMarking.present ? data.needMarking.value : this.needMarking,
     );
   }
 
@@ -15477,14 +15545,15 @@ class GoodsReturnStock extends DataClass
           ..write('receptId: $receptId, ')
           ..write('receptSubid: $receptSubid, ')
           ..write('receptDate: $receptDate, ')
-          ..write('receptNdoc: $receptNdoc')
+          ..write('receptNdoc: $receptNdoc, ')
+          ..write('needMarking: $needMarking')
           ..write(')'))
         .toString();
   }
 
   @override
   int get hashCode => Object.hash(goodsId, returnActTypeId, buyerId, vol,
-      receptId, receptSubid, receptDate, receptNdoc);
+      receptId, receptSubid, receptDate, receptNdoc, needMarking);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -15496,7 +15565,8 @@ class GoodsReturnStock extends DataClass
           other.receptId == this.receptId &&
           other.receptSubid == this.receptSubid &&
           other.receptDate == this.receptDate &&
-          other.receptNdoc == this.receptNdoc);
+          other.receptNdoc == this.receptNdoc &&
+          other.needMarking == this.needMarking);
 }
 
 class GoodsReturnStocksCompanion extends UpdateCompanion<GoodsReturnStock> {
@@ -15508,6 +15578,7 @@ class GoodsReturnStocksCompanion extends UpdateCompanion<GoodsReturnStock> {
   final Value<int> receptSubid;
   final Value<DateTime> receptDate;
   final Value<String> receptNdoc;
+  final Value<bool> needMarking;
   final Value<int> rowid;
   const GoodsReturnStocksCompanion({
     this.goodsId = const Value.absent(),
@@ -15518,6 +15589,7 @@ class GoodsReturnStocksCompanion extends UpdateCompanion<GoodsReturnStock> {
     this.receptSubid = const Value.absent(),
     this.receptDate = const Value.absent(),
     this.receptNdoc = const Value.absent(),
+    this.needMarking = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   GoodsReturnStocksCompanion.insert({
@@ -15529,6 +15601,7 @@ class GoodsReturnStocksCompanion extends UpdateCompanion<GoodsReturnStock> {
     required int receptSubid,
     required DateTime receptDate,
     required String receptNdoc,
+    required bool needMarking,
     this.rowid = const Value.absent(),
   })  : goodsId = Value(goodsId),
         returnActTypeId = Value(returnActTypeId),
@@ -15537,7 +15610,8 @@ class GoodsReturnStocksCompanion extends UpdateCompanion<GoodsReturnStock> {
         receptId = Value(receptId),
         receptSubid = Value(receptSubid),
         receptDate = Value(receptDate),
-        receptNdoc = Value(receptNdoc);
+        receptNdoc = Value(receptNdoc),
+        needMarking = Value(needMarking);
   static Insertable<GoodsReturnStock> custom({
     Expression<int>? goodsId,
     Expression<int>? returnActTypeId,
@@ -15547,6 +15621,7 @@ class GoodsReturnStocksCompanion extends UpdateCompanion<GoodsReturnStock> {
     Expression<int>? receptSubid,
     Expression<DateTime>? receptDate,
     Expression<String>? receptNdoc,
+    Expression<bool>? needMarking,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -15558,6 +15633,7 @@ class GoodsReturnStocksCompanion extends UpdateCompanion<GoodsReturnStock> {
       if (receptSubid != null) 'recept_subid': receptSubid,
       if (receptDate != null) 'recept_date': receptDate,
       if (receptNdoc != null) 'recept_ndoc': receptNdoc,
+      if (needMarking != null) 'need_marking': needMarking,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -15571,6 +15647,7 @@ class GoodsReturnStocksCompanion extends UpdateCompanion<GoodsReturnStock> {
       Value<int>? receptSubid,
       Value<DateTime>? receptDate,
       Value<String>? receptNdoc,
+      Value<bool>? needMarking,
       Value<int>? rowid}) {
     return GoodsReturnStocksCompanion(
       goodsId: goodsId ?? this.goodsId,
@@ -15581,6 +15658,7 @@ class GoodsReturnStocksCompanion extends UpdateCompanion<GoodsReturnStock> {
       receptSubid: receptSubid ?? this.receptSubid,
       receptDate: receptDate ?? this.receptDate,
       receptNdoc: receptNdoc ?? this.receptNdoc,
+      needMarking: needMarking ?? this.needMarking,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -15612,6 +15690,9 @@ class GoodsReturnStocksCompanion extends UpdateCompanion<GoodsReturnStock> {
     if (receptNdoc.present) {
       map['recept_ndoc'] = Variable<String>(receptNdoc.value);
     }
+    if (needMarking.present) {
+      map['need_marking'] = Variable<bool>(needMarking.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -15629,6 +15710,7 @@ class GoodsReturnStocksCompanion extends UpdateCompanion<GoodsReturnStock> {
           ..write('receptSubid: $receptSubid, ')
           ..write('receptDate: $receptDate, ')
           ..write('receptNdoc: $receptNdoc, ')
+          ..write('needMarking: $needMarking, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -16474,6 +16556,11 @@ class $ReturnActLinesTable extends ReturnActLines
   late final GeneratedColumn<int> rel = GeneratedColumn<int>(
       'rel', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _codeMeta = const VerificationMeta('code');
+  @override
+  late final GeneratedColumn<String> code = GeneratedColumn<String>(
+      'code', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
   @override
   List<GeneratedColumn> get $columns => [
         guid,
@@ -16490,7 +16577,8 @@ class $ReturnActLinesTable extends ReturnActLines
         price,
         productionDate,
         isBad,
-        rel
+        rel,
+        code
       ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -16581,6 +16669,10 @@ class $ReturnActLinesTable extends ReturnActLines
     } else if (isInserting) {
       context.missing(_relMeta);
     }
+    if (data.containsKey('code')) {
+      context.handle(
+          _codeMeta, code.isAcceptableOrUnknown(data['code']!, _codeMeta));
+    }
     return context;
   }
 
@@ -16588,7 +16680,7 @@ class $ReturnActLinesTable extends ReturnActLines
   Set<GeneratedColumn> get $primaryKey => {guid};
   @override
   List<Set<GeneratedColumn>> get uniqueKeys => [
-        {returnActGuid, goodsId},
+        {returnActGuid, goodsId, code},
       ];
   @override
   ReturnActLine map(Map<String, dynamic> data, {String? tablePrefix}) {
@@ -16624,6 +16716,8 @@ class $ReturnActLinesTable extends ReturnActLines
           .read(DriftSqlType.bool, data['${effectivePrefix}is_bad']),
       rel: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}rel'])!,
+      code: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}code']),
     );
   }
 
@@ -16649,6 +16743,7 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
   final DateTime? productionDate;
   final bool? isBad;
   final int rel;
+  final String? code;
   const ReturnActLine(
       {required this.guid,
       required this.isDeleted,
@@ -16664,7 +16759,8 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
       required this.price,
       this.productionDate,
       this.isBad,
-      required this.rel});
+      required this.rel,
+      this.code});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
@@ -16689,6 +16785,9 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
       map['is_bad'] = Variable<bool>(isBad);
     }
     map['rel'] = Variable<int>(rel);
+    if (!nullToAbsent || code != null) {
+      map['code'] = Variable<String>(code);
+    }
     return map;
   }
 
@@ -16712,6 +16811,7 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
       isBad:
           isBad == null && nullToAbsent ? const Value.absent() : Value(isBad),
       rel: Value(rel),
+      code: code == null && nullToAbsent ? const Value.absent() : Value(code),
     );
   }
 
@@ -16734,6 +16834,7 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
       productionDate: serializer.fromJson<DateTime?>(json['productionDate']),
       isBad: serializer.fromJson<bool?>(json['isBad']),
       rel: serializer.fromJson<int>(json['rel']),
+      code: serializer.fromJson<String?>(json['code']),
     );
   }
   @override
@@ -16755,6 +16856,7 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
       'productionDate': serializer.toJson<DateTime?>(productionDate),
       'isBad': serializer.toJson<bool?>(isBad),
       'rel': serializer.toJson<int>(rel),
+      'code': serializer.toJson<String?>(code),
     };
   }
 
@@ -16773,7 +16875,8 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
           double? price,
           Value<DateTime?> productionDate = const Value.absent(),
           Value<bool?> isBad = const Value.absent(),
-          int? rel}) =>
+          int? rel,
+          Value<String?> code = const Value.absent()}) =>
       ReturnActLine(
         guid: guid ?? this.guid,
         isDeleted: isDeleted ?? this.isDeleted,
@@ -16792,6 +16895,7 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
             productionDate.present ? productionDate.value : this.productionDate,
         isBad: isBad.present ? isBad.value : this.isBad,
         rel: rel ?? this.rel,
+        code: code.present ? code.value : this.code,
       );
   @override
   String toString() {
@@ -16810,7 +16914,8 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
           ..write('price: $price, ')
           ..write('productionDate: $productionDate, ')
           ..write('isBad: $isBad, ')
-          ..write('rel: $rel')
+          ..write('rel: $rel, ')
+          ..write('code: $code')
           ..write(')'))
         .toString();
   }
@@ -16831,7 +16936,8 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
       price,
       productionDate,
       isBad,
-      rel);
+      rel,
+      code);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -16850,7 +16956,8 @@ class ReturnActLine extends DataClass implements Insertable<ReturnActLine> {
           other.price == this.price &&
           other.productionDate == this.productionDate &&
           other.isBad == this.isBad &&
-          other.rel == this.rel);
+          other.rel == this.rel &&
+          other.code == this.code);
 }
 
 class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
@@ -16867,6 +16974,7 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
   final Value<DateTime?> productionDate;
   final Value<bool?> isBad;
   final Value<int> rel;
+  final Value<String?> code;
   final Value<int> rowid;
   const ReturnActLinesCompanion({
     this.guid = const Value.absent(),
@@ -16882,6 +16990,7 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
     this.productionDate = const Value.absent(),
     this.isBad = const Value.absent(),
     this.rel = const Value.absent(),
+    this.code = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   ReturnActLinesCompanion.insert({
@@ -16898,6 +17007,7 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
     this.productionDate = const Value.absent(),
     this.isBad = const Value.absent(),
     required int rel,
+    this.code = const Value.absent(),
     this.rowid = const Value.absent(),
   })  : guid = Value(guid),
         returnActGuid = Value(returnActGuid),
@@ -16919,6 +17029,7 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
     Expression<DateTime>? productionDate,
     Expression<bool>? isBad,
     Expression<int>? rel,
+    Expression<String>? code,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -16935,6 +17046,7 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
       if (productionDate != null) 'production_date': productionDate,
       if (isBad != null) 'is_bad': isBad,
       if (rel != null) 'rel': rel,
+      if (code != null) 'code': code,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -16953,6 +17065,7 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
       Value<DateTime?>? productionDate,
       Value<bool?>? isBad,
       Value<int>? rel,
+      Value<String?>? code,
       Value<int>? rowid}) {
     return ReturnActLinesCompanion(
       guid: guid ?? this.guid,
@@ -16968,6 +17081,7 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
       productionDate: productionDate ?? this.productionDate,
       isBad: isBad ?? this.isBad,
       rel: rel ?? this.rel,
+      code: code ?? this.code,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -17014,6 +17128,9 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
     if (rel.present) {
       map['rel'] = Variable<int>(rel.value);
     }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -17036,6 +17153,7 @@ class ReturnActLinesCompanion extends UpdateCompanion<ReturnActLine> {
           ..write('productionDate: $productionDate, ')
           ..write('isBad: $isBad, ')
           ..write('rel: $rel, ')
+          ..write('code: $code, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -26432,6 +26550,7 @@ typedef $$AllGoodsTableCreateCompanionBuilder = AllGoodsCompanion Function({
   required String imageKey,
   Value<int> id,
   required String name,
+  required String gtin,
   required int categoryId,
   Value<String?> manufacturer,
   required bool isLatest,
@@ -26457,6 +26576,7 @@ typedef $$AllGoodsTableUpdateCompanionBuilder = AllGoodsCompanion Function({
   Value<String> imageKey,
   Value<int> id,
   Value<String> name,
+  Value<String> gtin,
   Value<int> categoryId,
   Value<String?> manufacturer,
   Value<bool> isLatest,
@@ -26498,6 +26618,9 @@ class $$AllGoodsTableFilterComposer
 
   ColumnFilters<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get gtin => $composableBuilder(
+      column: $table.gtin, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get categoryId => $composableBuilder(
       column: $table.categoryId, builder: (column) => ColumnFilters(column));
@@ -26583,6 +26706,9 @@ class $$AllGoodsTableOrderingComposer
 
   ColumnOrderings<String> get name => $composableBuilder(
       column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get gtin => $composableBuilder(
+      column: $table.gtin, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<int> get categoryId => $composableBuilder(
       column: $table.categoryId, builder: (column) => ColumnOrderings(column));
@@ -26670,6 +26796,9 @@ class $$AllGoodsTableAnnotationComposer
   GeneratedColumn<String> get name =>
       $composableBuilder(column: $table.name, builder: (column) => column);
 
+  GeneratedColumn<String> get gtin =>
+      $composableBuilder(column: $table.gtin, builder: (column) => column);
+
   GeneratedColumn<int> get categoryId => $composableBuilder(
       column: $table.categoryId, builder: (column) => column);
 
@@ -26755,6 +26884,7 @@ class $$AllGoodsTableTableManager extends RootTableManager<
             Value<String> imageKey = const Value.absent(),
             Value<int> id = const Value.absent(),
             Value<String> name = const Value.absent(),
+            Value<String> gtin = const Value.absent(),
             Value<int> categoryId = const Value.absent(),
             Value<String?> manufacturer = const Value.absent(),
             Value<bool> isLatest = const Value.absent(),
@@ -26780,6 +26910,7 @@ class $$AllGoodsTableTableManager extends RootTableManager<
             imageKey: imageKey,
             id: id,
             name: name,
+            gtin: gtin,
             categoryId: categoryId,
             manufacturer: manufacturer,
             isLatest: isLatest,
@@ -26805,6 +26936,7 @@ class $$AllGoodsTableTableManager extends RootTableManager<
             required String imageKey,
             Value<int> id = const Value.absent(),
             required String name,
+            required String gtin,
             required int categoryId,
             Value<String?> manufacturer = const Value.absent(),
             required bool isLatest,
@@ -26830,6 +26962,7 @@ class $$AllGoodsTableTableManager extends RootTableManager<
             imageKey: imageKey,
             id: id,
             name: name,
+            gtin: gtin,
             categoryId: categoryId,
             manufacturer: manufacturer,
             isLatest: isLatest,
@@ -31238,6 +31371,7 @@ typedef $$GoodsReturnStocksTableCreateCompanionBuilder
   required int receptSubid,
   required DateTime receptDate,
   required String receptNdoc,
+  required bool needMarking,
   Value<int> rowid,
 });
 typedef $$GoodsReturnStocksTableUpdateCompanionBuilder
@@ -31250,6 +31384,7 @@ typedef $$GoodsReturnStocksTableUpdateCompanionBuilder
   Value<int> receptSubid,
   Value<DateTime> receptDate,
   Value<String> receptNdoc,
+  Value<bool> needMarking,
   Value<int> rowid,
 });
 
@@ -31286,6 +31421,9 @@ class $$GoodsReturnStocksTableFilterComposer
 
   ColumnFilters<String> get receptNdoc => $composableBuilder(
       column: $table.receptNdoc, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get needMarking => $composableBuilder(
+      column: $table.needMarking, builder: (column) => ColumnFilters(column));
 }
 
 class $$GoodsReturnStocksTableOrderingComposer
@@ -31321,6 +31459,9 @@ class $$GoodsReturnStocksTableOrderingComposer
 
   ColumnOrderings<String> get receptNdoc => $composableBuilder(
       column: $table.receptNdoc, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get needMarking => $composableBuilder(
+      column: $table.needMarking, builder: (column) => ColumnOrderings(column));
 }
 
 class $$GoodsReturnStocksTableAnnotationComposer
@@ -31355,6 +31496,9 @@ class $$GoodsReturnStocksTableAnnotationComposer
 
   GeneratedColumn<String> get receptNdoc => $composableBuilder(
       column: $table.receptNdoc, builder: (column) => column);
+
+  GeneratedColumn<bool> get needMarking => $composableBuilder(
+      column: $table.needMarking, builder: (column) => column);
 }
 
 class $$GoodsReturnStocksTableTableManager extends RootTableManager<
@@ -31393,6 +31537,7 @@ class $$GoodsReturnStocksTableTableManager extends RootTableManager<
             Value<int> receptSubid = const Value.absent(),
             Value<DateTime> receptDate = const Value.absent(),
             Value<String> receptNdoc = const Value.absent(),
+            Value<bool> needMarking = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               GoodsReturnStocksCompanion(
@@ -31404,6 +31549,7 @@ class $$GoodsReturnStocksTableTableManager extends RootTableManager<
             receptSubid: receptSubid,
             receptDate: receptDate,
             receptNdoc: receptNdoc,
+            needMarking: needMarking,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -31415,6 +31561,7 @@ class $$GoodsReturnStocksTableTableManager extends RootTableManager<
             required int receptSubid,
             required DateTime receptDate,
             required String receptNdoc,
+            required bool needMarking,
             Value<int> rowid = const Value.absent(),
           }) =>
               GoodsReturnStocksCompanion.insert(
@@ -31426,6 +31573,7 @@ class $$GoodsReturnStocksTableTableManager extends RootTableManager<
             receptSubid: receptSubid,
             receptDate: receptDate,
             receptNdoc: receptNdoc,
+            needMarking: needMarking,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -31878,6 +32026,7 @@ typedef $$ReturnActLinesTableCreateCompanionBuilder = ReturnActLinesCompanion
   Value<DateTime?> productionDate,
   Value<bool?> isBad,
   required int rel,
+  Value<String?> code,
   Value<int> rowid,
 });
 typedef $$ReturnActLinesTableUpdateCompanionBuilder = ReturnActLinesCompanion
@@ -31895,6 +32044,7 @@ typedef $$ReturnActLinesTableUpdateCompanionBuilder = ReturnActLinesCompanion
   Value<DateTime?> productionDate,
   Value<bool?> isBad,
   Value<int> rel,
+  Value<String?> code,
   Value<int> rowid,
 });
 
@@ -31972,6 +32122,9 @@ class $$ReturnActLinesTableFilterComposer
   ColumnFilters<int> get rel => $composableBuilder(
       column: $table.rel, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get code => $composableBuilder(
+      column: $table.code, builder: (column) => ColumnFilters(column));
+
   $$ReturnActsTableFilterComposer get returnActGuid {
     final $$ReturnActsTableFilterComposer composer = $composerBuilder(
         composer: this,
@@ -32047,6 +32200,9 @@ class $$ReturnActLinesTableOrderingComposer
   ColumnOrderings<int> get rel => $composableBuilder(
       column: $table.rel, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get code => $composableBuilder(
+      column: $table.code, builder: (column) => ColumnOrderings(column));
+
   $$ReturnActsTableOrderingComposer get returnActGuid {
     final $$ReturnActsTableOrderingComposer composer = $composerBuilder(
         composer: this,
@@ -32119,6 +32275,9 @@ class $$ReturnActLinesTableAnnotationComposer
   GeneratedColumn<int> get rel =>
       $composableBuilder(column: $table.rel, builder: (column) => column);
 
+  GeneratedColumn<String> get code =>
+      $composableBuilder(column: $table.code, builder: (column) => column);
+
   $$ReturnActsTableAnnotationComposer get returnActGuid {
     final $$ReturnActsTableAnnotationComposer composer = $composerBuilder(
         composer: this,
@@ -32177,6 +32336,7 @@ class $$ReturnActLinesTableTableManager extends RootTableManager<
             Value<DateTime?> productionDate = const Value.absent(),
             Value<bool?> isBad = const Value.absent(),
             Value<int> rel = const Value.absent(),
+            Value<String?> code = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ReturnActLinesCompanion(
@@ -32193,6 +32353,7 @@ class $$ReturnActLinesTableTableManager extends RootTableManager<
             productionDate: productionDate,
             isBad: isBad,
             rel: rel,
+            code: code,
             rowid: rowid,
           ),
           createCompanionCallback: ({
@@ -32209,6 +32370,7 @@ class $$ReturnActLinesTableTableManager extends RootTableManager<
             Value<DateTime?> productionDate = const Value.absent(),
             Value<bool?> isBad = const Value.absent(),
             required int rel,
+            Value<String?> code = const Value.absent(),
             Value<int> rowid = const Value.absent(),
           }) =>
               ReturnActLinesCompanion.insert(
@@ -32225,6 +32387,7 @@ class $$ReturnActLinesTableTableManager extends RootTableManager<
             productionDate: productionDate,
             isBad: isBad,
             rel: rel,
+            code: code,
             rowid: rowid,
           ),
           withReferenceMapper: (p0) => p0
@@ -36573,7 +36736,7 @@ mixin _$OrdersDaoMixin on DatabaseAccessor<AppDataStore> {
     final expandedgoodsIds = $expandVar($arrayStartIndex, goodsIds.length);
     $arrayStartIndex += goodsIds.length;
     return customSelect(
-        'SELECT"goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."is_orderable" AS "nested_0.is_orderable", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."order_rel" AS "nested_0.order_rel", "goods"."order_package" AS "nested_0.order_package", "goods"."category_box_rel" AS "nested_0.category_box_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."volume" AS "nested_0.volume", "goods"."for_physical" AS "nested_0.for_physical", "goods"."only_with_docs" AS "nested_0.only_with_docs", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes","goods_stocks"."goods_id" AS "nested_1.goods_id", "goods_stocks"."site_id" AS "nested_1.site_id", "goods_stocks"."is_vollow" AS "nested_1.is_vollow", "goods_stocks"."vol" AS "nested_1.vol", "goods_stocks"."min_vol" AS "nested_1.min_vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM goods CROSS JOIN buyers LEFT JOIN goods_stocks ON goods_stocks.goods_id = goods.id AND goods_stocks.site_id = buyers.site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
+        'SELECT"goods"."image_url" AS "nested_0.image_url", "goods"."image_key" AS "nested_0.image_key", "goods"."id" AS "nested_0.id", "goods"."name" AS "nested_0.name", "goods"."gtin" AS "nested_0.gtin", "goods"."category_id" AS "nested_0.category_id", "goods"."manufacturer" AS "nested_0.manufacturer", "goods"."is_latest" AS "nested_0.is_latest", "goods"."is_orderable" AS "nested_0.is_orderable", "goods"."pricelist_set_id" AS "nested_0.pricelist_set_id", "goods"."cost" AS "nested_0.cost", "goods"."min_price" AS "nested_0.min_price", "goods"."extra_label" AS "nested_0.extra_label", "goods"."order_rel" AS "nested_0.order_rel", "goods"."order_package" AS "nested_0.order_package", "goods"."category_box_rel" AS "nested_0.category_box_rel", "goods"."category_block_rel" AS "nested_0.category_block_rel", "goods"."weight" AS "nested_0.weight", "goods"."volume" AS "nested_0.volume", "goods"."for_physical" AS "nested_0.for_physical", "goods"."only_with_docs" AS "nested_0.only_with_docs", "goods"."shelf_life" AS "nested_0.shelf_life", "goods"."shelf_life_type_name" AS "nested_0.shelf_life_type_name", "goods"."barcodes" AS "nested_0.barcodes","goods_stocks"."goods_id" AS "nested_1.goods_id", "goods_stocks"."site_id" AS "nested_1.site_id", "goods_stocks"."is_vollow" AS "nested_1.is_vollow", "goods_stocks"."vol" AS "nested_1.vol", "goods_stocks"."min_vol" AS "nested_1.min_vol", EXISTS (SELECT 1 AS _c0 FROM goods_restrictions WHERE goods_restrictions.goods_id = goods.id AND goods_restrictions.buyer_id = buyers.id) AS restricted, (SELECT MAX(shipments.date) FROM shipment_lines JOIN shipments ON shipments.id = shipment_lines.shipment_id WHERE shipment_lines.goods_id = goods.id AND shipments.buyer_id = buyers.id AND shipments.date < STRFTIME(\'%s\', \'now\', \'start of day\')) AS last_shipment_date FROM goods CROSS JOIN buyers LEFT JOIN goods_stocks ON goods_stocks.goods_id = goods.id AND goods_stocks.site_id = buyers.site_id WHERE buyers.id = ?1 AND goods.id IN ($expandedgoodsIds) ORDER BY goods.name',
         variables: [
           Variable<int>(buyerId),
           for (var $ in goodsIds) Variable<int>($)
@@ -36907,7 +37070,7 @@ mixin _$ReturnActsDaoMixin on DatabaseAccessor<AppDataStore> {
 
   Selectable<ReturnActLineExResult> returnActLineEx(String returnActGuid) {
     return customSelect(
-        'SELECT"return_act_lines"."guid" AS "nested_0.guid", "return_act_lines"."is_deleted" AS "nested_0.is_deleted", "return_act_lines"."timestamp" AS "nested_0.timestamp", "return_act_lines"."current_timestamp" AS "nested_0.current_timestamp", "return_act_lines"."last_sync_time" AS "nested_0.last_sync_time", "return_act_lines"."need_sync" AS "nested_0.need_sync", "return_act_lines"."is_new" AS "nested_0.is_new", "return_act_lines"."id" AS "nested_0.id", "return_act_lines"."return_act_guid" AS "nested_0.return_act_guid", "return_act_lines"."goods_id" AS "nested_0.goods_id", "return_act_lines"."vol" AS "nested_0.vol", "return_act_lines"."price" AS "nested_0.price", "return_act_lines"."production_date" AS "nested_0.production_date", "return_act_lines"."is_bad" AS "nested_0.is_bad", "return_act_lines"."rel" AS "nested_0.rel", goods.name AS goods_name FROM return_act_lines JOIN goods ON goods.id = return_act_lines.goods_id WHERE return_act_lines.return_act_guid = ?1 ORDER BY goods.name',
+        'SELECT"return_act_lines"."guid" AS "nested_0.guid", "return_act_lines"."is_deleted" AS "nested_0.is_deleted", "return_act_lines"."timestamp" AS "nested_0.timestamp", "return_act_lines"."current_timestamp" AS "nested_0.current_timestamp", "return_act_lines"."last_sync_time" AS "nested_0.last_sync_time", "return_act_lines"."need_sync" AS "nested_0.need_sync", "return_act_lines"."is_new" AS "nested_0.is_new", "return_act_lines"."id" AS "nested_0.id", "return_act_lines"."return_act_guid" AS "nested_0.return_act_guid", "return_act_lines"."goods_id" AS "nested_0.goods_id", "return_act_lines"."vol" AS "nested_0.vol", "return_act_lines"."price" AS "nested_0.price", "return_act_lines"."production_date" AS "nested_0.production_date", "return_act_lines"."is_bad" AS "nested_0.is_bad", "return_act_lines"."rel" AS "nested_0.rel", "return_act_lines"."code" AS "nested_0.code", goods.name AS goods_name FROM return_act_lines JOIN goods ON goods.id = return_act_lines.goods_id WHERE return_act_lines.return_act_guid = ?1 ORDER BY goods.name',
         variables: [
           Variable<String>(returnActGuid)
         ],

@@ -24,6 +24,7 @@ class ApiGoods extends Equatable {
   final bool isOrderable;
   final bool forPhysical;
   final bool onlyWithDocs;
+  final String gtin;
 
   const ApiGoods({
     required this.id,
@@ -48,7 +49,8 @@ class ApiGoods extends Equatable {
     required this.barcodes,
     required this.isOrderable,
     required this.forPhysical,
-    required this.onlyWithDocs
+    required this.onlyWithDocs,
+    required this.gtin
   });
 
   factory ApiGoods.fromJson(dynamic json) {
@@ -75,7 +77,8 @@ class ApiGoods extends Equatable {
       barcodes: EqualList(json['barcodes'].cast<String>()),
       isOrderable: json['isOrderable'],
       forPhysical: json['forPhysical'],
-      onlyWithDocs: json['onlyWithDocs']
+      onlyWithDocs: json['onlyWithDocs'],
+      gtin: json['gtin']
     );
   }
 
@@ -103,7 +106,8 @@ class ApiGoods extends Equatable {
       barcodes: EqualList(barcodes),
       isOrderable: isOrderable,
       forPhysical: forPhysical,
-      onlyWithDocs: onlyWithDocs
+      onlyWithDocs: onlyWithDocs,
+      gtin: gtin
     );
   }
 
@@ -131,6 +135,7 @@ class ApiGoods extends Equatable {
     barcodes,
     isOrderable,
     forPhysical,
-    onlyWithDocs
+    onlyWithDocs,
+    gtin
   ];
 }

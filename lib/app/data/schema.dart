@@ -208,6 +208,7 @@ class AllGoods extends Table with Imageable {
 
   IntColumn get id => integer().autoIncrement()();
   TextColumn get name => text()();
+  TextColumn get gtin => text()();
   IntColumn get categoryId => integer()();
   TextColumn get manufacturer => text().nullable()();
   BoolColumn get isLatest => boolean()();
@@ -444,6 +445,7 @@ class GoodsReturnStocks extends Table {
   IntColumn get receptSubid => integer()();
   DateTimeColumn get receptDate => dateTime()();
   TextColumn get receptNdoc => text()();
+  BoolColumn get needMarking => boolean()();
 
   @override
   Set<Column> get primaryKey => {goodsId, receptId, receptSubid, returnActTypeId};
@@ -473,9 +475,10 @@ class ReturnActLines extends Table with Syncable {
   DateTimeColumn get productionDate => dateTime().nullable()();
   BoolColumn get isBad => boolean().nullable()();
   IntColumn get rel => integer()();
+  TextColumn get code => text().nullable()();
 
   @override
-  List<Set<Column>> get uniqueKeys => [{returnActGuid, goodsId}];
+  List<Set<Column>> get uniqueKeys => [{returnActGuid, goodsId, code}];
 }
 
 class ReturnActTypes extends Table {

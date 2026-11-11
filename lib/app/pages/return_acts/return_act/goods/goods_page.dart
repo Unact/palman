@@ -5,12 +5,14 @@ import 'package:expandable_sliver_list/expandable_sliver_list.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:gs1_barcode_parser/gs1_barcode_parser.dart';
 import 'package:quiver/core.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 import 'package:u_app_utils/u_app_utils.dart';
 
 import '/app/constants/styles.dart';
 import '/app/data/database.dart';
+import '/app/entities/entities.dart';
 import '/app/pages/shared/page_view_model.dart';
 import '/app/repositories/app_repository.dart';
 import '/app/repositories/orders_repository.dart';
@@ -55,8 +57,8 @@ class _GoodsViewState extends State<_GoodsView> {
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => ScanView(
-        onRead: vm.changeBarcode,
-        child: Text('Отсканируйте штрих-код', style: Styles.formStyle.copyWith(fontSize: 18, color: Colors.white)),
+        onRead: vm.scanCode,
+        child: Text('Отсканируйте код', style: Styles.formStyle.copyWith(fontSize: 18, color: Colors.white)),
       ))
     );
   }
@@ -100,7 +102,7 @@ class _GoodsViewState extends State<_GoodsView> {
             actions: [
               IconButton(
                 icon: const Icon(Icons.camera_alt),
-                tooltip: 'Отсканировать ШК',
+                tooltip: 'Отсканировать код',
                 onPressed: vm.tryShowScan
               ),
               IconButton(
@@ -723,14 +725,15 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
   }
 
   Widget buildGoodsTile(BuildContext context, GoodsReturnDetail goodsReturnDetail) {
-    final returnActLineEx = widget.linesExList.firstWhereOrNull((e) => e.line.goodsId == goodsReturnDetail.goods.id);
+    final returnActLinesEx = widget.linesExList
+      .where((e) => e.line.goodsId == goodsReturnDetail.goods.id && !e.line.isDeleted).toList();
 
     return Column(
       children: [
         ListTile(
           contentPadding: const EdgeInsets.symmetric(horizontal: 8),
           tileColor: Colors.transparent,
-          trailing: buildGoodsTileTrailing(context, goodsReturnDetail, returnActLineEx),
+          trailing: buildGoodsTileTrailing(context, goodsReturnDetail, returnActLinesEx),
           title: buildGoodsTileTitle(context, goodsReturnDetail)
         ),
         Padding(
@@ -739,7 +742,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
         ),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: buildGoodsTileDetails(context, goodsReturnDetail, returnActLineEx)
+          child: buildGoodsTileDetails(context, goodsReturnDetail, returnActLinesEx)
         ),
         buildGoodsImage(context, goodsReturnDetail),
         Divider(height: 4, color: Theme.of(context).textTheme.displaySmall?.color)
@@ -751,7 +754,7 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     return Row(
       children: [
         Text(
-        'Продано: ${goodsReturnDetail.returnStocks.fold(0, (prev, e) => prev + e.vol.toInt())}',
+          'Продано: ${goodsReturnDetail.returnStocks.fold(0, (prev, e) => prev + e.vol.toInt())}'
         )
       ]
     );
@@ -760,13 +763,14 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
   Widget buildGoodsTileDetails(
     BuildContext context,
     GoodsReturnDetail goodsReturnDetail,
-    ReturnActLineExResult? returnActLineEx
+    List<ReturnActLineExResult> returnActLinesEx
   ) {
+    final editable = returnActLinesEx.isNotEmpty;
     final controller = dateControllers.putIfAbsent(
       goodsReturnDetail,
-      () => TextEditingController(text: Format.dateStr(returnActLineEx?.line.productionDate))
+      () => TextEditingController(text: Format.dateStr(returnActLinesEx.firstOrNull?.line.productionDate))
     );
-    final productionDateStr = Format.dateStr(returnActLineEx?.line.productionDate);
+    final productionDateStr = Format.dateStr(returnActLinesEx.firstOrNull?.line.productionDate);
 
     if (controller.text != productionDateStr) controller.text = productionDateStr;
 
@@ -792,8 +796,8 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
                 child: Text(value ? 'Некондиция' : 'Кондиция'),
               );
             }).toList(),
-            initialValue: returnActLineEx?.line.isBad,
-            onChanged: (bool? value) => widget.onIsBadChange(goodsReturnDetail, value!)
+            initialValue: returnActLinesEx.firstOrNull?.line.isBad,
+            onChanged: !editable ? null : (bool? value) => widget.onIsBadChange(goodsReturnDetail, value!)
           )
         ),
         Expanded(
@@ -803,12 +807,16 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
             textAlignVertical: TextAlignVertical.center,
             controller: controller,
             decoration: InputDecoration(
+              enabled: editable,
               labelStyle: Theme.of(context).textTheme.bodyMedium,
               contentPadding: EdgeInsets.zero,
               border: InputBorder.none,
               labelText: 'Дата производства',
               suffixIcon: IconButton(
-                onPressed: () => showDateDialog(goodsReturnDetail, returnActLineEx),
+                onPressed: () => showDateDialog(
+                  goodsReturnDetail,
+                  returnActLinesEx.firstOrNull?.line.productionDate ?? DateTime.now()
+                ),
                 tooltip: 'Указать дату',
                 icon: const Icon(Icons.calendar_month)
               )
@@ -819,12 +827,12 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
     );
   }
 
-  Future<void> showDateDialog(GoodsReturnDetail goodsReturnDetail, ReturnActLineExResult? returnActLineEx) async {
+  Future<void> showDateDialog(GoodsReturnDetail goodsReturnDetail, DateTime initialDate) async {
     DateTime? result = await showDatePicker(
       context: context,
       firstDate: startOfTime,
       lastDate: endOfTime,
-      initialDate: returnActLineEx?.line.productionDate ?? DateTime.now()
+      initialDate: initialDate
     );
 
     widget.onProductionDateChange(goodsReturnDetail, result);
@@ -833,13 +841,22 @@ class _GoodsGroupsViewState extends State<_GoodsGroupsView> {
   Widget buildGoodsTileTrailing(
     BuildContext context,
     GoodsReturnDetail goodsReturnDetail,
-    ReturnActLineExResult? returnActLineEx
+    List<ReturnActLineExResult> returnActLinesEx
   ) {
-    return VolField(
-      minValue: 0,
-      vol: returnActLineEx?.line.vol,
-      style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
-      onVolChange: (vol) => widget.onVolChange(goodsReturnDetail, vol)
-    );
+    final totalVol = returnActLinesEx.isEmpty ? null : returnActLinesEx.fold<double>(0.0, (acc, e) => acc + e.line.vol);
+
+    if (goodsReturnDetail.returnStocks.any((e) => e.needMarking)) {
+      return Text(
+        Format.numberStr(totalVol, format: '#,##0'),
+        style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold)
+      );
+    } else {
+      return VolField(
+        minValue: 0,
+        vol: totalVol,
+        style: Styles.formStyle.copyWith(fontWeight: FontWeight.bold),
+        onVolChange: (vol) => widget.onVolChange(goodsReturnDetail, vol)
+      );
+    }
   }
 }

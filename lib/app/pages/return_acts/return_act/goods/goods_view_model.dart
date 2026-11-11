@@ -4,6 +4,7 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   final AppRepository appRepository;
   final OrdersRepository ordersRepository;
   final ReturnActsRepository returnActsRepository;
+  final GS1BarcodeParser parser = GS1BarcodeParser.defaultParser();
   StreamSubscription<List<GoodsReturnDetail>>? goodsDetailsSubscription;
   StreamSubscription<List<ReturnActExResult>>? returnActExListSubscription;
   StreamSubscription<List<ReturnActLineExResult>>? returnActLineExListSubscription;
@@ -33,7 +34,8 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       categoryId: null,
       goodsIds: null,
       onlyLatest: false,
-      barcode: null
+      barcode: null,
+      gtin: null
     );
     final categories = await ordersRepository.getCategories(buyerId: state.returnActEx.buyer!.id);
 
@@ -155,23 +157,13 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
     if (newShowOnlyReturnAct) await searchGoods();
   }
 
-  Future<void> changeBarcode(String barcode) async {
-    final goods = await returnActsRepository.getBuyerGoods(
-      buyerId: state.returnActEx.returnAct.buyerId!,
-      name: state.goodsNameSearch,
-      extraLabel: null,
-      categoryId: null,
-      goodsIds: null,
-      onlyLatest: false,
-      barcode: barcode
-    );
+  Future<void> scanCode(String code) async {
+    final dataMatrix = _parseDataMatrix(code);
 
-    if (goods.isNotEmpty) {
-      emit(state.copyWith(status: GoodsStateStatus.scanSuccess));
-      emit(state.copyWith(status: GoodsStateStatus.scanClosed));
-      setGoodsNameSearch(goods.first.name);
+    if (dataMatrix != null) {
+      await _scanDataMatrix(code);
     } else {
-      emit(state.copyWith(message: 'Товар не найден', status: GoodsStateStatus.scanFailure));
+      await _scanBarcode(code);
     }
   }
 
@@ -183,7 +175,8 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
       categoryId: state.selectedCategory?.category.id,
       goodsIds: state.showOnlyReturnAct ? state.filteredReturnActLinesExList.map((e) => e.line.goodsId).toList() : null,
       onlyLatest: state.showOnlyLatest,
-      barcode: null
+      barcode: null,
+      gtin: null
     );
     final goodsIds = goods.map((e) => e.id).toSet();
     final visibleGoodsDetails = state.goodsDetails.where((g) => goodsIds.contains(g.goods.id)).toList();
@@ -209,49 +202,116 @@ class GoodsViewModel extends PageViewModel<GoodsState, GoodsStateStatus> {
   Future<void> updateReturnActLine(GoodsReturnDetail goodsReturnDetail, {
     Optional<double>? vol,
     Optional<DateTime?>? productionDate,
-    Optional<bool?>? isBad
+    Optional<bool?>? isBad,
+    String? code
   }) async {
-    final returnActLineEx = (await returnActsRepository.getReturnActLineExList(state.returnActEx.returnAct.guid))
-      .firstWhereOrNull((e) => e.line.goodsId == goodsReturnDetail.goodsEx.goods.id);
+    final returnActLinesEx = (await returnActsRepository.getReturnActLineExList(state.returnActEx.returnAct.guid))
+      .where((e) => e.line.goodsId == goodsReturnDetail.goodsEx.goods.id && (code == null || e.line.code == code));
 
-    if (vol != null && (vol.orNull ?? 0) <= 0 && returnActLineEx != null) {
-      await returnActsRepository.deleteReturnActLine(returnActLineEx.line);
-      await returnActsRepository.updateReturnActLine(
-        returnActLineEx.line,
-        vol: Optional.of(0),
-        productionDate: const Optional.absent(),
-        isBad: const Optional.absent(),
-        restoreDeleted: false
-      );
+    for (var returnActLineEx in returnActLinesEx) {
+      if (vol != null && (vol.orNull ?? 0) <= 0) {
+        await returnActsRepository.deleteReturnActLine(returnActLineEx.line);
+        await returnActsRepository.updateReturnActLine(
+          returnActLineEx.line,
+          vol: Optional.of(0),
+          productionDate: const Optional.absent(),
+          isBad: const Optional.absent(),
+          code: const Optional.absent(),
+          restoreDeleted: false
+        );
 
-      return;
-    }
+        return;
+      }
 
-    if (returnActLineEx != null) {
       await returnActsRepository.updateReturnActLine(
         returnActLineEx.line,
         vol: vol,
         productionDate: productionDate,
         isBad: isBad
       );
-
-      return;
     }
 
-    await returnActsRepository.addReturnActLine(
-      state.returnActEx.returnAct,
-      goodsId: goodsReturnDetail.goods.id,
-      vol: vol?.value ?? 1,
-      rel: 1,
-      price: 0,
-      productionDate: productionDate?.orNull,
-      isBad: isBad?.orNull
-    );
+    if (returnActLinesEx.isEmpty) {
+      await returnActsRepository.addReturnActLine(
+        state.returnActEx.returnAct,
+        goodsId: goodsReturnDetail.goods.id,
+        vol: vol?.value ?? 1,
+        rel: 1,
+        price: 0,
+        productionDate: productionDate?.orNull,
+        isBad: isBad?.orNull,
+        code: code
+      );
+    }
   }
 
   Future<void> copyGoodsName(GoodsReturnDetail goodsReturnDetail) async {
     await Clipboard.setData(ClipboardData(text: goodsReturnDetail.goods.name));
 
     emit(state.copyWith(status: GoodsStateStatus.goodsNameCopied, message: 'Название товара скопировано'));
+  }
+
+  Future<void> _scanDataMatrix(String code) async {
+    try {
+      final info = await returnActsRepository.checkReturnCode(
+        buyerId: state.returnActEx.returnAct.buyerId!,
+        code: code
+      );
+      final goods = await returnActsRepository.getBuyerGoods(
+        buyerId: state.returnActEx.returnAct.buyerId!,
+        name: state.goodsNameSearch,
+        extraLabel: null,
+        categoryId: null,
+        goodsIds: null,
+        onlyLatest: false,
+        barcode: null,
+        gtin: info.gtin
+      );
+      final goodsReturnDetail = state.goodsDetails
+        .firstWhereOrNull((e) => goods.contains(e.goods) && e.returnStocks.any((s) => s.vol >= info.vol));
+
+      if (goodsReturnDetail != null) {
+        emit(state.copyWith(status: GoodsStateStatus.scanSuccess));
+        emit(state.copyWith(status: GoodsStateStatus.scanClosed));
+
+        await updateReturnActLine(goodsReturnDetail, vol: Optional.of(info.vol.toDouble()), code: info.code);
+        await setGoodsNameSearch(goods.first.name);
+      } else {
+        emit(state.copyWith(status: GoodsStateStatus.scanFailure, message: 'Товар не найден'));
+      }
+    } on AppError catch(e) {
+      emit(state.copyWith(status: GoodsStateStatus.scanFailure, message: e.message));
+    }
+  }
+
+  Future<void> _scanBarcode(String code) async {
+    final goods = await returnActsRepository.getBuyerGoods(
+      buyerId: state.returnActEx.returnAct.buyerId!,
+      name: state.goodsNameSearch,
+      extraLabel: null,
+      categoryId: null,
+      goodsIds: null,
+      onlyLatest: false,
+      barcode: code,
+      gtin: null
+    );
+
+    if (goods.isNotEmpty) {
+      emit(state.copyWith(status: GoodsStateStatus.scanSuccess));
+      emit(state.copyWith(status: GoodsStateStatus.scanClosed));
+      await setGoodsNameSearch(goods.first.name);
+    } else {
+      emit(state.copyWith(message: 'Товар не найден', status: GoodsStateStatus.scanFailure));
+    }
+  }
+
+  GS1Barcode? _parseDataMatrix(String code) {
+    try {
+      return parser.parse(code, codeType: CodeType.DATAMATRIX);
+    } on Exception catch(_) {
+      return null;
+    } on ArgumentError catch(_) {
+      return null;
+    }
   }
 }
