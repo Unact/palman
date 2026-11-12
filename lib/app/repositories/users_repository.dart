@@ -63,7 +63,7 @@ class UsersRepository extends BaseRepository {
 
   Future<void> login(String login, String password) async {
     try {
-      await api.login(login: login, password: password);
+      await api.loginWithCredentials(login: login, password: password);
       _loggedInController.add(api.isLoggedIn);
     } on ApiException catch(e) {
       throw AppError(e.errorMsg);

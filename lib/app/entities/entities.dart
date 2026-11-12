@@ -54,6 +54,7 @@ part 'api_return_act_line.dart';
 part 'api_return_act_type.dart';
 part 'api_return_act.dart';
 part 'api_return_acts_data.dart';
+part 'api_return_code_info.dart';
 part 'api_return_remains_data.dart';
 part 'api_route_point.dart';
 part 'api_shipment_line.dart';

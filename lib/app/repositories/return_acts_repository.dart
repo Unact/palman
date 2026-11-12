@@ -32,6 +32,20 @@ class ReturnActsRepository extends BaseRepository {
     }
   }
 
+  Future<ApiReturnCodeInfo> checkReturnCode({
+    required int buyerId,
+    required String code
+  }) async {
+    try {
+      return await api.checkReturnCode(buyerId: buyerId, code: code);
+    } on ApiException catch(e) {
+      throw AppError(e.errorMsg);
+    } catch(e, trace) {
+      Misc.reportError(e, trace);
+      throw AppError(Strings.genericErrorMsg);
+    }
+  }
+
   Future<void> loadReturnRemains({
     required int buyerId,
     required int returnActTypeId
@@ -85,6 +99,7 @@ class ReturnActsRepository extends BaseRepository {
           'vol': i.vol,
           'productionDate': i.productionDate?.toIso8601String(),
           'isBad': i.isBad,
+          'code': i.code
         }).toList()
       }).toList();
 
@@ -164,7 +179,8 @@ class ReturnActsRepository extends BaseRepository {
     required int buyerId,
     required List<int>? goodsIds,
     required bool onlyLatest,
-    required String? barcode
+    required String? barcode,
+    required String? gtin
   }) async {
     return dataStore.returnActsDao.getBuyerGoods(
       name: name,
@@ -173,7 +189,8 @@ class ReturnActsRepository extends BaseRepository {
       buyerId: buyerId,
       goodsIds: goodsIds,
       onlyLatest: onlyLatest,
-      barcode: barcode
+      barcode: barcode,
+      gtin: gtin
     );
   }
 
@@ -197,7 +214,8 @@ class ReturnActsRepository extends BaseRepository {
     required int rel,
     required double price,
     required DateTime? productionDate,
-    required bool? isBad
+    required bool? isBad,
+    required String? code
   }) async {
     final guid = dataStore.generateGuid();
     await dataStore.returnActsDao.addReturnActLine(
@@ -209,7 +227,8 @@ class ReturnActsRepository extends BaseRepository {
         rel: rel,
         price: price,
         productionDate: Value(productionDate),
-        isBad: Value(isBad)
+        isBad: Value(isBad),
+        code: Value(code)
       )
     );
   }
@@ -246,6 +265,7 @@ class ReturnActsRepository extends BaseRepository {
     Optional<double>? price,
     Optional<DateTime?>? productionDate,
     Optional<bool?>? isBad,
+    Optional<String?>? code,
     bool restoreDeleted = true
   }) async {
     final updatedReturnActLine = ReturnActLinesCompanion(
@@ -255,6 +275,7 @@ class ReturnActsRepository extends BaseRepository {
       price: price == null ? const Value.absent() : Value(price.value),
       productionDate: productionDate == null ? const Value.absent() : Value(productionDate.orNull),
       isBad: isBad == null ? const Value.absent() : Value(isBad.orNull),
+      code: code == null ? const Value.absent() : Value(code.orNull),
       isDeleted: restoreDeleted ? const Value(false) : const Value.absent()
     );
 

@@ -7,6 +7,7 @@ class ApiGoodsReturnStock extends Equatable {
   final int receptId;
   final DateTime receptDate;
   final String receptNdoc;
+  final bool needMarking;
 
   const ApiGoodsReturnStock({
     required this.goodsId,
@@ -15,6 +16,7 @@ class ApiGoodsReturnStock extends Equatable {
     required this.receptId,
     required this.receptDate,
     required this.receptNdoc,
+    required this.needMarking,
   });
 
   factory ApiGoodsReturnStock.fromJson(dynamic json) {
@@ -24,7 +26,8 @@ class ApiGoodsReturnStock extends Equatable {
       receptSubid: json['receptSubid'],
       receptId: json['receptId'],
       receptDate: Parsing.parseDate(json['receptDate'])!,
-      receptNdoc: json['receptNdoc']
+      receptNdoc: json['receptNdoc'],
+      needMarking: json['needMarking']
     );
   }
 
@@ -38,6 +41,7 @@ class ApiGoodsReturnStock extends Equatable {
       receptId: receptId,
       receptDate: receptDate,
       receptNdoc: receptNdoc,
+      needMarking: needMarking
     );
   }
 
@@ -48,6 +52,7 @@ class ApiGoodsReturnStock extends Equatable {
     receptSubid,
     receptId,
     receptDate,
-    receptNdoc
+    receptNdoc,
+    needMarking
   ];
 }

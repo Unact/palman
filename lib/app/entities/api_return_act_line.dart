@@ -10,6 +10,7 @@ class ApiReturnActLine extends Equatable {
   final bool isBad;
   final String guid;
   final DateTime timestamp;
+  final String? code;
 
   const ApiReturnActLine({
     required this.id,
@@ -20,7 +21,8 @@ class ApiReturnActLine extends Equatable {
     required this.productionDate,
     required this.isBad,
     required this.guid,
-    required this.timestamp
+    required this.timestamp,
+    this.code
   });
 
   factory ApiReturnActLine.fromJson(dynamic json) {
@@ -34,6 +36,7 @@ class ApiReturnActLine extends Equatable {
       isBad: json['isBad'],
       guid: json['guid'],
       timestamp: Parsing.parseDate(json['timestamp'])!,
+      code: json['code'],
     );
   }
 
@@ -51,6 +54,7 @@ class ApiReturnActLine extends Equatable {
       isNew: false,
       isDeleted: false,
       timestamp: timestamp,
+      code: code,
       currentTimestamp: timestamp,
       lastSyncTime: timestamp,
       needSync: false
@@ -68,5 +72,6 @@ class ApiReturnActLine extends Equatable {
     isBad,
     guid,
     timestamp,
+    code,
   ];
 }

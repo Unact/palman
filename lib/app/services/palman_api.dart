@@ -64,6 +64,12 @@ extension PalmanApi on RenewApi {
     );
   }
 
+  Future<ApiReturnCodeInfo> checkReturnCode({required int buyerId, required String code}) async {
+    return ApiReturnCodeInfo.fromJson(
+      await get('v1/palman/return_acts/check_return_code', query: { 'buyerId': buyerId, 'code': code })
+    );
+  }
+
   Future<ApiPricesData> savePrices(Map<String, dynamic> prices) async {
     return ApiPricesData.fromJson(await post('v1/palman/prices/save', data: prices));
   }

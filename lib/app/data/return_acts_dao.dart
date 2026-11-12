@@ -217,7 +217,8 @@ class ReturnActsDao extends DatabaseAccessor<AppDataStore> with _$ReturnActsDaoM
     required int? categoryId,
     required List<int>? goodsIds,
     required bool onlyLatest,
-    required String? barcode
+    required String? barcode,
+    required String? gtin
   }) async {
     final hasReturnStock = existsQuery(
       select(goodsReturnStocks)
@@ -228,6 +229,7 @@ class ReturnActsDao extends DatabaseAccessor<AppDataStore> with _$ReturnActsDaoM
       ..where((tbl) => tbl.name.containsCase(name ?? ''))
       ..where((tbl) => tbl.extraLabel.containsCase(extraLabel ?? ''))
       ..where((tbl) => tbl.barcodes.containsCase(barcode ?? ''))
+      ..where(gtin != null ? (tbl) => tbl.gtin.equals(gtin) : (tbl) => const Constant(true))
       ..where(categoryId != null ? (tbl) => tbl.categoryId.equals(categoryId) : (tbl) => const Constant(true))
       ..where((tbl) => hasReturnStock)
       ..where(goodsIds != null ? (tbl) => tbl.id.isIn(goodsIds) : (tbl) => const Constant(true))
